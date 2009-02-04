@@ -1,0 +1,19 @@
+%ul#menu
+  %li
+    %a{:href=> @object.path.abs } Current
+  %li
+    %a{:href=>action_path(@object, :history) } History
+
+#content
+  %h1=@title
+
+  %form{:action => @object.path.abs, :method=>'post'}
+    %input{:type=>'hidden', :name=>'_method', :value=>'put'}
+    %label{:for=>'content_area'} Content
+    %textarea{:name=>'content', :cols=>120, :rows=>30, :id=>'content_area'}=h @object.content
+    %br
+    %label{:for=>'message'} Message
+    %input{:type=>'text', :name=>'message', :id=>'message', :size => 50}
+    %input{:type=>'submit', :value=>'Save'}
+    %input{:type=>'reset', :value=>'Reset'}
+    %br

@@ -1,0 +1,186 @@
+// RESET CODE
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, font, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td
+  :margin               0
+  :padding              0
+  :border               0
+  :outline              0
+  :font-size            100%
+  :font-style           normal
+  :font-weight          normal
+  :vertical-align       baseline
+  :background           transparent
+
+ol, ul
+  :list-style           none
+
+blockquote, q
+  :quotes               none
+
+*:focus
+  :outline              0
+
+ins
+  :text-decoration      none
+
+b
+  :font-weight          bold
+
+i, em
+  :font-style           italic
+
+del
+  :text-decoration      line-through
+
+table
+  :border-collapse      collapse
+  :border-spacing       0
+
+// DESIGN
+
+body
+  :color #000
+  :background #FFFFCD
+  :font-family Verdana, Arial, Helvetica, sans-serif
+  :font-size 10pt
+
+h1
+  :font-size 180%
+
+h2
+  :font-size 170%
+
+h3
+  :font-size 160%
+
+h4
+  :font-size 150%
+
+h5
+  :font-size 140%
+
+h6
+  :font-size 130%
+
+h1,h2,h3,h4,h5,h6
+  :font-family Georgia, serif
+  :margin 0.8em 0 0.8em 0
+  :color #0b3e71
+
+ul,ol,p
+  :margin 0.8em 0 0.8em 0
+
+ul
+  :list-style-type disc 
+
+ol
+  :list-style-type decimal
+
+ul, ol
+  :list-style-position outside
+  :margin-left 2em
+  ul, ol
+    :margin 0 1em 0 1em
+
+table
+  :border 1px solid #AAA
+  :background #FFF
+
+td, th
+  :padding 0.2em
+  :border 1px solid #AAA
+
+#header
+  :background #0B3E71
+  :font-family Georgia, serif
+  :font-size 200%
+  :font-variant small-caps
+  :font-weight bold
+  :color #FFFFC2
+  :padding 5px
+
+#content
+  :padding 1em
+
+#menu
+  :padding 0
+  :margin 0
+  :list-style-type none
+  :list-style-image none
+  :background #FFF
+  :height 2em
+  :border-top 1px solid #AAA
+  :border-bottom 1px solid #AAA
+  li
+    :float left
+    :padding 0
+    :margin 0
+    a
+      :border-right 1px solid #AAA
+      :height 2em
+      :display block
+      :text-decoration none
+      :white-space nowrap
+      :line-height 2em
+      :height 2em
+      :padding 0 1em
+      :color #333
+      &:hover
+        :color #FFF
+        :background #0B3E71
+
+#footer
+  :clear both
+  :margin-top 1em
+  :border-top 1px solid #AAA
+  :border-bottom 1px solid #AAA
+  :background #FFF
+  :padding 0.5em 0 0.5em 2em
+
+.sha, tt, pre, code, kbd
+  :font-family "Andale Mono", "Bitstream Vera Mono", monospace
+
+pre
+  :border 1px solid #333
+  :padding 1em 0.5em
+  :width 90%
+  :background #FFF
+  :display block
+
+.sha
+  :font-size 8pt
+
+form
+  button, label, input, select, textarea, .flash, .block
+    :display	 	block
+    :float		left
+    :margin		0.3em 0.5em
+    :padding		2px
+    :border		none
+    :background		none
+  label, strong
+    :width		8em
+    :float		left
+    :display		block
+    :white-space        nowrap
+  input, select, textarea
+    :border		1px solid #333
+    :background		#FFF
+    :color              #333
+    &:focus
+      :border-style	dotted
+  input
+    &[type=image], &[type=image]:focus, &[type=checkbox]
+      :border	   	none
+      :background  	none
+    &[type=hidden]
+      :display		none
+  br
+    :clear		left

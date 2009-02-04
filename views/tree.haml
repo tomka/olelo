@@ -1,0 +1,25 @@
+%ul#menu
+  - if @object.prev_commit
+    %li
+      %a{:href=>object_path(@object, @object.prev_commit)} &laquo; Previous
+  - if @object.next_commit
+    %li
+      %a{:href=>object_path(@object, @object.next_commit)} Next &raquo;
+  - if !@object.head?
+    %li
+      %a{:href=> @object.path.abs } Current
+  %li
+    %a{:href=>action_path(@object, :history) } History
+
+#content
+  %h1=@title
+
+  %table
+    %thead
+      %tr
+        %th Name
+    %tbody
+      - @object.contents.each do |child|
+        %tr
+          %td
+            %a{:href=>object_path(child)}=child.name

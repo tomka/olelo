@@ -1,0 +1,23 @@
+%ul#menu
+  %li
+    %a{:href=>action_path(@object, :edit) } Edit
+  %li
+    %a{:href=>action_path(@object, :history) } History
+
+#content
+  %h1=@title
+  %table
+    %thead
+      %tr
+        %th SHA
+        %th Author
+        %th Date
+        %th Message
+    %tbody
+      - @object.history.each do |commit|
+        %tr
+          %td
+            %a.sha{:href=>object_path(@object, commit)}=commit.id
+          %td=h commit.author
+          %td=h commit.authored_date.strftime('%d. %B %Y %h:%m')
+          %td=h commit.message.truncate(50)
