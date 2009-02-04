@@ -1,223 +1,416 @@
-require "rubygems"
-gem "mojombo-grit"
+#!/usr/bin/env ruby
 
-require "sinatra/base"
-require "grit"
-require "rdiscount"
+%w(
+rubygems
+sinatra_ext
+grit
+haml
+sass
+creole
+redcloth
+rdiscount
+mime/types).each { |dep| require dep }
 
-module GitWiki
-  class << self
-    attr_accessor :homepage, :extension, :repository
-  end
-
-  def self.new(repository, extension, homepage)
-    self.homepage   = homepage
-    self.extension  = extension
-    self.repository = Grit::Repo.new(repository)
-
-    App
-  end
-
-  class PageNotFound < Sinatra::NotFound
-    attr_reader :name
-
-    def initialize(name)
-      @name = name
-    end
-  end
-
-  class Page
-    def self.find_all
-      return [] if repository.tree.contents.empty?
-      repository.tree.contents.collect { |blob| new(blob) }
-    end
-
-    def self.find(name)
-      page_blob = find_blob(name)
-      raise PageNotFound.new(name) unless page_blob
-      new(page_blob)
-    end
-
-    def self.find_or_create(name)
-      find(name)
-    rescue PageNotFound
-      new(create_blob_for(name))
-    end
-
-    def self.css_class_for(name)
-      find(name)
-      "exists"
-    rescue PageNotFound
-      "unknown"
-    end
-
-    def self.repository
-      GitWiki.repository || raise
-    end
-
-    def self.extension
-      GitWiki.extension || raise
-    end
-
-    def self.find_blob(page_name)
-      repository.tree/(page_name + extension)
-    end
-    private_class_method :find_blob
-
-    def self.create_blob_for(page_name)
-      Grit::Blob.create(repository, {
-        :name => page_name + extension,
-        :data => ""
-      })
-    end
-    private_class_method :create_blob_for
-
-    def initialize(blob)
-      @blob = blob
-    end
-
-    def to_html
-      RDiscount.new(wiki_link(content)).to_html
-    end
-
-    def to_s
-      name
-    end
-
-    def new?
-      @blob.id.nil?
-    end
-
-    def name
-      @blob.name.gsub(/#{File.extname(@blob.name)}$/, '')
-    end
-
-    def content
-      @blob.data
-    end
-
-    def update_content(new_content)
-      return if new_content == content
-      File.open(file_name, "w") { |f| f << new_content }
-      add_to_index_and_commit!
-    end
-
-    private
-      def add_to_index_and_commit!
-        Dir.chdir(self.class.repository.working_dir) {
-          self.class.repository.add(@blob.name)
-        }
-        self.class.repository.commit_index(commit_message)
-      end
-
-      def file_name
-        File.join(self.class.repository.working_dir, name + self.class.extension)
-      end
-
-      def commit_message
-        new? ? "Created #{name}" : "Updated #{name}"
-      end
-
-      def wiki_link(str)
-        str.gsub(/([A-Z][a-z]+[A-Z][A-Za-z0-9]+)/) { |page|
-          %Q{<a class="#{self.class.css_class_for(page)}"} +
-            %Q{href="/#{page}">#{page}</a>}
-        }
-      end
-  end
-
-  class App < Sinatra::Base
-    set :app_file, __FILE__
-    set :haml, { :format        => :html5,
-                 :attr_wrapper  => '"'     }
-    enable :static
-    use_in_file_templates!
-
-    error PageNotFound do
-      page = request.env["sinatra.error"].name
-      redirect "/#{page}/edit"
-    end
-
-    before do
-      content_type "text/html", :charset => "utf-8"
-    end
-
-    get "/" do
-      redirect "/" + GitWiki.homepage
-    end
-
-    get "/pages" do
-      @pages = Page.find_all
-      haml :list
-    end
-
-    get "/:page/edit" do
-      @page = Page.find_or_create(params[:page])
-      haml :edit
-    end
-
-    get "/:page" do
-      @page = Page.find(params[:page])
-      haml :show
-    end
-
-    post "/:page" do
-      @page = Page.find_or_create(params[:page])
-      @page.update_content(params[:body])
-      redirect "/#{@page}"
-    end
-
-    private
-      def title(title=nil)
-        @title = title.to_s unless title.nil?
-        @title
-      end
-
-      def list_item(page)
-        %Q{<a class="page_name" href="/#{page}">#{page.name}</a>}
-      end
+class Symbol
+  def to_proc
+    proc { |obj, *args| obj.send(self, *args) }
   end
 end
 
-__END__
-@@ layout
-!!!
-%html
-  %head
-    %title= title
-  %body
-    %ul
-      %li
-        %a{ :href => "/#{GitWiki.homepage}" } Home
-      %li
-        %a{ :href => "/pages" } All pages
-    #content= yield
+class String
+  def cleanpath
+    return self if self == '/'
+    names = split('/')
+    i = 0
+    while i < names.length
+      case names[i]
+      when '..'
+        names.delete_at(i)
+        if i>0
+          names.delete_at(i-1)
+          i-=1
+        end
+      when '.'
+        names.delete_at(i)
+      when ''
+        names.delete_at(i)
+      else
+        i+=1
+      end
+    end
+    names.join('/')
+  end
 
-@@ show
-- title @page.name
-#edit
-  %a{:href => "/#{@page}/edit"} Edit this page
-%h1= title
-#content
-  ~"#{@page.to_html}"
+  def abspath
+    return self if self == '/'
+    '/' + cleanpath
+  end
 
-@@ edit
-- title "Editing #{@page.name}"
-%h1= title
-%form{:method => 'POST', :action => "/#{@page}"}
-  %p
-    %textarea{:name => 'body', :rows => 30, :style => "width: 100%"}= @page.content
-  %p
-    %input.submit{:type => :submit, :value => "Save as the newest version"}
-    or
-    %a.cancel{:href=>"/#{@page}"} cancel
+  def html_escape
+    gsub(/&/, "&amp;").gsub(/\"/, "&quot;").gsub(/>/, "&gt;").gsub(/</, "&lt;")
+  end
 
-@@ list
-- title "Listing pages"
-%h1 All pages
-- if @pages.empty?
-  %p No pages found.
-- else
-  %ul#list
-    - @pages.each do |page|
-      %li= list_item(page)
+  def truncate(max, omission = '...')
+    (length > max ? self[0...max-3] + omission : self)
+  end
+
+  def /(name)
+    (self + '/' + name).cleanpath
+  end
+end
+
+module Wiki
+
+  class NotFound < Sinatra::NotFound
+    attr_reader :path
+    
+    def initialize(path)
+      @path = path
+    end
+  end
+
+  class FormatNotSupported < Exception
+    attr_reader :format
+    
+    def initialize(format)
+      @format = format
+    end
+  end
+
+  class UnknownObject < Exception
+    attr_reader :path
+    
+    def initialize(path)
+      @path = path
+    end
+  end  
+
+  class Object
+    attr_reader :repo, :path, :commit, :object
+
+    def self.find(repo, path, id = nil)
+      path = path.cleanpath
+      id ||= repo.head.commit
+      commit = repo.commit(id)
+      object = commit.tree/path
+      raise NotFound.new(path) if !object
+      create(repo, path, commit, object) || raise(UnknownObject.new(path))
+    end
+
+    def head?
+      @repo.head.commit == @commit.id
+    end
+
+    def history
+      @history ||= @repo.log(@repo.head.name, path)
+    end
+
+    def prev_commit
+      history.each { |commit|
+        return commit if commit.committed_date < @commit.committed_date
+      }
+      nil
+    end
+
+    def next_commit
+      history.each_index { |i|
+        return (i == 0 ? nil : history[i - 1]) if history[i].committed_date <= @commit.committed_date
+      }
+      history.last
+    end
+      
+    def page?; self.class == Page; end
+    def tree?; self.class == Tree; end
+
+    def name
+      return $1 if path =~ /\/([^\/]+)$/
+      path
+    end
+
+    def extension
+      path =~ /\.([^\/]+)$/
+      $1
+    end
+
+    private
+
+    def self.create(repo, path, commit, object)
+      return Page.new(repo, path, commit, object) if object.is_a? Grit::Blob
+      return Tree.new(repo, path, commit, object) if object.is_a? Grit::Tree
+      nil
+    end
+
+    def initialize(repo, path, commit, object)
+      @repo = repo
+      @path = path
+      @commit = commit
+      @object = object
+    end
+
+    class Page < Object
+      def content
+        @object.data
+      end
+      
+      def update(new_content, message)
+        return if new_content == content
+        Dir.chdir(repo.working_dir) {
+          File.open(path, 'w') {|f| f << new_content }
+          repo.add(path)
+          repo.commit_index(message)
+        }
+      end
+    end
+    
+    class Tree < Object
+      def contents
+        @object.contents.map {|object| Object.create(repo, path/object.name, commit, object) }.compact
+      end
+    end
+
+  end
+
+  class App < Sinatra::Base
+    pattern :path, /.+/
+    pattern :id,   /[A-Fa-f0-9]{40}/
+    set :haml, { :format => :xhtml, :attr_wrapper  => '"' }
+    set :methodoverride, true
+
+    DEFAULT_FORMATS = [:html, :raw]
+
+    ENGINES =
+      [
+       {
+         :format  => :css,
+         :accepts => proc {|page| page.path =~ /\.sass$/ },
+         :output  => proc {|page| Sass::Engine.new(page.content).render },
+         :mime    => proc {|page| 'text/css' },
+         :layout  => false,
+       },
+       {
+         :format  => :html,
+         :accepts => proc {|page| page.path =~ /\.text$/ },
+         :output  => proc {|page| Creole.creolize(page.content) },
+         :layout  => true,
+       },
+       {
+         :format  => :html,
+         :accepts => proc {|page| page.path =~ /\.markdown$/ },
+         :output  => proc {|page| RDiscount.new(page.content).to_html },
+         :layout  => true,
+       },
+       {
+         :format  => :html,
+         :accepts => proc {|page| page.path =~ /\.textile$/ },
+         :output  => proc {|page| RedCloth.new(page.content).to_html },
+         :layout  => true,
+       },
+       {
+         :format  => :html,
+         :accepts => proc {|page| types = MIME::Types.of(page.path); types.empty? ? true : types.first.ascii? },
+         :output  => proc {|page| '<pre>' + page.content.html_escape + '</pre>' },
+         :mime    => proc {|page| MIME::Types.of(page.path).first.to_s },
+         :layout  => true,
+       },
+       {
+         :format  => :raw,
+         :accepts => proc {|page| true },
+         :output  => proc {|page| page.content },
+         :mime    => proc {|page| types = MIME::Types.of(page.path); types.empty? ? 'text/plain' : types.first.to_s },
+         :layout  => false,
+       },
+      ]
+
+    def initialize
+      base = File.join(File.dirname(__FILE__), 'repository')
+      @repo = Grit::Repo.new(base)
+    end
+
+    def object_path(object, commit = nil)
+      path = object.path
+      commit ||= object.commit
+      path = path/commit.id if commit.id != @repo.head.commit
+      path.abspath
+    end
+
+    def action_path(object, action)
+      (object.path/action.to_s).abspath
+    end
+
+    def find_engine_for_format(page, format)
+      ENGINES.select { |e| e[:format] == format.to_sym }.each { |e|  return e if e[:accepts].call(page) }
+      nil
+    end
+
+    def find_engine(page, format)
+      if format
+        engine = find_engine_for_format(page, format)
+        return engine if engine
+      else
+        DEFAULT_FORMATS.each { |format|
+          engine = find_engine_for_format(page, format)
+          return engine if engine
+        }
+      end
+      raise FormatNotSupported.new(format)
+    end
+
+    def find(path, id = nil)
+      Object.find(@repo, path, id)
+    end
+
+    def show
+      @object = find(params[:path], params[:id])
+      @title = @object.path
+      if @object.tree?
+        haml :tree
+      else
+        engine = find_engine(@object, params[:format])
+        @content = engine[:output].call(@object)
+        if engine[:layout]
+          haml :page
+        else
+          content_type engine[:mime].call(@object)
+          @content
+        end
+      end
+    end
+    
+    before do
+      content_type 'application/xhtml+xml', :charset => 'utf-8'
+    end
+
+    get '/' do
+      params[:path] = '/'
+      show
+    end
+
+    get '/style.css' do
+      content_type 'text/css', :charset => 'utf-8'
+      # FIXME: Should be wiki editable
+      sass :style
+    end
+
+    get '/:path/:id' do
+      show
+    end
+
+    get '/:path/history' do
+      @object = find(params[:path])      
+      @title = "History of #{@object.path}"
+      haml :history
+    end
+
+    get '/:path/edit' do
+      @object = find(params[:path])
+      if @object.page?
+        @title = "Edit #{@object.path}"
+        haml :edit
+      else
+        show
+      end
+    end
+
+    get '/:path' do
+      show
+    end
+
+    put '/:path' do
+      @object = find(params[:path])
+      if @object.page?
+        @object.update(params[:content], params[:message])
+        show
+      else
+        show
+      end      
+    end
+
+#     get '/search' do
+#       'search<br>' + params.inspect
+#     end
+    
+#     get '/tarball' do
+#       'tarball<br>' + params.inspect
+#     end
+    
+#     get '/branches' do
+#       'branches<br>' + params.inspect
+#     end
+    
+#     get '/branch/new' do
+#       'new branch<br>' + params.inspect
+#     end
+    
+#     get '/branch/:branch' do
+#       'branch<br>' + params.inspect
+#     end
+    
+#     get '/branch/:branch/revert' do
+#       'revert branch<br>' + params.inspect
+#     end
+    
+#     get '/branch/:branch/merge' do
+#       'merge branch<br>' + params.inspect
+#     end
+    
+#     get '/branch/:branch/delete' do
+#     'delete branch<br>' + params.inspect
+#     end
+
+#     get '/:path/list' do
+#       'list<br>' + params.inspect
+#     end
+
+#     get '/:path/edit' do
+#       'edit<br>' + params.inspect
+#     end
+   
+#     get '/:path/new' do
+#       'new<br>' + params.inspect
+#     end
+
+#     get '/:path/append' do
+#       'append<br>' + params.inspect
+#     end
+
+#     get '/:path/history' do
+#       'history<br>' + params.inspect
+#     end
+
+#     get '/:path/:rev/diff' do
+#       'diff<br>' + params.inspect
+#     end
+
+#     post '/:path/append' do
+#       'post append<br>' + params.inspect    
+#     end
+
+#     get '/:path/:rev' do
+#       'show rev<br>' + params.inspect
+#     end
+
+#     get '/:path' do
+#       #puts 'show<br>' + params.inspect
+      
+#     @path = get_path
+#      
+#      if @path.exists?
+#        if @path.directory?
+#          redirect "/#{@path}/list"
+#        else
+#          haml :show
+#        end
+#      else
+#        redirect "/#{@path}/edit"
+#      end
+#     end
+    
+#     put '/:path' do
+#       'put<br>' + params.inspect    
+#     end
+    
+#     post '/:path' do
+#       'post<br>' + params.inspect    
+#     end
+  end
+end
