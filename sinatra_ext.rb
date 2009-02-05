@@ -28,8 +28,8 @@ class Sinatra::Base
   %w(get put post delete head).each do |method|
     instance_eval %Q{
       alias old_#{method} #{method}
-      def #{method}(paths, opts = {}, &block)
-        paths = [paths] if !paths.is_a?(Array)
+      def #{method}(*paths, &block)
+        opts = paths.last.is_a?(Hash) ? paths.pop : {}
         paths.each do |path|
           path, keys = replace_regex(path, opts)
           old_#{method}(path, opts) do

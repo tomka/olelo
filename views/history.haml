@@ -1,5 +1,7 @@
 %ul#menu
   %li
+    %a{:href=> @object.path.abspath } Current
+  %li
     %a{:href=>action_path(@object, :edit) } Edit
   %li
     %a{:href=>action_path(@object, :history) } History
@@ -17,7 +19,7 @@
       - @object.history.each do |commit|
         %tr
           %td
-            %a.sha{:href=>object_path(@object, commit)}=commit.id
-          %td=h commit.author
-          %td=h commit.authored_date.strftime('%d. %h %Y %H:%M')
+            %a.sha{:href=>object_path(@object, commit)}=commit.sha
+          %td=h commit.author.name
+          %td=h commit.author_date.strftime('%d. %h %Y %H:%M')
           %td=h commit.message.truncate(50)

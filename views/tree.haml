@@ -24,7 +24,7 @@
           %a{:href=> (@object.path/'..').abspath }
             %img{:src => '/public/folder.png'}
             \..
-      - @object.contents.each do |child|
+      - @object.children.each do |child|
         %tr
           %td
             %a{:href=>object_path(child)}

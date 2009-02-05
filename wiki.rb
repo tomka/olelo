@@ -1,15 +1,15 @@
 %w(
 rubygems
 sinatra_ext
-grit
+git
 haml
 sass
 creole
 redcloth
 rdiscount
-mime/types).each { |dep| require dep }
-
-#Grit.debug = true
+rubypants
+mime/types
+logger).each { |dep| require dep }
 
 class Symbol
   def to_proc
@@ -19,8 +19,13 @@ end
 
 class String
 
+  def tail(max)
+    i = length-max
+    i = 0 if i < 0
+    self[i..-1]
+  end
+
   def cleanpath
-    return self if self == '/'
     names = split('/')
     i = 0
     while i < names.length
@@ -43,7 +48,6 @@ class String
   end
 
   def abspath
-    return self if self == '/'
     '/' + cleanpath
   end
 
@@ -89,35 +93,31 @@ module Wiki
   class Object
     attr_reader :repo, :path, :commit, :object
 
-    def self.find(repo, path, id = nil)
+    def self.find(repo, path, sha = nil)
+      commit = sha ? repo.gcommit(sha) : repo.log(1).first
       path = path.cleanpath
-      id ||= repo.head.commit
-      commit = repo.commit(id)
-      object = commit.tree/path
-      raise NotFound.new(path) if !object
+      object = Object.find_in_repo(repo, path, commit)
       create(repo, path, commit, object) || raise(UnknownObject.new(path))
     end
-
+    
     def head?
-      @repo.head.commit == @commit.id
+      @repo.log(1).first.sha == @commit.sha
     end
 
     def history
-      @history ||= @repo.log(@repo.head.name, path)
+      @history ||= @repo.log.path(path).to_a
     end
 
     def prev_commit
-      history.each { |commit|
-        return commit if commit.committed_date < @commit.committed_date
-      }
-      nil
+      @prev_commit ||= @repo.log(2).object(@commit.sha).path(@path).to_a[1]
     end
 
     def next_commit
-      history.each_index { |i|
-        return (i == 0 ? nil : history[i - 1]) if history[i].committed_date <= @commit.committed_date
+      h = history
+      h.each_index { |i|
+        return (i == 0 ? nil : h[i - 1]) if h[i].committer_date <= @commit.committer_date
       }
-      history.last
+      h.last
     end
       
     def page?; self.class == Page; end
@@ -137,58 +137,70 @@ module Wiki
       $1
     end
 
-    private
-
-    def self.create(repo, path, commit, object)
-      return Page.new(repo, path, commit, object) if object.is_a? Grit::Blob
-      return Tree.new(repo, path, commit, object) if object.is_a? Grit::Tree
-      nil
-    end
-
-    def initialize(repo, path, commit, object)
+    def initialize(repo, path, commit = nil, object = nil)
       @repo = repo
       @path = path
       @commit = commit
       @object = object
     end
 
+    private
+
+    def self.create(repo, path, commit, object)
+      return Page.new(repo, path, commit, object) if object.blob?
+      return Tree.new(repo, path, commit, object) if object.tree?
+      nil
+    end
+
+    def self.find_in_repo(repo, path, commit)
+      object = if path.empty?
+        commit.gtree
+      elsif path =~ /\//
+        path.split('/').inject(commit.gtree) { |t, x| t.children[x] } rescue nil
+      else
+        commit.gtree.children[path]
+      end
+      raise NotFound.new(path) if !object
+      object
+    end
+
   end
 
   class Page < Object
-    def self.create(repo, path)
-      super(repo, path, nil, Grit::Blob.create(repo, {:name=>path}))
-    end
-
     def content
-      @object.data
+      @object ? @object.contents : nil
     end
     
     def update(new_content, message)
       return if new_content == content
-      Dir.chdir(repo.working_dir) {
-        FileUtils.makedirs File.dirname(path)
-        File.open(path, 'w') {|f| f << new_content }
-        repo.add(path)
-        repo.commit_index(message)
+      repo.chdir {
+        FileUtils.makedirs File.dirname(@path)
+        File.open(@path, 'w') {|f| f << new_content }
       }
-      @commit = repo.commit(repo.head.commit)
-      @object = repo.tree/(path)
+      repo.add(@path)
+      repo.commit(!message || message.empty? ? '(Empty commit message)' : message)
+      @commit = repo.log(1).first
+      @object = Object.find_in_repo(@repo, @path, @commit)
     end
   end
   
   class Tree < Object
-    def contents
-      @object.contents.map {|object| Object.create(repo, path/object.name, commit, object) }.compact
+    def children
+      @object.children.to_a.map {|x| Object.new(repo, path/x[0], commit, x[1]) }.compact
     end
   end
 
-  class App < Sinatra::Default
+  class App < Sinatra::Base
     pattern :path, /.+/
-    pattern :id,   /[A-Fa-f0-9]{40}/
+    pattern :sha,   /[A-Fa-f0-9]{40}/
+    
+    # FIXME DOES NOT WORK
     set :haml, { :format => :xhtml, :attr_wrapper  => '"' }
     set :methodoverride, true
     set :static, true
     set :app_file, 'wiki.rb'
+    set :raise_errors, false
+    set :dump_errors, true
 
     DEFAULT_FORMATS = [:html, :raw]
 
@@ -204,19 +216,19 @@ module Wiki
        {
          :format  => :html,
          :accepts => proc {|page| page.path =~ /\.text$/ },
-         :output  => proc {|page| Creole.creolize(page.content) },
+         :output  => proc {|page| RubyPants.new(Creole.creolize(page.content)).to_html },
          :layout  => true,
        },
        {
          :format  => :html,
          :accepts => proc {|page| page.path =~ /\.markdown$/ },
-         :output  => proc {|page| RDiscount.new(page.content).to_html },
+         :output  => proc {|page| RubyPants.new(RDiscount.new(page.content).to_html).to_html },
          :layout  => true,
        },
        {
          :format  => :html,
          :accepts => proc {|page| page.path =~ /\.textile$/ },
-         :output  => proc {|page| RedCloth.new(page.content).to_html },
+         :output  => proc {|page| RubyPants.new(RedCloth.new(page.content).to_html).to_html },
          :layout  => true,
        },
        {
@@ -235,14 +247,22 @@ module Wiki
        },
       ]
 
-    def initialize(base = REPOSITORY_BASE)
-      @repo = Grit::Repo.new(base)
+    def initialize
+      @log = Logger.new(STDOUT)
+      @log.level = Logger::WARN
+      if File.exists?(App.repository)
+        @repo = Git.open(App.repository, :log => @log)
+      else
+        @repo = Git.init(App.repository, :log => @log)
+        page = Page.new(@repo, '.init')
+        page.update('.init', 'Initialize Repository')
+      end
     end
 
     def object_path(object, commit = nil)
       path = object.path
       commit ||= object.commit
-      path = path/commit.id if commit.id != @repo.head.commit
+      path = path/commit.sha if commit.sha != @repo.log(1).first.sha
       path.abspath
     end
 
@@ -251,8 +271,7 @@ module Wiki
     end
 
     def find_engine_for_format(page, format)
-      ENGINES.select { |e| e[:format] == format.to_sym }.each { |e|  return e if e[:accepts].call(page) }
-      nil
+      ENGINES.find { |e| e[:format] == format.to_sym && e[:accepts].call(page) }
     end
 
     def find_engine(page, format)
@@ -269,7 +288,7 @@ module Wiki
     end
 
     def show
-      @object ||= Object.find(@repo, params[:path], params[:id])
+      @object ||= Object.find(@repo, params[:path], params[:sha])
       @title = @object.name_wo_ext
       if @object.tree?
         haml :tree
@@ -310,11 +329,6 @@ module Wiki
       haml :error
     end
 
-    get '/' do
-      params[:path] = '/'
-      show
-    end
-
     get '/style.css' do
       content_type 'text/css', :charset => 'utf-8'
       # FIXME: Should be wiki editable
@@ -324,14 +338,17 @@ module Wiki
     get '/tarball' do
       content_type 'application/x-gzip'
       attachment 'archive.tar.gz'
-      @repo.archive_tar_gz('master', 'wiki/')
+      archive = @repo.archive('HEAD', nil, :format => 'tgz', :prefix => 'wiki/')
+      File.open(archive).read
     end
 
-    get '/:path/:id' do
+    get '/:sha', '/:path/:sha' do
+      params[:path] ||= ''
       show
     end
 
-    get '/:path/history' do
+    get '/history', '/:path/history' do
+      params[:path] ||= ''
       @object = Object.find(@repo, params[:path])      
       @title = "History of #{@object.name_wo_ext}"
       haml :history
@@ -351,14 +368,14 @@ module Wiki
       haml :new
     end
 
-    get '/:path' do
+    get '/', '/:path' do
+      params[:path] ||= ''
       show
     end
 
     put '/:path' do
       @object = Object.find(@repo, params[:path])
       if @object.page?
-        puts params.inspect
         params[:content] = @object.content + "\n" + params[:content] if params[:append] == '1'
         @object.update(params[:content], params[:message])
       end
@@ -366,8 +383,7 @@ module Wiki
     end
 
     post '/:path' do
-      puts env.inspect
-      @object = Page.create(@repo, params[:path])
+      @object = Page.new(@repo, params[:path])
       @object.update(params[:content], params[:message])
       show
     end
