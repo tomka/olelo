@@ -186,7 +186,7 @@ module Wiki
   
   class Tree < Object
     def children
-      @object.children.to_a.map {|x| Object.new(repo, path/x[0], commit, x[1]) }.compact
+      @object.children.to_a.map {|x| Object.create(repo, path/x[0], commit, x[1]) }.compact
     end
   end
 
@@ -212,6 +212,15 @@ module Wiki
          :output  => proc {|page| Sass::Engine.new(page.content).render },
          :mime    => proc {|page| 'text/css' },
          :layout  => false,
+       },
+       {
+         :format  => :html,
+         :accepts => proc {|page| page.path =~ /\.rb$/ },
+         :output  => proc {|page| 
+           File.open('/tmp/pygmentize.input', 'w') {|f| f << page.content }
+           `pygmentize -f html -l ruby /tmp/pygmentize.input`
+         },
+         :layout  => true,
        },
        {
          :format  => :html,

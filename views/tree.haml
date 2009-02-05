@@ -28,5 +28,5 @@
         %tr
           %td
             %a{:href=>object_path(child)}
-              %img{:src => child.page? ? '/public/page.png' : '/public/folder.png'}
+              %img{:src => (child.page? ? '/images/page.png' : '/images/folder.png')}
               =child.name
