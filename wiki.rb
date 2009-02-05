@@ -1,5 +1,3 @@
-#!/usr/bin/env ruby
-
 %w(
 rubygems
 sinatra_ext
@@ -11,6 +9,8 @@ redcloth
 rdiscount
 mime/types).each { |dep| require dep }
 
+#Grit.debug = true
+
 class Symbol
   def to_proc
     proc { |obj, *args| obj.send(self, *args) }
@@ -18,6 +18,7 @@ class Symbol
 end
 
 class String
+
   def cleanpath
     return self if self == '/'
     names = split('/')
@@ -83,7 +84,7 @@ module Wiki
     def initialize(path)
       @path = path
     end
-  end  
+  end
 
   class Object
     attr_reader :repo, :path, :commit, :object
@@ -127,6 +128,10 @@ module Wiki
       path
     end
 
+    def name_wo_ext
+      name.gsub(/\.([^\/]+)$/, '')
+    end
+
     def extension
       path =~ /\.([^\/]+)$/
       $1
@@ -147,34 +152,43 @@ module Wiki
       @object = object
     end
 
-    class Page < Object
-      def content
-        @object.data
-      end
-      
-      def update(new_content, message)
-        return if new_content == content
-        Dir.chdir(repo.working_dir) {
-          File.open(path, 'w') {|f| f << new_content }
-          repo.add(path)
-          repo.commit_index(message)
-        }
-      end
-    end
-    
-    class Tree < Object
-      def contents
-        @object.contents.map {|object| Object.create(repo, path/object.name, commit, object) }.compact
-      end
-    end
-
   end
 
-  class App < Sinatra::Base
+  class Page < Object
+    def self.create(repo, path)
+      super(repo, path, nil, Grit::Blob.create(repo, {:name=>path}))
+    end
+
+    def content
+      @object.data
+    end
+    
+    def update(new_content, message)
+      return if new_content == content
+      Dir.chdir(repo.working_dir) {
+        FileUtils.makedirs File.dirname(path)
+        File.open(path, 'w') {|f| f << new_content }
+        repo.add(path)
+        repo.commit_index(message)
+      }
+      @commit = repo.commit(repo.head.commit)
+      @object = repo.tree/(path)
+    end
+  end
+  
+  class Tree < Object
+    def contents
+      @object.contents.map {|object| Object.create(repo, path/object.name, commit, object) }.compact
+    end
+  end
+
+  class App < Sinatra::Default
     pattern :path, /.+/
     pattern :id,   /[A-Fa-f0-9]{40}/
     set :haml, { :format => :xhtml, :attr_wrapper  => '"' }
     set :methodoverride, true
+    set :static, true
+    set :app_file, 'wiki.rb'
 
     DEFAULT_FORMATS = [:html, :raw]
 
@@ -221,8 +235,7 @@ module Wiki
        },
       ]
 
-    def initialize
-      base = File.join(File.dirname(__FILE__), 'repository')
+    def initialize(base = REPOSITORY_BASE)
       @repo = Grit::Repo.new(base)
     end
 
@@ -255,13 +268,9 @@ module Wiki
       raise FormatNotSupported.new(format)
     end
 
-    def find(path, id = nil)
-      Object.find(@repo, path, id)
-    end
-
     def show
-      @object = find(params[:path], params[:id])
-      @title = @object.path
+      @object ||= Object.find(@repo, params[:path], params[:id])
+      @title = @object.name_wo_ext
       if @object.tree?
         haml :tree
       else
@@ -275,9 +284,30 @@ module Wiki
         end
       end
     end
-    
+
+    def edit(append = false)
+      @object = Object.find(@repo, params[:path])
+      if @object.page?
+        @title = (append ? 'Append to ' : 'Edit ') + @object.name_wo_ext
+        haml :edit, :locals => { :append => append }
+      else
+        show
+      end
+    end
+
     before do
       content_type 'application/xhtml+xml', :charset => 'utf-8'
+    end
+
+    not_found do
+      redirect((params[:path]/'new').abspath) if params[:path]
+      @error = request.env['sinatra.error']
+      haml :error
+    end
+
+    error do
+      @error = request.env['sinatra.error']
+      haml :error
     end
 
     get '/' do
@@ -290,25 +320,35 @@ module Wiki
       # FIXME: Should be wiki editable
       sass :style
     end
+    
+    get '/tarball' do
+      content_type 'application/x-gzip'
+      attachment 'archive.tar.gz'
+      @repo.archive_tar_gz('master', 'wiki/')
+    end
 
     get '/:path/:id' do
       show
     end
 
     get '/:path/history' do
-      @object = find(params[:path])      
-      @title = "History of #{@object.path}"
+      @object = Object.find(@repo, params[:path])      
+      @title = "History of #{@object.name_wo_ext}"
       haml :history
     end
 
     get '/:path/edit' do
-      @object = find(params[:path])
-      if @object.page?
-        @title = "Edit #{@object.path}"
-        haml :edit
-      else
-        show
-      end
+      edit
+    end
+
+    get '/:path/append' do
+      edit(true)
+    end
+
+    get '/:path/new' do
+      @path = params[:path]
+      @title = "New #{@path}"
+      haml :new
     end
 
     get '/:path' do
@@ -316,21 +356,24 @@ module Wiki
     end
 
     put '/:path' do
-      @object = find(params[:path])
+      @object = Object.find(@repo, params[:path])
       if @object.page?
+        puts params.inspect
+        params[:content] = @object.content + "\n" + params[:content] if params[:append] == '1'
         @object.update(params[:content], params[:message])
-        show
-      else
-        show
-      end      
+      end
+      show
+    end
+
+    post '/:path' do
+      puts env.inspect
+      @object = Page.create(@repo, params[:path])
+      @object.update(params[:content], params[:message])
+      show
     end
 
 #     get '/search' do
 #       'search<br>' + params.inspect
-#     end
-    
-#     get '/tarball' do
-#       'tarball<br>' + params.inspect
 #     end
     
 #     get '/branches' do
@@ -357,60 +400,8 @@ module Wiki
 #     'delete branch<br>' + params.inspect
 #     end
 
-#     get '/:path/list' do
-#       'list<br>' + params.inspect
-#     end
-
-#     get '/:path/edit' do
-#       'edit<br>' + params.inspect
-#     end
-   
-#     get '/:path/new' do
-#       'new<br>' + params.inspect
-#     end
-
-#     get '/:path/append' do
-#       'append<br>' + params.inspect
-#     end
-
-#     get '/:path/history' do
-#       'history<br>' + params.inspect
-#     end
-
 #     get '/:path/:rev/diff' do
 #       'diff<br>' + params.inspect
-#     end
-
-#     post '/:path/append' do
-#       'post append<br>' + params.inspect    
-#     end
-
-#     get '/:path/:rev' do
-#       'show rev<br>' + params.inspect
-#     end
-
-#     get '/:path' do
-#       #puts 'show<br>' + params.inspect
-      
-#     @path = get_path
-#      
-#      if @path.exists?
-#        if @path.directory?
-#          redirect "/#{@path}/list"
-#        else
-#          haml :show
-#        end
-#      else
-#        redirect "/#{@path}/edit"
-#      end
-#     end
-    
-#     put '/:path' do
-#       'put<br>' + params.inspect    
-#     end
-    
-#     post '/:path' do
-#       'post<br>' + params.inspect    
 #     end
   end
 end

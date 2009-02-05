@@ -19,5 +19,5 @@
           %td
             %a.sha{:href=>object_path(@object, commit)}=commit.id
           %td=h commit.author
-          %td=h commit.authored_date.strftime('%d. %B %Y %h:%m')
+          %td=h commit.authored_date.strftime('%d. %h %Y %H:%M')
           %td=h commit.message.truncate(50)
