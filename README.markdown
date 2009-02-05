@@ -1,4 +1,4 @@
-WARNING: This is an fork of the original git-wiki at http://github.com/sr/git-wiki. It is not yet usable.
+WARNING: This is an fork of the original git-wiki by [SR]: http://github.com/sr/git-wiki. It is not yet usable.
 
 git-wiki: because who needs cool names when you use git?
 ========================================================
