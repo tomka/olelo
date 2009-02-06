@@ -95,6 +95,8 @@ table
   td, th
     :padding 0.2em 0.5em
     :border 1px solid #AAA
+  th
+    :font-variant small-caps
   &.highlighttable
     :border none
     :background transparent
@@ -126,31 +128,38 @@ a:hover, a:active
   :padding 1em
 
 #menu
-  :padding 0
-  :margin 0
-  :list-style-type none
-  :list-style-image none
   :background #FFF
-  :height 2em
+  :height 1.7em
   :border-top 1px solid #AAA
   :border-bottom 1px solid #AAA
-  li
-    :float left
+  ul
+    :display block
     :padding 0
     :margin 0
-    a
+    :height 1.7em
+    :list-style-type none
+    :list-style-image none
+    &.wiki
+      :float right
+    li
+      :float left
+      :padding 0
+      :margin 0
+      :height 1.7em
+      :line-height 1.7em
       :border-right 1px solid #AAA
-      :height 2em
-      :display block
-      :text-decoration none
-      :white-space nowrap
-      :line-height 2em
-      :height 2em
-      :padding 0 1em
       :color #333
-      &:hover
-        :color #FFF
-        :background #0B3E71
+      &.empty
+        :padding 0 1em
+      a
+        :display block
+        :text-decoration none
+        :white-space nowrap
+        :padding 0 1em
+        :color #333
+        &:hover
+          :color #FFF
+          :background #0B3E71
 
 #footer
   :clear both
@@ -158,13 +167,15 @@ a:hover, a:active
   :border-top 1px solid #AAA
   :border-bottom 1px solid #AAA
   :background #FFF
-  :padding 0.5em 0 0.5em 2em
+  :padding 0 2em
+  :height 1.7em
+  :line-height 1.7em
 
 .sha, tt, pre, code, kbd
   :font-family "Andale Mono", "Bitstream Vera Mono", monospace
 
 pre
-  :border 1px solid #333
+  :border 1px solid #AAA
   :padding 1em 0.5em
   :min-width 70%
   :background #FFF
@@ -187,7 +198,7 @@ form
     :display		block
     :white-space        nowrap
   input, select, textarea, pre
-    :border		1px solid #333
+    :border		1px solid #AAA
     :background		#FFF
     :color              #333
     &:focus

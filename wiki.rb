@@ -143,7 +143,7 @@ module Wiki
     end
     
     def head?
-      @repo.log(1).first.sha == @commit.sha
+      next_commit.nil?
     end
 
     def history
@@ -170,13 +170,8 @@ module Wiki
       path
     end
 
-    def name_wo_ext
-      name.gsub(/\.([^\/]+)$/, '')
-    end
-
-    def extension
-      path =~ /\.([^\/]+)$/
-      $1
+    def diff(to)
+      @repo.diff(@commit.sha, to).path(path)
     end
 
     def initialize(repo, path, commit = nil, object = nil)
@@ -213,22 +208,38 @@ module Wiki
       @object ? @object.contents : nil
     end
     
-    def update(new_content, message)
+    # TODO: Author not used
+    def update(new_content, message, author = nil)
       return if new_content == content
+      message ||= ''
+      message.gsub!("'", "'\\\\''") # TODO: ruby-git bug
       repo.chdir {
         FileUtils.makedirs File.dirname(@path)
         File.open(@path, 'w') {|f| f << new_content }
       }
       repo.add(@path)
-      repo.commit(!message || message.empty? ? '(Empty commit message)' : message)
+      repo.commit(message.empty? ? '(Empty commit message)' : message)
       @commit = repo.log(1).first
       @object = Object.find_in_repo(@repo, @path, @commit)
+    end
+
+    def extension
+      path =~ /\.([^\/]+)$/
+      $1
+    end
+
+    def pretty_name
+      name.gsub(/\.([^\/]+)$/, '')
     end
   end
   
   class Tree < Object
     def children
       @object.children.to_a.map {|x| Object.create(repo, path/x[0], commit, x[1]) }.compact
+    end
+
+    def pretty_name
+      '&radic;&macr;&macr;'/path
     end
   end
 
@@ -242,8 +253,7 @@ module Wiki
     set :app_file, 'wiki.rb'
     set :raise_errors, false
     set :dump_errors, true
-
-    DEFAULT_FORMATS = [:html, :raw]
+    use_in_file_templates!
 
     class Engine
       attr_reader :name
@@ -296,7 +306,7 @@ module Wiki
            output  {|page| RubyPants.new(RedCloth.new(page.content).to_html).to_html }
          },
          Engine.create(:html, true) {
-           accepts {|page| types = MIME::Types.of(page.path); types.empty? ? true : types.first.ascii? }
+           accepts {|page| types = MIME::Types.of(page.path); types.empty? ? false : types.first.ascii? }
            output  {|page| '<pre>' + page.content.html_escape + '</pre>' }
            mime    {|page| MIME::Types.of(page.path).first.to_s }
          },
@@ -307,23 +317,27 @@ module Wiki
          }
         ]
     end
-    
+
+    def menu(*enabled)
+      haml :menu, :layout => false, :locals => { :enabled => enabled }
+    end
+
     def initialize
-      @log = Logger.new(STDOUT)
-      @log.level = Logger::WARN
+      @logger = App.logger
       if File.exists?(App.repository)
-        @repo = Git.open(App.repository, :log => @log)
+        @repo = Git.open(App.repository, :log => @logger)
       else
-        @repo = Git.init(App.repository, :log => @log)
+        @repo = Git.init(App.repository, :log => @logger)
         page = Page.new(@repo, '.init')
         page.update('.init', 'Initialize Repository')
       end
     end
 
     def object_path(object, commit = nil)
-      path = object.path
       commit ||= object.commit
-      path = path/commit.sha if commit.sha != @repo.log(1).first.sha
+      sha = commit.is_a?(String) ? commit : commit.sha
+      path = object.path
+      path = path/sha if object.history.first.sha != sha
       path.abspath
     end
 
@@ -333,7 +347,7 @@ module Wiki
 
     def show
       @object ||= Object.find(@repo, params[:path], params[:sha])
-      @title = @object.name_wo_ext
+      @title = @object.pretty_name
       if @object.tree?
         haml :tree
       else
@@ -351,7 +365,7 @@ module Wiki
     def edit(append = false)
       @object = Object.find(@repo, params[:path])
       if @object.page?
-        @title = (append ? 'Append to ' : 'Edit ') + @object.name_wo_ext
+        @title = (append ? 'Append to ' : 'Edit ') + @object.pretty_name
         haml :edit, :locals => { :append => append }
       else
         show
@@ -386,13 +400,6 @@ module Wiki
       File.open(archive).read
     end
 
-    get '/diff' do
-      diff = @repo.diff(params[:from], params[:to])
-      @title = "Diff between #{params[:from]} and #{params[:to]}"
-      @diff = Highlighter.text(diff.patch, 'diff')
-      haml :diff
-    end
-
     get '/:sha', '/:path/:sha' do
       params[:path] ||= ''
       show
@@ -401,8 +408,18 @@ module Wiki
     get '/history', '/:path/history' do
       params[:path] ||= ''
       @object = Object.find(@repo, params[:path])      
-      @title = "History of #{@object.name_wo_ext}"
+      @title = "History of #{@object.pretty_name}"
       haml :history
+    end
+
+    get '/diff', '/:path/diff' do
+      params[:path] ||= ''
+      @from = params[:from]
+      @to = params[:to]
+      @object = Object.find(@repo, params[:path], @from)
+      @title = "Diff of #{@object.pretty_name}"
+      @diff = @object.diff(@to)
+      haml :diff
     end
 
     get '/:path/edit' do
@@ -428,7 +445,7 @@ module Wiki
       @object = Object.find(@repo, params[:path])
       if @object.page?
         params[:content] = @object.content + "\n" + params[:content] if params[:append] == '1'
-        @object.update(params[:content], params[:message])
+        @object.update(params[:content], params[:message], request.ip)
       end
       show
     end
@@ -439,10 +456,39 @@ module Wiki
         @object.update(params[:file][:tempfile].read, 'File uploaded')
         show
       else
-        @object.update(params[:content], params[:message])
+        @object.update(params[:content], params[:message], request.ip)
         show
       end
     end
 
   end
 end
+
+__END__
+@@ menu
+#menu
+  %ul.wiki
+    %li.empty Wiki Menu:
+    - if enabled.include?(:version)
+      - if @object.prev_commit
+        %li
+          %a{:href=>object_path(@object, @object.prev_commit)} &laquo; Previous Version
+      - if @object.next_commit
+        %li
+          %a{:href=>object_path(@object, @object.next_commit)} Next Version &raquo;
+      - if !@object.head?
+        %li
+          %a{:href=> @object.path.abspath } Current Version
+    - if enabled.include?(:current)
+      %li
+        %a{:href=> @object.path.abspath } Current Version
+    - if @object.page?
+      - if enabled.include?(:edit)
+        %li
+          %a{:href=>action_path(@object, :edit) } Edit Page
+      - if enabled.include?(:append)
+        %li
+          %a{:href=>action_path(@object, :append) } Append
+    - if enabled.include?(:history)
+      %li
+        %a{:href=>action_path(@object, :history) }= @object.page? ? 'Page History' : 'Tree History'

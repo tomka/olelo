@@ -1,10 +1,4 @@
-%ul#menu
-  %li
-    %a{:href=> @object.path.abspath } Current
-  %li
-    %a{:href=>action_path(@object, :history) } History
-  %li
-    %a{:href=>action_path(@object, :append) } Append
+= menu :current, :history, append ? :edit : :append
 
 #content
   %h1=@title

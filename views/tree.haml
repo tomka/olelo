@@ -1,15 +1,4 @@
-%ul#menu
-  - if @object.prev_commit
-    %li
-      %a{:href=>object_path(@object, @object.prev_commit)} &laquo; Previous
-  - if @object.next_commit
-    %li
-      %a{:href=>object_path(@object, @object.next_commit)} Next &raquo;
-  - if !@object.head?
-    %li
-      %a{:href=> @object.path.abspath } Current
-  %li
-    %a{:href=>action_path(@object, :history) } History
+= menu :version, :history
 
 #content
   %h1=@title
