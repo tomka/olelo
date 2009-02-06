@@ -136,18 +136,23 @@ module Wiki
     attr_reader :repo, :path, :commit, :object
 
     def self.find(repo, path, sha = nil)
-      commit = sha ? repo.gcommit(sha) : repo.log(1).first
-      path = path.cleanpath
+      commit = sha ? repo.gcommit(sha) : repo.log(1).path(path).first
       object = Object.find_in_repo(repo, path, commit)
       create(repo, path, commit, object) || raise(UnknownObject.new(path))
     end
-    
-    def head?
-      next_commit.nil?
+
+    def head?(commit = nil)
+      commit ||= @commit
+      sha = commit.is_a?(String) ? commit : commit.sha
+      head_commit.sha == sha
     end
 
     def history
       @history ||= @repo.log.path(path).to_a
+    end
+
+    def head_commit
+      history.first
     end
 
     def prev_commit
@@ -155,11 +160,11 @@ module Wiki
     end
 
     def next_commit
+#      @next_commit ||= @repo.log(2).between(@commit.sha).path(@path).first
+
       h = history
-      h.each_index { |i|
-        return (i == 0 ? nil : h[i - 1]) if h[i].committer_date <= @commit.committer_date
-      }
-      h.last
+      h.each_index { |i| return (i == 0 ? nil : h[i - 1]) if h[i].sha == @commit.sha }
+      h.last # FIXME. Does not work correctly if history is too short
     end
       
     def page?; self.class == Page; end
@@ -176,7 +181,7 @@ module Wiki
 
     def initialize(repo, path, commit = nil, object = nil)
       @repo = repo
-      @path = path
+      @path = path.cleanpath
       @commit = commit
       @object = object
     end
@@ -190,15 +195,18 @@ module Wiki
     end
 
     def self.find_in_repo(repo, path, commit)
-      object = if path.empty?
-        commit.gtree
-      elsif path =~ /\//
-        path.split('/').inject(commit.gtree) { |t, x| t.children[x] } rescue nil
-      else
-        commit.gtree.children[path]
+      if commit
+        path = path.cleanpath
+        object = if path.empty?
+                   commit.gtree
+                 elsif path =~ /\//
+                   path.split('/').inject(commit.gtree) { |t, x| t.children[x] } rescue nil
+                 else
+                   commit.gtree.children[path]
+                 end
+        return object if object
       end
-      raise NotFound.new(path) if !object
-      object
+      raise NotFound.new(path)
     end
 
   end
@@ -208,18 +216,19 @@ module Wiki
       @object ? @object.contents : nil
     end
     
-    # TODO: Author not used
+    # FIXME: Author not used
     def update(new_content, message, author = nil)
       return if new_content == content
       message ||= ''
-      message.gsub!("'", "'\\\\''") # TODO: ruby-git bug
+      message.gsub!("'", "'\\\\''") # FIXME: ruby-git bug
       repo.chdir {
         FileUtils.makedirs File.dirname(@path)
         File.open(@path, 'w') {|f| f << new_content }
       }
       repo.add(@path)
       repo.commit(message.empty? ? '(Empty commit message)' : message)
-      @commit = repo.log(1).first
+      @prev_commit = @history = nil
+      @commit = head_commit
       @object = Object.find_in_repo(@repo, @path, @commit)
     end
 
@@ -235,7 +244,9 @@ module Wiki
   
   class Tree < Object
     def children
-      @object.children.to_a.map {|x| Object.create(repo, path/x[0], commit, x[1]) }.compact
+      x = @object.children.to_a.map {|x| Object.create(repo, path/x[0], commit, x[1]) }.compact
+      x.each {|y| y.page? }
+      x
     end
 
     def pretty_name
@@ -335,10 +346,8 @@ module Wiki
 
     def object_path(object, commit = nil)
       commit ||= object.commit
-      sha = commit.is_a?(String) ? commit : commit.sha
-      path = object.path
-      path = path/sha if object.history.first.sha != sha
-      path.abspath
+      sha = commit.is_a?(String) ? commit : commit.sha      
+      (object.head?(sha) ? object.path : object.path/sha).abspath
     end
 
     def action_path(object, action)
@@ -482,13 +491,12 @@ __END__
     - if enabled.include?(:current)
       %li
         %a{:href=> @object.path.abspath } Current Version
-    - if @object.page?
-      - if enabled.include?(:edit)
-        %li
-          %a{:href=>action_path(@object, :edit) } Edit Page
-      - if enabled.include?(:append)
-        %li
-          %a{:href=>action_path(@object, :append) } Append
+    - if enabled.include?(:edit) && @object.page?
+      %li
+        %a{:href=>action_path(@object, :edit) } Edit Page
+    - if enabled.include?(:append) && @object.page?
+      %li
+        %a{:href=>action_path(@object, :append) } Append
     - if enabled.include?(:history)
       %li
         %a{:href=>action_path(@object, :history) }= @object.page? ? 'Page History' : 'Tree History'
