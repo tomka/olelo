@@ -217,32 +217,32 @@ module Wiki
       [
        {
          :format  => :css,
-         :accepts => proc {|page| page.path =~ /\.sass$/ },
+         :accepts => proc {|page| page.extension == 'sass' },
          :output  => proc {|page| Sass::Engine.new(page.content).render },
          :mime    => proc {|page| 'text/css' },
          :layout  => false,
        },
        {
          :format  => :html,
-         :accepts => proc {|page| page.path =~ /\.rb$/ },
+         :accepts => proc {|page| page.extension == 'rb' },
          :output  => proc {|page| highlight(page.content, 'ruby') },
          :layout  => true,
        },
        {
          :format  => :html,
-         :accepts => proc {|page| page.path =~ /\.text$/ },
+         :accepts => proc {|page| page.extension == 'text' },
          :output  => proc {|page| RubyPants.new(Creole.creolize(page.content)).to_html },
          :layout  => true,
        },
        {
          :format  => :html,
-         :accepts => proc {|page| page.path =~ /\.markdown$/ },
+         :accepts => proc {|page| page.extension =~ /^(markdown|md|mdown|mkdn|mdown)$/ },
          :output  => proc {|page| RubyPants.new(RDiscount.new(page.content).to_html).to_html },
          :layout  => true,
        },
        {
          :format  => :html,
-         :accepts => proc {|page| page.path =~ /\.textile$/ },
+         :accepts => proc {|page| page.extension == 'textile' },
          :output  => proc {|page| RubyPants.new(RedCloth.new(page.content).to_html).to_html },
          :layout  => true,
        },
@@ -415,36 +415,5 @@ module Wiki
       end
     end
 
-#     get '/search' do
-#       'search<br>' + params.inspect
-#     end
-    
-#     get '/branches' do
-#       'branches<br>' + params.inspect
-#     end
-    
-#     get '/branch/new' do
-#       'new branch<br>' + params.inspect
-#     end
-    
-#     get '/branch/:branch' do
-#       'branch<br>' + params.inspect
-#     end
-    
-#     get '/branch/:branch/revert' do
-#       'revert branch<br>' + params.inspect
-#     end
-    
-#     get '/branch/:branch/merge' do
-#       'merge branch<br>' + params.inspect
-#     end
-    
-#     get '/branch/:branch/delete' do
-#     'delete branch<br>' + params.inspect
-#     end
-
-#     get '/:path/:rev/diff' do
-#       'diff<br>' + params.inspect
-#     end
   end
 end
