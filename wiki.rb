@@ -205,6 +205,14 @@ module Wiki
 
     DEFAULT_FORMATS = [:html, :raw]
 
+    def highlight(text, format)
+      Open3.popen3("pygmentize -f html -l #{format}") { |stdin, stdout, stderr|
+        stdin << text
+        stdin.close
+        stdout.read
+      }
+    end
+
     ENGINES =
       [
        {
@@ -217,13 +225,7 @@ module Wiki
        {
          :format  => :html,
          :accepts => proc {|page| page.path =~ /\.rb$/ },
-         :output  => proc {|page| 
-           Open3.popen3('pygmentize -f html -l ruby') { |stdin, stdout, stderr|
-             stdin << page.content
-             stdin.close
-             stdout.read
-           }
-         },
+         :output  => proc {|page| highlight(page.content, 'ruby') },
          :layout  => true,
        },
        {
@@ -358,13 +360,7 @@ module Wiki
     get '/diff' do
       diff = @repo.diff(params[:from], params[:to])
       @title = "Diff between #{params[:from]} and #{params[:to]}"
-
-      Open3.popen3('pygmentize -f html -l diff') { |stdin, stdout, stderr|
-        stdin << diff.patch
-        stdin.close
-        @diff = stdout.read
-      }
-
+      @diff = highlight(diff.patch, 'diff')
       haml :diff
     end
 
@@ -410,8 +406,13 @@ module Wiki
 
     post '/:path' do
       @object = Page.new(@repo, params[:path])
-      @object.update(params[:content], params[:message])
-      show
+      if params[:file]
+        @object.update(params[:file][:tempfile].read, 'File uploaded')
+        show
+      else
+        @object.update(params[:content], params[:message])
+        show
+      end
     end
 
 #     get '/search' do

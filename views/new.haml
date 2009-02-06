@@ -1,6 +1,14 @@
 #content
   %h1=@title
 
+  %h2 Upload
+  %form{:action => @path.abspath, :method=>'post', :enctype=> 'multipart/form-data'}
+    %label{:for=>'file'} File
+    %input{:name=>'file',:type=>'file'}
+    %input{:type=>'submit', :value=>'Save'}
+    %br
+
+  %h2 Text
   %form{:action => @path.abspath, :method=>'post'}
     %label{:for=>'content_area'} Content
     %textarea{:name=>'content', :cols=>120, :rows=>30, :id=>'content_area'}
