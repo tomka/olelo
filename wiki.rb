@@ -138,8 +138,8 @@ module Wiki
 
     def head?(commit = nil)
       commit ||= @commit
-      sha = commit.is_a?(String) ? commit : commit.sha
-      head_commit.sha == sha
+      commit = @repo.gcommit(commit) if commit.is_a? String
+      head_commit.committer_date <= commit.committer_date
     end
 
     def history
@@ -156,7 +156,7 @@ module Wiki
 
     def next_commit
       h = history
-      h.each_index { |i| return (i == 0 ? nil : h[i - 1]) if h[i].sha == @commit.sha }
+      h.each_index { |i| return (i == 0 ? nil : h[i - 1]) if h[i].committer_date <= @commit.committer_date }
       h.last # FIXME. Does not work correctly if history is too short
     end
       
@@ -345,11 +345,23 @@ module Wiki
     def object_path(object, commit = nil)
       commit ||= object.commit
       sha = commit.is_a?(String) ? commit : commit.sha      
-      (object.head?(sha) ? object.path : object.path/sha).abspath
+      (object.head?(commit) ? object.path : object.path/sha).abspath
+    end
+
+    def child_path(tree, child)
+      (tree.head? ? child.path : child.path/tree.commit.sha).abspath
+    end
+
+    def parent_path(tree)
+      (tree.head? ? tree.path/'..' : tree.path/'..'/tree.commit.sha).abspath
     end
 
     def action_path(object, action)
       (object.path/action.to_s).abspath
+    end
+
+    def image_path(name)
+      "/images/#{name}.png"
     end
 
     def show

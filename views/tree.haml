@@ -8,14 +8,15 @@
       %tr
         %th Name
     %tbody
-      %tr
-        %td
-          %a{:href=> (@object.path/'..').abspath }
-            %img{:src => '/public/folder.png'}
-            \..
+      - if !@object.path.empty?
+        %tr
+          %td
+            %a{:href=> parent_path(@object) }
+              %img{:src => image_path(:folder)}
+              \..
       - @object.children.each do |child|
         %tr
           %td
-            %a{:href=>object_path(child)}
-              %img{:src => (child.page? ? '/images/page.png' : '/images/folder.png')}
+            %a{:href=>child_path(@object, child)}
+              %img{:src => image_path(child.page? ? :page : :folder)}
               =child.name
