@@ -9,7 +9,8 @@ redcloth
 rdiscount
 rubypants
 mime/types
-logger).each { |dep| require dep }
+logger
+open3).each { |dep| require dep }
 
 class Symbol
   def to_proc
@@ -217,8 +218,11 @@ module Wiki
          :format  => :html,
          :accepts => proc {|page| page.path =~ /\.rb$/ },
          :output  => proc {|page| 
-           File.open('/tmp/pygmentize.input', 'w') {|f| f << page.content }
-           `pygmentize -f html -l ruby /tmp/pygmentize.input`
+           Open3.popen3('pygmentize -f html -l ruby') { |stdin, stdout, stderr|
+             stdin << page.content
+             stdin.close
+             stdout.read
+           }
          },
          :layout  => true,
        },
@@ -349,6 +353,19 @@ module Wiki
       attachment 'archive.tar.gz'
       archive = @repo.archive('HEAD', nil, :format => 'tgz', :prefix => 'wiki/')
       File.open(archive).read
+    end
+
+    get '/diff' do
+      diff = @repo.diff(params[:from], params[:to])
+      @title = "Diff between #{params[:from]} and #{params[:to]}"
+
+      Open3.popen3('pygmentize -f html -l diff') { |stdin, stdout, stderr|
+        stdin << diff.patch
+        stdin.close
+        @diff = stdout.read
+      }
+
+      haml :diff
     end
 
     get '/:sha', '/:path/:sha' do
