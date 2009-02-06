@@ -90,11 +90,11 @@ ul, ol
     :margin 0 1em 0 1em
 
 table
-  :border 1px solid #AAA
+  :border 1px solid #999
   :background #FFF
   td, th
     :padding 0.2em 0.5em
-    :border 1px solid #AAA
+    :border 1px solid #999
   th
     :font-variant small-caps
   &.highlighttable
@@ -130,8 +130,9 @@ a:hover, a:active
 #menu
   :background #FFF
   :height 1.7em
-  :border-top 1px solid #AAA
-  :border-bottom 1px solid #AAA
+  :border-top 1px solid #999
+  :border-bottom 1px solid #999
+  :font-variant small-caps
   ul
     :display block
     :padding 0
@@ -147,10 +148,11 @@ a:hover, a:active
       :margin 0
       :height 1.7em
       :line-height 1.7em
-      :border-right 1px solid #AAA
+      :border-right 1px solid #999
       :color #333
-      &.empty
+      &.title
         :padding 0 1em
+        :color #999
       a
         :display block
         :text-decoration none
@@ -164,9 +166,10 @@ a:hover, a:active
 #footer
   :clear both
   :margin-top 1em
-  :border-top 1px solid #AAA
-  :border-bottom 1px solid #AAA
+  :border-top 1px solid #999
+  :border-bottom 1px solid #999
   :background #FFF
+  :color #999
   :padding 0 2em
   :height 1.7em
   :line-height 1.7em
@@ -175,7 +178,7 @@ a:hover, a:active
   :font-family "Andale Mono", "Bitstream Vera Mono", monospace
 
 pre
-  :border 1px solid #AAA
+  :border 1px solid #999
   :padding 1em 0.5em
   :min-width 70%
   :background #FFF
@@ -198,7 +201,7 @@ form
     :display		block
     :white-space        nowrap
   input, select, textarea, pre
-    :border		1px solid #AAA
+    :border		1px solid #999
     :background		#FFF
     :color              #333
     &:focus

@@ -1,0 +1,25 @@
+#menu
+  %ul.wiki
+    %li.title Wiki Menu
+    - if enabled.include?(:version)
+      - if @object.prev_commit
+        %li
+          %a{:href=>object_path(@object, @object.prev_commit)} &laquo; Older
+      - if @object.next_commit
+        %li
+          %a{:href=>object_path(@object, @object.next_commit)} Newer &raquo;
+      - if !@object.head?
+        %li
+          %a{:href=> @object.path.abspath } Current
+    - if enabled.include?(:current)
+      %li
+        %a{:href=> @object.path.abspath } Current
+    - if enabled.include?(:edit) && @object.page?
+      %li
+        %a{:href=>action_path(@object, :edit) } Edit
+    - if enabled.include?(:append) && @object.page?
+      %li
+        %a{:href=>action_path(@object, :append) } Append
+    - if enabled.include?(:history)
+      %li
+        %a{:href=>action_path(@object, :history) } History

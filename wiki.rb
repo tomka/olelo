@@ -108,14 +108,6 @@ end
 
 module Wiki
 
-  class NotFound < Sinatra::NotFound
-    attr_reader :path
-    
-    def initialize(path)
-      @path = path
-    end
-  end
-
   class InvalidOutput < Exception
     attr_reader :name
     
@@ -124,21 +116,24 @@ module Wiki
     end
   end
 
-  class UnknownObject < Exception
-    attr_reader :path
-    
-    def initialize(path)
-      @path = path
-    end
-  end
-
   class Object
+    class NotFound < Sinatra::NotFound
+      attr_reader :path
+      
+      def initialize(path)
+        @path = path
+      end
+    end
+
     attr_reader :repo, :path, :commit, :object
 
     def self.find(repo, path, sha = nil)
       commit = sha ? repo.gcommit(sha) : repo.log(1).path(path).first
-      object = Object.find_in_repo(repo, path, commit)
-      create(repo, path, commit, object) || raise(UnknownObject.new(path))
+      create(repo, path, commit, Object.find_in_repo(repo, path, commit))
+    end
+
+    def self.find!(repo, path, sha = nil)
+      find(repo, path, sha) || raise(NotFound.new(path))
     end
 
     def head?(commit = nil)
@@ -160,8 +155,6 @@ module Wiki
     end
 
     def next_commit
-#      @next_commit ||= @repo.log(2).between(@commit.sha).path(@path).first
-
       h = history
       h.each_index { |i| return (i == 0 ? nil : h[i - 1]) if h[i].sha == @commit.sha }
       h.last # FIXME. Does not work correctly if history is too short
@@ -189,24 +182,30 @@ module Wiki
     private
 
     def self.create(repo, path, commit, object)
-      return Page.new(repo, path, commit, object) if object.blob?
-      return Tree.new(repo, path, commit, object) if object.tree?
+      if object
+        return Page.new(repo, path, commit, object) if object.blob?
+        return Tree.new(repo, path, commit, object) if object.tree?
+      end
       nil
     end
 
     def self.find_in_repo(repo, path, commit)
-      if commit
-        path = path.cleanpath
-        object = if path.empty?
-                   commit.gtree
-                 elsif path =~ /\//
-                   path.split('/').inject(commit.gtree) { |t, x| t.children[x] } rescue nil
-                 else
-                   commit.gtree.children[path]
-                 end
-        return object if object
+      begin
+        if commit
+          path = path.cleanpath
+          object = if path.empty?
+                     commit.gtree
+                   elsif path =~ /\//
+                     path.split('/').inject(commit.gtree) { |t, x| t.children[x] } rescue nil
+                   else
+                     commit.gtree.children[path]
+                   end
+          return object if object
+        end
+        nil
+      rescue
+        nil
       end
-      raise NotFound.new(path)
     end
 
   end
@@ -229,7 +228,7 @@ module Wiki
       repo.commit(message.empty? ? '(Empty commit message)' : message)
       @prev_commit = @history = nil
       @commit = head_commit
-      @object = Object.find_in_repo(@repo, @path, @commit)
+      @object = Object.find_in_repo(@repo, @path, @commit) || raise(NotFound.new(path))
     end
 
     def extension
@@ -264,7 +263,6 @@ module Wiki
     set :app_file, 'wiki.rb'
     set :raise_errors, false
     set :dump_errors, true
-    use_in_file_templates!
 
     class Engine
       attr_reader :name
@@ -355,7 +353,7 @@ module Wiki
     end
 
     def show
-      @object ||= Object.find(@repo, params[:path], params[:sha])
+      @object ||= Object.find!(@repo, params[:path], params[:sha])
       @title = @object.pretty_name
       if @object.tree?
         haml :tree
@@ -372,12 +370,12 @@ module Wiki
     end
 
     def edit(append = false)
-      @object = Object.find(@repo, params[:path])
+      @object = Object.find!(@repo, params[:path])
       if @object.page?
         @title = (append ? 'Append to ' : 'Edit ') + @object.pretty_name
         haml :edit, :locals => { :append => append }
       else
-        show
+        redirect(@object.path.abspath)
       end
     end
 
@@ -416,7 +414,7 @@ module Wiki
 
     get '/history', '/:path/history' do
       params[:path] ||= ''
-      @object = Object.find(@repo, params[:path])      
+      @object = Object.find!(@repo, params[:path])      
       @title = "History of #{@object.pretty_name}"
       haml :history
     end
@@ -425,7 +423,7 @@ module Wiki
       params[:path] ||= ''
       @from = params[:from]
       @to = params[:to]
-      @object = Object.find(@repo, params[:path], @from)
+      @object = Object.find!(@repo, params[:path], @from)
       @title = "Diff of #{@object.pretty_name}"
       @diff = @object.diff(@to)
       haml :diff
@@ -441,6 +439,7 @@ module Wiki
 
     get '/:path/new' do
       @path = params[:path]
+      redirect(params[:path].abspath) if Object.find(@repo, @path)
       @title = "New #{@path}"
       haml :new
     end
@@ -451,7 +450,7 @@ module Wiki
     end
 
     put '/:path' do
-      @object = Object.find(@repo, params[:path])
+      @object = Object.find!(@repo, params[:path])
       if @object.page?
         params[:content] = @object.content + "\n" + params[:content] if params[:append] == '1'
         @object.update(params[:content], params[:message], request.ip)
@@ -472,31 +471,3 @@ module Wiki
 
   end
 end
-
-__END__
-@@ menu
-#menu
-  %ul.wiki
-    %li.empty Wiki Menu:
-    - if enabled.include?(:version)
-      - if @object.prev_commit
-        %li
-          %a{:href=>object_path(@object, @object.prev_commit)} &laquo; Previous Version
-      - if @object.next_commit
-        %li
-          %a{:href=>object_path(@object, @object.next_commit)} Next Version &raquo;
-      - if !@object.head?
-        %li
-          %a{:href=> @object.path.abspath } Current Version
-    - if enabled.include?(:current)
-      %li
-        %a{:href=> @object.path.abspath } Current Version
-    - if enabled.include?(:edit) && @object.page?
-      %li
-        %a{:href=>action_path(@object, :edit) } Edit Page
-    - if enabled.include?(:append) && @object.page?
-      %li
-        %a{:href=>action_path(@object, :append) } Append
-    - if enabled.include?(:history)
-      %li
-        %a{:href=>action_path(@object, :history) }= @object.page? ? 'Page History' : 'Tree History'
