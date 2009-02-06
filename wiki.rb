@@ -12,6 +12,47 @@ mime/types
 logger
 open3).each { |dep| require dep }
 
+module Highlighter
+  def self.text(text, format)
+    Open3.popen3("pygmentize -O linenos=table -f html -l #{format}") { |stdin, stdout, stderr|
+      stdin << text
+      stdin.close
+      stdout.read
+    }
+  end
+
+  def self.file(content, name)
+    lexer = find_lexer(name)
+    lexer ? text(content, lexer) : content.html_escape
+  end
+
+  def self.supports?(filename)
+    !!find_lexer(filename)
+  end
+
+  private
+
+  def self.lexer_mapping
+    mapping = {}
+    lexer = ''  
+    output = `pygmentize -L lexer`
+    output.split("\n").each do |line|
+      if line =~ /^\* ([^:]+):$/
+        lexer = $1.split(', ').first
+      elsif line =~ /^   [^(]+ \(filenames ([^)]+)/
+        $1.split(', ').each {|s| mapping[s] = lexer }
+      end
+    end
+    mapping
+  end
+
+  def self.find_lexer(name)
+    @mapping ||= lexer_mapping
+    pattern = @mapping.keys.find {|pattern| File.fnmatch(pattern, name)}
+    pattern ? @mapping[pattern] : nil
+  end
+end
+
 class Symbol
   def to_proc
     proc { |obj, *args| obj.send(self, *args) }
@@ -75,11 +116,11 @@ module Wiki
     end
   end
 
-  class FormatNotSupported < Exception
-    attr_reader :format
+  class InvalidOutput < Exception
+    attr_reader :name
     
-    def initialize(format)
-      @format = format
+    def initialize(name)
+      @name = name
     end
   end
 
@@ -195,7 +236,6 @@ module Wiki
     pattern :path, /.+/
     pattern :sha,   /[A-Fa-f0-9]{40}/
     
-    # FIXME DOES NOT WORK
     set :haml, { :format => :xhtml, :attr_wrapper  => '"' }
     set :methodoverride, true
     set :static, true
@@ -205,63 +245,69 @@ module Wiki
 
     DEFAULT_FORMATS = [:html, :raw]
 
-    def highlight(text, format)
-      Open3.popen3("pygmentize -f html -l #{format}") { |stdin, stdout, stderr|
-        stdin << text
-        stdin.close
-        stdout.read
-      }
+    class Engine
+      attr_reader :name
+      def layout?; @layout; end
+
+      def initialize(name, layout)
+        @name = name
+        @layout = layout
+      end
+
+      def self.create(name, layout, &block)
+        Class.new(Engine, &block).new(name, layout)
+      end
+
+      def self.find(page, name)
+        engine = ENGINES.find { |e| (!name || e.name == name.to_sym) && e.accepts(page) }
+        return engine if engine
+        raise InvalidOutput.new(name)
+      end
+
+      def self.method_missing(sym, &block)
+        define_method sym, &block
+      end
+
+      accepts {|page| false }
+      output  {|page| '' }
+      mime    {|page| 'text/plain' }
+
+      ENGINES =
+        [
+         Engine.create(:css, false) {
+           accepts {|page| page.extension == 'sass' }
+           output  {|page| Sass::Engine.new(page.content).render }
+           mime    {|page| 'text/css' }
+         },
+         Engine.create(:code, true) {
+           accepts {|page| Highlighter.supports?(page.name) }
+           output  {|page| Highlighter.file(page.content, page.name) }
+         },
+         Engine.create(:creole, true) {
+           accepts {|page| page.extension == 'text' }
+           output  {|page| RubyPants.new(Creole.creolize(page.content)).to_html }
+         },
+         Engine.create(:markdown, true) {
+           accepts {|page| page.extension =~ /^(markdown|md|mdown|mkdn|mdown)$/  }
+           output  {|page| RubyPants.new(RDiscount.new(page.content).to_html).to_html }
+         },
+         Engine.create(:textile, true) {
+           accepts {|page| page.extension == 'textile'  }
+           output  {|page| RubyPants.new(RedCloth.new(page.content).to_html).to_html }
+         },
+         Engine.create(:html, true) {
+           accepts {|page| types = MIME::Types.of(page.path); types.empty? ? true : types.first.ascii? }
+           output  {|page| '<pre>' + page.content.html_escape + '</pre>' }
+           mime    {|page| MIME::Types.of(page.path).first.to_s }
+         },
+         Engine.create(:raw, false) {
+           accepts {|page| true }
+           output  {|page| page.content }
+           mime    {|page| types = MIME::Types.of(page.path); types.empty? ? 'text/plain' : types.first.to_s }
+         }
+        ]
     end
-
-    ENGINES =
-      [
-       {
-         :format  => :css,
-         :accepts => proc {|page| page.extension == 'sass' },
-         :output  => proc {|page| Sass::Engine.new(page.content).render },
-         :mime    => proc {|page| 'text/css' },
-         :layout  => false,
-       },
-       {
-         :format  => :html,
-         :accepts => proc {|page| page.extension == 'rb' },
-         :output  => proc {|page| highlight(page.content, 'ruby') },
-         :layout  => true,
-       },
-       {
-         :format  => :html,
-         :accepts => proc {|page| page.extension == 'text' },
-         :output  => proc {|page| RubyPants.new(Creole.creolize(page.content)).to_html },
-         :layout  => true,
-       },
-       {
-         :format  => :html,
-         :accepts => proc {|page| page.extension =~ /^(markdown|md|mdown|mkdn|mdown)$/ },
-         :output  => proc {|page| RubyPants.new(RDiscount.new(page.content).to_html).to_html },
-         :layout  => true,
-       },
-       {
-         :format  => :html,
-         :accepts => proc {|page| page.extension == 'textile' },
-         :output  => proc {|page| RubyPants.new(RedCloth.new(page.content).to_html).to_html },
-         :layout  => true,
-       },
-       {
-         :format  => :html,
-         :accepts => proc {|page| types = MIME::Types.of(page.path); types.empty? ? true : types.first.ascii? },
-         :output  => proc {|page| '<pre>' + page.content.html_escape + '</pre>' },
-         :mime    => proc {|page| MIME::Types.of(page.path).first.to_s },
-         :layout  => true,
-       },
-       {
-         :format  => :raw,
-         :accepts => proc {|page| true },
-         :output  => proc {|page| page.content },
-         :mime    => proc {|page| types = MIME::Types.of(page.path); types.empty? ? 'text/plain' : types.first.to_s },
-         :layout  => false,
-       },
-      ]
-
+    
     def initialize
       @log = Logger.new(STDOUT)
       @log.level = Logger::WARN
@@ -285,35 +331,18 @@ module Wiki
       (object.path/action.to_s).abspath
     end
 
-    def find_engine_for_format(page, format)
-      ENGINES.find { |e| e[:format] == format.to_sym && e[:accepts].call(page) }
-    end
-
-    def find_engine(page, format)
-      if format
-        engine = find_engine_for_format(page, format)
-        return engine if engine
-      else
-        DEFAULT_FORMATS.each { |format|
-          engine = find_engine_for_format(page, format)
-          return engine if engine
-        }
-      end
-      raise FormatNotSupported.new(format)
-    end
-
     def show
       @object ||= Object.find(@repo, params[:path], params[:sha])
       @title = @object.name_wo_ext
       if @object.tree?
         haml :tree
       else
-        engine = find_engine(@object, params[:format])
-        @content = engine[:output].call(@object)
-        if engine[:layout]
+        engine = Engine.find(@object, params[:output])
+        @content = engine.output(@object)
+        if engine.layout?
           haml :page
         else
-          content_type engine[:mime].call(@object)
+          content_type engine.mime(@object)
           @content
         end
       end
@@ -360,7 +389,7 @@ module Wiki
     get '/diff' do
       diff = @repo.diff(params[:from], params[:to])
       @title = "Diff between #{params[:from]} and #{params[:to]}"
-      @diff = highlight(diff.patch, 'diff')
+      @diff = Highlighter.text(diff.patch, 'diff')
       haml :diff
     end
 
