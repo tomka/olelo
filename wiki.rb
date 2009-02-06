@@ -23,7 +23,7 @@ module Highlighter
 
   def self.file(content, name)
     lexer = find_lexer(name)
-    lexer ? text(content, lexer) : content.html_escape
+    lexer ? text(content, lexer) : CGI::escape_html(content)
   end
 
   def self.supports?(filename)
@@ -93,10 +93,6 @@ class String
     '/' + cleanpath
   end
 
-  def html_escape
-    gsub(/&/, "&amp;").gsub(/\"/, "&quot;").gsub(/>/, "&gt;").gsub(/</, "&lt;")
-  end
-
   def truncate(max, omission = '...')
     (length > max ? self[0...max-3] + omission : self)
   end
@@ -107,14 +103,6 @@ class String
 end
 
 module Wiki
-
-  class InvalidOutput < Exception
-    attr_reader :name
-    
-    def initialize(name)
-      @name = name
-    end
-  end
 
   class Object
     class NotFound < Sinatra::NotFound
@@ -253,99 +241,11 @@ module Wiki
     end
   end
 
-  class App < Sinatra::Base
-    pattern :path, /.+/
-    pattern :sha,   /[A-Fa-f0-9]{40}/
-    
-    set :haml, { :format => :xhtml, :attr_wrapper  => '"' }
-    set :methodoverride, true
-    set :static, true
-    set :app_file, 'wiki.rb'
-    set :raise_errors, false
-    set :dump_errors, true
-
-    class Engine
-      attr_reader :name
-      def layout?; @layout; end
-
-      def initialize(name, layout)
-        @name = name
-        @layout = layout
-      end
-
-      def self.create(name, layout, &block)
-        Class.new(Engine, &block).new(name, layout)
-      end
-
-      def self.find(page, name)
-        engine = ENGINES.find { |e| (!name || e.name == name.to_sym) && e.accepts(page) }
-        return engine if engine
-        raise InvalidOutput.new(name)
-      end
-
-      def self.method_missing(sym, &block)
-        define_method sym, &block
-      end
-
-      accepts {|page| false }
-      output  {|page| '' }
-      mime    {|page| 'text/plain' }
-
-      ENGINES =
-        [
-         Engine.create(:css, false) {
-           accepts {|page| page.extension == 'sass' }
-           output  {|page| Sass::Engine.new(page.content).render }
-           mime    {|page| 'text/css' }
-         },
-         Engine.create(:code, true) {
-           accepts {|page| Highlighter.supports?(page.name) }
-           output  {|page| Highlighter.file(page.content, page.name) }
-         },
-         Engine.create(:creole, true) {
-           accepts {|page| page.extension == 'text' }
-           output  {|page| RubyPants.new(Creole.creolize(page.content)).to_html }
-         },
-         Engine.create(:markdown, true) {
-           accepts {|page| page.extension =~ /^(markdown|md|mdown|mkdn|mdown)$/  }
-           output  {|page| RubyPants.new(RDiscount.new(page.content).to_html).to_html }
-         },
-         Engine.create(:textile, true) {
-           accepts {|page| page.extension == 'textile'  }
-           output  {|page| RubyPants.new(RedCloth.new(page.content).to_html).to_html }
-         },
-         Engine.create(:html, true) {
-           accepts {|page| types = MIME::Types.of(page.path); types.empty? ? false : types.first.ascii? }
-           output  {|page| '<pre>' + page.content.html_escape + '</pre>' }
-           mime    {|page| MIME::Types.of(page.path).first.to_s }
-         },
-         Engine.create(:raw, false) {
-           accepts {|page| true }
-           output  {|page| page.content }
-           mime    {|page| types = MIME::Types.of(page.path); types.empty? ? 'text/plain' : types.first.to_s }
-         }
-        ]
-    end
-
-    def menu(*enabled)
-      haml :menu, :layout => false, :locals => { :enabled => enabled }
-    end
-
-    def initialize
-      @logger = App.logger
-      if File.exists?(App.repository)
-        @repo = Git.open(App.repository, :log => @logger)
-      else
-        @repo = Git.init(App.repository, :log => @logger)
-        page = Page.new(@repo, '.init')
-        page.update('.init', 'Initialize Repository')
-      end
-    end
-
-    def object_path(object, commit = nil)
+  module Helper
+    def object_path(object, commit = nil, output = nil)
       commit ||= object.commit
       sha = commit.is_a?(String) ? commit : commit.sha      
-      (object.head?(commit) ? object.path : object.path/sha).abspath
+      (object.head?(commit) ? object.path : object.path/sha).abspath + (output ? "?output=#{output}" : '')
     end
 
     def child_path(tree, child)
@@ -362,6 +262,120 @@ module Wiki
 
     def image_path(name)
       "/images/#{name}.png"
+    end
+
+    def menu(*enabled)
+      haml :menu, :layout => false, :locals => { :enabled => enabled }
+    end
+  end
+
+  class Engine
+    include Helper
+
+    class NotAvailable < Exception
+      attr_reader :name
+      
+      def initialize(name)
+        @name = name
+      end
+    end
+    
+    attr_reader :name
+    def layout?; @layout; end
+    
+    def initialize(name, layout)
+      @name = name
+      @layout = layout
+    end
+    
+    def self.create(name, layout, &block)
+      Class.new(Engine, &block).new(name, layout)
+    end
+
+    def self.find(page, name)
+      engine = ENGINES.find { |e| (!name || e.name == name.to_sym) && e.accepts(page) }
+      return engine if engine
+      raise NotAvailable.new(name)
+    end
+    
+    def self.method_missing(sym, &block)
+      define_method sym, &block
+    end
+    
+    accepts {|page| false }
+    output  {|page| '' }
+    mime    {|page| 'text/plain' }
+    
+    ENGINES =
+      [
+       Engine.create(:css, false) {
+         accepts {|page| page.extension == 'sass' }
+         output  {|page| Sass::Engine.new(page.content).render }
+         mime    {|page| 'text/css' }
+       },
+         Engine.create(:creole, true) {
+         accepts {|page| page.extension =~ /^(text|creole)$/ }
+         output  {|page|
+           creole = Creole::CreoleParser.new
+           class << creole
+             def make_image_link(url)
+               url + '?output=raw'
+             end
+           end
+           RubyPants.new(creole.parse(page.content)).to_html
+         }
+       },
+       Engine.create(:markdown, true) {
+         accepts {|page| page.extension =~ /^(markdown|md|mdown|mkdn|mdown)$/  }
+         output  {|page| RubyPants.new(RDiscount.new(page.content).to_html).to_html }
+       },
+       Engine.create(:textile, true) {
+         accepts {|page| page.extension == 'textile'  }
+         output  {|page| RubyPants.new(RedCloth.new(page.content).to_html).to_html }
+       },
+       Engine.create(:code, true) {
+         accepts {|page| Highlighter.supports?(page.name) }
+         output  {|page| Highlighter.file(page.content, page.name) }
+       },
+       Engine.create(:image, true) {
+         accepts {|page| types = MIME::Types.of(page.path); types.empty? ? false : types.first.media_type == 'image' }
+         output  {|page| "<img src=\"#{object_path(page, nil, 'raw')}\"/>" }
+       },
+       Engine.create(:html, true) {
+         accepts {|page| types = MIME::Types.of(page.path); types.empty? ? false : types.first.ascii? }
+           output  {|page| '<pre>' + CGI::escape_html(page.content) + '</pre>' }
+         mime    {|page| MIME::Types.of(page.path).first.to_s }
+       },
+       Engine.create(:raw, false) {
+         accepts {|page| true }
+         output  {|page| page.content }
+         mime    {|page| types = MIME::Types.of(page.path); types.empty? ? 'text/plain' : types.first.to_s }
+       }
+      ]
+  end
+
+  class App < Sinatra::Base
+    pattern :path, /.+/
+    pattern :sha,   /[A-Fa-f0-9]{40}/
+    
+    set :haml, { :format => :xhtml, :attr_wrapper  => '"' }
+    set :methodoverride, true
+    set :static, true
+    set :app_file, 'wiki.rb'
+    set :raise_errors, false
+    set :dump_errors, true
+
+    include Helper
+
+    def initialize
+      @logger = App.logger
+      if File.exists?(App.repository)
+        @repo = Git.open(App.repository, :log => @logger)
+      else
+        @repo = Git.init(App.repository, :log => @logger)
+        page = Page.new(@repo, '.init')
+        page.update('.init', 'Initialize Repository')
+      end
     end
 
     def show
