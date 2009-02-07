@@ -290,7 +290,25 @@ module Wiki
 
     def sidebar
       haml :sidebar, :layout => false
-    end    
+    end
+
+    def show_messages
+      if session[:messages]
+        out = "<ul>\n"
+        session[:messages].each do |msg|
+          out += "  <li class=\"#{msg[0]}\">#{msg[1]}</li>\n"
+        end
+        out += "</ul>\n"
+        session[:messages] = nil
+        return out
+      end
+      ''
+    end
+
+    def message(level, msg)
+      session[:messages] ||= []
+      session[:messages] << [level, msg]
+    end
   end
 
   class Engine
@@ -386,9 +404,6 @@ module Wiki
     attr_accessor :email
     attr_reader :name, :password
 
-    class Unauthorized < Exception
-    end
-
     def anonymous?; @anonymous; end
 
     def password=(pw)
@@ -409,10 +424,9 @@ module Wiki
       User.new(ip, nil, "anonymous@#{ip}", true)
     end
 
-    def self.authorize(name, password)
+    def self.authenticate(name, password)
       user = find(name)
-      raise Unauthorized if !user || user.password != User.crypt(password)
-      user
+      user && user.password == User.crypt(password) ? user : nil
     end
 
     def self.find(name)
@@ -539,8 +553,14 @@ module Wiki
     end
 
     post '/login' do
-      session[:user] = User.authorize(params[:user], params[:password])
-      redirect '/'
+      user = User.authenticate(params[:user], params[:password])
+      if user
+        session[:user] = user
+        redirect '/'
+      else
+        message :error, 'Wrong username or password'
+        redirect '/login'
+      end
     end
 
     get '/signup' do
@@ -549,8 +569,13 @@ module Wiki
     end
 
     post '/signup' do
-      session[:user] = User.create(params[:user], params[:password], params[:email])
-      redirect '/'
+      if User.find(params[:user])
+        message :error, 'User with this name already exists'
+        redirect '/signup'
+      else
+        session[:user] = User.create(params[:user], params[:password], params[:email])
+        redirect '/'
+      end
     end
 
     get '/style.css' do

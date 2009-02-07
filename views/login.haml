@@ -3,6 +3,7 @@
   #sidebar=sidebar
   #content
     %h1=@title
+    = show_messages
     %form{:action => '/login', :method=>'post'}
       %label{:for=>'user'} User
       %input{:type=>'text', :name=>'user', :id=>'user'}
