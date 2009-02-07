@@ -1,6 +1,4 @@
-#menu= menu :version, :edit, :append, :history, :new
-#main
-  #sidebar=sidebar
-  #content
-    %h1=@title
-    ~ @content
+- @menu   = :version, :edit, :append, :history, :new
+- @title  = @object.pretty_name
+- @footer = "#{@object.head? ? 'Current' : 'Outdated'} Version &bull; Last modified by #{@object.commit.committer.name}, #{@object.commit.committer_date.format}"
+~ @content

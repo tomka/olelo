@@ -115,9 +115,16 @@ a:hover, a:active
   :background #0B3E71
   :text-decoration none
 
+hr
+  :background #AAA
+  :border none
+  :height 1px
+
 #header
   :background #0B3E71
   :padding 5px
+  :clear both
+  :height 2.5em
   h1
     :color #FFFFC2
     :font-family Georgia, serif
@@ -125,16 +132,22 @@ a:hover, a:active
     :font-variant small-caps
     :font-weight bold
     :margin 0
+    :padding 0
+    :float left
   #box
-    :position absolute
-    :border-bottom 1px solid #AAA
-    :border-le1ft 1px solid #AAA
+    :float right
+    :border 1px solid #AAA
     :background #FFFFC2
-    :margin 0
     :padding 0.2em
-    :top 0
-    :right 0
-    :font-size 80%
+    :margin 0.3em
+  #search
+    :float right
+    :border none
+    :right 15em
+    input
+      :margin 0.3em
+      :width 10em
+      :padding 0.2em
 
 #menu
   :background #FFF
@@ -197,10 +210,10 @@ a:hover, a:active
 #content
   :padding 0 1em 0 2em
   :display block
-  :float left 
+  :float left
   :padding-bottom 1002em
   :margin-bottom -1000em
-  :width 70%
+  :width 65%
 
 #sidebar
   :min-height 600px

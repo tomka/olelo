@@ -86,7 +86,7 @@ module Highlighter
 
   def self.file(content, name)
     lexer = find_lexer(name)
-    lexer ? text(content, lexer) : CGI::escape_html(content)
+    lexer ? text(content, lexer) : CGI::escapHTML(content)
   end
 
   def self.supports?(filename)
@@ -294,8 +294,9 @@ module Wiki
       "/images/#{name}.png"
     end
 
-    def menu(*enabled)
-      haml :menu, :layout => false, :locals => { :enabled => enabled }
+    def menu
+      @menu ||= []
+      haml :menu, :layout => false, :locals => { :enabled => @menu.is_a?(Array) ? @menu : [@menu] }
     end
 
     def sidebar
@@ -342,8 +343,8 @@ module Wiki
       Class.new(Engine, &block).new(name, layout)
     end
 
-    def self.find(page, name)
-      engine = ENGINES.find { |e| (!name || e.name == name.to_sym) && e.accepts(page) }
+    def self.find(page, name = nil)
+      engine = ENGINES.find { |e| (name.blank? || e.name == name.to_sym) && e.accepts(page) }
       return engine if engine
       raise NotAvailable.new(name)
     end
@@ -366,6 +367,9 @@ module Wiki
            class << creole
              def make_image_link(url)
                url + '?output=raw'
+             end
+             def make_link(url)
+               escape_url(url).urlpath
              end
            end
            RubyPants.new(creole.parse(page.content)).to_html
@@ -395,7 +399,7 @@ module Wiki
        },
        Engine.create(:html, true) {
          accepts {|page| page.mime_type && page.mime_type.ascii? }
-         output  {|page| '<pre>' + CGI::escape_html(page.content) + '</pre>' }
+         output  {|page| '<pre>' + CGI::escapeHTML(page.content) + '</pre>' }
          mime    {|page| page.mime_type }
        },
        Engine.create(:download, true) {
@@ -518,8 +522,6 @@ module Wiki
 
     def show
       @object = Object.find!(@repo, params[:path], params[:sha]) if !@object || !@object.exists?
-      @title = @object.pretty_name
-      @footer = "#{@object.head? ? 'Current' : 'Outdated'} Version &bull; Last modified by #{@object.commit.committer.name}, #{@object.commit.committer_date.format}"
       if @object.tree?
         haml :tree
       else
@@ -537,7 +539,6 @@ module Wiki
     def edit(append = false)
       @object = Object.find!(@repo, params[:path])
       if @object.page?
-        @title = (append ? 'Append to ' : 'Edit ') + @object.pretty_name
         haml :edit, :locals => { :append => append }
       else
         redirect(@object.path.urlpath)
@@ -556,7 +557,6 @@ module Wiki
     not_found do
       redirect((params[:path]/'new').urlpath) if params[:path]
       @error = request.env['sinatra.error']
-      @title = 'Error'
       haml :error
     end
 
@@ -569,7 +569,6 @@ module Wiki
 
     error do
       @error = request.env['sinatra.error']
-      @title = 'Error'
       haml :error
     end
 
@@ -578,7 +577,6 @@ module Wiki
     end
 
     get '/login' do
-      @title = 'Login'
       haml :login
     end
 
@@ -588,7 +586,6 @@ module Wiki
     end
 
     get '/signup' do
-      @title = 'Signup'
       haml :signup
     end
 
@@ -603,8 +600,12 @@ module Wiki
     end
 
     get '/profile' do
-      @title = "Profile of #{@user.name}"
       haml :profile
+    end
+
+    get '/search' do
+      @matches = @repo.grep(params[:pattern])
+      haml :search
     end
 
     get '/style.css' do
@@ -632,7 +633,6 @@ module Wiki
     get '/history', '/:path/history' do
       params[:path] ||= ''
       @object = Object.find!(@repo, params[:path])      
-      @title = "History of #{@object.pretty_name}"
       haml :history
     end
 
@@ -661,7 +661,6 @@ module Wiki
       @from = params[:from]
       @to = params[:to]
       @object = Object.find!(@repo, params[:path], @from)
-      @title = "Diff of #{@object.pretty_name}"
       @diff = @object.diff(@to)
       haml :diff
     end
@@ -677,12 +676,10 @@ module Wiki
     get '/:path/new' do
       @path = params[:path]
       redirect(params[:path].urlpath) if Object.find(@repo, @path)
-      @title = "New page #{@path}"
       haml :new
     end
 
     get '/new' do
-      @title = "New page"
       haml :new
     end
 

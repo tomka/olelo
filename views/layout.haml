@@ -7,15 +7,24 @@
     %link{:rel => 'stylesheet', :href => '/highlight.css', :type => 'text/css'}
   %body
     #header
-      %h1= Wiki::App.config['title']
+      %h1&= Wiki::App.config['title']
       #box
+        User
         %a{:href=>'/profile'}= @user.name
         |
         - if @user.anonymous?
           %a{:href=>'/login'} Login
         - else
           %a{:href=>'/logout'} Logout
-    = yield
+      #search
+        %form{:action=>'/search',:method=>'get'}
+          %input{:type=>'text',:name=>'pattern', :value=>'Search'}
+    #menu= menu
+    #main
+      #sidebar= sidebar
+      #content
+        %h1= @title
+        = yield
     #footer
       Powered by
       %a{:href=>'http://github.com/minad/git-wiki/tree/master'} Git-Wiki

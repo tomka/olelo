@@ -1,1 +1,4 @@
-I am the sidebar
+- if page = Wiki::Object.find(@repo, 'sidebar.text')
+  ~ Wiki::Engine.find(page).output(page)
+- else
+  %a{:href=>'/sidebar.text/new'} Create Sidebar

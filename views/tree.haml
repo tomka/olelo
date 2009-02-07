@@ -1,22 +1,20 @@
-#menu= menu :version, :history, :archive, :new
-#main
-  #sidebar=sidebar
-  #content
-    %h1=@title
-    %table
-      %thead
-        %tr
-          %th Name
-      %tbody
-        - if !@object.path.empty?
-          %tr
-            %td
-              %a{:href=> parent_path(@object) }
-                %img{:src => image_path(:folder)}
-                \..
-        - @object.children.each do |child|
-          %tr
-            %td
-              %a{:href=>child_path(@object, child)}
-                %img{:src => image_path(child.page? ? :page : :folder)}
-                =child.name
+- @menu   = :version, :history, :archive, :new
+- @title  = @object.pretty_name
+- @footer = "#{@object.head? ? 'Current' : 'Outdated'} Version &bull; Last modified by #{@object.commit.committer.name}, #{@object.commit.committer_date.format}"
+%table
+  %thead
+    %tr
+      %th Name
+  %tbody
+    - if !@object.path.empty?
+      %tr
+        %td
+          %a{:href=> parent_path(@object) }
+            %img{:src => image_path(:folder)}
+            \..
+    - @object.children.each do |child|
+      %tr
+        %td
+          %a{:href=>child_path(@object, child)}
+            %img{:src => image_path(child.page? ? :page : :folder)}
+            =child.name

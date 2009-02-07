@@ -9,9 +9,10 @@ Brainstorming...
 - Preview
 - Edit uploaded files (overwrite)
 - LaTeX integration
-- Login
+- (DONE) Login
+- Editable user profile, change pw function
 - Captcha support
-- RSS/Atom Changelog
+- (DONE, but could be a lot improved) RSS/Atom Changelog
 - Image support, Image gallery
 - Automatic file extensions for wikitext files
 

@@ -1,26 +1,23 @@
-#menu= menu :current, :edit, :append, :history, :new
-#main
-  #sidebar= sidebar
-  #content
-    %h1=@title
-    %table
-      %tbody
-        %tr
-          %td To
-          %td
-            %a.sha{:href=>object_path(@object, @from)}= @from
-        %tr
-          %td From
-          %td
-            %a.sha{:href=>object_path(@object, @to)}= @to
-        %tr
-          %td Deletions
-          %td= @diff.deletions
-        %tr
-          %td Insertions
-          %td= @diff.insertions
-        %tr
-          %td Files
-          %td= @diff.size
-      %p
-        ~ Highlighter.text(@diff, 'diff')
+- @menu  = :current, :edit, :append, :history, :new
+- @title = "Diff of #{@object.pretty_name}"
+%table
+  %tbody
+    %tr
+      %td To
+      %td
+        %a.sha{:href=>object_path(@object, @from)}= @from
+    %tr
+      %td From
+      %td
+        %a.sha{:href=>object_path(@object, @to)}= @to
+    %tr
+      %td Deletions
+      %td= @diff.deletions
+    %tr
+      %td Insertions
+      %td= @diff.insertions
+    %tr
+      %td Files
+      %td= @diff.size
+  %p
+    ~ Highlighter.text(@diff, 'diff')
