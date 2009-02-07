@@ -117,12 +117,19 @@ end
 
 module Wiki
 
+  module Validation
+    class Failed < ArgumentError; end
+
+    def self.validate(conds = {})
+      failed = conds.keys.select {|key| !conds[key]}
+      raise Failed.new(failed) if !failed.empty?
+    end
+  end
+
   class Object
     class NotFound < Sinatra::NotFound
-      attr_reader :path
-      
       def initialize(path)
-        @path = path
+        super('#{path} not found', path)
       end
     end
 
@@ -314,11 +321,9 @@ module Wiki
   class Engine
     include Helper
 
-    class NotAvailable < Exception
-      attr_reader :name
-      
+    class NotAvailable < ArgumentError
       def initialize(name)
-        @name = name
+        super("Output engine #{name} is not available")
       end
     end
     
@@ -415,9 +420,12 @@ module Wiki
     end
 
     def save
-      User.transaction(false) {|store|
-        store[name] = self
-      }
+      Validation.validate(
+        'E-Mail is invalid' => (@email =~ /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\Z/i),
+        'Name is invalid'   => (@name =~ /[\w.\-+_]+/),
+        'Password is empty' => (!@password.blank?)
+      )
+      User.transaction(false) {|store| store[name] = self }
     end
 
     def self.anonymous(ip)
@@ -426,7 +434,8 @@ module Wiki
 
     def self.authenticate(name, password)
       user = find(name)
-      user && user.password == User.crypt(password) ? user : nil
+      Validation.validate('Wrong username or password' => (user && user.password == User.crypt(password)))
+      user
     end
 
     def self.find(name)
@@ -436,6 +445,7 @@ module Wiki
     end
 
     def self.create(name, password, email)
+      Validation.validate('User already exists' => !find(name))
       user = User.new(name, password, email, false)
       user.save
       user
@@ -532,6 +542,13 @@ module Wiki
       haml :error
     end
 
+    error Validation::Failed do
+      request.env['sinatra.error'].message.each do |msg|
+        message :error, msg
+      end
+      redirect request.path_info
+    end
+
     error do
       @error = request.env['sinatra.error']
       @title = 'Error'
@@ -553,14 +570,8 @@ module Wiki
     end
 
     post '/login' do
-      user = User.authenticate(params[:user], params[:password])
-      if user
-        session[:user] = user
-        redirect '/'
-      else
-        message :error, 'Wrong username or password'
-        redirect '/login'
-      end
+      session[:user] = User.authenticate(params[:user], params[:password])
+      redirect '/'
     end
 
     get '/signup' do
@@ -569,13 +580,8 @@ module Wiki
     end
 
     post '/signup' do
-      if User.find(params[:user])
-        message :error, 'User with this name already exists'
-        redirect '/signup'
-      else
-        session[:user] = User.create(params[:user], params[:password], params[:email])
-        redirect '/'
-      end
+      session[:user] = User.create(params[:user], params[:password], params[:email])
+      redirect '/'
     end
 
     get '/style.css' do
