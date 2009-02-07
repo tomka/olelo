@@ -229,7 +229,7 @@ module Wiki
     end
 
     def pretty_name
-      name.gsub(/\.([^\/]+)$/, '')
+      name.gsub(/\.([^.]+)$/, '')
     end
   end
   
@@ -437,8 +437,7 @@ module Wiki
     end
 
     get '/' do
-      params[:redirect] ||= '/index.text'
-      redirect params[:redirect]
+      redirect '/index.text'
     end
 
     get '/style.css' do
@@ -484,7 +483,12 @@ module Wiki
     get '/:path/new' do
       @path = params[:path]
       redirect(params[:path].abspath) if Object.find(@repo, @path)
-      @title = "New #{@path}"
+      @title = "New page #{@path}"
+      haml :new
+    end
+
+    get '/new' do
+      @title = "New page"
       haml :new
     end
 
@@ -502,9 +506,9 @@ module Wiki
       show
     end
 
-    post '/:path' do
+    post '/', '/:path' do
       @object = Page.new(@repo, params[:path])
-      if params[:file]
+      if params[:action] == 'Upload'
         @object.update(params[:file][:tempfile].read, 'File uploaded')
         show
       else

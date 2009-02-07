@@ -3,19 +3,21 @@
   #sidebar=sidebar
   #content
     %h1=@title
-    %h2 Upload
-    %form{:action => @path.abspath, :method=>'post', :enctype=> 'multipart/form-data'}
+    %form{:action => @path ? @path.abspath : '/', :method=>'post', :enctype=> 'multipart/form-data'}
+      - if !@path
+        %label{:for=>'path'} Path
+        %input{:name=>'path',:type=>'text',:id=>'path'}
+        %br
+      %h2 Upload a file...
       %label{:for=>'file'} File
-      %input{:name=>'file',:type=>'file'}
-      %input{:type=>'submit', :value=>'Save'}
+      %input{:name=>'file',:id=>'file',:type=>'file'}
+      %input{:type=>'submit', :name =>'action', :value=>'Upload'}
       %br
-    %h2 Text
-    %form{:action => @path.abspath, :method=>'post'}
+      %h2 ...or write text
       %label{:for=>'content_area'} Content
-      %textarea{:name=>'content', :cols=>120, :rows=>30, :id=>'content_area'}
+      %textarea{:name=>'content', :cols=>120, :rows=>22, :id=>'content_area'}
       %br
       %label{:for=>'message'} Message
       %input{:type=>'text', :name=>'message', :id=>'message', :size => 50}
-      %input{:type=>'submit', :value=>'Save'}
-      %input{:type=>'reset', :value=>'Reset'}
+      %input{:type=>'submit', :name =>'action', :value=>'Save'}
       %br
