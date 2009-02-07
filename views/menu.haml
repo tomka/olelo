@@ -16,10 +16,10 @@
         %a{:href=>object_path(@object, @object.next_commit)} Newer &raquo;
     - if !@object.head?
       %li
-        %a{:href=> @object.path.abspath } Current
+        %a{:href=> @object.path.urlpath } Current
   - if enabled.include?(:current)
     %li
-      %a{:href=> @object.path.abspath } Current
+      %a{:href=> @object.path.urlpath } Current
   - if enabled.include?(:new)
     %li
       %a{:href=> '/new' } New Page

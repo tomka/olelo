@@ -2,5 +2,5 @@
 #main
   #sidebar=sidebar
   #content
-    %h1=h @error.message
-    %pre=h @error.backtrace.join("\n")
+    %h1&= @error.message
+    %pre&= @error.backtrace.join("\n")

@@ -3,7 +3,8 @@
   #sidebar=sidebar
   #content
     %h1=@title
-    %form{:action => @path ? @path.abspath : '/', :method=>'post', :enctype=> 'multipart/form-data'}
+    = show_messages
+    %form{:action => @path ? @path.urlpath : '/', :method=>'post', :enctype=> 'multipart/form-data'}
       - if !@path
         %label{:for=>'path'} Path
         %input{:name=>'path',:type=>'text',:id=>'path'}

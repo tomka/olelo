@@ -3,15 +3,15 @@
   #sidebar=sidebar
   #content
     %h1=@title
-    %form{:action => @object.path.abspath, :method=>'post'}
+    %form{:action => @object.path.urlpath, :method=>'post'}
       %input{:type=>'hidden', :name=> '_method', :value=>'put'}
       - if append
         %input{:type=>'hidden', :name=>'append', :value => 1 }
         %label Excerpt
-        %pre=h @object.content.tail(200)
+        %pre&= @object.content.tail(200)
         %br
       %label{:for=>'content_area'} Content
-      %textarea{:name=>'content', :cols=>120, :rows=>30, :id=>'content_area'}=h append ? '' : @object.content
+      %textarea{:name=>'content', :cols=>120, :rows=>30, :id=>'content_area'}&= append ? '' : @object.content
       %br
       %label{:for=>'message'} Message
       %input{:type=>'text', :name=>'message', :id=>'message', :size => 50}

@@ -9,7 +9,8 @@ mime/types
 logger
 open3
 yaml/store
-digest).each { |dep| require dep }
+digest
+cgi).each { |dep| require dep }
 
 class Object
   def blank?
@@ -38,6 +39,8 @@ class String
 
   def cleanpath
     names = split('/')
+    # /root maps to /
+    names.delete_at(0) if names[0] == 'root'
     i = 0
     while i < names.length
       case names[i]
@@ -58,8 +61,9 @@ class String
     names.join('/')
   end
 
-  def abspath
-    '/' + cleanpath
+  def urlpath
+    path = cleanpath
+    path == '' ? '/root' : '/' + path
   end
 
   def truncate(max, omission = '...')
@@ -116,6 +120,9 @@ module Wiki
 
   module Validation
     class Failed < ArgumentError; end
+    
+    def self.error_path=(s); @error_path = s; end
+    def self.error_path; @error_path; end
 
     def self.validate(conds = {})
       failed = conds.keys.select {|key| !conds[key]}
@@ -133,6 +140,7 @@ module Wiki
     attr_reader :repo, :path, :commit, :object
 
     def self.find(repo, path, sha = nil)
+      path = path.cleanpath
       commit = sha ? repo.gcommit(sha) : repo.log(1).path(path).first
       create(repo, path, commit, Object.find_in_repo(repo, path, commit))
     end
@@ -201,7 +209,6 @@ module Wiki
     def self.find_in_repo(repo, path, commit)
       begin
         if commit
-          path = path.cleanpath
           object = if path.blank?
                      commit.gtree
                    elsif path =~ /\//
@@ -224,7 +231,7 @@ module Wiki
       @object ? @object.contents : nil
     end
     
-    def update(new_content, message, author)
+    def update(new_content, message, author = nil)
       return if new_content == content
       repo.chdir {
         FileUtils.makedirs File.dirname(@path)
@@ -268,20 +275,19 @@ module Wiki
     def object_path(object, commit = nil, output = nil)
       commit ||= object.commit
       sha = commit.is_a?(String) ? commit : commit.sha      
-      (object.head?(commit) ? object.path : object.path/sha).abspath + (output ? "?output=#{output}" : '')
+      (object.head?(commit) ? object.path : object.path/sha).urlpath + (output ? "?output=#{output}" : '')
     end
 
     def child_path(tree, child)
-      (tree.head? ? child.path : child.path/tree.commit.sha).abspath + (child.tree? ? '/' : '')
+      (child.path/(tree.head? ? '' : tree.commit.sha)).urlpath
     end
 
     def parent_path(tree)
-      path = (tree.head? ? tree.path/'..' : tree.path/'..'/tree.commit.sha).abspath
-      path == '/' ? '/root/' : path + '/'
+      (tree.path/'..'/(tree.head? ? '' : tree.commit.sha)).urlpath
     end
 
     def action_path(object, action)
-      (object.path/action.to_s).abspath
+      (object.path/action.to_s).urlpath
     end
 
     def image_path(name)
@@ -482,8 +488,9 @@ module Wiki
   end
 
   class App < Sinatra::Base
-    pattern :path, /([\w.+\-_\/]|%20)+/
-    pattern :sha,   /[A-Fa-f0-9]{40}/
+    PATH_PATTERN = /[\w.+\-_\/](?:[\w.+\-_\/ ]+[\w.+\-_\/])?/
+    pattern :path, PATH_PATTERN
+    pattern :sha,  /[A-Fa-f0-9]{40}/
 
     set :haml, { :format => :xhtml, :attr_wrapper  => '"' }
     set :methodoverride, true
@@ -506,11 +513,11 @@ module Wiki
                          :index => File.join(App.config['repository'], 'index'), :log => @logger)
         page = Page.new(@repo, 'init.txt')
         page.update('This file is used to initialize the repository. It can be deleted.', 'Initialize Repository')
-      end
+      end      
     end
 
     def show
-      @object = @object && @object.exists? ? @object : Object.find!(@repo, params[:path], params[:sha])
+      @object = Object.find!(@repo, params[:path], params[:sha]) if !@object || !@object.exists?
       @title = @object.pretty_name
       @footer = "#{@object.head? ? 'Current' : 'Outdated'} Version &bull; Last modified by #{@object.commit.committer.name}, #{@object.commit.committer_date.format}"
       if @object.tree?
@@ -533,17 +540,21 @@ module Wiki
         @title = (append ? 'Append to ' : 'Edit ') + @object.pretty_name
         haml :edit, :locals => { :append => append }
       else
-        redirect(@object.path.abspath)
+        redirect(@object.path.urlpath)
       end
     end
 
     before do
+      # Sinatra does not unescape before pattern matching
+      # Paths with spaces won't be recognized
+      request.path_info = CGI::unescape(request.path_info)
+      @logger.debug request.env
       content_type 'application/xhtml+xml', :charset => 'utf-8'
       @user = session[:user] || User.anonymous(request.ip)
     end
 
     not_found do
-      redirect((params[:path]/'new').abspath) if params[:path]
+      redirect((params[:path]/'new').urlpath) if params[:path]
       @error = request.env['sinatra.error']
       @title = 'Error'
       haml :error
@@ -553,7 +564,7 @@ module Wiki
       request.env['sinatra.error'].message.each do |msg|
         message :error, msg
       end
-      redirect request.path_info
+      redirect(Validation.error_path || request.path_info)
     end
 
     error do
@@ -625,6 +636,26 @@ module Wiki
       haml :history
     end
 
+    get '/history.rss', '/:path/history.rss' do
+      params[:path] ||= ''
+      object = Object.find!(@repo, params[:path])
+      require 'rss/maker'
+      content_type 'application/rss+xml', :charset => 'utf-8'
+      content = RSS::Maker.make('2.0') do |rss|
+        rss.channel.title = App.config['title']
+        rss.channel.link = request.scheme + '://' +  (request.host + ':' + request.port.to_s)
+        rss.channel.description = App.config['title'] + ' Changelog'
+        rss.items.do_sort = true
+        object.history.each do |commit|
+          i = rss.items.new_item
+          i.title = commit.message
+          i.link = request.scheme + '://' + (request.host + ':' + request.port.to_s)/object.path/commit.sha
+          i.date = commit.committer.date
+        end
+      end
+      content.to_s
+    end
+
     get '/diff', '/:path/diff' do
       params[:path] ||= ''
       @from = params[:from]
@@ -645,7 +676,7 @@ module Wiki
 
     get '/:path/new' do
       @path = params[:path]
-      redirect(params[:path].abspath) if Object.find(@repo, @path)
+      redirect(params[:path].urlpath) if Object.find(@repo, @path)
       @title = "New page #{@path}"
       haml :new
     end
@@ -655,7 +686,7 @@ module Wiki
       haml :new
     end
 
-    get '/root/?', '/:sha', '/:path/:sha', '/:path' do
+    get '/:sha', '/:path/:sha', '/:path' do
       params[:path] ||= ''
       show
     end
@@ -670,14 +701,19 @@ module Wiki
     end
 
     post '/', '/:path' do
+      Validation.error_path = '/new'
+      
+      puts "--#{params[:path]}--"
+      puts (params[:path] =~ /^#{PATH_PATTERN.source}$/)
+
+      Validation.validate('Invalid path' => (params[:path] =~ /^#{PATH_PATTERN.source}$/))
       @object = Page.new(@repo, params[:path])
       if params[:action] == 'Upload'
         @object.update(params[:file][:tempfile].read, 'File uploaded')
-        show
       else
         @object.update(params[:content], params[:message], @user.author)
-        show
       end
+      redirect params[:path].urlpath
     end
 
   end
