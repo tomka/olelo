@@ -355,11 +355,6 @@ module Wiki
     
     ENGINES =
       [
-       Engine.create(:css, false) {
-         accepts {|page| page.extension == 'sass' }
-         output  {|page| Sass::Engine.new(page.content).render }
-         mime    {|page| 'text/css' }
-       },
        Engine.create(:creole, true) {
          accepts {|page| page.extension =~ /^(text|creole)$/ }
          output  {|page|
@@ -400,8 +395,13 @@ module Wiki
        Engine.create(:raw, false) {
          accepts {|page| true }
          output  {|page| page.content }
-         mime    {|page| page.mime_type ? 'application/octet-stream' : page.mime_type }
-       }
+         mime    {|page| page.mime_type ? page.mime_type : 'application/octet-stream' }
+       },
+       Engine.create(:css, false) {
+         accepts {|page| page.extension == 'sass' }
+         output  {|page| Sass::Engine.new(page.content).render }
+         mime    {|page| 'text/css' }
+       },
       ]
   end
 
@@ -564,11 +564,6 @@ module Wiki
       haml :login
     end
 
-    get '/logout' do
-      session[:user] = @user = nil
-      redirect '/'
-    end
-
     post '/login' do
       session[:user] = User.authenticate(params[:user], params[:password])
       redirect '/'
@@ -584,10 +579,27 @@ module Wiki
       redirect '/'
     end
 
+    get '/logout' do
+      session[:user] = @user = nil
+      redirect '/'
+    end
+
+    get '/profile' do
+      @title = "Profile of #{@user.name}"
+      haml :profile
+    end
+
     get '/style.css' do
-      content_type 'text/css', :charset => 'utf-8'
-      # FIXME: Should be wiki editable
-      sass :style
+      begin
+        # Try to use wiki version
+        params[:output] = 'css'
+        params[:path] = 'style.sass'
+        show
+      rescue Object::NotFound
+        # Fallback to default style
+        content_type 'text/css', :charset => 'utf-8'
+        sass :style
+      end
     end
     
     get '/archive', '/:path/archive' do

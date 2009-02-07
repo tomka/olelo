@@ -22,7 +22,7 @@
       %a{:href=> @object.path.abspath } Current
   - if enabled.include?(:new)
     %li
-      %a{:href=> '/new' } New
+      %a{:href=> '/new' } New Page
   - if enabled.include?(:edit) && @object.page?
     %li
       %a{:href=>action_path(@object, :edit) } Edit

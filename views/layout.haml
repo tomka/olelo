@@ -9,11 +9,10 @@
     #header
       %h1= Wiki::App.title
       #box
+        %a{:href=>'/profile'}= @user.name
         - if @user.anonymous?
-          = @user.name
           %a{:href=>'/login'} Login
         - else
-          %a{:href=>'/profile'}= @user.name
           %a{:href=>'/logout'} Logout
     = yield
     #footer
