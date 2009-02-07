@@ -8,4 +8,6 @@
   %body
     #header= Wiki::App.title
     = yield
-    #footer Powered by Git-Wiki
+    #footer
+      Powered by
+      %a{:href=>'http://github.com/minad/git-wiki/tree/master'} Git-Wiki

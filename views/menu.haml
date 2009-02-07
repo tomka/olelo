@@ -23,3 +23,6 @@
     - if enabled.include?(:history)
       %li
         %a{:href=>action_path(@object, :history) } History
+    - if enabled.include?(:archive)
+      %li
+        %a{:href=>action_path(@object, :archive) } Archive

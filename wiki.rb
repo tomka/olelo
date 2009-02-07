@@ -207,13 +207,12 @@ module Wiki
     def update(new_content, message, author = nil)
       return if new_content == content
       message ||= ''
-      message.gsub!("'", "'\\\\''") # FIXME: ruby-git bug
       repo.chdir {
         FileUtils.makedirs File.dirname(@path)
         File.open(@path, 'w') {|f| f << new_content }
       }
       repo.add(@path)
-      repo.commit(message.empty? ? '(Empty commit message)' : message)
+      repo.commit(message.empty? ? '(Empty commit message)' : message, :author => author)
       @prev_commit = @history = nil
       @commit = head_commit
       @object = Object.find_in_repo(@repo, @path, @commit) || raise(NotFound.new(path))
@@ -355,9 +354,9 @@ module Wiki
   end
 
   class App < Sinatra::Base
-    pattern :path, /.+/
+    pattern :path, /([\w.+\-_\/]|%20)+/
     pattern :sha,   /[A-Fa-f0-9]{40}/
-    
+
     set :haml, { :format => :xhtml, :attr_wrapper  => '"' }
     set :methodoverride, true
     set :static, true
@@ -369,12 +368,12 @@ module Wiki
 
     def initialize
       @logger = App.logger
-      if File.exists?(App.repository)
-        @repo = Git.open(App.repository, :log => @logger)
+      if File.exists?(App.repository) && File.exists?(App.workspace)
+        @repo = Git.open(App.workspace, :repository => App.repository, :index => File.join(App.repository, 'index'), :log => @logger)
       else
-        @repo = Git.init(App.repository, :log => @logger)
-        page = Page.new(@repo, '.init')
-        page.update('.init', 'Initialize Repository')
+        @repo = Git.init(App.workspace, :repository => App.repository, :index => File.join(App.repository, 'index'), :log => @logger)
+        page = Page.new(@repo, 'init.txt')
+        page.update('This file is used to initialize the repository. It can be deleted.', 'Initialize Repository')
       end
     end
 
@@ -405,6 +404,10 @@ module Wiki
       end
     end
 
+    def author
+      "anonymous@#{request.ip} <anonymous@#{request.ip}>"
+    end
+
     before do
       content_type 'application/xhtml+xml', :charset => 'utf-8'
     end
@@ -412,11 +415,13 @@ module Wiki
     not_found do
       redirect((params[:path]/'new').abspath) if params[:path]
       @error = request.env['sinatra.error']
+      @title = 'Error'
       haml :error
     end
 
     error do
       @error = request.env['sinatra.error']
+      @title = 'Error'
       haml :error
     end
 
@@ -426,10 +431,12 @@ module Wiki
       sass :style
     end
     
-    get '/tarball' do
-      content_type 'application/x-gzip'
+    get '/archive', '/:path/archive' do
+      params[:path] ||= ''
+      content_type 'application/x-tar-gz'
       attachment 'archive.tar.gz'
-      archive = @repo.archive('HEAD', nil, :format => 'tgz', :prefix => 'wiki/')
+      @object = Object.find!(@repo, params[:path])
+      archive = @repo.archive(@object.object.sha, nil, :format => 'tgz', :prefix => 'archive/')
       File.open(archive).read
     end
 
@@ -479,7 +486,7 @@ module Wiki
       @object = Object.find!(@repo, params[:path])
       if @object.page?
         params[:content] = @object.content + "\n" + params[:content] if params[:append] == '1'
-        @object.update(params[:content], params[:message], request.ip)
+        @object.update(params[:content], params[:message], author)
       end
       show
     end
@@ -490,7 +497,7 @@ module Wiki
         @object.update(params[:file][:tempfile].read, 'File uploaded')
         show
       else
-        @object.update(params[:content], params[:message], request.ip)
+        @object.update(params[:content], params[:message], author)
         show
       end
     end
