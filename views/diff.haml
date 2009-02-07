@@ -1,24 +1,26 @@
-= menu :current, :edit, :append, :history
-
-#content
-  %h1=@title
-  %table
-    %tr
-      %td To
-      %td
-        %a.sha{:href=>object_path(@object, @from)}= @from
-    %tr
-      %td From
-      %td
-        %a.sha{:href=>object_path(@object, @to)}= @to
-    %tr
-      %td Deletions
-      %td= @diff.deletions
-    %tr
-      %td Insertions
-      %td= @diff.insertions
-    %tr
-      %td Files
-      %td= @diff.size
-  %p
-    ~ Highlighter.text(@diff, 'diff')
+#menu= menu :current, :edit, :append, :history
+#main
+  #sidebar= sidebar
+  #content
+    %h1=@title
+    %table
+      %tbody
+        %tr
+          %td To
+          %td
+            %a.sha{:href=>object_path(@object, @from)}= @from
+        %tr
+          %td From
+          %td
+            %a.sha{:href=>object_path(@object, @to)}= @to
+        %tr
+          %td Deletions
+          %td= @diff.deletions
+        %tr
+          %td Insertions
+          %td= @diff.insertions
+        %tr
+          %td Files
+          %td= @diff.size
+      %p
+        ~ Highlighter.text(@diff, 'diff')

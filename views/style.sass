@@ -124,9 +124,6 @@ a:hover, a:active
   :color #FFFFC2
   :padding 5px
 
-#content
-  :padding 1em
-
 #menu
   :background #FFF
   :height 1.7em
@@ -140,6 +137,7 @@ a:hover, a:active
     :height 1.7em
     :list-style-type none
     :list-style-image none
+    :float left
     &.wiki
       :float right
     li
@@ -165,14 +163,41 @@ a:hover, a:active
 
 #footer
   :clear both
-  :margin-top 1em
   :border-top 1px solid #999
   :border-bottom 1px solid #999
   :background #FFF
   :color #999
-  :padding 0 2em
+  :padding 0 3em
   :height 1.7em
+  :text-align right
   :line-height 1.7em
+
+#main
+  :display block
+  :overflow hidden
+  :margin 0
+  :padding 0
+
+#content
+  :padding 0 1em 0 2em
+  :display block
+  :float left 
+  :padding-bottom 1002em
+  :margin-bottom -1000em
+
+#sidebar
+  :width 12em
+  :display block
+  :float left
+  :border-right 1px solid #999
+  :background #FFF
+  :height 20em
+  :padding 1em
+  :padding-bottom 1002em
+  :margin-bottom -1000em
+  input
+    :width 12em
+    :margin 0
 
 .sha, tt, pre, code, kbd
   :font-family "Andale Mono", "Bitstream Vera Mono", monospace
@@ -180,7 +205,6 @@ a:hover, a:active
 pre
   :border 1px solid #999
   :padding 1em 0.5em
-  :min-width 70%
   :background #FFF
   :display block
 
@@ -191,7 +215,7 @@ form
   button, label, input, select, textarea, .flash, .block, pre
     :display	 	block
     :float		left
-    :margin		0.3em 0.5em
+    :margin		0.3em 0.5em 0.3em 0
     :padding		2px
     :border		none
     :background		none

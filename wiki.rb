@@ -59,6 +59,12 @@ class Symbol
   end
 end
 
+class Time
+  def format
+    strftime('%d. %h %Y %H:%M')
+  end
+end
+
 class String
 
   def tail(max)
@@ -203,7 +209,6 @@ module Wiki
       @object ? @object.contents : nil
     end
     
-    # FIXME: Author not used
     def update(new_content, message, author = nil)
       return if new_content == content
       message ||= ''
@@ -219,7 +224,7 @@ module Wiki
     end
 
     def extension
-      path =~ /\.([^\/]+)$/
+      path =~ /\.([^.]+)$/
       $1
     end
 
@@ -236,7 +241,7 @@ module Wiki
     end
 
     def pretty_name
-      '&radic;&macr;&macr;'/path
+      '&radic;&macr; Root'/path
     end
   end
 
@@ -248,11 +253,12 @@ module Wiki
     end
 
     def child_path(tree, child)
-      (tree.head? ? child.path : child.path/tree.commit.sha).abspath
+      (tree.head? ? child.path : child.path/tree.commit.sha).abspath + (child.tree? ? '/' : '')
     end
 
     def parent_path(tree)
-      (tree.head? ? tree.path/'..' : tree.path/'..'/tree.commit.sha).abspath
+      path = (tree.head? ? tree.path/'..' : tree.path/'..'/tree.commit.sha).abspath
+      path == '/' ? '/root/' : path + '/'
     end
 
     def action_path(object, action)
@@ -266,6 +272,10 @@ module Wiki
     def menu(*enabled)
       haml :menu, :layout => false, :locals => { :enabled => enabled }
     end
+
+    def sidebar
+      haml :sidebar, :layout => false
+    end    
   end
 
   class Engine
@@ -380,6 +390,7 @@ module Wiki
     def show
       @object ||= Object.find!(@repo, params[:path], params[:sha])
       @title = @object.pretty_name
+      @footer = "#{@object.head? ? 'Current' : 'Outdated'} Version &bull; Last modified by #{@object.commit.committer.name}, #{@object.commit.committer_date.format}"
       if @object.tree?
         haml :tree
       else
@@ -425,6 +436,11 @@ module Wiki
       haml :error
     end
 
+    get '/' do
+      params[:redirect] ||= '/index.text'
+      redirect params[:redirect]
+    end
+
     get '/style.css' do
       content_type 'text/css', :charset => 'utf-8'
       # FIXME: Should be wiki editable
@@ -438,11 +454,6 @@ module Wiki
       @object = Object.find!(@repo, params[:path])
       archive = @repo.archive(@object.object.sha, nil, :format => 'tgz', :prefix => 'archive/')
       File.open(archive).read
-    end
-
-    get '/:sha', '/:path/:sha' do
-      params[:path] ||= ''
-      show
     end
 
     get '/history', '/:path/history' do
@@ -477,7 +488,7 @@ module Wiki
       haml :new
     end
 
-    get '/', '/:path' do
+    get '/root/?', '/:sha', '/:path/:sha', '/:path' do
       params[:path] ||= ''
       show
     end

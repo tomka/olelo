@@ -1,26 +1,27 @@
-= menu :current, :edit, :append
-
-#content
-  %h1=@title
-  %form{:action=> action_path(@object, :diff) }
-    %input{:type=>'submit', :value=>'Show Diff'}
-    %br
-    %table
-      %thead
-        %tr
-          %th Diff
-          %th SHA
-          %th Author
-          %th Date
-          %th Message
-      %tbody
-        - @object.history.each do |commit|
+#menu= menu :current, :edit, :append
+#main
+  #sidebar=sidebar
+  #content
+    %h1=@title
+    %form{:action=> action_path(@object, :diff) }
+      %input{:type=>'submit', :value=>'Show Diff'}
+      %br
+      %table
+        %thead
           %tr
-            %td
-              %input{:type=>'radio', :name=>'to', :value=> commit.sha}
-              %input{:type=>'radio', :name=>'from', :value=> commit.sha}
-            %td
-              %a.sha{:href=>object_path(@object, commit)}=commit.sha
-            %td=h commit.author.name
-            %td=h commit.author_date.strftime('%d. %h %Y %H:%M')
-            %td=h commit.message.truncate(50)
+            %th Diff
+            %th SHA
+            %th Author
+            %th Date
+            %th Message
+        %tbody
+          - @object.history.each do |commit|
+            %tr
+              %td
+                %input{:type=>'radio', :name=>'to', :value=> commit.sha}
+                %input{:type=>'radio', :name=>'from', :value=> commit.sha}
+              %td
+                %a.sha{:href=>object_path(@object, commit)}=commit.sha
+              %td=h commit.author.name
+              %td=h commit.author_date.format
+              %td=h commit.message.truncate(50)

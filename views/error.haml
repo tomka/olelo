@@ -1,5 +1,6 @@
-= menu
-
-#content
-  %h1=h @error.message
-  %pre=h @error.backtrace.join("\n")
+#menu= menu
+#main
+  #sidebar=sidebar
+  #content
+    %h1=h @error.message
+    %pre=h @error.backtrace.join("\n")

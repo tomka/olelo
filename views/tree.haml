@@ -1,22 +1,22 @@
-= menu :version, :history, :archive
-
-#content
-  %h1=@title
-
-  %table
-    %thead
-      %tr
-        %th Name
-    %tbody
-      - if !@object.path.empty?
+#menu= menu :version, :history, :archive
+#main
+  #sidebar=sidebar
+  #content
+    %h1=@title
+    %table
+      %thead
         %tr
-          %td
-            %a{:href=> parent_path(@object) }
-              %img{:src => image_path(:folder)}
-              \..
-      - @object.children.each do |child|
-        %tr
-          %td
-            %a{:href=>child_path(@object, child)}
-              %img{:src => image_path(child.page? ? :page : :folder)}
-              =child.name
+          %th Name
+      %tbody
+        - if !@object.path.empty?
+          %tr
+            %td
+              %a{:href=> parent_path(@object) }
+                %img{:src => image_path(:folder)}
+                \..
+        - @object.children.each do |child|
+          %tr
+            %td
+              %a{:href=>child_path(@object, child)}
+                %img{:src => image_path(child.page? ? :page : :folder)}
+                =child.name

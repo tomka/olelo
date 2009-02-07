@@ -1,4 +1,6 @@
-= menu :version, :edit, :append, :history
-#content
-  %h1=@title
-  ~ @content
+#menu= menu :version, :edit, :append, :history
+#main
+  #sidebar=sidebar
+  #content
+    %h1=@title
+    ~ @content
