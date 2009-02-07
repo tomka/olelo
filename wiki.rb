@@ -4,9 +4,6 @@ sinatra_ext
 git
 haml
 sass
-creole
-redcloth
-rdiscount
 rubypants
 mime/types
 logger
@@ -358,6 +355,7 @@ module Wiki
        Engine.create(:creole, true) {
          accepts {|page| page.extension =~ /^(text|creole)$/ }
          output  {|page|
+           require 'creole'
            creole = Creole::CreoleParser.new
            class << creole
              def make_image_link(url)
@@ -369,11 +367,17 @@ module Wiki
        },
        Engine.create(:markdown, true) {
          accepts {|page| page.extension =~ /^(markdown|md|mdown|mkdn|mdown)$/  }
-         output  {|page| RubyPants.new(RDiscount.new(page.content).to_html).to_html }
+         output  {|page|
+           require 'rdiscount'
+           RubyPants.new(RDiscount.new(page.content).to_html).to_html
+         }
        },
        Engine.create(:textile, true) {
          accepts {|page| page.extension == 'textile'  }
-         output  {|page| RubyPants.new(RedCloth.new(page.content).to_html).to_html }
+         output  {|page|
+           require 'redcloth'
+           RubyPants.new(RedCloth.new(page.content).to_html).to_html
+         }
        },
        Engine.create(:code, true) {
          accepts {|page| Highlighter.supports?(page.name) }
@@ -473,7 +477,7 @@ module Wiki
     end
 
     def self.store
-      @store ||= YAML::Store.new(App.users_store)
+      @store ||= YAML::Store.new(App.config['users_store'])
     end
   end
 
@@ -492,11 +496,14 @@ module Wiki
     include Helper
 
     def initialize
-      @logger = App.logger
-      if File.exists?(App.repository) && File.exists?(App.workspace)
-        @repo = Git.open(App.workspace, :repository => App.repository, :index => File.join(App.repository, 'index'), :log => @logger)
+      @logger = Logger.new(STDOUT)
+      @logger.level = Logger.const_get(App.config['loglevel'])
+      if File.exists?(App.config['repository']) && File.exists?(App.config['workspace'])
+        @repo = Git.open(App.config['workspace'], :repository => App.config['repository'],
+                         :index => File.join(App.config['repository'], 'index'), :log => @logger)
       else
-        @repo = Git.init(App.workspace, :repository => App.repository, :index => File.join(App.repository, 'index'), :log => @logger)
+        @repo = Git.init(App.config['workspace'], :repository => App.config['repository'],
+                         :index => File.join(App.config['repository'], 'index'), :log => @logger)
         page = Page.new(@repo, 'init.txt')
         page.update('This file is used to initialize the repository. It can be deleted.', 'Initialize Repository')
       end

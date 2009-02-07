@@ -1,0 +1,5 @@
+title:       'Git-Wiki'
+repository:  '/home/user/wiki/repository'
+workspace:   '/home/user/wiki/workspace'
+users_store: '/home/user/wiki/users.yml'
+loglevel:    INFO

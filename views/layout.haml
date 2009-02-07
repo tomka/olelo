@@ -2,14 +2,15 @@
 !!! 1.1
 %html{:xmlns=>"http://www.w3.org/1999/xhtml"}
   %head
-    %title= Wiki::App.title + ' &bull; ' + @title
+    %title= Wiki::App.config['title'] + ' &bull; ' + @title
     %link{:rel => 'stylesheet', :href => '/style.css', :type => 'text/css'}
     %link{:rel => 'stylesheet', :href => '/highlight.css', :type => 'text/css'}
   %body
     #header
-      %h1= Wiki::App.title
+      %h1= Wiki::App.config['title']
       #box
         %a{:href=>'/profile'}= @user.name
+        |
         - if @user.anonymous?
           %a{:href=>'/login'} Login
         - else
