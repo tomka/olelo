@@ -6,7 +6,15 @@
     %link{:rel => 'stylesheet', :href => '/style.css', :type => 'text/css'}
     %link{:rel => 'stylesheet', :href => '/highlight.css', :type => 'text/css'}
   %body
-    #header= Wiki::App.title
+    #header
+      %h1= Wiki::App.title
+      #box
+        - if @user.anonymous?
+          = @user.name
+          %a{:href=>'/login'} Login
+        - else
+          %a{:href=>'/profile'}= @user.name
+          %a{:href=>'/logout'} Logout
     = yield
     #footer
       Powered by

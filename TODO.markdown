@@ -5,6 +5,7 @@ Brainstorming...
 ----------------
 
 - Menu
+- Search
 - LaTeX integration
 - Login
 - Captcha support

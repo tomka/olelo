@@ -65,6 +65,12 @@ class Time
   end
 end
 
+class Object
+  def blank?
+    respond_to?(:empty?) ? empty? : !self
+  end
+end
+
 class String
 
   def tail(max)
@@ -130,6 +136,10 @@ module Wiki
       find(repo, path, sha) || raise(NotFound.new(path))
     end
 
+    def exists?
+      !!@object
+    end
+
     def head?(commit = nil)
       commit ||= @commit
       commit = @repo.gcommit(commit) if commit.is_a? String
@@ -187,7 +197,7 @@ module Wiki
       begin
         if commit
           path = path.cleanpath
-          object = if path.empty?
+          object = if path.blank?
                      commit.gtree
                    elsif path =~ /\//
                      path.split('/').inject(commit.gtree) { |t, x| t.children[x] } rescue nil
@@ -209,15 +219,14 @@ module Wiki
       @object ? @object.contents : nil
     end
     
-    def update(new_content, message, author = nil)
+    def update(new_content, message, author)
       return if new_content == content
-      message ||= ''
       repo.chdir {
         FileUtils.makedirs File.dirname(@path)
         File.open(@path, 'w') {|f| f << new_content }
       }
       repo.add(@path)
-      repo.commit(message.empty? ? '(Empty commit message)' : message, :author => author)
+      repo.commit(message.blank? ? '(Empty commit message)' : message, :author => author)
       @prev_commit = @history = nil
       @commit = head_commit
       @object = Object.find_in_repo(@repo, @path, @commit) || raise(NotFound.new(path))
@@ -363,6 +372,23 @@ module Wiki
       ]
   end
 
+  class User
+    attr_accessor :name, :email
+    attr_writer :anonymous
+
+    def anonymous?; @anonymous; end
+
+    def initialize(name, email, anonymous)
+      @name = name
+      @email = email
+      @anonymous = anonymous
+    end
+
+    def author
+      "#{@name} <#{@email}>"
+    end
+  end
+
   class App < Sinatra::Base
     pattern :path, /([\w.+\-_\/]|%20)+/
     pattern :sha,   /[A-Fa-f0-9]{40}/
@@ -373,6 +399,7 @@ module Wiki
     set :app_file, 'wiki.rb'
     set :raise_errors, false
     set :dump_errors, true
+    use Rack::Session::Pool
 
     include Helper
 
@@ -388,7 +415,7 @@ module Wiki
     end
 
     def show
-      @object ||= Object.find!(@repo, params[:path], params[:sha])
+      @object = @object && @object.exists? ? @object : Object.find!(@repo, params[:path], params[:sha])
       @title = @object.pretty_name
       @footer = "#{@object.head? ? 'Current' : 'Outdated'} Version &bull; Last modified by #{@object.commit.committer.name}, #{@object.commit.committer_date.format}"
       if @object.tree?
@@ -415,12 +442,9 @@ module Wiki
       end
     end
 
-    def author
-      "anonymous@#{request.ip} <anonymous@#{request.ip}>"
-    end
-
     before do
       content_type 'application/xhtml+xml', :charset => 'utf-8'
+      @user ||= User.new(request.ip, "anonymous@#{request.ip}", true)
     end
 
     not_found do
@@ -438,6 +462,24 @@ module Wiki
 
     get '/' do
       redirect '/index.text'
+    end
+
+    get '/login' do
+      @title = 'Login'
+      haml :login
+    end
+
+    post '/login' do
+      redirect '/'
+    end
+
+    get '/signup' do
+      @title = 'Signup'
+      haml :signup
+    end
+
+    post '/signup' do
+      redirect '/'
     end
 
     get '/style.css' do
@@ -501,7 +543,7 @@ module Wiki
       @object = Object.find!(@repo, params[:path])
       if @object.page?
         params[:content] = @object.content + "\n" + params[:content] if params[:append] == '1'
-        @object.update(params[:content], params[:message], author)
+        @object.update(params[:content], params[:message], @user.author)
       end
       show
     end
@@ -512,7 +554,7 @@ module Wiki
         @object.update(params[:file][:tempfile].read, 'File uploaded')
         show
       else
-        @object.update(params[:content], params[:message], author)
+        @object.update(params[:content], params[:message], @user.author)
         show
       end
     end

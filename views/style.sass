@@ -117,12 +117,24 @@ a:hover, a:active
 
 #header
   :background #0B3E71
-  :font-family Georgia, serif
-  :font-size 200%
-  :font-variant small-caps
-  :font-weight bold
-  :color #FFFFC2
   :padding 5px
+  h1
+    :color #FFFFC2
+    :font-family Georgia, serif
+    :font-size 200%
+    :font-variant small-caps
+    :font-weight bold
+    :margin 0
+  #box
+    :position absolute
+    :border-bottom 1px solid #AAA
+    :border-le1ft 1px solid #AAA
+    :background #FFFFC2
+    :margin 0
+    :padding 0.2em
+    :top 0
+    :right 0
+    :font-size 80%
 
 #menu
   :background #FFF
@@ -160,6 +172,10 @@ a:hover, a:active
         &:hover
           :color #FFF
           :background #0B3E71
+        img
+          :display block
+          :float left
+          :margin 0.2em 0.5em 0.2em 0
 
 #footer
   :clear both
