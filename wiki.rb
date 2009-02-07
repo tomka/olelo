@@ -10,7 +10,69 @@ rdiscount
 rubypants
 mime/types
 logger
-open3).each { |dep| require dep }
+open3
+yaml/store
+digest).each { |dep| require dep }
+
+class Object
+  def blank?
+    respond_to?(:empty?) ? empty? : !self
+  end
+end
+
+class Symbol
+  def to_proc
+    proc { |obj, *args| obj.send(self, *args) }
+  end
+end
+
+class Time
+  def format
+    strftime('%d. %h %Y %H:%M')
+  end
+end
+
+class String
+  def tail(max)
+    i = length-max
+    i = 0 if i < 0
+    self[i..-1]
+  end
+
+  def cleanpath
+    names = split('/')
+    i = 0
+    while i < names.length
+      case names[i]
+      when '..'
+        names.delete_at(i)
+        if i>0
+          names.delete_at(i-1)
+          i-=1
+        end
+      when '.'
+        names.delete_at(i)
+      when ''
+        names.delete_at(i)
+      else
+        i+=1
+      end
+    end
+    names.join('/')
+  end
+
+  def abspath
+    '/' + cleanpath
+  end
+
+  def truncate(max, omission = '...')
+    (length > max ? self[0...max-3] + omission : self)
+  end
+
+  def /(name)
+    (self + '/' + name).cleanpath
+  end
+end
 
 module Highlighter
   def self.text(text, format)
@@ -50,67 +112,6 @@ module Highlighter
     @mapping ||= lexer_mapping
     pattern = @mapping.keys.find {|pattern| File.fnmatch(pattern, name)}
     pattern ? @mapping[pattern] : nil
-  end
-end
-
-class Symbol
-  def to_proc
-    proc { |obj, *args| obj.send(self, *args) }
-  end
-end
-
-class Time
-  def format
-    strftime('%d. %h %Y %H:%M')
-  end
-end
-
-class Object
-  def blank?
-    respond_to?(:empty?) ? empty? : !self
-  end
-end
-
-class String
-
-  def tail(max)
-    i = length-max
-    i = 0 if i < 0
-    self[i..-1]
-  end
-
-  def cleanpath
-    names = split('/')
-    i = 0
-    while i < names.length
-      case names[i]
-      when '..'
-        names.delete_at(i)
-        if i>0
-          names.delete_at(i-1)
-          i-=1
-        end
-      when '.'
-        names.delete_at(i)
-      when ''
-        names.delete_at(i)
-      else
-        i+=1
-      end
-    end
-    names.join('/')
-  end
-
-  def abspath
-    '/' + cleanpath
-  end
-
-  def truncate(max, omission = '...')
-    (length > max ? self[0...max-3] + omission : self)
-  end
-
-  def /(name)
-    (self + '/' + name).cleanpath
   end
 end
 
@@ -240,6 +241,11 @@ module Wiki
     def pretty_name
       name.gsub(/\.([^.]+)$/, '')
     end
+
+    def mime_type
+      @mime_types ||= MIME::Types.of(path)
+      @mime_types.empty? ? nil : @mime_types.first
+    end
   end
   
   class Tree < Object
@@ -331,7 +337,7 @@ module Wiki
          output  {|page| Sass::Engine.new(page.content).render }
          mime    {|page| 'text/css' }
        },
-         Engine.create(:creole, true) {
+       Engine.create(:creole, true) {
          accepts {|page| page.extension =~ /^(text|creole)$/ }
          output  {|page|
            creole = Creole::CreoleParser.new
@@ -356,36 +362,94 @@ module Wiki
          output  {|page| Highlighter.file(page.content, page.name) }
        },
        Engine.create(:image, true) {
-         accepts {|page| types = MIME::Types.of(page.path); types.empty? ? false : types.first.media_type == 'image' }
+         accepts {|page| page.mime_type && page.mime_type.media_type == 'image' }
          output  {|page| "<img src=\"#{object_path(page, nil, 'raw')}\"/>" }
        },
        Engine.create(:html, true) {
-         accepts {|page| types = MIME::Types.of(page.path); types.empty? ? false : types.first.ascii? }
-           output  {|page| '<pre>' + CGI::escape_html(page.content) + '</pre>' }
-         mime    {|page| MIME::Types.of(page.path).first.to_s }
+         accepts {|page| page.mime_type && page.mime_type.ascii? }
+         output  {|page| '<pre>' + CGI::escape_html(page.content) + '</pre>' }
+         mime    {|page| page.mime_type }
+       },
+       Engine.create(:download, true) {
+         accepts {|page| true }
+         output  {|page| "<a href=\"#{object_path(page, nil, 'raw')}\">Download</a>" }
        },
        Engine.create(:raw, false) {
          accepts {|page| true }
          output  {|page| page.content }
-         mime    {|page| types = MIME::Types.of(page.path); types.empty? ? 'text/plain' : types.first.to_s }
+         mime    {|page| page.mime_type ? 'application/octet-stream' : page.mime_type }
        }
       ]
   end
 
   class User
-    attr_accessor :name, :email
-    attr_writer :anonymous
+    attr_accessor :email
+    attr_reader :name, :password
+
+    class Unauthorized < Exception
+    end
 
     def anonymous?; @anonymous; end
 
-    def initialize(name, email, anonymous)
-      @name = name
-      @email = email
-      @anonymous = anonymous
+    def password=(pw)
+      @password = User.crypt(pw)
     end
 
     def author
       "#{@name} <#{@email}>"
+    end
+
+    def save
+      User.transaction(false) {|store|
+        store[name] = self
+      }
+    end
+
+    def self.anonymous(ip)
+      User.new(ip, nil, "anonymous@#{ip}", true)
+    end
+
+    def self.authorize(name, password)
+      user = find(name)
+      raise Unauthorized if !user || user.password != User.crypt(password)
+      user
+    end
+
+    def self.find(name)
+      transaction(true) {|store|
+        return store[name]
+      }
+    end
+
+    def self.create(name, password, email)
+      user = User.new(name, password, email, false)
+      user.save
+      user
+    end
+
+    def to_yaml_properties
+      %w(@name @email @password)
+    end
+
+    private
+
+    def initialize(name, password, email, anonymous)
+      @name = name
+      @email = email
+      @anonymous = anonymous
+      @password = User.crypt(password)
+    end
+
+    def self.crypt(s)
+      s.blank? ? s : Digest::SHA256.hexdigest(s)
+    end
+
+    def self.transaction(read_only, &block)
+      store.transaction(read_only, &block)
+    end
+
+    def self.store
+      @store ||= YAML::Store.new(App.users_store)
     end
   end
 
@@ -426,7 +490,7 @@ module Wiki
         if engine.layout?
           haml :page
         else
-          content_type engine.mime(@object)
+          content_type engine.mime(@object).to_s
           @content
         end
       end
@@ -444,7 +508,7 @@ module Wiki
 
     before do
       content_type 'application/xhtml+xml', :charset => 'utf-8'
-      @user ||= User.new(request.ip, "anonymous@#{request.ip}", true)
+      @user = session[:user] || User.anonymous(request.ip)
     end
 
     not_found do
@@ -469,7 +533,13 @@ module Wiki
       haml :login
     end
 
+    get '/logout' do
+      session[:user] = @user = nil
+      redirect '/'
+    end
+
     post '/login' do
+      session[:user] = User.authorize(params[:user], params[:password])
       redirect '/'
     end
 
@@ -479,6 +549,7 @@ module Wiki
     end
 
     post '/signup' do
+      session[:user] = User.create(params[:user], params[:password], params[:email])
       redirect '/'
     end
 

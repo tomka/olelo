@@ -6,6 +6,8 @@ Brainstorming...
 
 - Menu
 - Search
+- Preview
+- Edit uploaded files (overwrite)
 - LaTeX integration
 - Login
 - Captcha support
