@@ -15,4 +15,4 @@ Brainstorming...
 - (DONE, but could be a lot improved) RSS/Atom Changelog
 - Image support, Image gallery
 - Automatic file extensions for wikitext files
-
+- Breadcrumbs for tree browsing

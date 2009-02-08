@@ -1,13 +1,37 @@
 - @menu  = :new
-- @title = 'Login'
-= show_messages
-%form{:action => '/login', :method=>'post'}
-  %label{:for=>'user'} User
-  %input{:type=>'text', :name=>'user', :id=>'user'}
-  %br
-  %label{:for=>'password'} Password
-  %input{:type=>'password', :name=>'password', :id=>'password'}
-  %br
-  %input{:type=>'submit', :value=>'Login'}
-  %br
-  %a{:href=>'/signup'} Signup
+- @title = action?(:login) ? 'Login' : 'Sign up'
+.ui-tabs
+  %ul
+    %li{tab_selected(:login)}
+      %a{:href=>'#tab-login'} Login
+    %li{tab_selected(:signup)}
+      %a{:href=>'#tab-signup'} Sign up
+  #tab-login
+    %form{:action => '/login', :method=>'post'}
+      %div
+        %h2 Login
+        = show_messages if action? :login
+        %label{:for=>'login-user'} User
+        %input#login-user{:type=>'text', :name=>'user'}
+        %br
+        %label{:for=>'login-password'} Password
+        %input#login-password{:type=>'password', :name=>'password'}
+        %br
+        %input{:type=>'submit', :value=>'Login'}
+        %br
+  #tab-signup
+    %form{:action => '/signup', :method=>'post'}
+      %div
+        %h2 Sign up
+        = show_messages if action? :signup
+        %label{:for=>'signup-user'} User
+        %input#signup-user{:type=>'text', :name=>'user'}
+        %br
+        %label{:for=>'signup-password'} Password
+        %input#signup-password{:type=>'password', :name=>'password'}
+        %br
+        %label{:for=>'signup-email'} E-Mail
+        %input#signup-email{:type=>'text', :name=>'email'}
+        %br
+        %input{:type=>'submit', :value=>'Sign up'}
+        %br

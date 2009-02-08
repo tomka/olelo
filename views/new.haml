@@ -1,20 +1,37 @@
-- @title = @path ? "New page #{@path}" : 'New page'
-= show_messages
-%form{:action => @path ? @path.urlpath : '/', :method=>'post', :enctype=> 'multipart/form-data'}
-  - if !@path
-    %label{:for=>'path'} Path
-    %input{:name=>'path',:type=>'text',:id=>'path'}
-    %br
-  %h2 Upload a file...
-  %label{:for=>'file'} File
-  %input{:name=>'file',:id=>'file',:type=>'file'}
-  %input{:type=>'submit', :name =>'action', :value=>'Upload'}
-  %br
-  %h2 ...or write text
-  %label{:for=>'content_area'} Content
-  %textarea{:name=>'content', :cols=>120, :rows=>22, :id=>'content_area'}
-  %br
-  %label{:for=>'message'} Message
-  %input{:type=>'text', :name=>'message', :id=>'message', :size => 50}
-  %input{:type=>'submit', :name =>'action', :value=>'Save'}
-  %br
+- @title = "New page #{@path}"
+.ui-tabs
+  %ul
+    %li{tab_selected(:new)}
+      %a{:href=>'#tab-text'} Text
+    %li{tab_selected(:upload)}
+      %a{:href=>'#tab-upload'} Upload
+  #tab-text
+    %form{:action => @path.blank? ? '/' : @path.urlpath, :method=>'post', :enctype=> 'multipart/form-data'}
+      %div
+        %h2 Write text
+        = show_messages if action? :new
+        - if @path.blank?
+          %label{:for=>'text-path'} Path
+          %input#text-path{:name=>'path',:type=>'text',:value=>params[:prefix]}
+          %br
+        %label{:for=>'text-content'} Content
+        %br
+        %textarea#text-content{:name=>'content', :cols=>100, :rows=>22}
+        %br
+        %label{:for=>'text-message'} Message
+        %input#text-message{:type=>'text', :name=>'message', :size => 50}
+        %input{:type=>'submit', :value=>'Save'}
+        %br
+  #tab-upload
+    %form{:action => @path.blank? ? '/' : @path.urlpath, :method=>'post', :enctype=> 'multipart/form-data'}
+      %div
+        %h2 Upload a file
+        = show_messages if action? :upload
+        - if @path.blank?
+          %label{:for=>'upload-path'} Path
+          %input#upload-path{:name=>'path',:type=>'text',:value=>params[:prefix]}
+          %br
+        %label{:for=>'upload-file'} File
+        %input#upload-file{:name=>'file',:type=>'file'}
+        %input{:type=>'submit', :value=>'Upload'}
+        %br

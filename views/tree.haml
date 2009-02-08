@@ -10,11 +10,14 @@
       %tr
         %td
           %a{:href=> parent_path(@object) }
-            %img{:src => image_path(:folder)}
+            = image('Tree', :tree)
             \..
     - @object.children.each do |child|
       %tr
         %td
           %a{:href=>child_path(@object, child)}
-            %img{:src => image_path(child.page? ? :page : :folder)}
+	    - if child.page?
+              = image('Page', :page)
+            - else
+              = image('Tree', :tree)
             =child.name

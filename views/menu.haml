@@ -1,7 +1,7 @@
 %ul
   %li
     %a{:href=>'/'}
-      %img{:src=>image_path(:home)}
+      = image('Home', :home)
       Home
   %li
     %a{:href=>'/root/'} &radic;&macr; Root
@@ -22,16 +22,21 @@
       %a{:href=> @object.path.urlpath } Current
   - if enabled.include?(:new)
     %li
-      %a{:href=> '/new' } New Page
+      %a{:href=> '/new' + (@object && @object.tree? ? "?prefix=#{@object.path}/" : '')  }
+        = image('New Page', :new)
+        New Page
   - if enabled.include?(:edit) && @object.page?
     %li
-      %a{:href=>action_path(@object, :edit) } Edit
-  - if enabled.include?(:append) && @object.page?
-    %li
-      %a{:href=>action_path(@object, :append) } Append
+      %a{:href=>action_path(@object, :edit) }
+        = image('Edit', :edit)
+        Edit
   - if enabled.include?(:history)
     %li
-      %a{:href=>action_path(@object, :history) } History
+      %a{:href=>action_path(@object, :history) }
+        = image('History', :history)
+        History
   - if enabled.include?(:archive)
     %li
-      %a{:href=>action_path(@object, :archive) } Archive
+      %a{:href=>action_path(@object, :archive) }
+        = image('Archive', :archive)
+        Archive

@@ -31,10 +31,19 @@ class Time
 end
 
 class String
-  def tail(max)
-    i = length-max
-    i = 0 if i < 0
-    self[i..-1]
+  def last_lines(max)
+    lines = split("\n")
+    if lines.length <= max
+      self
+    else
+      lines[-max..-1].join("\n")
+    end
+  end
+
+  def ends_with?(str)
+    str = str.to_str
+    tail = self[-str.length, str.length]
+    tail == str      
   end
 
   def cleanpath
@@ -120,11 +129,8 @@ module Wiki
 
   module Validation
     class Failed < ArgumentError; end
-    
-    def self.error_path=(s); @error_path = s; end
-    def self.error_path; @error_path; end
 
-    def self.validate(conds = {})
+    def self.validate(conds)
       failed = conds.keys.select {|key| !conds[key]}
       raise Failed.new(failed) if !failed.empty?
     end
@@ -183,6 +189,12 @@ module Wiki
     def name
       return $1 if path =~ /\/([^\/]+)$/
       path
+    end
+
+    def safe_name
+      n = name
+      n = 'root' if n.blank?
+      n.gsub(/[^\w.\-_]/, '_')
     end
 
     def diff(to)
@@ -290,8 +302,12 @@ module Wiki
       (object.path/action.to_s).urlpath
     end
 
-    def image_path(name)
-      "/images/#{name}.png"
+    def image(alt, name)
+      "<img src=\"/images/#{name}.png\" alt=\"#{CGI::escapeHTML alt}\"/>"
+    end
+
+    def tab_selected(action)
+      action?(action) ? {:class=>'ui-tabs-selected'} : {}
     end
 
     def menu
@@ -319,6 +335,10 @@ module Wiki
     def message(level, msg)
       session[:messages] ||= []
       session[:messages] << [level, msg]
+    end
+
+    def action?(name)
+      request.path_info.ends_with? '/' + name.to_s
     end
   end
 
@@ -522,6 +542,7 @@ module Wiki
 
     def show
       @object = Object.find!(@repo, params[:path], params[:sha]) if !@object || !@object.exists?
+      @feed = (@object.path/'changelog.rss').urlpath
       if @object.tree?
         haml :tree
       else
@@ -533,15 +554,6 @@ module Wiki
           content_type engine.mime(@object).to_s
           @content
         end
-      end
-    end
-
-    def edit(append = false)
-      @object = Object.find!(@repo, params[:path])
-      if @object.page?
-        haml :edit, :locals => { :append => append }
-      else
-        redirect(@object.path.urlpath)
       end
     end
 
@@ -564,7 +576,7 @@ module Wiki
       request.env['sinatra.error'].message.each do |msg|
         message :error, msg
       end
-      redirect(Validation.error_path || request.path_info)
+      redirect(@error_path || request.path_info)
     end
 
     error do
@@ -573,20 +585,16 @@ module Wiki
     end
 
     get '/' do
-      redirect '/index.text'
+      redirect '/home.text'
     end
 
-    get '/login' do
+    get '/login', '/signup' do
       haml :login
     end
 
     post '/login' do
       session[:user] = User.authenticate(params[:user], params[:password])
       redirect '/'
-    end
-
-    get '/signup' do
-      haml :signup
     end
 
     post '/signup' do
@@ -623,10 +631,10 @@ module Wiki
     
     get '/archive', '/:path/archive' do
       params[:path] ||= ''
-      content_type 'application/x-tar-gz'
-      attachment 'archive.tar.gz'
       @object = Object.find!(@repo, params[:path])
-      archive = @repo.archive(@object.object.sha, nil, :format => 'tgz', :prefix => 'archive/')
+      content_type 'application/x-tar-gz'
+      attachment "#{@object.safe_name}.tar.gz"
+      archive = @repo.archive(@object.object.sha, nil, :format => 'tgz', :prefix => "#{@object.safe_name}/")
       File.open(archive).read
     end
 
@@ -636,7 +644,7 @@ module Wiki
       haml :history
     end
 
-    get '/history.rss', '/:path/history.rss' do
+    get '/changelog.rss', '/:path/changelog.rss' do
       params[:path] ||= ''
       object = Object.find!(@repo, params[:path])
       require 'rss/maker'
@@ -665,22 +673,24 @@ module Wiki
       haml :diff
     end
 
-    get '/:path/edit' do
-      edit
-    end
-
-    get '/:path/append' do
-      edit(true)
-    end
-
-    get '/:path/new' do
-      @path = params[:path]
-      redirect(params[:path].urlpath) if Object.find(@repo, @path)
+    get '/new', '/upload', '/:path/new', '/:path/upload' do
+      @path = params[:path] || ''
+      if !@path.blank? && Object.find(@repo, @path)
+        # Pass to upload for existing pages
+        pass if action?(:upload)
+        # Redirect to page if action == new
+        redirect(params[:path].urlpath)
+      end
       haml :new
     end
 
-    get '/new' do
-      haml :new
+    get '/:path/edit', '/:path/append', '/:path/upload' do
+      @object = Object.find!(@repo, params[:path])
+      if @object.page?
+        haml :edit
+      else
+        redirect(@object.path.urlpath)
+      end
     end
 
     get '/:sha', '/:path/:sha', '/:path' do
@@ -691,27 +701,27 @@ module Wiki
     put '/:path' do
       @object = Object.find!(@repo, params[:path])
       if @object.page?
-        params[:content] = @object.content + "\n" + params[:content] if params[:append] == '1'
-        @object.update(params[:content], params[:message], @user.author)
+        if params[:file]
+          @object.update(params[:file][:tempfile].read, 'File uploaded', @user.author)
+        elsif params[:appendix]
+          @object.update(@object.content + "\n" + params[:appendix], params[:message], @user.author)
+        else
+          @object.update(params[:content], params[:message], @user.author)
+        end
       end
       show
     end
 
     post '/', '/:path' do
-      Validation.error_path = '/new'
-      
-      puts "--#{params[:path]}--"
-      puts (params[:path] =~ /^#{PATH_PATTERN.source}$/)
-
-      Validation.validate('Invalid path' => (params[:path] =~ /^#{PATH_PATTERN.source}$/))
+      @error_path = params[:file] ? '/upload' : '/new'
+      Validation.validate('Invalid path' => params[:path] =~ /^#{PATH_PATTERN.source}$/)
       @object = Page.new(@repo, params[:path])
-      if params[:action] == 'Upload'
-        @object.update(params[:file][:tempfile].read, 'File uploaded')
+      if params[:file]
+        @object.update(params[:file][:tempfile].read, 'File uploaded', @user.author)
       else
         @object.update(params[:content], params[:message], @user.author)
       end
       redirect params[:path].urlpath
     end
-
   end
 end
