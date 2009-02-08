@@ -175,6 +175,7 @@ class Mime
   end
   
   add('text/x-sass', %w(sass), %w(text/plain))
+  add('text/x-haml', %w(haml), %w(text/plain))
   add('text/x-textile', %w(textile), %w(text/plain))
   add('text/x-creole', %w(creole text), %w(text/plain))
   add('text/x-markdown', %w(markdown md mdown mkdn mdown), %w(text/plain))
