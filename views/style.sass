@@ -90,13 +90,28 @@ ul, ol
     :margin 0 1em 0 1em
 
 table
-  :border 1px solid #999
-  :background #FFF
-  td, th
-    :padding 0.2em 0.5em
-    :border 1px solid #999
-  th
-    :font-variant small-caps
+  :background #999
+  :border-collapse separate
+  :border-spacing 1px
+  tr
+    :background #FFF
+    td, th
+      :padding 0.2em 0.5em
+    th
+      :font-variant small-caps
+      :background #AAA
+      :border 1px solid #FFF
+    &.odd
+      :background #EEF
+    .header
+      :background-image url(/images/table_bg.png)
+      :background-repeat no-repeat
+      :background-position center right
+      :cursor pointer
+    .headerSortUp
+      :background-image url(/images/table_dsc.png)
+    .headerSortDown
+      :background-image url(/images/table_asc.png)
   &.highlighttable
     :border none
     :background transparent

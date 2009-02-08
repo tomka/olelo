@@ -1,7 +1,7 @@
 - @menu   = :version, :history, :archive, :new
 - @title  = @object.pretty_name
 - @footer = "#{@object.head? ? 'Current' : 'Outdated'} Version &bull; Last modified by #{@object.commit.committer.name}, #{@object.commit.committer_date.format}"
-%table
+%table.sortable
   %thead
     %tr
       %th Name
@@ -16,7 +16,7 @@
       %tr
         %td
           %a{:href=>child_path(@object, child)}
-	    - if child.page?
+            - if child.page?
               = image('Page', :page)
             - else
               = image('Tree', :tree)

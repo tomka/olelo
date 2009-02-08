@@ -273,9 +273,7 @@ module Wiki
   
   class Tree < Object
     def children
-      x = @object.children.to_a.map {|x| Object.create(repo, path/x[0], commit, x[1]) }.compact
-      x.each {|y| y.page? }
-      x
+      @object.children.to_a.map {|x| Object.create(repo, path/x[0], commit, x[1]) }.compact
     end
 
     def pretty_name
