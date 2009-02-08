@@ -1,4 +1,5 @@
 *.log
 *.swp
 config.yml
+config-test.yml
 data

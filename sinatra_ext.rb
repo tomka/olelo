@@ -14,7 +14,7 @@ class Sinatra::Base
     path.gsub!(/:(\w+)/) {|key|
       key = $1.to_sym
       keys << key
-      patterns.has_key?(key) ? '(' + patterns[key].source + ')' : '([^/?&#\.]+)'
+      patterns.has_key?(key) ? '(' + patterns[key] + ')' : '([^/?&#\.]+)'
     }
     return Regexp.new('^' + path + '$'), keys
   end

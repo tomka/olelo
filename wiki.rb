@@ -42,17 +42,17 @@ class Time
   def self.distance_of_time_in_words(minutes)
     case
     when minutes < 1
-      "less than a minute"
+      'less than a minute'
     when minutes < 50
-      minutes == 1 ? "1 minute" : "#{minutes} minutes"
+      'minute'.pluralize(minutes, 'minutes')
     when minutes < 90
-      "about one hour"
+      'about one hour'
     when minutes < 1080
       "#{(minutes / 60).round} hours"
     when minutes < 1440
-      "one day"
+      'one day'
     when minutes < 2880
-      "about one day"
+      'about one day'
     else
       "#{(minutes / 1440).round} days"
     end
@@ -60,6 +60,10 @@ class Time
 end
 
 class String
+  def pluralize(count, plural)
+    "#{count || 0} " + (count.to_s == '1' ? self : plural)
+  end
+
   def last_lines(max)
     lines = split("\n")
     if lines.length <= max
@@ -451,15 +455,23 @@ module Wiki
       return engine if engine
       raise NotAvailable.new(name)
     end
-    
-    def self.method_missing(sym, &block)
-      define_method sym, &block
+
+    def self.accepts(&block)
+      define_method :accepts, &block
     end
-    
+
+    def self.output(&block)
+      define_method :output, &block
+    end
+
+    def self.mime(&block)
+      define_method :mime, &block
+    end
+
     accepts {|page| false }
     output  {|page| '' }
     mime    {|page| 'text/plain' }
-    
+
     ENGINES =
       [
        Engine.create(:creole, true) {
@@ -595,9 +607,10 @@ module Wiki
   end
 
   class App < Sinatra::Base
-    PATH_PATTERN = /[\w.+\-_\/](?:[\w.+\-_\/ ]+[\w.+\-_\/])?/
+    PATH_PATTERN = '[\w.+\-_\/](?:[\w.+\-_\/ ]+[\w.+\-_\/])?'
+    SHA_PATTERN = '[A-Fa-f0-9]{40}'
     pattern :path, PATH_PATTERN
-    pattern :sha,  /[A-Fa-f0-9]{40}/
+    pattern :sha,  SHA_PATTERN
 
     set :haml, { :format => :xhtml, :attr_wrapper  => '"' }
     set :methodoverride, true
@@ -695,7 +708,13 @@ module Wiki
     end
 
     get '/search' do
-      @matches = @repo.grep(params[:pattern])
+      matches = @repo.grep(params[:pattern], nil, :ignore_case => true)
+      @matches = []
+      matches.each_pair do |id,lines|
+        if id =~ /^#{SHA_PATTERN}:(.+)$/
+          @matches << [$1,lines.map {|x| x[1] }.join("\n").truncate(100)]
+        end
+      end
       haml :search
     end
 
@@ -797,7 +816,7 @@ module Wiki
 
     post '/', '/:path' do
       @error_path = params[:file] ? '/upload' : '/new'
-      Validation.validate('Invalid path' => params[:path] =~ /^#{PATH_PATTERN.source}$/)
+      Validation.validate('Invalid path' => params[:path] =~ /^#{PATH_PATTERN}$/)
       @object = Page.new(@repo, params[:path])
       if params[:file]
         @object.update(params[:file][:tempfile].read, 'File uploaded', @user.author)
