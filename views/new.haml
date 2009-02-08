@@ -19,7 +19,9 @@
       %br
       %label{:for=>'text-message'} Message
       %input#text-message{:type=>'text', :name=>'message', :size => 50}
-      %input{:type=>'submit', :value=>'Save'}
+      %input{:type=>'submit', :name => 'action', :value=>'Preview'}
+      %input{:type=>'submit', :name => 'action', :value=>'Save'}
+      %input{:type=>'reset', :value=>'Reset'}
       %br
   %form{:action => @path.blank? ? '/' : @path.urlpath, :method=>'post', :enctype=> 'multipart/form-data'}
     #tab-upload.box
