@@ -4,8 +4,9 @@
   %ul
     %li{tab_selected(:edit)}
       %a{:href=>'#tab-edit'} Edit
-    %li{tab_selected(:append)}
-      %a{:href=>'#tab-append'} Append
+    - if @object.mime.text?
+      %li{tab_selected(:append)}
+        %a{:href=>'#tab-append'} Append
     %li{tab_selected(:upload)}
       %a{:href=>'#tab-upload'} Upload
   #tab-edit
@@ -14,29 +15,30 @@
         %input{:type=>'hidden', :name=> '_method', :value=>'put'}
         %label{:for=>'edit-content'} Content
         %br
-        %textarea#edit-content{:name=>'content', :cols=>100, :rows=>22}&= @object.content
+        %textarea#edit-content{:name=>'content', :cols=>100, :rows=>22}&= @object.mime.text? ? @object.content : ''
         %br
         %label{:for=>'edit-message'} Message
         %input#edit-message{:type=>'text', :name=>'message', :size => 50}
         %input{:type=>'submit', :value=>'Save'}
         %input{:type=>'reset', :value=>'Reset'}
         %br
-  #tab-append
-    %form{:action => @object.path.urlpath, :method=>'post'}
-      %div
-        %input{:type=>'hidden', :name=> '_method', :value=>'put'}
-        %label{:for=>'append-excerpt'} Excerpt
-        %br
-        %pre#append-excerpt&= @object.content.last_lines(5)
-        %br
-        %label{:for=>'append-appendix'} Appendix
-        %textarea#append-appendix{:name=>'appendix', :cols=>100, :rows=>18}
-        %br
-        %label{:for=>'append-message'} Message
-        %input#append-message{:type=>'text', :name=>'message', :size => 50}
-        %input{:type=>'submit', :value=>'Save'}
-        %input{:type=>'reset', :value=>'Reset'}
-        %br
+  - if @object.mime.text?
+    #tab-append
+      %form{:action => @object.path.urlpath, :method=>'post'}
+        %div
+          %input{:type=>'hidden', :name=> '_method', :value=>'put'}
+          %label{:for=>'append-excerpt'} Excerpt
+          %br
+          %pre#append-excerpt&= @object.content.last_lines(5)
+          %br
+          %label{:for=>'append-appendix'} Appendix
+          %textarea#append-appendix{:name=>'appendix', :cols=>100, :rows=>18}
+          %br
+          %label{:for=>'append-message'} Message
+          %input#append-message{:type=>'text', :name=>'message', :size => 50}
+          %input{:type=>'submit', :value=>'Save'}
+          %input{:type=>'reset', :value=>'Reset'}
+          %br
   #tab-upload
     %form{:action => @object.path.urlpath, :method=>'post', :enctype=> 'multipart/form-data'}
       %div

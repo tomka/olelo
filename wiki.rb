@@ -5,7 +5,7 @@ git
 haml
 sass
 rubypants
-mime/types
+mime
 logger
 open3
 yaml/store
@@ -154,6 +154,63 @@ module Highlighter
   end
 end
 
+class Mime
+  attr_reader :type, :mediatype, :subtype
+  
+  def self.add(type, extensions, parents)
+    MIME_TYPES[type] = [extensions, parents]
+    extensions.each do |ext|
+      MIME_EXTENSIONS[ext] = type
+    end
+  end
+  
+  def text?
+    child_of? 'text/plain'
+  end
+  
+  def child_of?(parent)
+    Mime.child?(type, parent)
+  end
+  
+  def extensions
+    MIME_TYPES[type][0]
+  end
+  
+  def self.by_extension(ext)
+    new MIME_EXTENSIONS[ext.downcase]
+  end
+  
+  def self.by_type(type)
+    new(MIME_TYPES.include?(type) ? type : nil)
+  end
+  
+  def to_s
+    type
+  end
+
+  def ==(x)
+    type == x.to_s
+  end
+  
+  private
+  
+  def initialize(type)
+    @type      = type || 'application/octet-stream'
+    @mediatype = @type.split('/')[0]
+    @subtype   = @type.split('/')[1]
+  end
+  
+  def self.child?(child, parent)
+    return true if child == parent
+    MIME_TYPES.include?(child) ? MIME_TYPES[child][1].any? {|p| child?(p, parent) } : false
+  end
+  
+  add('text/x-sass', %w(sass), %w(text/plain))
+  add('text/x-textile', %w(textile), %w(text/plain))
+  add('text/x-creole', %w(creole text), %w(text/plain))
+  add('text/x-markdown', %w(markdown md mdown mkdn mdown), %w(text/plain))
+end
+
 module Wiki
 
   module Validation
@@ -287,16 +344,15 @@ module Wiki
 
     def extension
       path =~ /\.([^.]+)$/
-      $1
+      $1 || ''
     end
 
     def pretty_name
       name.gsub(/\.([^.]+)$/, '')
     end
 
-    def mime_type
-      @mime_types ||= MIME::Types.of(path)
-      @mime_types.empty? ? nil : @mime_types.first
+    def mime
+      @mime ||= Mime.by_extension(extension)
     end
   end
   
@@ -407,7 +463,7 @@ module Wiki
     ENGINES =
       [
        Engine.create(:creole, true) {
-         accepts {|page| page.extension =~ /^(text|creole)$/ }
+         accepts {|page| page.mime == 'text/x-creole' }
          output  {|page|
            require 'creole'
            creole = Creole::CreoleParser.new
@@ -423,14 +479,14 @@ module Wiki
          }
        },
        Engine.create(:markdown, true) {
-         accepts {|page| page.extension =~ /^(markdown|md|mdown|mkdn|mdown)$/  }
+         accepts {|page| page.mime == 'text/x-markdown' }
          output  {|page|
            require 'rdiscount'
            RubyPants.new(RDiscount.new(page.content).to_html).to_html
          }
        },
        Engine.create(:textile, true) {
-         accepts {|page| page.extension == 'textile'  }
+         accepts {|page| page.mime == 'text/x-textile'  }
          output  {|page|
            require 'redcloth'
            RubyPants.new(RedCloth.new(page.content).to_html).to_html
@@ -441,13 +497,13 @@ module Wiki
          output  {|page| Highlighter.file(page.content, page.name) }
        },
        Engine.create(:image, true) {
-         accepts {|page| page.mime_type && page.mime_type.media_type == 'image' }
+         accepts {|page| page.mime.mediatype == 'image' }
          output  {|page| "<img src=\"#{object_path(page, nil, 'raw')}\"/>" }
        },
        Engine.create(:html, true) {
-         accepts {|page| page.mime_type && page.mime_type.ascii? }
+         accepts {|page| page.mime.text? }
          output  {|page| '<pre>' + CGI::escapeHTML(page.content) + '</pre>' }
-         mime    {|page| page.mime_type }
+         mime    {|page| page.mime }
        },
        Engine.create(:download, true) {
          accepts {|page| true }
@@ -456,7 +512,7 @@ module Wiki
        Engine.create(:raw, false) {
          accepts {|page| true }
          output  {|page| page.content }
-         mime    {|page| page.mime_type ? page.mime_type : 'application/octet-stream' }
+         mime    {|page| page.mime }
        },
        Engine.create(:css, false) {
          accepts {|page| page.extension == 'sass' }
@@ -730,7 +786,7 @@ module Wiki
       if @object.page?
         if params[:file]
           @object.update(params[:file][:tempfile].read, 'File uploaded', @user.author)
-        elsif params[:appendix]
+        elsif params[:appendix] && @object.mime.text?
           @object.update(@object.content + "\n" + params[:appendix], params[:message], @user.author)
         else
           @object.update(params[:content], params[:message], @user.author)
