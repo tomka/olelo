@@ -11,7 +11,7 @@ task :run do |t|
   `./run.ru -sthin -p4567 --include ../creole/lib --include ../ruby-git/lib`
 end
 
-desc "Clear data"
-task :clear do |t|
+desc "Clean"
+task :clean do |t|
   `rm -rf data`
 end

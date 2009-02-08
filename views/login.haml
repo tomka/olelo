@@ -6,32 +6,33 @@
       %a{:href=>'#tab-login'} Login
     %li{tab_selected(:signup)}
       %a{:href=>'#tab-signup'} Sign up
-  #tab-login
-    %form{:action => '/login', :method=>'post'}
-      %div
-        %h2 Login
-        = show_messages if action? :login
-        %label{:for=>'login-user'} User
-        %input#login-user{:type=>'text', :name=>'user'}
-        %br
-        %label{:for=>'login-password'} Password
-        %input#login-password{:type=>'password', :name=>'password'}
-        %br
-        %input{:type=>'submit', :value=>'Login'}
-        %br
-  #tab-signup
-    %form{:action => '/signup', :method=>'post'}
-      %div
-        %h2 Sign up
-        = show_messages if action? :signup
-        %label{:for=>'signup-user'} User
-        %input#signup-user{:type=>'text', :name=>'user'}
-        %br
-        %label{:for=>'signup-password'} Password
-        %input#signup-password{:type=>'password', :name=>'password'}
-        %br
-        %label{:for=>'signup-email'} E-Mail
-        %input#signup-email{:type=>'text', :name=>'email'}
-        %br
-        %input{:type=>'submit', :value=>'Sign up'}
-        %br
+  %form{:action => '/login', :method=>'post'}
+    #tab-login.box
+      %h2 Login
+      = show_messages if action? :login
+      %label{:for=>'login-user'} User
+      %input#login-user{:type=>'text', :name=>'user'}
+      %br
+      %label{:for=>'login-password'} Password
+      %input#login-password{:type=>'password', :name=>'password'}
+      %br
+      %input{:type=>'submit', :value=>'Login'}
+      %br
+  %form{:action => '/signup', :method=>'post'}
+    #tab-signup.box      
+      %h2 Sign up
+      = show_messages if action? :signup
+      %label{:for=>'signup-user'} User
+      %input#signup-user{:type=>'text', :name=>'user'}
+      %br
+      %label{:for=>'signup-password'} Password
+      %input#signup-password{:type=>'password', :name=>'password'}
+      %br
+      %label{:for=>'signup-confirm'} Confirmation
+      %input#signup-confirm{:type=>'password', :name=>'confirm'}
+      %br
+      %label{:for=>'signup-email'} E-Mail
+      %input#signup-email{:type=>'text', :name=>'email'}
+      %br
+      %input{:type=>'submit', :value=>'Sign up'}
+      %br

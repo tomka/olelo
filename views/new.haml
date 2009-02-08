@@ -5,33 +5,31 @@
       %a{:href=>'#tab-text'} Text
     %li{tab_selected(:upload)}
       %a{:href=>'#tab-upload'} Upload
-  #tab-text
-    %form{:action => @path.blank? ? '/' : @path.urlpath, :method=>'post', :enctype=> 'multipart/form-data'}
-      %div
-        %h2 Write text
-        = show_messages if action? :new
-        - if @path.blank?
-          %label{:for=>'text-path'} Path
-          %input#text-path{:name=>'path',:type=>'text',:value=>params[:prefix]}
-          %br
-        %label{:for=>'text-content'} Content
+  %form{:action => @path.blank? ? '/' : @path.urlpath, :method=>'post', :enctype=> 'multipart/form-data'}
+    #tab-text.box
+      %h2 Write text
+      = show_messages if action? :new
+      - if @path.blank?
+        %label{:for=>'text-path'} Path
+        %input#text-path{:name=>'path',:type=>'text',:value=>params[:prefix]}
         %br
-        %textarea#text-content{:name=>'content', :cols=>100, :rows=>22}
+      %label{:for=>'text-content'} Content
+      %br
+      %textarea#text-content{:name=>'content', :cols=>100, :rows=>22}
+      %br
+      %label{:for=>'text-message'} Message
+      %input#text-message{:type=>'text', :name=>'message', :size => 50}
+      %input{:type=>'submit', :value=>'Save'}
+      %br
+  %form{:action => @path.blank? ? '/' : @path.urlpath, :method=>'post', :enctype=> 'multipart/form-data'}
+    #tab-upload.box
+      %h2 Upload a file
+      = show_messages if action? :upload
+      - if @path.blank?
+        %label{:for=>'upload-path'} Path
+        %input#upload-path{:name=>'path',:type=>'text',:value=>params[:prefix]}
         %br
-        %label{:for=>'text-message'} Message
-        %input#text-message{:type=>'text', :name=>'message', :size => 50}
-        %input{:type=>'submit', :value=>'Save'}
-        %br
-  #tab-upload
-    %form{:action => @path.blank? ? '/' : @path.urlpath, :method=>'post', :enctype=> 'multipart/form-data'}
-      %div
-        %h2 Upload a file
-        = show_messages if action? :upload
-        - if @path.blank?
-          %label{:for=>'upload-path'} Path
-          %input#upload-path{:name=>'path',:type=>'text',:value=>params[:prefix]}
-          %br
-        %label{:for=>'upload-file'} File
-        %input#upload-file{:name=>'file',:type=>'file'}
-        %input{:type=>'submit', :value=>'Upload'}
-        %br
+      %label{:for=>'upload-file'} File
+      %input#upload-file{:name=>'file',:type=>'file'}
+      %input{:type=>'submit', :value=>'Upload'}
+      %br

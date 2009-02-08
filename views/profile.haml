@@ -1,2 +1,24 @@
 - @menu  = :new
 - @title = "Profile of #{@user.name}"
+- if @user.anonymous?
+  Anonymous users don't have a profile.
+- else
+  %form{:action => '/profile', :method=>'post'}
+    .box
+      = show_messages
+      %h2 Change password
+      %label{:for=>'oldpassword'} Old password
+      %input{:type=>'password',:name=>'oldpassword',:id=>'oldpassword'}
+      %br
+      %label{:for=>'password'} Password
+      %input{:type=>'password',:name=>'password',:id=>'password'}
+      %br
+      %label{:for=>'confirm'} Confirmation
+      %input{:type=>'password',:name=>'confirm',:id=>'confirm'}
+      %br
+      %h2 Settings
+      %label{:for=>'email'} E-Mail
+      %input{:type=>'email',:name=>'email',:id=>'email',:value=>@user.email}
+      %br
+      %input{:type=>'submit', :value=>'Save'}
+      %br

@@ -4,20 +4,20 @@
 %table.sortable
   %thead
     %tr
+      %th
       %th Name
   %tbody
     - if !@object.path.empty?
       %tr
+        %td= image('Tree', :tree)
         %td
-          %a{:href=> parent_path(@object) }
-            = image('Tree', :tree)
-            \..
+          %a{:href=> parent_path(@object) } ..
     - @object.children.each do |child|
       %tr
         %td
-          %a{:href=>child_path(@object, child)}
-            - if child.page?
-              = image('Page', :page)
-            - else
-              = image('Tree', :tree)
-            =child.name
+          - if child.page?
+            = image('Page', :page)
+          - else
+            = image('Tree', :tree)
+        %td
+          %a{:href=>child_path(@object, child)}=child.name

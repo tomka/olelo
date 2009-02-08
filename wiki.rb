@@ -362,7 +362,8 @@ module Wiki
   
   class Tree < Object
     def children
-      @object.children.to_a.map {|x| Object.create(repo, path/x[0], commit, x[1]) }.compact
+      @object.children.to_a.map {|x| Object.create(repo, path/x[0], commit, x[1]) }.compact.
+        sort {|a,b| a.page? != b.page? ? (a.page? ? 1 : -1) : (a.name <=> b.name) }
     end
 
     def pretty_name
@@ -534,14 +535,69 @@ module Wiki
       ]
   end
 
-  class User
+  class Entry
+    attr_reader :version, :name
+
+    def self.transient(attr)
+      transient_variables << '@' + attr.to_s
+    end
+
+    def self.transient_variables
+      @transient ||= []
+    end
+
+    def initialize(name)
+      @version = 0
+      @name = name
+    end
+
+    def transaction(&block)
+      copy = dup
+      block.call(copy)
+      instance_variables.each do |name|
+        instance_variable_set(name, copy.instance_variable_get(name))
+      end
+    end
+
+    def save
+      Entry.store.transaction(false) {|s|
+        raise RuntimeException if version > 0 && (!s[self.class.name] || s[self.class.name][name].version > version)
+        @version += 1
+        s[self.class.name] ||= {}
+        s[self.class.name][name] = self
+      }
+    end
+
+    def self.find(name)
+      Entry.store.transaction(true) {|s|
+        return s[self.name] ? s[self.name][name] : nil
+      }
+    end
+
+    def to_yaml_properties
+      super.reject {|attr| self.class.transient_variables.include?(attr)}
+    end
+
+    private
+
+    def self.store
+      @store ||= YAML::Store.new(App.config['store'])
+    end
+  end
+
+  class User < Entry
     attr_accessor :email
-    attr_reader :name, :password
+    attr_reader :password, :confirm
+    transient :anonymous
 
     def anonymous?; @anonymous; end
 
     def password=(pw)
       @password = User.crypt(pw)
+    end
+
+    def password_correct?(pw)
+      password == User.crypt(pw)
     end
 
     def author
@@ -554,7 +610,7 @@ module Wiki
         'Name is invalid'   => (@name =~ /[\w.\-+_]+/),
         'Password is empty' => (!@password.blank?)
       )
-      User.transaction(false) {|store| store[name] = self }
+      super
     end
 
     def self.anonymous(ip)
@@ -563,14 +619,8 @@ module Wiki
 
     def self.authenticate(name, password)
       user = find(name)
-      Validation.validate('Wrong username or password' => (user && user.password == User.crypt(password)))
+      Validation.validate('Wrong username or password' => (user && user.password_correct?(password)))
       user
-    end
-
-    def self.find(name)
-      transaction(true) {|store|
-        return store[name]
-      }
     end
 
     def self.create(name, password, email)
@@ -580,14 +630,10 @@ module Wiki
       user
     end
 
-    def to_yaml_properties
-      %w(@name @email @password)
-    end
-
     private
 
     def initialize(name, password, email, anonymous)
-      @name = name
+      super(name)
       @email = email
       @anonymous = anonymous
       @password = User.crypt(password)
@@ -595,14 +641,6 @@ module Wiki
 
     def self.crypt(s)
       s.blank? ? s : Digest::SHA256.hexdigest(s)
-    end
-
-    def self.transaction(read_only, &block)
-      store.transaction(read_only, &block)
-    end
-
-    def self.store
-      @store ||= YAML::Store.new(App.config['users_store'])
     end
   end
 
@@ -694,6 +732,7 @@ module Wiki
     end
 
     post '/signup' do
+      Validation.validate('Passwords do not match' => params[:password] == params[:confirm])
       session[:user] = User.create(params[:user], params[:password], params[:email])
       redirect '/'
     end
@@ -704,6 +743,20 @@ module Wiki
     end
 
     get '/profile' do
+      haml :profile
+    end
+
+    post '/profile' do
+      @user.transaction do |user|
+        if !params[:password].blank? || !params[:confirm].blank?
+          Validation.validate('Passwords do not match' => params[:password] == params[:confirm])
+          Validation.validate('Password is wrong' => user.password_correct?(params[:oldpassword]))
+          user.password = params[:password]
+        end
+        user.email = params[:email]
+        user.save
+        message :info, 'Changes saved'
+      end
       haml :profile
     end
 

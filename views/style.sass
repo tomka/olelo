@@ -243,7 +243,7 @@ hr
   :margin 0 0 1em 0
 
 .sha, tt, pre, code, kbd
-  :font-family "Andale Mono", "Bitstream Vera Mono", monospace
+  :font-family "Bitstream Vera Mono", monospace
 
 pre
   :border 1px solid #999
@@ -276,6 +276,11 @@ form
     :color              #333
     &:focus
       :border-style	dotted
+  input[type=text], textarea
+    :font-family "Bitstream Vera Mono", monospace
+    :font-size 100%
+  textarea
+    :width 98%
   input
     &[type=image], &[type=image]:focus, &[type=checkbox]
       :border	   	none
@@ -285,17 +290,18 @@ form
   br
     :clear		left
 
+.box
+  :clear both
+  :display block
+  :border-top 1px solid #AAA
+  :border-bottom 1px solid #AAA
+  :background #FFF
+  :padding 1em
+  :margin-bottom 1em
+
 .ui-tabs
   .ui-tabs-hide
     :display none
-  > div
-    :clear both
-    :display block
-    :border-top 1px solid #AAA
-    :border-bottom 1px solid #AAA
-    :background #FFF
-    :padding 1em
-    :margin-bottom 1em
   > ul
     :display block
     :padding 0
