@@ -1,7 +1,19 @@
 #!/usr/bin/env rackup
 require 'wiki'
 
-config_file = File.expand_path(File.join(File.dirname(__FILE__), 'config.yml'))
-Wiki::App.set :config, YAML.load_file(config_file)
+path = File.expand_path(File.dirname(__FILE__))
+config_file = File.join(path, 'config.yml')
+config = if File.exists?(config_file)
+  YAML.load_file(config_file)
+else
+  { 'title'      => 'Git-Wiki',
+    'repository' => File.join(path, '.wiki', 'repository'),
+    'workspace'  => File.join(path, '.wiki', 'workspace'),
+    'store'      => File.join(path, '.wiki', 'store.yml'),
+    'loglevel'   => 'INFO'
+  }
+end
+
+Wiki::App.set :config, config
 run Wiki::App
 

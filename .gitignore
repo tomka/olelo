@@ -1,5 +1,7 @@
 *.log
 *.swp
+.wiki
+run.sh
+env.sh
 config.yml
-config-test.yml
-data
+

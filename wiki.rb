@@ -35,7 +35,7 @@ class String
   end
 
   def cleanpath
-    names = split('/')
+    names = split('/').reject(&:blank?)
     # /root maps to /
     names.delete_at(0) if names[0] == 'root'
     i = 0
@@ -49,8 +49,6 @@ class String
         end
       when '.'
         names.delete_at(i)
-      when ''
-        names.delete_at(i)
       else
         i+=1
       end
@@ -60,7 +58,7 @@ class String
 
   def urlpath
     path = cleanpath
-    path == '' ? '/root' : '/' + path
+    path.blank? ? '/root' : '/' + path
   end
 
   def truncate(max, omission = '...')
@@ -74,16 +72,17 @@ end
 
 module Highlighter
   def self.text(text, format)
-    Open3.popen3("pygmentize -O linenos=table -f html -l #{format}") { |stdin, stdout, stderr|
+    content = Open3.popen3("pygmentize -O linenos=table -f html -l '#{format}'") { |stdin, stdout, stderr|
       stdin << text
       stdin.close
       stdout.read
     }
+    content.blank? ? CGI::escapeHTML(text) : content
   end
 
   def self.file(content, name)
     lexer = find_lexer(name)
-    lexer ? text(content, lexer) : CGI::escapHTML(content)
+    lexer ? text(content, lexer) : CGI::escapeHTML(content)
   end
 
   def self.supports?(filename)
@@ -849,7 +848,7 @@ module Wiki
       begin
         show
       rescue Object::NotFound
-        redirect (params[:path]/'new').urlpath
+        redirect((params[:path]/'new').urlpath)
       end
     end
 
