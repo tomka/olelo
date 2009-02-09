@@ -243,6 +243,10 @@ module Wiki
       path
     end
 
+    def pretty_name
+      name.gsub(/\.([^.]+)$/, '')
+    end
+
     def safe_name
       n = name
       n = 'root' if n.blank?
@@ -284,9 +288,9 @@ module Wiki
   class Page < Object
     attr_writer :content
 
-    def find(repo, path, sha = nil)
+    def self.find(repo, path, sha = nil)
       object = super(repo, path, sha)
-      object.page? ? object : nil
+      object && object.page? ? object : nil
     end
 
     def content
@@ -326,19 +330,15 @@ module Wiki
       $1 || ''
     end
 
-    def pretty_name
-      name.gsub(/\.([^.]+)$/, '')
-    end
-
     def mime
       @mime ||= Mime.by_extension(extension)
     end
   end
   
   class Tree < Object
-    def find(repo, path, sha = nil)
+    def self.find(repo, path, sha = nil)
       object = super(repo, path, sha)
-      object.tree? ? object : nil
+      object && object.tree? ? object : nil
     end
 
     def children
