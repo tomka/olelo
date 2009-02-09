@@ -193,15 +193,14 @@ module Wiki
     attr_reader :repo, :path, :commit, :object
 
     def self.find(repo, path, sha = nil)
-      begin
-        path ||= ''
-        path = path.cleanpath
-        commit = sha ? repo.gcommit(sha) : repo.log(1).path(path).first
-        object = Object.git_find(repo, path, commit)
-        return Page.new(repo, path, commit, object) if object.blob?
-        return Tree.new(repo, path, commit, object) if object.tree?
-      rescue
-      end
+      path ||= ''
+      path = path.cleanpath
+      commit = sha ? repo.gcommit(sha) : repo.log(1).path(path).first
+      object = Object.git_find(repo, path, commit)
+      return Page.new(repo, path, commit, object) if object.blob?
+      return Tree.new(repo, path, commit, object) if object.tree?
+      nil
+    rescue
       nil
     end
 
@@ -267,18 +266,17 @@ module Wiki
     protected
 
     def self.git_find(repo, path, commit)
-      begin
-        if commit
-          if path.blank?
-            return commit.gtree
-          elsif path =~ /\//
-            return path.split('/').inject(commit.gtree) { |t, x| t.children[x] } rescue nil
-          else
-            return commit.gtree.children[path]
-          end
+      if commit
+        if path.blank?
+          return commit.gtree
+        elsif path =~ /\//
+          return path.split('/').inject(commit.gtree) { |t, x| t.children[x] } rescue nil
+        else
+          return commit.gtree.children[path]
         end
-      rescue
       end
+      nil
+    rescue
       nil
     end
 
