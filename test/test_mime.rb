@@ -1,7 +1,7 @@
 require 'test/unit'
 require 'wiki'
 
-class TC_Utils < Test::Unit::TestCase
+class TC_Mime < Test::Unit::TestCase
   def test_text?
     assert Mime.by_type('text/plain').text?
     assert Mime.by_type('text/html').text?
