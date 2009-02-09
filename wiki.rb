@@ -194,6 +194,7 @@ module Wiki
     def self.find(repo, path, sha = nil)
       path ||= ''
       path = path.cleanpath
+      forbid_invalid_path(path)
       commit = sha ? repo.gcommit(sha) : repo.log(1).path(path).first
       object = Object.git_find(repo, path, commit)
       return Page.new(repo, path, commit, object) if object.blob?
@@ -259,7 +260,8 @@ module Wiki
 
     def initialize(repo, path, commit = nil, object = nil)
       path ||= ''
-      forbid('Invalid path' => !@path.blank? && @path !~ /^#{PATH_PATTERN}$/)
+      path = path.cleanpath
+      Object.forbid_invalid_path(path)
       @repo = repo
       @path = path.cleanpath
       @commit = commit
@@ -267,6 +269,10 @@ module Wiki
     end
 
     protected
+
+    def self.forbid_invalid_path(path)
+      forbid('Invalid path' => !path.blank? && path !~ /^#{PATH_PATTERN}$/)
+    end
 
     def self.git_find(repo, path, commit)
       if commit
@@ -287,6 +293,11 @@ module Wiki
 
   class Page < Object
     attr_writer :content
+
+    def initialize(repo, path, commit = nil, object = nil)
+      super(repo, path, commit, object)
+      @content = nil
+    end
 
     def self.find(repo, path, sha = nil)
       object = super(repo, path, sha)
@@ -336,17 +347,19 @@ module Wiki
   end
   
   class Tree < Object
+    def initialize(repo, path, commit = nil, object = nil)
+      super(repo, path, commit, object)
+      @children = nil
+    end
+    
     def self.find(repo, path, sha = nil)
       object = super(repo, path, sha)
       object && object.tree? ? object : nil
     end
 
     def children
-      if !@children
-        @children = @object.trees.to_a.map {|x| Tree.new(repo, path/x[0], commit, x[1])}.sort {|a,b| a.name <=> b.name } +
+      @children ||= @object.trees.to_a.map {|x| Tree.new(repo, path/x[0], commit, x[1])}.sort {|a,b| a.name <=> b.name } +
                     @object.blobs.to_a.map {|x| Page.new(repo, path/x[0], commit, x[1])}.sort {|a,b| a.name <=> b.name }
-      end
-      @children
     end
 
     def pretty_name

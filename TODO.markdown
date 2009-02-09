@@ -12,8 +12,9 @@ Brainstorming...
 - Captcha support
 - Image support, Image gallery
 - Breadcrumbs for tree browsing
-- Get the shell escaping patch included in ruby-git
 - Create a larsch-creole gem
+- Wiki installation under subpath (path_info translation could be done
+  via rack middleware, generated links must be adapted)
 - (DONE) Preview
 - (DONE) Menu
 - (DONE) Search
@@ -21,3 +22,12 @@ Brainstorming...
 - (DONE) Login
 - (DONE) Editable user profile, change pw function
 - (DONE, but could be a lot improved) RSS/Atom Changelog
+
+ruby-git TODO
+-------------
+
+- Get shell escaping patch included
+- Commits aren't parsed correctly
+- Fix uninitialized variables ($VERBOSE = 1 in the tests)
+
+

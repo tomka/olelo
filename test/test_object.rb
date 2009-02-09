@@ -3,6 +3,14 @@ require 'git_support'
 class TC_Object < Test::Unit::TestCase
   include GitSupport
 
+  def test_path_check
+    assert_raise MessageError do
+      Wiki::Object.find(@repo, '#invalid#')
+      Wiki::Object.find(@repo, ' spaces ')
+    end
+    assert_nil Wiki::Object.find(@repo, 'spaces in the path')
+  end
+
   def test_find
     assert_instance_of Wiki::Tree, Wiki::Object.find(@repo, '')
     assert_instance_of Wiki::Tree, Wiki::Tree.find(@repo, '')
@@ -74,6 +82,6 @@ class TC_Object < Test::Unit::TestCase
   end
 
   def test_safe_name
-    assert_equal '._____-_0123456789abc', Wiki::Object.new(@repo, '.#+*?=-_0123456789abc').safe_name
+    assert_equal '0_1_2_3_4_5', Wiki::Object.new(@repo, '0 1 2 3 4 5').safe_name
   end
 end

@@ -7,6 +7,7 @@ desc 'Default Task'
 task :default => :test
 
 Rake::TestTask.new(:test) do |t|
+  # FIXME: Too many warnings because of ruby-git
   t.warning = true
   t.test_files = FileList['test/test_*.rb']
 end
