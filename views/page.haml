@@ -1,6 +1,7 @@
 :ruby
   @menu   = :version, :edit, :history, :new
-  @title  = @object.pretty_name
-  @footer = "#{@object.head? ? 'Current' : 'Outdated'} Version &bull;\
-   Last modified by #{@object.commit.committer.name}, #{date @object.commit.committer_date}"
+  @title  = @page.pretty_name
+  @footer = "#{@page.head? ? 'Current' : 'Outdated'} Version &bull;\
+   Last modified by #{@page.commit.committer.name}, #{date @page.commit.committer_date}"
+  @feed = (@page.path/'changelog.rss').urlpath
 ~ @content

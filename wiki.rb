@@ -1,16 +1,6 @@
-%w(
-rubygems
-sinatra_ext
-git
-haml
-sass
-rubypants
-mime
-logger
-open3
-yaml/store
-digest
-cgi).each { |dep| require dep }
+%w(rubygems sinatra_ext git haml
+sass rubypants mime logger open3
+yaml/store digest cgi).each { |dep| require dep }
 
 class Object
   def blank?
@@ -181,38 +171,46 @@ class Mime
   add('text/x-markdown', %w(markdown md mdown mkdn mdown), %w(text/plain))
 end
 
+
+class MessageError < Exception; end
+
+def forbid(conds)
+  failed = conds.keys.select {|key| conds[key]}
+  raise MessageError.new(failed) if !failed.empty?
+end
+
 module Wiki
-
-  module Validation
-    class Failed < ArgumentError; end
-
-    def self.validate(conds)
-      failed = conds.keys.select {|key| !conds[key]}
-      raise Failed.new(failed) if !failed.empty?
-    end
-  end
+  PATH_PATTERN = '[\w.+\-_\/](?:[\w.+\-_\/ ]+[\w.+\-_\/])?'
+  SHA_PATTERN = '[A-Fa-f0-9]{40}'
 
   class Object
     class NotFound < Sinatra::NotFound
       def initialize(path)
-        super('#{path} not found', path)
+        super("#{path} not found", path)
       end
     end
 
     attr_reader :repo, :path, :commit, :object
 
     def self.find(repo, path, sha = nil)
-      path = path.cleanpath
-      commit = sha ? repo.gcommit(sha) : repo.log(1).path(path).first
-      create(repo, path, commit, Object.find_in_repo(repo, path, commit))
+      begin
+        path ||= ''
+        path = path.cleanpath
+        commit = sha ? repo.gcommit(sha) : repo.log(1).path(path).first
+        object = Object.git_find(repo, path, commit)
+        return Page.new(repo, path, commit, object) if object.blob?
+        return Tree.new(repo, path, commit, object) if object.tree?
+      rescue
+      end
+      nil
     end
 
     def self.find!(repo, path, sha = nil)
       find(repo, path, sha) || raise(NotFound.new(path))
     end
 
-    def exists?
-      !!@object
+    def new?
+      !@object
     end
 
     def head?(commit = nil)
@@ -258,58 +256,72 @@ module Wiki
     end
 
     def initialize(repo, path, commit = nil, object = nil)
+      path ||= ''
+      forbid('Invalid path' => !@path.blank? && @path !~ /^#{PATH_PATTERN}$/)
       @repo = repo
       @path = path.cleanpath
       @commit = commit
       @object = object
     end
 
-    private
+    protected
 
-    def self.create(repo, path, commit, object)
-      if object
-        return Page.new(repo, path, commit, object) if object.blob?
-        return Tree.new(repo, path, commit, object) if object.tree?
-      end
-      nil
-    end
-
-    def self.find_in_repo(repo, path, commit)
+    def self.git_find(repo, path, commit)
       begin
         if commit
-          object = if path.blank?
-                     commit.gtree
-                   elsif path =~ /\//
-                     path.split('/').inject(commit.gtree) { |t, x| t.children[x] } rescue nil
-                   else
-                     commit.gtree.children[path]
-                   end
-          return object if object
+          if path.blank?
+            return commit.gtree
+          elsif path =~ /\//
+            return path.split('/').inject(commit.gtree) { |t, x| t.children[x] } rescue nil
+          else
+            return commit.gtree.children[path]
+          end
         end
-        nil
       rescue
-        nil
       end
+      nil
     end
 
   end
 
   class Page < Object
+    attr_writer :content
+
+    def find(repo, path, sha = nil)
+      object = super(repo, path, sha)
+      object.page? ? object : nil
+    end
+
     def content
+      @content || current_content
+    end
+
+    def current_content
       @object ? @object.contents : nil
     end
-    
-    def update(new_content, message, author = nil)
-      return if new_content == content
+
+    def write(content, message, author = nil)
+      @content = content
+      save(message, author)
+    end    
+
+    def save(message, author = nil)
+      return if @content == current_content
+
+      forbid('No content'   => @content.blank?,
+             'Object already exists' => new? && Object.find(@repo, @path))
+
       repo.chdir {
         FileUtils.makedirs File.dirname(@path)
-        File.open(@path, 'w') {|f| f << new_content }
+        File.open(@path, 'w') {|f| f << @content }
       }
       repo.add(@path)
       repo.commit(message.blank? ? '(Empty commit message)' : message, :author => author)
+
+      @content = nil
       @prev_commit = @history = nil
       @commit = head_commit
-      @object = Object.find_in_repo(@repo, @path, @commit) || raise(NotFound.new(path))
+      @object = Object.git_find(@repo, @path, @commit) || raise(NotFound.new(path))
     end
 
     def extension
@@ -327,9 +339,17 @@ module Wiki
   end
   
   class Tree < Object
+    def find(repo, path, sha = nil)
+      object = super(repo, path, sha)
+      object.tree? ? object : nil
+    end
+
     def children
-      @object.children.to_a.map {|x| Object.create(repo, path/x[0], commit, x[1]) }.compact.
-        sort {|a,b| a.page? != b.page? ? (a.page? ? 1 : -1) : (a.name <=> b.name) }
+      if !@children
+        @children = @object.trees.to_a.map {|x| Tree.new(repo, path/x[0], commit, x[1])}.sort {|a,b| a.name <=> b.name } +
+                    @object.blobs.to_a.map {|x| Page.new(repo, path/x[0], commit, x[1])}.sort {|a,b| a.name <=> b.name }
+      end
+      @children
     end
 
     def pretty_name
@@ -378,25 +398,31 @@ module Wiki
     end
 
     def show_messages
-      if session[:messages]
+      if @messages
         out = "<ul>\n"
-        session[:messages].each do |msg|
+        @messages.each do |msg|
           out += "  <li class=\"#{msg[0]}\">#{msg[1]}</li>\n"
         end
         out += "</ul>\n"
-        session[:messages] = nil
         return out
       end
       ''
     end
 
-    def message(level, msg)
-      session[:messages] ||= []
-      session[:messages] << [level, msg]
+    def message(level, messages)
+      @messages ||= []
+      messages = [messages] if !messages.is_a?(Array)
+      messages.each do |msg|
+        @messages << [level, msg]
+      end
     end
 
     def action?(name)
-      request.path_info.ends_with? '/' + name.to_s
+      if params[:action]
+        params[:action].downcase == name.to_s
+      else
+        request.path_info.ends_with? '/' + name.to_s
+      end
     end
   end
 
@@ -506,6 +532,8 @@ module Wiki
   end
 
   class Entry
+    class ConcurrentModificationError < RuntimeError; end
+
     attr_reader :version, :name
 
     def self.transient(attr)
@@ -524,6 +552,7 @@ module Wiki
     def transaction(&block)
       copy = dup
       block.call(copy)
+      copy.save
       instance_variables.each do |name|
         instance_variable_set(name, copy.instance_variable_get(name))
       end
@@ -531,11 +560,13 @@ module Wiki
 
     def save
       Entry.store.transaction(false) {|s|
-        raise RuntimeException if version > 0 && (!s[self.class.name] || s[self.class.name][name].version > version)
+        bucket = self.class.name
+        raise ConcurrentModificationError if version > 0 && (!s[bucket] || s[bucket][name].version > version)
         @version += 1
-        s[self.class.name] ||= {}
-        s[self.class.name][name] = self
+        s[bucket] ||= {}
+        s[bucket][name] = self
       }
+      self
     end
 
     def self.find(name)
@@ -562,12 +593,10 @@ module Wiki
 
     def anonymous?; @anonymous; end
 
-    def password=(pw)
+    def change_password(oldpassword, password, confirm)
+      forbid('Passwords do not match' => password != confirm,
+             'Password is wrong'      => @password != User.crypt(oldpassword))
       @password = User.crypt(pw)
-    end
-
-    def password_correct?(pw)
-      password == User.crypt(pw)
     end
 
     def author
@@ -575,10 +604,10 @@ module Wiki
     end
 
     def save
-      Validation.validate(
-        'E-Mail is invalid' => (@email =~ /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\Z/i),
-        'Name is invalid'   => (@name =~ /[\w.\-+_]+/),
-        'Password is empty' => (!@password.blank?)
+      forbid(
+        'E-Mail is invalid' => @email !~ /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\Z/i,
+        'Name is invalid'   => @name !~ /[\w.\-+_]+/,
+        'Password is empty' => @password.blank?
       )
       super
     end
@@ -589,15 +618,14 @@ module Wiki
 
     def self.authenticate(name, password)
       user = find(name)
-      Validation.validate('Wrong username or password' => (user && user.password_correct?(password)))
+      forbid('Wrong username or password' => !user || user.password != User.crypt(password))
       user
     end
 
-    def self.create(name, password, email)
-      Validation.validate('User already exists' => !find(name))
-      user = User.new(name, password, email, false)
-      user.save
-      user
+    def self.create(name, password, confirm, email)
+      forbid('Passwords do not match' => password != confirm,
+             'User already exists'    => find(name))
+      User.new(name, password, email, false).save
     end
 
     private
@@ -615,8 +643,6 @@ module Wiki
   end
 
   class App < Sinatra::Base
-    PATH_PATTERN = '[\w.+\-_\/](?:[\w.+\-_\/ ]+[\w.+\-_\/])?'
-    SHA_PATTERN = '[A-Fa-f0-9]{40}'
     pattern :path, PATH_PATTERN
     pattern :sha,  SHA_PATTERN
 
@@ -634,28 +660,32 @@ module Wiki
       @logger = Logger.new(STDOUT)
       @logger.level = Logger.const_get(App.config['loglevel'])
       if File.exists?(App.config['repository']) && File.exists?(App.config['workspace'])
+        @logger.info 'Opening repository'
         @repo = Git.open(App.config['workspace'], :repository => App.config['repository'],
                          :index => File.join(App.config['repository'], 'index'), :log => @logger)
       else
+        @logger.info 'Initializing repository'
         @repo = Git.init(App.config['workspace'], :repository => App.config['repository'],
                          :index => File.join(App.config['repository'], 'index'), :log => @logger)
         page = Page.new(@repo, 'init.txt')
-        page.update('This file is used to initialize the repository. It can be deleted.', 'Initialize Repository')
-      end      
+        page.write('This file is used to initialize the repository. It can be deleted.', 'Initialize Repository')
+        @logger.info 'Repository initialized'
+      end
     end
 
-    def show
-      @object = Object.find!(@repo, params[:path], params[:sha]) if !@object || !@object.exists?
-      @feed = (@object.path/'changelog.rss').urlpath
-      if @object.tree?
+    def show(object = nil)
+      object = Object.find!(@repo, params[:path], params[:sha]) if !object || object.new?
+      if object.tree?
+        @tree = object
         haml :tree
       else
-        engine = Engine.find(@object, params[:output])
-        @content = engine.output(@object)
+        @page = object
+        engine = Engine.find(@page, params[:output])
+        @content = engine.output(@page)
         if engine.layout?
           haml :page
         else
-          content_type engine.mime(@object).to_s
+          content_type engine.mime(@page).to_s
           @content
         end
       end
@@ -671,16 +701,8 @@ module Wiki
     end
 
     not_found do
-      redirect((params[:path]/'new').urlpath) if params[:path]
       @error = request.env['sinatra.error']
       haml :error
-    end
-
-    error Validation::Failed do
-      request.env['sinatra.error'].message.each do |msg|
-        message :error, msg
-      end
-      redirect(@error_path || request.path_info)
     end
 
     error do
@@ -697,14 +719,24 @@ module Wiki
     end
 
     post '/login' do
-      session[:user] = User.authenticate(params[:user], params[:password])
-      redirect '/'
+      begin
+        session[:user] = User.authenticate(params[:user], params[:password])
+        redirect '/'
+      rescue MessageError => error
+        message :error, error.message
+        haml :login
+      end
     end
 
     post '/signup' do
-      Validation.validate('Passwords do not match' => params[:password] == params[:confirm])
-      session[:user] = User.create(params[:user], params[:password], params[:email])
-      redirect '/'
+      begin
+        session[:user] = User.create(params[:user], params[:password],
+                                     params[:confirm], params[:email])
+        redirect '/'
+      rescue MessageError => error
+        message :error, error.message
+        haml :login
+      end
     end
 
     get '/logout' do
@@ -717,15 +749,17 @@ module Wiki
     end
 
     post '/profile' do
-      @user.transaction do |user|
-        if !params[:password].blank? || !params[:confirm].blank?
-          Validation.validate('Passwords do not match' => params[:password] == params[:confirm])
-          Validation.validate('Password is wrong' => user.password_correct?(params[:oldpassword]))
-          user.password = params[:password]
+      if !@user.anonymous?
+        begin
+          @user.transaction do |user|
+            user.change_password(params[:oldpassword], params[:password], params[:confirm]) if !params[:password].blank?
+            user.email = params[:email]
+          end
+          message :info, 'Changes saved'
+          session[:user] = @user
+        rescue MessageError => error
+          message :error, error.message
         end
-        user.email = params[:email]
-        user.save
-        message :info, 'Changes saved'
       end
       haml :profile
     end
@@ -755,22 +789,19 @@ module Wiki
     end
     
     get '/archive', '/:path/archive' do
-      params[:path] ||= ''
-      @object = Object.find!(@repo, params[:path])
+      @tree = Tree.find!(@repo, params[:path])
       content_type 'application/x-tar-gz'
-      attachment "#{@object.safe_name}.tar.gz"
-      archive = @repo.archive(@object.object.sha, nil, :format => 'tgz', :prefix => "#{@object.safe_name}/")
+      attachment "#{@tree.safe_name}.tar.gz"
+      archive = @repo.archive(@tree.object.sha, nil, :format => 'tgz', :prefix => "#{@tree.safe_name}/")
       File.open(archive).read
     end
 
     get '/history', '/:path/history' do
-      params[:path] ||= ''
-      @object = Object.find!(@repo, params[:path])      
+      @object = Object.find!(@repo, params[:path])
       haml :history
     end
 
     get '/changelog.rss', '/:path/changelog.rss' do
-      params[:path] ||= ''
       object = Object.find!(@repo, params[:path])
       require 'rss/maker'
       content_type 'application/rss+xml', :charset => 'utf-8'
@@ -790,7 +821,6 @@ module Wiki
     end
 
     get '/diff', '/:path/diff' do
-      params[:path] ||= ''
       @from = params[:from]
       @to = params[:to]
       @object = Object.find!(@repo, params[:path], @from)
@@ -798,55 +828,86 @@ module Wiki
       haml :diff
     end
 
-    get '/new', '/upload', '/:path/new', '/:path/upload' do
-      @path = params[:path] || ''
-      if !@path.blank? && Object.find(@repo, @path)
-        # Pass to upload for existing pages
-        pass if action?(:upload)
-        # Redirect to page if action == new
-        redirect(params[:path].urlpath)
+    get '/:path/edit', '/:path/append', '/:path/upload' do
+      begin
+        @page = Page.find!(@repo, params[:path])
+        haml :edit
+      rescue Object::NotFound
+        pass if action? :upload # Pass to next handler because /upload is used twice
+        raise
       end
+    end
+
+    get '/new', '/upload', '/:path/new', '/:path/upload' do
+      begin
+        @page = Page.new(@repo, params[:path])
+      rescue MessageError => error
+        message :new, error.message
+      end        
       haml :new
     end
 
-    get '/:path/edit', '/:path/append', '/:path/upload' do
-      @object = Object.find!(@repo, params[:path])
-      if @object.page?
-        haml :edit
-      else
-        redirect(@object.path.urlpath)
-      end
-    end
-
     get '/:sha', '/:path/:sha', '/:path' do
-      params[:path] ||= ''
-      show
+      begin
+        show
+      rescue Object::NotFound
+        redirect (params[:path]/'new').urlpath
+      end
     end
 
     put '/:path' do
-      @object = Object.find!(@repo, params[:path])
-      if @object.page?
-        if params[:file]
-          @object.update(params[:file][:tempfile].read, 'File uploaded', @user.author)
-        elsif params[:appendix] && @object.mime.text?
-          @object.update(@object.content + "\n" + params[:appendix], params[:message], @user.author)
+      @page = Page.find!(@repo, params[:path])
+      begin
+        if action?(:upload) && params[:file]
+          @page.write(params[:file][:tempfile].read, 'File uploaded', @user.author)
+          show(@page)
         else
-          @object.update(params[:content], params[:message], @user.author)
+          if action?(:append) && params[:appendix] && @page.mime.text?
+            @page.content = @page.content + "\n" + params[:appendix]
+          elsif action?(:edit) && params[:content]
+            @page.content = params[:content]
+          else
+            redirect @page.path.urlpath/'edit'
+          end
+
+          if params[:preview]
+            engine = Engine.find(@page)
+            @preview_content = engine.output(@page) if engine.layout?
+            haml :edit
+          else
+            @page.save(params[:message], @user.author)
+            show(@page)
+          end
         end
+      rescue MessageError => error
+        message :error, error.message
+        haml :edit
       end
-      show
     end
 
     post '/', '/:path' do
-      @error_path = params[:file] ? '/upload' : '/new'
-      Validation.validate('Invalid path' => params[:path] =~ /^#{PATH_PATTERN}$/)
-      @object = Page.new(@repo, params[:path])
-      if params[:file]
-        @object.update(params[:file][:tempfile].read, 'File uploaded', @user.author)
-      else
-        @object.update(params[:content], params[:message], @user.author)
+      begin
+        @page = Page.new(@repo, params[:path])
+        if action?(:upload) && params[:file]
+          @page.write(params[:file][:tempfile].read, 'File uploaded', @user.author)
+          redirect params[:path].urlpath
+        elsif action?(:new)
+          @page.content = params[:content]
+          if params[:preview]
+            engine = Engine.find(@page)
+            @preview_content = engine.output(@page) if engine.layout?
+            haml :new
+          else
+            @page.save(params[:message], @user.author)
+            redirect params[:path].urlpath
+          end
+        else
+          redirect '/new'
+        end
+      rescue MessageError => error
+        message :error, error.message
+        haml :new
       end
-      redirect params[:path].urlpath
     end
   end
 end

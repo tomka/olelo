@@ -1,3 +1,4 @@
+- object = @object || @page || @tree
 %ul
   %li
     %a{:href=>'/'}
@@ -8,35 +9,35 @@
 %ul.wiki
   %li.title Wiki Menu
   - if enabled.include?(:version)
-    - if @object.prev_commit
+    - if object.prev_commit
       %li
-        %a{:href=>object_path(@object, @object.prev_commit)} &laquo; Older
-    - if @object.next_commit
+        %a{:href=>object_path(object, object.prev_commit)} &laquo; Older
+    - if object.next_commit
       %li
-        %a{:href=>object_path(@object, @object.next_commit)} Newer &raquo;
-    - if !@object.head?
+        %a{:href=>object_path(object, object.next_commit)} Newer &raquo;
+    - if !object.head?
       %li
-        %a{:href=> @object.path.urlpath } Current
+        %a{:href=> object.path.urlpath } Current
   - if enabled.include?(:current)
     %li
-      %a{:href=> @object.path.urlpath } Current
+      %a{:href=> object.path.urlpath } Current
   - if enabled.include?(:new)
     %li
-      %a{:href=> '/new' + (@object && @object.tree? ? "?prefix=#{@object.path}/" : '')  }
+      %a{:href=> object && object.tree? ? (object.path/'new page/new').urlpath : '/new page/new'  }
         = image('New Page', :new)
         New Page
-  - if enabled.include?(:edit) && @object.page?
+  - if enabled.include?(:edit) && object.page?
     %li
-      %a{:href=>action_path(@object, :edit) }
+      %a{:href=>action_path(object, :edit) }
         = image('Edit', :edit)
         Edit
   - if enabled.include?(:history)
     %li
-      %a{:href=>action_path(@object, :history) }
+      %a{:href=>action_path(object, :history) }
         = image('History', :history)
         History
   - if enabled.include?(:archive)
     %li
-      %a{:href=>action_path(@object, :archive) }
+      %a{:href=>action_path(object, :archive) }
         = image('Archive', :archive)
         Archive

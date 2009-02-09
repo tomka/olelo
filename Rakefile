@@ -6,11 +6,6 @@ Spec::Rake::SpecTask.new do |t|
   t.spec_files = FileList['*_spec.rb']
 end
 
-desc "Run"
-task :run do |t|
-  `./run.ru -sthin -p4567 --include ../creole/lib --include ../ruby-git/lib`
-end
-
 desc "Clean"
 task :clean do |t|
   `rm -rf data`

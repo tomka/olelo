@@ -1,20 +1,21 @@
 :ruby
   @menu   = :version, :history, :archive, :new
-  @title  = @object.pretty_name
-  @footer = "#{@object.head? ? 'Current' : 'Outdated'} Version &bull;\
-   Last modified by #{@object.commit.committer.name}, #{date @object.commit.committer_date}"
+  @title  = @tree.pretty_name
+  @footer = "#{@tree.head? ? 'Current' : 'Outdated'} Version &bull;\
+   Last modified by #{@tree.commit.committer.name}, #{date @tree.commit.committer_date}"
+  @feed = (@tree.path/'changelog.rss').urlpath
 %table.sortable
   %thead
     %tr
       %th
       %th Name
   %tbody
-    - if !@object.path.empty?
+    - if !@tree.path.empty?
       %tr
         %td= image('Tree', :tree)
         %td
-          %a{:href=> parent_path(@object) } ..
-    - @object.children.each do |child|
+          %a{:href=> parent_path(@tree) } ..
+    - @tree.children.each do |child|
       %tr
         %td
           - if child.page?
@@ -22,4 +23,4 @@
           - else
             = image('Tree', :tree)
         %td
-          %a{:href=>child_path(@object, child)}=child.name
+          %a{:href=>child_path(@tree, child)}=child.name
