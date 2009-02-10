@@ -2,7 +2,7 @@
 
 require 'rexml/document'
 
-FILE = '/usr/share/mime/packages/freedesktop.org.xml'
+FILE = ARGV[0] || '/usr/share/mime/packages/freedesktop.org.xml'
 file = File.new(FILE)
 doc = REXML::Document.new(file)
 extensions = {}
@@ -20,6 +20,19 @@ doc.each_element('mime-info/mime-type') do |mime|
 end
 
 puts "# Generated from #{FILE}"
-puts "MIME_EXTENSIONS=#{extensions.inspect}"
-puts "MIME_TYPES=#{types.inspect}"
+puts "class Mime"
+puts "  private"
+puts "  EXTENSIONS = {"
+extensions.keys.sort.each do |key|
+  puts "    '#{key}' => '#{extensions[key]}',"
+end
+puts "  }"
+puts "  TYPES = {"
+types.keys.sort.each do |key|
+  exts = types[key][0].sort.inspect
+  parents = types[key][1].sort.inspect
+  puts "    '#{key}' => [#{exts}, #{parents}],"
+end
+puts "  }"
+puts "end"
 

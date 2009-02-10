@@ -4,7 +4,7 @@
     %a{:href=>'/'}
       = image('Home', :home)
       Home
-  = breadcrumbs(object ? object.path : '')
+  = breadcrumbs(object)
 %ul.wiki
   %li.title Wiki Menu
   - if enabled.include?(:version)

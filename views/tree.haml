@@ -14,7 +14,7 @@
       %tr
         %td= image('Tree', :tree)
         %td
-          %a{:href=> parent_path(@tree) } ..
+          %a{:href=>path_with_sha(@tree.path/'..', @tree) } ..
     - @tree.children.each do |child|
       %tr
         %td
@@ -23,4 +23,4 @@
           - else
             = image('Tree', :tree)
         %td
-          %a{:href=>child_path(@tree, child)}=child.name
+          %a{:href=>path_with_sha(child.path, @tree)}=child.name

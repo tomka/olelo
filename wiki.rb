@@ -1,5 +1,5 @@
-%w(rubygems sinatra_ext git haml
-sass mime logger open3
+%w(rubygems sinatra/base sinatra/complex_patterns git haml
+sass mime_tables logger open3
 yaml/store digest cgi).each { |dep| require dep }
 
 class Object
@@ -80,7 +80,7 @@ module Highlighter
 
   def self.text(text, format)
     return CGI::escapeHTML(text) if !installed? 
-    content = Open3.popen3("pygmentize -O linenos=table -f html -l '#{format}'") { |stdin, stdout, stderr|
+    content = Open3.popen3("pygmentize -O encoding=utf8 -O linenos=table -f html -l '#{format}'") { |stdin, stdout, stderr|
       stdin << text
       stdin.close
       stdout.read
@@ -142,9 +142,9 @@ class Mime
   attr_reader :type, :mediatype, :subtype
   
   def self.add(type, extensions, parents)
-    MIME_TYPES[type] = [extensions, parents]
+    TYPES[type] = [extensions, parents]
     extensions.each do |ext|
-      MIME_EXTENSIONS[ext] = type
+      EXTENSIONS[ext] = type
     end
   end
   
@@ -157,11 +157,11 @@ class Mime
   end
   
   def extensions
-    MIME_TYPES.include?(type) ? MIME_TYPES[type][0] : []
+    TYPES.include?(type) ? TYPES[type][0] : []
   end
   
   def self.by_extension(ext)
-    mime = MIME_EXTENSIONS[ext.downcase]
+    mime = EXTENSIONS[ext.downcase]
     mime ? new(mime) : nil
   end
   
@@ -183,7 +183,7 @@ class Mime
 
   def self.child?(child, parent)
     return true if child == parent
-    MIME_TYPES.include?(child) ? MIME_TYPES[child][1].any? {|p| child?(p, parent) } : false
+    TYPES.include?(child) ? TYPES[child][1].any? {|p| child?(p, parent) } : false
   end
 end
 
@@ -275,11 +275,11 @@ module Wiki
       path = path.cleanpath
       forbid_invalid_path(path)
       commit = sha ? repo.gcommit(sha) : repo.log(1).path(path).first rescue nil
-      if commit
-        object = Object.git_find(repo, path, commit)
-        return Page.new(repo, path, commit, object) if object.blob?
-        return Tree.new(repo, path, commit, object) if object.tree?
-      end
+      return nil if !commit
+      object = Object.git_find(repo, path, commit)
+      return nil if !object 
+      return Page.new(repo, path, commit, object) if object.blob?
+      return Tree.new(repo, path, commit, object) if object.tree?
       nil
     end
 
@@ -412,7 +412,7 @@ module Wiki
     end
 
     def extension
-      path =~ /\.([^.]+)$/
+      path =~ /.\.([^.]+)$/
       $1 || ''
     end
 
@@ -447,18 +447,20 @@ module Wiki
       "<span class=\"date seconds=#{t.to_i}\">#{t.strftime('%d %h %Y %H:%M')}</span>"
     end
 
-    def breadcrumbs(path)
-      links = ['<a href="/root">&radic;&macr; Root</a>']
+    def breadcrumbs(object)
+      path = object ? object.path : ''
+ 
+      links = ["<a href=\"#{path_with_sha('', object)}\">&radic;&macr; Root</a>"]
       path.split('/').inject('') {|parent,elem|        
-        links << "<a href=\"#{(parent/elem).urlpath}\">#{elem}</a>"
+        links << "<a href=\"#{path_with_sha(parent/elem, object)}\">#{elem}</a>"
         parent/elem
       }
       
       result = []
       links.each_with_index {|link,i|
-        result << "<li class=\"breadcrumb#{i==0 ? ' first' : ''}#{i==links.size-1 ? ' last' : ''}\">#{link}</li>"
+        result << "<li class=\"breadcrumb#{i==0 ? ' first' : ''}#{i==links.size-1 ? ' last' : ''}\">#{link}</li>\n"
       }
-      result.join('<li class="breadcrumb">/</li>')
+      result.join("<li class=\"breadcrumb\">/</li>\n")
     end
 
     def object_path(object, commit = nil, output = nil)
@@ -467,12 +469,8 @@ module Wiki
       (object.head?(commit) ? object.path : object.path/sha).urlpath + (output ? "?output=#{output}" : '')
     end
 
-    def child_path(tree, child)
-      (child.path/(tree.head? ? '' : tree.commit.sha)).urlpath
-    end
-
-    def parent_path(tree)
-      (tree.path/'..'/(tree.head? ? '' : tree.commit.sha)).urlpath
+    def path_with_sha(path, object)
+      (path/(!object || object.head? ? '' : object.commit.sha)).urlpath
     end
 
     def action_path(object, action)
@@ -637,6 +635,7 @@ module Wiki
   end
 
   class App < Sinatra::Base
+    include Sinatra::ComplexPatterns
     pattern :path, PATH_PATTERN
     pattern :sha,  SHA_PATTERN
 
@@ -670,6 +669,9 @@ module Wiki
 
     def show(object = nil)
       object = Object.find!(@repo, params[:path], params[:sha]) if !object || object.new?
+      #etag(object.object.sha)
+      #last_modified(object.commit.committer_date)
+
       if object.tree?
         @tree = object
         haml :tree
@@ -706,6 +708,7 @@ module Wiki
 
     error do
       @error = request.env['sinatra.error']
+      @logger.error @error
       haml :error
     end
 
@@ -781,6 +784,8 @@ module Wiki
         params[:path] = 'style.sass'
         show
       rescue Object::NotFound
+        #etag('style.css')
+        #last_modified(File.mtime(template_path(:sass, :style)))
         # Fallback to default style
         content_type 'text/css', :charset => 'utf-8'
         sass :style

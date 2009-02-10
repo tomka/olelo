@@ -15,7 +15,7 @@ class TC_Mime < Test::Unit::TestCase
   end
 
   def test_extensions
-    assert_equal %w(html htm), Mime.new('text/html').extensions
+    assert_equal %w(htm html), Mime.new('text/html').extensions
   end
 
   def test_by_extension
