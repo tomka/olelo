@@ -1,5 +1,5 @@
 %w(rubygems sinatra_ext git haml
-sass rubypants mime logger open3
+sass mime logger open3
 yaml/store digest cgi).each { |dep| require dep }
 
 class Object
@@ -71,7 +71,15 @@ class String
 end
 
 module Highlighter
+  `pygmentize -V 2>&1 > /dev/null`
+  @installed = $? == 0
+
+  def self.installed?
+    @installed
+  end
+
   def self.text(text, format)
+    return CGI::escapeHTML(text) if !installed? 
     content = Open3.popen3("pygmentize -O linenos=table -f html -l '#{format}'") { |stdin, stdout, stderr|
       stdin << text
       stdin.close
@@ -167,7 +175,6 @@ class Mime
   add('text/x-markdown', %w(markdown md mdown mkdn mdown), %w(text/plain))
 end
 
-
 class Entry
   class ConcurrentModificationError < RuntimeError; end
 
@@ -243,6 +250,13 @@ class MessageError < StandardError; end
 def forbid(conds)
   failed = conds.keys.select {|key| conds[key]}
   raise MessageError.new(failed) if !failed.empty?
+end
+
+def safe_require(name)
+  require(name)
+  true
+rescue LoadError
+  false
 end
 
 module Wiki
@@ -511,6 +525,10 @@ module Wiki
         request.path_info.ends_with? '/' + name.to_s
       end
     end
+
+    def fix_punctuation(text)
+      safe_require('rubypants') ? RubyPants.new(text).to_html : text
+    end
   end
 
   class Engine
@@ -559,9 +577,8 @@ module Wiki
     ENGINES =
       [
        Engine.create(:creole, true) {
-         accepts {|page| page.mime == 'text/x-creole' }
+         accepts {|page| page.mime == 'text/x-creole' && safe_require('creole') }
          output  {|page|
-           require 'creole'
            creole = Creole::CreoleParser.new
            class << creole
              def make_image_link(url)
@@ -571,25 +588,19 @@ module Wiki
                escape_url(url).urlpath
              end
            end
-           RubyPants.new(creole.parse(page.content)).to_html
+           fix_punctuation(creole.parse(page.content))
          }
        },
        Engine.create(:markdown, true) {
-         accepts {|page| page.mime == 'text/x-markdown' }
-         output  {|page|
-           require 'rdiscount'
-           RubyPants.new(RDiscount.new(page.content).to_html).to_html
-         }
+         accepts {|page| page.mime == 'text/x-markdown' && safe_require('rdiscount') }
+         output  {|page| RDiscount.new(page.content).to_html }
        },
        Engine.create(:textile, true) {
-         accepts {|page| page.mime == 'text/x-textile'  }
-         output  {|page|
-           require 'redcloth'
-           RubyPants.new(RedCloth.new(page.content).to_html).to_html
-         }
+         accepts {|page| page.mime == 'text/x-textile' && safe_require('redcloth') }
+         output  {|page| fix_punctuation(RedCloth.new(page.content).to_html) }
        },
        Engine.create(:code, true) {
-         accepts {|page| Highlighter.supports?(page.name) }
+         accepts {|page| Highlighter.installed? && Highlighter.supports?(page.name) }
          output  {|page| Highlighter.file(page.content, page.name) }
        },
        Engine.create(:image, true) {
