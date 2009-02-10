@@ -39,4 +39,14 @@ class TC_Page < Test::Unit::TestCase
     assert_equal 'Author2', page.commit.author.name
     assert_equal 'author2@localhorst', page.commit.author.email    
   end
+
+  def test_duplicate
+    page = Wiki::Page.new(@repo, 'test')
+    page.write('content', 'message', 'Author <author@localhorst>')
+
+    page = Wiki::Page.new(@repo, 'test')
+    assert_raise MessageError do
+      page.write('content', 'message', 'Author <author@localhorst>')
+    end
+  end
 end
