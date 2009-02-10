@@ -1,5 +1,6 @@
-title:       'Git-Wiki'
-repository:  '/home/user/wiki/repository'
-workspace:   '/home/user/wiki/workspace'
-store:       '/home/user/wiki/store.yml'
-loglevel:    INFO
+title:        'Git-Wiki'
+repository:   '/home/user/wiki/repository'
+workspace:    '/home/user/wiki/workspace'
+store:        '/home/user/wiki/store.yml'
+loglevel:     INFO
+default_mime: 'text/x-creole'

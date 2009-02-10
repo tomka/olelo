@@ -108,7 +108,7 @@ module Highlighter
   def self.find_lexer(name)
     @mapping ||= lexer_mapping
     pattern = @mapping.keys.find {|pattern| File.fnmatch(pattern, name)}
-    pattern ? @mapping[pattern] : nil
+    pattern && @mapping[pattern]
   end
 end
 
@@ -131,15 +131,12 @@ class Mime
   end
   
   def extensions
-    MIME_TYPES[type][0]
+    MIME_TYPES.include?(type) ? MIME_TYPES[type][0] : []
   end
   
   def self.by_extension(ext)
-    new MIME_EXTENSIONS[ext.downcase]
-  end
-  
-  def self.by_type(type)
-    new(MIME_TYPES.include?(type) ? type : nil)
+    mime = MIME_EXTENSIONS[ext.downcase]
+    mime ? new(mime) : nil
   end
   
   def to_s
@@ -150,14 +147,14 @@ class Mime
     type == x.to_s
   end
   
-  private
-  
   def initialize(type)
-    @type      = type || 'application/octet-stream'
+    @type      = type
     @mediatype = @type.split('/')[0]
     @subtype   = @type.split('/')[1]
   end
-  
+    
+  private
+
   def self.child?(child, parent)
     return true if child == parent
     MIME_TYPES.include?(child) ? MIME_TYPES[child][1].any? {|p| child?(p, parent) } : false
@@ -265,12 +262,12 @@ module Wiki
       path ||= ''
       path = path.cleanpath
       forbid_invalid_path(path)
-      commit = sha ? repo.gcommit(sha) : repo.log(1).path(path).first
-      object = Object.git_find(repo, path, commit)
-      return Page.new(repo, path, commit, object) if object.blob?
-      return Tree.new(repo, path, commit, object) if object.tree?
-      nil
-    rescue
+      commit = sha ? repo.gcommit(sha) : repo.log(1).path(path).first rescue nil
+      if commit
+        object = Object.git_find(repo, path, commit)
+        return Page.new(repo, path, commit, object) if object.blob?
+        return Tree.new(repo, path, commit, object) if object.tree?
+      end
       nil
     end
 
@@ -341,22 +338,18 @@ module Wiki
     protected
 
     def self.forbid_invalid_path(path)
-      forbid('Invalid path' => !path.blank? && path !~ /^#{PATH_PATTERN}$/)
+      forbid('Invalid path' => (!path.blank? && path !~ /^#{PATH_PATTERN}$/))
     end
 
     def self.git_find(repo, path, commit)
-      if commit
-        if path.blank?
-          return commit.gtree
-        elsif path =~ /\//
-          return path.split('/').inject(commit.gtree) { |t, x| t.children[x] } rescue nil
-        else
-          return commit.gtree.children[path]
-        end
+      return nil if !commit
+      if path.blank?
+        return commit.gtree rescue nil
+      elsif path =~ /\//
+        return path.split('/').inject(commit.gtree) { |t, x| t.children[x] } rescue nil
+      else
+        return commit.gtree.children[path] rescue nil
       end
-      nil
-    rescue
-      nil
     end
 
   end
@@ -412,7 +405,7 @@ module Wiki
     end
 
     def mime
-      @mime ||= Mime.by_extension(extension)
+      @mime ||= Mime.by_extension(extension) || Mime.new(App.config['default_mime'])
     end
   end
   
@@ -440,6 +433,20 @@ module Wiki
   module Helper
     def date(t)
       "<span class=\"date seconds=#{t.to_i}\">#{t.strftime('%d %h %Y %H:%M')}</span>"
+    end
+
+    def breadcrumbs(path)
+      links = ['<a href="/root">&radic;&macr; Root</a>']
+      path.split('/').inject('') {|parent,elem|        
+        links << "<a href=\"#{(parent/elem).urlpath}\">#{elem}</a>"
+        parent/elem
+      }
+      
+      result = []
+      links.each_with_index {|link,i|
+        result << "<li class=\"breadcrumb#{i==0 ? ' first' : ''}#{i==links.size-1 ? ' last' : ''}\">#{link}</li>"
+      }
+      result.join('<li class="breadcrumb">/</li>')
     end
 
     def object_path(object, commit = nil, output = nil)

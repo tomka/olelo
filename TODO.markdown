@@ -7,14 +7,14 @@ Brainstorming...
 - Documentation
 - Code comments and rdoc generation
 - Rspec and maybe some unit tests
-- Automatic file extensions for wikitext files
 - LaTeX integration
 - Captcha support
 - Image support, Image gallery
-- Breadcrumbs for tree browsing
 - Create a larsch-creole gem
 - Wiki installation under subpath (path_info translation could be done
   via rack middleware, generated links must be adapted)
+- (DONE) Breadcrumbs for tree browsing
+- (DONE) Automatic file extensions for wikitext files
 - (DONE) Preview
 - (DONE) Menu
 - (DONE) Search

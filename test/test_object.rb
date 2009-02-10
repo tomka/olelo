@@ -6,6 +6,8 @@ class TC_Object < Test::Unit::TestCase
   def test_path_check
     assert_raise MessageError do
       Wiki::Object.find(@repo, '#invalid#')
+    end
+    assert_raise MessageError do
       Wiki::Object.find(@repo, ' spaces ')
     end
     assert_nil Wiki::Object.find(@repo, 'spaces in the path')

@@ -4,8 +4,7 @@
     %a{:href=>'/'}
       = image('Home', :home)
       Home
-  %li
-    %a{:href=>'/root/'} &radic;&macr; Root
+  = breadcrumbs(object ? object.path : '')
 %ul.wiki
   %li.title Wiki Menu
   - if enabled.include?(:version)
