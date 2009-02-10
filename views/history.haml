@@ -1,5 +1,6 @@
 - @menu  = :current, :edit, :new
 - @title = "History of #{@object.pretty_name}"
+- @feed = (@object.path/'changelog.rss').urlpath
 %form{:action=> action_path(@object, :diff) }
   %input{:type=>'submit', :value=>'Show Diff'}
   %br

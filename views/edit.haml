@@ -1,8 +1,7 @@
 - @menu  = :new, :current, :history
-- @title = "Edit #{@page.pretty_name}"
+- @title = (@preview_content ? 'Preview ' : 'Edit ') + @page.pretty_name
 - if @preview_content
-  %p= @preview_content
-  %hr
+  .preview= @preview_content
 .ui-tabs
   %ul
     %li{tab_selected(:edit)}

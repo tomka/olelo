@@ -241,7 +241,7 @@ class Entry
   end
 end
 
-class MessageError < Exception; end
+class MessageError < StandardError; end
 
 def forbid(conds)
   failed = conds.keys.select {|key| conds[key]}
