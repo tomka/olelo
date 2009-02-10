@@ -15,9 +15,9 @@
       - @object.history.each do |commit|
         %tr
           %td
-            %input{:type=>'radio', :name=>'to', :value=> commit.sha}
-          %td
             %input{:type=>'radio', :name=>'from', :value=> commit.sha}
+          %td
+            %input{:type=>'radio', :name=>'to', :value=> commit.sha}
           %td
             %a.sha{:href=>object_path(@object, commit)}=commit.sha
           %td&= commit.author.name

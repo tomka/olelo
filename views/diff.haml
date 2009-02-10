@@ -3,13 +3,13 @@
 %table
   %tbody
     %tr
-      %td To
-      %td
-        %a.sha{:href=>object_path(@object, @from)}= @from
-    %tr
       %td From
       %td
-        %a.sha{:href=>object_path(@object, @to)}= @to
+        %a.sha{:href=>object_path(@object, @diff.from)}= @diff.from
+    %tr
+      %td To
+      %td
+        %a.sha{:href=>object_path(@object, @diff.to)}= @diff.to
     %tr
       %td Deletions
       %td= @diff.deletions

@@ -831,10 +831,8 @@ module Wiki
     end
 
     get '/diff', '/:path/diff' do
-      @from = params[:from]
-      @to = params[:to]
-      @object = Object.find!(@repo, params[:path], @from)
-      @diff = @object.diff(@to)
+      @object = Object.find!(@repo, params[:path], params[:from])
+      @diff = @object.diff(params[:to])
       haml :diff
     end
 
