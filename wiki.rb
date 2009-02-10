@@ -120,6 +120,24 @@ module Highlighter
   end
 end
 
+class MessageError < StandardError; end
+
+def forbid(conds)
+  failed = conds.keys.select {|key| conds[key]}
+  raise MessageError.new(failed) if !failed.empty?
+end
+
+def safe_require(name)
+  require(name)
+  true
+rescue LoadError
+  false
+end
+
+def safe_require_all(name)
+  Dir.glob(File.join(name, '**/*.rb')).each { |file| require file }
+end
+
 class Mime
   attr_reader :type, :mediatype, :subtype
   
@@ -167,12 +185,6 @@ class Mime
     return true if child == parent
     MIME_TYPES.include?(child) ? MIME_TYPES[child][1].any? {|p| child?(p, parent) } : false
   end
-  
-  add('text/x-sass', %w(sass), %w(text/plain))
-  add('text/x-haml', %w(haml), %w(text/plain))
-  add('text/x-textile', %w(textile), %w(text/plain))
-  add('text/x-creole', %w(creole text), %w(text/plain))
-  add('text/x-markdown', %w(markdown md mdown mkdn mdown), %w(text/plain))
 end
 
 class Entry
@@ -243,20 +255,6 @@ class Entry
   def self.store
     @store
   end
-end
-
-class MessageError < StandardError; end
-
-def forbid(conds)
-  failed = conds.keys.select {|key| conds[key]}
-  raise MessageError.new(failed) if !failed.empty?
-end
-
-def safe_require(name)
-  require(name)
-  true
-rescue LoadError
-  false
 end
 
 module Wiki
@@ -540,20 +538,22 @@ module Wiki
       end
     end
     
-    attr_reader :name
+    attr_reader :name, :priority
     def layout?; @layout; end
     
-    def initialize(name, layout)
+    def initialize(name, priority, layout)
       @name = name
+      @priority = priority
       @layout = layout
     end
     
-    def self.create(name, layout, &block)
-      Class.new(Engine, &block).new(name, layout)
+    def self.create(name, priority, layout, &block)
+      ENGINES << Class.new(Engine, &block).new(name, priority, layout)
     end
 
     def self.find(page, name = nil)
-      engine = ENGINES.find { |e| (name.blank? || e.name == name.to_sym) && e.accepts(page) }
+      engine = ENGINES.sort {|a,b| a.priority <=> b.priority }.
+        find { |e| (name.blank? || e.name == name.to_sym) && e.accepts(page) }
       return engine if engine
       raise NotAvailable.new(name)
     end
@@ -574,59 +574,9 @@ module Wiki
     output  {|page| '' }
     mime    {|page| 'text/plain' }
 
-    ENGINES =
-      [
-       Engine.create(:creole, true) {
-         accepts {|page| page.mime == 'text/x-creole' && safe_require('creole') }
-         output  {|page|
-           creole = Creole::CreoleParser.new
-           class << creole
-             def make_image_link(url)
-               url + '?output=raw'
-             end
-             def make_link(url)
-               escape_url(url).urlpath
-             end
-           end
-           fix_punctuation(creole.parse(page.content))
-         }
-       },
-       Engine.create(:markdown, true) {
-         accepts {|page| page.mime == 'text/x-markdown' && safe_require('rdiscount') }
-         output  {|page| RDiscount.new(page.content).to_html }
-       },
-       Engine.create(:textile, true) {
-         accepts {|page| page.mime == 'text/x-textile' && safe_require('redcloth') }
-         output  {|page| fix_punctuation(RedCloth.new(page.content).to_html) }
-       },
-       Engine.create(:code, true) {
-         accepts {|page| Highlighter.installed? && Highlighter.supports?(page.name) }
-         output  {|page| Highlighter.file(page.content, page.name) }
-       },
-       Engine.create(:image, true) {
-         accepts {|page| page.mime.mediatype == 'image' }
-         output  {|page| "<img src=\"#{object_path(page, nil, 'raw')}\"/>" }
-       },
-       Engine.create(:html, true) {
-         accepts {|page| page.mime.text? }
-         output  {|page| '<pre>' + CGI::escapeHTML(page.content) + '</pre>' }
-         mime    {|page| page.mime }
-       },
-       Engine.create(:download, true) {
-         accepts {|page| true }
-         output  {|page| "<a href=\"#{object_path(page, nil, 'raw')}\">Download</a>" }
-       },
-       Engine.create(:raw, false) {
-         accepts {|page| true }
-         output  {|page| page.content }
-         mime    {|page| page.mime }
-       },
-       Engine.create(:css, false) {
-         accepts {|page| page.extension == 'sass' }
-         output  {|page| Sass::Engine.new(page.content).render }
-         mime    {|page| 'text/css' }
-       },
-      ]
+    private
+
+    ENGINES = []
   end
 
   class User < Entry
@@ -701,7 +651,6 @@ module Wiki
     include Helper
 
     def initialize
-      Entry.store = App.config['store']
       @logger = Logger.new(STDOUT)
       @logger.level = Logger.const_get(App.config['loglevel'])
       if File.exists?(App.config['repository']) && File.exists?(App.config['workspace'])
@@ -716,6 +665,7 @@ module Wiki
         page.write('This file is used to initialize the repository. It can be deleted.', 'Initialize Repository')
         @logger.info 'Repository initialized'
       end
+      Entry.store = App.config['store']
     end
 
     def show(object = nil)
@@ -739,10 +689,14 @@ module Wiki
     before do
       # Sinatra does not unescape before pattern matching
       # Paths with spaces won't be recognized
+      # FIXME: Implement this as middleware?
       request.path_info = CGI::unescape(request.path_info)
       @logger.debug request.env
       content_type 'application/xhtml+xml', :charset => 'utf-8'
       @user = session[:user] || User.anonymous(request.ip)
+      @footer = nil
+      @feed = nil
+      @title = ''
     end
 
     not_found do
@@ -756,7 +710,7 @@ module Wiki
     end
 
     get '/' do
-      redirect '/home.text'
+      redirect '/Home'
     end
 
     get '/login', '/signup' do
@@ -954,3 +908,5 @@ module Wiki
     end
   end
 end
+
+safe_require_all(File.join(Wiki::App.root, 'plugins'))
