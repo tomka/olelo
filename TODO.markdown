@@ -16,7 +16,7 @@ Brainstorming...
 - Cache-control and etag support
 - Clean up stylesheet
 - Tablesorter doesn't get the colspan on /history
-- Problem with last modified dates, they always refer to the whole tree
+- (DONE) Problem with last modified dates, they always refer to the whole tree
 - (DONE) Breadcrumbs for tree browsing
 - (DONE) Automatic file extensions for wikitext files
 - (DONE) Preview

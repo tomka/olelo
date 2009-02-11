@@ -20,4 +20,4 @@
       %td Files
       %td= @diff.size
 %p
-  ~ Highlighter.text(@diff.patch, 'diff')
+  ~ Wiki::Highlighter.text(@diff.patch, 'diff')

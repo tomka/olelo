@@ -1,6 +1,7 @@
 :ruby
   @menu   = :version, :edit, :history, :new
   @title  = @page.pretty_name
-  @footer = "Committed by #{@page.commit.committer.name}, #{date @page.commit.committer_date}"
+  @footer = "Committed by #{@page.last_commit.committer.name}, #{date @page.last_commit.committer_date} &bull; " + 
+            "<a class=\"sha\" href=\"#{object_path(@page, :sha => @page.last_commit)}\">#{@page.last_commit.sha}</a>"
   @feed = (@page.path/'changelog.rss').urlpath
 ~ @content

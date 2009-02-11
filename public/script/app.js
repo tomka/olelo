@@ -38,10 +38,11 @@ $(document).ready(function(){
 	widgets: ['zebra'],
         headers: { 
             0: { sorter: false }, 
-            1: { sorter: 'text' },
-	    2: { sorter: 'text' },
-	    3: { sorter: 'text' }, // FIXME: Write parser for date
-	    4: { sorter: 'text' }
+            1: { sorter: false }, 
+            2: { sorter: 'text' },
+	    3: { sorter: 'text' },
+	    4: { sorter: 'text' }, // FIXME: Write parser for date
+	    5: { sorter: 'text' }
         }
     }); 
 

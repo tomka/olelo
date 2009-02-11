@@ -44,16 +44,18 @@ module Wiki
       @current || new?
     end
 
+    def last_commit
+      update_prev_last_commit
+      @last_commit
+    end
+
     def history
       @history ||= @repo.log.path(path).to_a
     end
 
-    def head_commit
-      history.first
-    end
-
     def prev_commit
-      @prev_commit ||= @repo.log(2).object(@commit.sha).path(@path).to_a[1]
+      update_prev_last_commit
+      @prev_commit
     end
 
     def next_commit
@@ -80,8 +82,8 @@ module Wiki
       n.gsub(/[^\w.\-_]/, '_')
     end
 
-    def diff(to)
-      @repo.diff(@commit.sha, to).path(path)
+    def diff(from, to)
+      @repo.diff(from, to).path(path)
     end
 
     def initialize(repo, path, object = nil, commit = nil, current = false)
@@ -93,9 +95,18 @@ module Wiki
       @object = object
       @commit = commit
       @current = current
+      @prev_commit = @last_commit = @history = nil
     end
 
     protected
+
+    def update_prev_last_commit
+      if !@prev_commit
+        commits = @repo.log(2).object(@commit.sha).path(@path).to_a
+        @prev_commit = commits[1]
+        @last_commit = commits[0]
+      end
+    end
 
     def self.forbid_invalid_path(path)
       forbid('Invalid path' => (!path.blank? && path !~ /^#{PATH_PATTERN}$/))
@@ -138,7 +149,7 @@ module Wiki
     def write(content, message, author = nil)
       @content = content
       save(message, author)
-    end    
+    end
 
     def save(message, author = nil)
       return if @content == current_content
@@ -153,9 +164,8 @@ module Wiki
       repo.add(@path)
       repo.commit(message.blank? ? '(Empty commit message)' : message, :author => author)
 
-      @content = nil
-      @prev_commit = @history = nil
-      @commit = head_commit
+      @content = @prev_commit = @last_commit = @history = nil
+      @commit = history.first
       @object = Object.git_find(@repo, @path, @commit) || raise(NotFound.new(path))
       @current = true
     end
