@@ -10,14 +10,20 @@ module Wiki
 
     output do |page|
       creole = Creole::CreoleParser.new
-      class << creole
-        def make_image_link(url)
-          url + '?output=raw'
+      class<< creole
+        include Wiki::Helper
+        attr_writer :page
+        def make_local_link(path)
+          object_path(@page, :path => path)
         end
-        def make_link(url)
-          escape_url(url).urlpath
+        def make_image(path, alt)
+          image_path = escape_html(object_path(@page, :path => path, :output => :raw))
+          page_path = escape_html(object_path(@page, :path => path))
+          alt = alt ? " alt=\"#{escape_html alt}\"" : ''
+          "<a href=\"#{page_path}\"><img src=\"#{image_path}\"#{alt}/></a>"
         end
       end
+      creole.page = page
       fix_punctuation(creole.parse(page.content))
     end
   end

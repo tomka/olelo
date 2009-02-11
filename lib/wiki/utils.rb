@@ -21,7 +21,7 @@ module Wiki
     end
 
     def safe_require_all(name)
-      Dir.glob(File.join(name, '**/*.rb')).each { |file| require file }
+      Dir.glob(File.join(name, '**/*.rb')).each { |file| safe_require file }
     end
   end
 end
