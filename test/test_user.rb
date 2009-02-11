@@ -1,5 +1,5 @@
 require 'entry_support'
-require 'digest'
+require 'wiki/user'
 
 class TC_User < Test::Unit::TestCase
   include EntrySupport
@@ -12,13 +12,13 @@ class TC_User < Test::Unit::TestCase
     assert_equal 'anonymous@1.2.3.4', user.email
     assert_equal '1.2.3.4 <anonymous@1.2.3.4>', user.author
     
-    assert_raise MessageError do
+    assert_raise Wiki::MessageError do
       user.save
     end
   end
 
   def test_create_find_authenticate
-    assert_raise MessageError do
+    assert_raise Wiki::MessageError do
       Wiki::User.create('otto', 'passwd', 'passwd wrong', 'mail@otto.com')
     end
 
@@ -34,11 +34,11 @@ class TC_User < Test::Unit::TestCase
     assert_not_nil user
     assert_instance_of Wiki::User, user
 
-    assert_raise MessageError do
+    assert_raise Wiki::MessageError do
       Wiki::User.authenticate('wrong user', 'passwd')
     end
 
-    assert_raise MessageError do
+    assert_raise Wiki::MessageError do
       Wiki::User.authenticate('otto', 'wrong passwd')
     end
 
@@ -50,15 +50,15 @@ class TC_User < Test::Unit::TestCase
   def test_change_password
     user = Wiki::User.create('otto', 'passwd', 'passwd', 'mail@otto.com')
 
-    assert_raise MessageError do
+    assert_raise Wiki::MessageError do
       user.change_password('wrong old', 'new password', 'new password')
     end
 
-    assert_raise MessageError do
+    assert_raise Wiki::MessageError do
       user.change_password('passwd', 'new password', 'wrong new password')
     end
 
-    assert_nothing_raised MessageError do
+    assert_nothing_raised Wiki::MessageError do
       user.change_password('passwd', 'new password', 'new password')
     end
 
@@ -70,7 +70,7 @@ class TC_User < Test::Unit::TestCase
   def test_transaction
     user = Wiki::User.create('otto', 'passwd', 'passwd', 'mail@otto.com')
 
-    assert_raise MessageError do
+    assert_raise Wiki::MessageError do
       user.transaction do |u|
         u.email = 'invalid'
         u.save

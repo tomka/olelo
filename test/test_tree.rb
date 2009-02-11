@@ -8,6 +8,32 @@ class TC_Tree < Test::Unit::TestCase
     p.write('content', 'message', 'Author <author@localhorst>')
   end
 
+  def test_commit_browsing
+    page('page1')
+    page('page2')
+    page('page3')
+
+    tree = Wiki::Tree.find!(@repo, '/')
+    assert tree.current?
+    
+    assert_equal tree.children[0].commit.sha, tree.commit.sha
+    assert_equal tree.children[1].commit.sha, tree.commit.sha
+    assert_equal tree.children[2].commit.sha, tree.commit.sha
+    assert tree.children[0].current?
+    assert tree.children[1].current?
+    assert tree.children[2].current?
+
+    old_tree = Wiki::Tree.find(@repo, '/', tree.prev_commit)
+    assert !old_tree.current?
+    assert_equal old_tree.commit.sha, tree.prev_commit.sha
+    assert_equal old_tree.children[0].commit.sha, old_tree.commit.sha
+    assert_equal old_tree.children[1].commit.sha, old_tree.commit.sha
+    assert_equal old_tree.children[2].commit.sha, old_tree.commit.sha
+    assert !old_tree.children[0].current?
+    assert !old_tree.children[1].current?
+    assert !old_tree.children[2].current?
+  end
+
   def test_children
     page('page1')
     page('page2')

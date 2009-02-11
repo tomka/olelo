@@ -5,37 +5,39 @@
       = image('Home', :home)
       Home
   = breadcrumbs(object)
+  - if object && !object.current?
+    %li.noborder= "Tree version #{object.commit.sha.truncate(16)}"
 %ul.wiki
   %li.title Wiki Menu
-  - if enabled.include?(:version)
+  - if @menu.include?(:version)
     - if object.prev_commit
       %li
-        %a{:href=>object_path(object, object.prev_commit)} &laquo; Older
+        %a{:href=>object_path(object, :sha => object.prev_commit)} &laquo; Older
     - if object.next_commit
       %li
-        %a{:href=>object_path(object, object.next_commit)} Newer &raquo;
-    - if !object.head?
+        %a{:href=>object_path(object, :sha => object.next_commit)} Newer &raquo;
+    - if !object.current?
       %li
         %a{:href=> object.path.urlpath } Current
-  - if enabled.include?(:current)
+  - if @menu.include?(:view)
     %li
-      %a{:href=> object.path.urlpath } Current
-  - if enabled.include?(:new)
+      %a{:href=> object.path.urlpath } View
+  - if @menu.include?(:new)
     %li
       %a{:href=> object && object.tree? ? (object.path/'new page/new').urlpath : '/new page/new'  }
         = image('New Page', :new)
         New Page
-  - if enabled.include?(:edit) && object.page?
+  - if @menu.include?(:edit) && object.page?
     %li
       %a{:href=>action_path(object, :edit) }
         = image('Edit', :edit)
         Edit
-  - if enabled.include?(:history)
+  - if @menu.include?(:history)
     %li
       %a{:href=>action_path(object, :history) }
         = image('History', :history)
         History
-  - if enabled.include?(:archive)
+  - if @menu.include?(:archive)
     %li
       %a{:href=>action_path(object, :archive) }
         = image('Archive', :archive)

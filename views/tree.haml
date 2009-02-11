@@ -1,8 +1,7 @@
 :ruby
   @menu   = :version, :history, :archive, :new
   @title  = @tree.pretty_name
-  @footer = "#{@tree.head? ? 'Current' : 'Outdated'} Version &bull;\
-   Last modified by #{@tree.commit.committer.name}, #{date @tree.commit.committer_date}"
+  @footer = "Committed by #{@tree.commit.committer.name}, #{date @tree.commit.committer_date}"
   @feed = (@tree.path/'changelog.rss').urlpath
 %table.sortable
   %thead
@@ -14,7 +13,7 @@
       %tr
         %td= image('Tree', :tree)
         %td
-          %a{:href=>path_with_sha(@tree.path/'..', @tree) } ..
+          %a{:href=> object_path(@tree, :path => @tree.path/'..') } ..
     - @tree.children.each do |child|
       %tr
         %td
@@ -23,4 +22,4 @@
           - else
             = image('Tree', :tree)
         %td
-          %a{:href=>path_with_sha(child.path, @tree)}=child.name
+          %a{:href=> object_path(child) }=child.name

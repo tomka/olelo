@@ -15,13 +15,7 @@ else
   }
 end
 
-#if safe_require 'rack/cache'
-#  use Rack::Cache,
-#    :verbose     => true,
-#    :metastore   => 'file:' + File.join(path, '.wiki', 'cache', 'meta'),
-#    :entitystore => 'file:' + File.join(path, '.wiki', 'cache', 'entity')
-#end
-
+use Rack::Session::Pool
 Wiki::App.set :config, config
 run Wiki::App
 

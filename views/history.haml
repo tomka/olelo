@@ -1,4 +1,4 @@
-- @menu  = :current, :edit, :new
+- @menu  = :view, :edit, :new
 - @title = "History of #{@object.pretty_name}"
 - @feed = (@object.path/'changelog.rss').urlpath
 %form{:action=> action_path(@object, :diff) }
@@ -20,7 +20,7 @@
           %td
             %input{:type=>'radio', :name=>'to', :value=> commit.sha}
           %td
-            %a.sha{:href=>object_path(@object, commit)}=commit.sha
+            %a.sha{:href=>object_path(@object, :sha => commit)}=commit.sha
           %td&= commit.author.name
           %td= date(commit.author_date)
           %td&= commit.message.truncate(50)

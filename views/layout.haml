@@ -12,7 +12,8 @@
     %script{:src=>'/script/app.js', :type=>'text/javascript'}
     - if @feed
       %link{:rel => 'alternate',  :href => @feed, :type => 'application/rss+xml', :title=> 'RSS'}
-  %body
+  - object = @object || @page || @tree
+  %body{:class => object && !object.current? ? 'old' : ''}
     #header
       %h1&= Wiki::App.config['title']
       #box

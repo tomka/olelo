@@ -1,15 +1,15 @@
-- @menu  = :current, :edit, :history, :new
+- @menu  = :view, :edit, :history, :new
 - @title = "Diff of #{@object.pretty_name}"
 %table
   %tbody
     %tr
       %td From
       %td
-        %a.sha{:href=>object_path(@object, @diff.from)}= @diff.from
+        %a.sha{:href=>object_path(@object, :sha => @diff.from)}= @diff.from
     %tr
       %td To
       %td
-        %a.sha{:href=>object_path(@object, @diff.to)}= @diff.to
+        %a.sha{:href=>object_path(@object, :sha => @diff.to)}= @diff.to
     %tr
       %td Deletions
       %td= @diff.deletions

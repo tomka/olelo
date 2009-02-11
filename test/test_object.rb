@@ -4,10 +4,10 @@ class TC_Object < Test::Unit::TestCase
   include GitSupport
 
   def test_path_check
-    assert_raise MessageError do
+    assert_raise Wiki::MessageError do
       Wiki::Object.find(@repo, '#invalid#')
     end
-    assert_raise MessageError do
+    assert_raise Wiki::MessageError do
       Wiki::Object.find(@repo, ' spaces ')
     end
     assert_nil Wiki::Object.find(@repo, 'spaces in the path')

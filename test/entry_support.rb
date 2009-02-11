@@ -1,10 +1,10 @@
 require 'test/unit'
-require 'wiki'
+require 'wiki/entry'
 
 module EntrySupport
   def setup
     @store_path = File.expand_path(File.join(File.dirname(__FILE__), '.store.yml'))
-    Entry.store = @store_path
+    Wiki::Entry.store = @store_path
   end
 
   def teardown

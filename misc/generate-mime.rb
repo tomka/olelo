@@ -20,19 +20,21 @@ doc.each_element('mime-info/mime-type') do |mime|
 end
 
 puts "# Generated from #{FILE}"
-puts "class Mime"
-puts "  private"
-puts "  EXTENSIONS = {"
+puts "module Wiki"
+puts "  class Mime"
+puts "    private"
+puts "    EXTENSIONS = {"
 extensions.keys.sort.each do |key|
-  puts "    '#{key}' => '#{extensions[key]}',"
+  puts "      '#{key}' => '#{extensions[key]}',"
 end
-puts "  }"
-puts "  TYPES = {"
+puts "    }"
+puts "    TYPES = {"
 types.keys.sort.each do |key|
   exts = types[key][0].sort.inspect
   parents = types[key][1].sort.inspect
-  puts "    '#{key}' => [#{exts}, #{parents}],"
+  puts "      '#{key}' => [#{exts}, #{parents}],"
 end
-puts "  }"
+puts "    }"
+puts "  end"
 puts "end"
 

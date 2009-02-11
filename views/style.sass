@@ -190,9 +190,11 @@ hr
       :line-height 1.7em
       :border-right 1px solid #999
       :color #333
-      &.title
+      &.title, &.noborder
         :padding 0 1em
         :color #999
+        &.noborder
+          :border none
       &.breadcrumb
         :border none
         a
@@ -348,3 +350,12 @@ form
 
 .date
   :cursor pointer
+
+body.old
+  :background #EEE
+  #header
+    :background #333
+  #sidebar
+    :background #DDD
+  tr.odd
+    :background #DDD

@@ -1,7 +1,9 @@
-require 'test/unit'
-require 'wiki'
+require 'wiki/extensions'
+require 'wiki/utils'
 
 class TC_Utils < Test::Unit::TestCase
+  include Wiki::Utils
+
   def test_blank?
     assert ''.blank?
     assert({}.blank?)
@@ -59,10 +61,10 @@ class TC_Utils < Test::Unit::TestCase
   end
 
   def test_forbid
-    assert_raise MessageError do
+    assert_raise Wiki::MessageError do
       forbid('Forbidden' => true)
     end
-    assert_raise MessageError do
+    assert_raise Wiki::MessageError do
       forbid('Allowed'   => false,
              'Forbidden' => true)
     end
