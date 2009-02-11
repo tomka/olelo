@@ -13,6 +13,10 @@ Brainstorming...
 - Create a larsch-creole gem
 - Wiki installation under subpath (path_info translation could be done
   via rack middleware, generated links must be adapted)
+- Cache-control and etag support
+- Clean up stylesheet
+- Tablesorter doesn't get the colspan on /history
+- Problem with last modified dates, they always refer to the whole tree
 - (DONE) Breadcrumbs for tree browsing
 - (DONE) Automatic file extensions for wikitext files
 - (DONE) Preview
@@ -26,8 +30,7 @@ Brainstorming...
 ruby-git TODO
 -------------
 
-- Get shell escaping patch included
-- Commits aren't parsed correctly
-- Fix uninitialized variables ($VERBOSE = 1 in the tests)
-
+- Get my patches included
+- (DONE) Commits aren't parsed correctly
+- (DONE) Fix uninitialized variables ($VERBOSE = 1 in the tests)
 
