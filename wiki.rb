@@ -1,6 +1,6 @@
 %w(rubygems sinatra/base sinatra/complex_patterns git haml
 sass logger cgi wiki/extensions wiki/utils
-wiki/object wiki/helper wiki/user wiki/engine wiki/highlighter).each { |dep| require dep }
+wiki/object wiki/helper wiki/user wiki/engine wiki/highlighter wiki/cache).each { |dep| require dep }
 
 module Wiki
   class App < Sinatra::Base
@@ -19,6 +19,10 @@ module Wiki
     set :dump_errors, true
 
     def initialize
+      %w(title repository workspace store cache loglevel default_mime).each do |key|
+        raise RuntimeError.new('Application not properly configured') if App.config[key].blank?
+      end
+      
       @logger = Logger.new(STDOUT)
       @logger.level = Logger.const_get(App.config['loglevel'])
       if File.exists?(App.config['repository']) && File.exists?(App.config['workspace'])
@@ -34,12 +38,13 @@ module Wiki
         @logger.info 'Repository initialized'
       end
       Entry.store = App.config['store']
+      Cache.instance = Cache::Disk.new(App.config['cache'])
     end
 
     def cache_control(object, tag)
       if App.production?
         response['Cache-Control'] = 'private, must-revalidate, max-age=0'
-        etag(object.object.sha + tag)
+        etag(object.sha + tag)
         last_modified(object.commit.committer_date)
       end
     end
@@ -174,8 +179,14 @@ module Wiki
       @tree = Tree.find!(@repo, params[:path])
       content_type 'application/x-tar-gz'
       attachment "#{@tree.safe_name}.tar.gz"
-      archive = @repo.archive(@tree.object.sha, nil, :format => 'tgz', :prefix => "#{@tree.safe_name}/")
-      File.open(archive).read
+      archive = @tree.archive
+      begin
+        # See send_file
+        response['Content-Length'] ||= File.stat(archive).size.to_s
+        halt StaticFile.open(archive, 'rb')
+      rescue Errno::ENOENT
+        not_found
+      end
     end
 
     get '/history', '/:path/history' do

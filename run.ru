@@ -10,6 +10,7 @@ else
     'repository'   => File.join(path, '.wiki', 'repository'),
     'workspace'    => File.join(path, '.wiki', 'workspace'),
     'store'        => File.join(path, '.wiki', 'store.yml'),
+    'cache'        => File.join(path, '.wiki', 'cache'),
     'loglevel'     => 'INFO',
     'default_mime' => 'text/x-creole'
   }
@@ -18,4 +19,3 @@ end
 use Rack::Session::Pool
 Wiki::App.set :config, config
 run Wiki::App
-

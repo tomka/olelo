@@ -4,11 +4,8 @@ require 'wiki/extensions'
 
 module Wiki
   module Highlighter
-    `pygmentize -V 2>&1 > /dev/null`
-    @installed = $? == 0
-
     def self.installed?
-      @installed
+      !lexer_mapping.empty?
     end
 
     def self.text(text, format)
@@ -32,24 +29,27 @@ module Wiki
 
     private
 
+    @mapping = nil
+
     def self.lexer_mapping
-      mapping = {}
-      lexer = ''  
-      output = `pygmentize -L lexer`
-      output.split("\n").each do |line|
-        if line =~ /^\* ([^:]+):$/
-          lexer = $1.split(', ').first
-        elsif line =~ /^   [^(]+ \(filenames ([^)]+)/
-          $1.split(', ').each {|s| mapping[s] = lexer }
+      if !@mapping
+        @mapping = {}
+        lexer = ''  
+        output = `pygmentize -L lexer`
+        output.split("\n").each do |line|
+          if line =~ /^\* ([^:]+):$/
+            lexer = $1.split(', ').first
+          elsif line =~ /^   [^(]+ \(filenames ([^)]+)/
+            $1.split(', ').each {|s| @mapping[s] = lexer }
+          end
         end
       end
-      mapping
+      @mapping
     end
 
     def self.find_lexer(name)
-      @mapping ||= lexer_mapping
-      pattern = @mapping.keys.find {|pattern| File.fnmatch(pattern, name)}
-      pattern && @mapping[pattern]
+      pattern = lexer_mapping.keys.find {|pattern| File.fnmatch(pattern, name)}
+      pattern && lexer_mapping[pattern]
     end
   end
 end

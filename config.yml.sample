@@ -2,5 +2,6 @@ title:        'Git-Wiki'
 repository:   '/home/user/wiki/repository'
 workspace:    '/home/user/wiki/workspace'
 store:        '/home/user/wiki/store.yml'
+cache:        '/home/user/wiki/cache'
 loglevel:     INFO
 default_mime: 'text/x-creole'

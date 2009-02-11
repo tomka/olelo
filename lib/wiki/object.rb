@@ -39,6 +39,10 @@ module Wiki
       !@object
     end
 
+    def sha
+      new? ? '' : object.sha
+    end
+
     # Browsing current tree?
     def current?
       @current || new?
@@ -101,7 +105,7 @@ module Wiki
     protected
 
     def update_prev_last_commit
-      if !@prev_commit
+      if !@last_commit
         commits = @repo.log(2).object(@commit.sha).path(@path).to_a
         @prev_commit = commits[1]
         @last_commit = commits[0]
@@ -139,11 +143,15 @@ module Wiki
     end
 
     def content
-      @content || current_content
+      @content || saved_content
     end
 
-    def current_content
+    def saved_content
       @object ? @object.contents : nil
+    end
+
+    def saved?
+      !new? && !@content
     end
 
     def write(content, message, author = nil)
@@ -152,7 +160,7 @@ module Wiki
     end
 
     def save(message, author = nil)
-      return if @content == current_content
+      return if @content == saved_content
 
       forbid('No content'   => @content.blank?,
              'Object already exists' => new? && Object.find(@repo, @path))
@@ -198,6 +206,10 @@ module Wiki
 
     def pretty_name
       '&radic;&macr; Root'/path
+    end
+
+    def archive
+      @repo.archive(sha, nil, :format => 'tgz', :prefix => "#{safe_name}/")
     end
   end
 end

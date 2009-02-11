@@ -10,8 +10,9 @@ shared_context 'wiki init' do
       'repository'   => File.join(@test_path, 'repository'),
       'workspace'    => File.join(@test_path, 'workspace'),
       'store'        => File.join(@test_path, 'store.yml'),
+      'cache'        => File.join(@test_path, 'cache'),
       'loglevel'     => 'INFO',
-      'default_mime' => 'text/x-creole'
+      'default_mime' => 'text/x-creole',
     }
     Wiki::App.set :config, config
     @app = Wiki::App
