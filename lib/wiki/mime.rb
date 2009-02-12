@@ -4,6 +4,12 @@ require 'wiki/extensions'
 module Wiki
   class Mime
     attr_reader :type, :mediatype, :subtype
+    
+    def initialize(type)
+      @type      = type
+      @mediatype = @type.split('/')[0]
+      @subtype   = @type.split('/')[1]
+    end
 
     def self.add(type, extensions, parents)
       TYPES[type] = [extensions, parents]
@@ -17,7 +23,7 @@ module Wiki
     end
     
     def child_of?(parent)
-      Mime.child?(type, parent)
+      child?(type, parent)
     end
     
     def extensions
@@ -36,16 +42,10 @@ module Wiki
     def ==(x)
       type == x.to_s
     end
-    
-    def initialize(type)
-      @type      = type
-      @mediatype = @type.split('/')[0]
-      @subtype   = @type.split('/')[1]
-    end
-    
+
     private
 
-    def self.child?(child, parent)
+    def child?(child, parent)
       return true if child == parent
       TYPES.include?(child) ? TYPES[child][1].any? {|p| child?(p, parent) } : false
     end

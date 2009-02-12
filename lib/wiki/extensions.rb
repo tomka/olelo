@@ -1,4 +1,17 @@
+class Class
+  # Define a static function helper block
+  # Methods will be available in both
+  def static(&block)
+    block.call
+    instance_eval(&block)
+  end
+end
+
 class Object
+  def metaclass
+    class << self; self; end
+  end
+
   def blank?
     respond_to?(:empty?) ? empty? : !self
   end
@@ -65,4 +78,3 @@ class String
     (self + '/' + name).cleanpath
   end
 end
-

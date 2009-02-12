@@ -10,7 +10,9 @@ module Wiki
         super("Output engine #{name} is not available")
       end
     end
-    
+
+    @engines = []
+
     attr_reader :name, :priority
     def layout?; @layout; end
     
@@ -21,11 +23,14 @@ module Wiki
     end
     
     def self.create(name, priority, layout, &block)
-      ENGINES << Class.new(Engine, &block).new(name, priority, layout)
+      # @engines << Class.new(Engine, &block).new(name, priority, layout)
+      @engines << engine = Engine.new(name, priority, layout)
+      engine.metaclass.instance_eval(&block)
+      engine
     end
 
     def self.find(page, name = nil)
-      engine = ENGINES.sort {|a,b| a.priority <=> b.priority }.
+      engine = @engines.sort {|a,b| a.priority <=> b.priority }.
         find { |e| (name.blank? || e.name == name.to_sym) && e.accepts(page) }
       return engine if engine
       raise NotAvailable.new(name)
@@ -46,9 +51,5 @@ module Wiki
     accepts {|page| false }
     output  {|page| '' }
     mime    {|page| 'text/plain' }
-
-    private
-
-    ENGINES = []
   end
 end

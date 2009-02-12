@@ -41,34 +41,6 @@ module Wiki
       Cache.instance = Cache::Disk.new(App.config['cache'])
     end
 
-    def cache_control(object, tag)
-      if App.production?
-        response['Cache-Control'] = 'private, must-revalidate, max-age=0'
-        etag(object.sha + tag)
-        last_modified(object.commit.committer_date)
-      end
-    end
-
-    def show(object = nil)
-      object = Object.find!(@repo, params[:path], params[:sha]) if !object || object.new?
-      cache_control(object, 'show')
-
-      if object.tree?
-        @tree = object
-        haml :tree
-      else
-        @page = object
-        engine = Engine.find(@page, params[:output])
-        @content = engine.output(@page)
-        if engine.layout?
-          haml :page
-        else
-          content_type engine.mime(@page).to_s
-          @content
-        end
-      end
-    end
-
     before do
       @logger.debug request.env
 
@@ -234,6 +206,7 @@ module Wiki
     get '/new', '/upload', '/:path/new', '/:path/upload' do
       begin
         @page = Page.new(@repo, params[:path])
+        boilerplate @page
       rescue MessageError => error
         message :new, error.message
       end        
@@ -302,6 +275,43 @@ module Wiki
         haml :new
       end
     end
+
+    private
+
+    def cache_control(object, tag)
+      if App.production?
+        response['Cache-Control'] = 'private, must-revalidate, max-age=0'
+        etag(object.sha + tag)
+        last_modified(object.commit.committer_date)
+      end
+    end
+
+    def show(object = nil)
+      object = Object.find!(@repo, params[:path], params[:sha]) if !object || object.new?
+      cache_control(object, 'show')
+
+      if object.tree?
+        @tree = object
+        haml :tree
+      else
+        @page = object
+        engine = Engine.find(@page, params[:output])
+        @content = engine.output(@page)
+        if engine.layout?
+          haml :page
+        else
+          content_type engine.mime(@page).to_s
+          @content
+        end
+      end
+    end
+
+    def boilerplate(page)
+      if page.path == 'style.sass'
+        page.content = lookup_template :sass, :style
+      end
+    end
+
   end
 end
 

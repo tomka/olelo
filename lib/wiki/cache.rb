@@ -1,16 +1,12 @@
 module Wiki
 
   class Cache
-    def self.instance=(instance)
-      @@instance = instance
-    end
+    class<< self
+      attr_accessor :instance
 
-    def self.instance
-      @@instance
-    end
-
-    def self.cache(bucket, key, opts = {}, &block)
-      instance.cache(bucket, key, opts, &block)
+      def cache(bucket, key, opts = {}, &block)
+        instance.cache(bucket, key, opts, &block)
+      end
     end
 
     # Simple string caching

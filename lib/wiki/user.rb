@@ -10,12 +10,19 @@ module Wiki
     attr_reader :password
     transient :anonymous
 
+    def initialize(name, password, email, anonymous)
+      super(name)
+      @email = email
+      @anonymous = anonymous
+      @password = crypt(password)
+    end
+
     def anonymous?; @anonymous; end
 
     def change_password(oldpassword, password, confirm)
       forbid('Passwords do not match' => password != confirm,
-             'Password is wrong'      => @password != User.crypt(oldpassword))
-      @password = User.crypt(password)
+             'Password is wrong'      => @password != crypt(oldpassword))
+      @password = crypt(password)
     end
 
     def author
@@ -33,32 +40,27 @@ module Wiki
     end
 
     def self.anonymous(ip)
-      User.new(ip, nil, "anonymous@#{ip}", true)
+      new(ip, nil, "anonymous@#{ip}", true)
     end
 
     def self.authenticate(name, password)
       user = find(name)
-      forbid('Wrong username or password' => !user || user.password != User.crypt(password))
+      forbid('Wrong username or password' => !user || user.password != crypt(password))
       user
     end
 
     def self.create(name, password, confirm, email)
       forbid('Passwords do not match' => password != confirm,
              'User already exists'    => find(name))
-      User.new(name, password, email, false).save
+      new(name, password, email, false).save
     end
 
-    private
-
-    def initialize(name, password, email, anonymous)
-      super(name)
-      @email = email
-      @anonymous = anonymous
-      @password = User.crypt(password)
+    static do
+      private
+      def crypt(s)
+        s.blank? ? s : Digest::SHA256.hexdigest(s)
+      end
     end
 
-    def self.crypt(s)
-      s.blank? ? s : Digest::SHA256.hexdigest(s)
-    end
   end
 end

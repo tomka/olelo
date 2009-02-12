@@ -5,19 +5,27 @@ module Wiki
   class Entry
     class ConcurrentModificationError < RuntimeError; end
 
-    def self.store=(store_file)
-      @store = YAML::Store.new(store_file)
-    end    
+    @store = nil
 
-    attr_reader :version, :name
+    class<< self
+      attr_reader :store
+
+      def store=(store_file)
+        @store = YAML::Store.new(store_file)
+      end
+    end
+
+    @@transient_variables = []
 
     def self.transient(attr)
-      transient_variables << '@' + attr.to_s
+      @@transient_variables << '@' + attr.to_s
     end
 
     def self.transient_variables
-      @transient ||= []
+      @@transient_variables
     end
+
+    attr_reader :version, :name
 
     def initialize(name)
       @version = 0
@@ -63,12 +71,6 @@ module Wiki
 
     def to_yaml_properties
       super.reject {|attr| self.class.transient_variables.include?(attr)}
-    end
-
-    private
-
-    def self.store
-      @store
     end
   end
 end

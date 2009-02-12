@@ -24,7 +24,7 @@ module Wiki
       forbid_invalid_path(path)
       commit = sha ? repo.gcommit(sha) : repo.log(1).path(path).first rescue nil
       return nil if !commit
-      object = Object.git_find(repo, path, commit)
+      object = git_find(repo, path, commit)
       return nil if !object 
       return Page.new(repo, path, object, commit, !sha) if object.blob?
       return Tree.new(repo, path, object, commit, !sha) if object.tree?
@@ -93,7 +93,7 @@ module Wiki
     def initialize(repo, path, object = nil, commit = nil, current = false)
       path ||= ''
       path = path.cleanpath
-      Object.forbid_invalid_path(path)
+      forbid_invalid_path(path)
       @repo = repo
       @path = path.cleanpath
       @object = object
@@ -112,18 +112,22 @@ module Wiki
       end
     end
 
-    def self.forbid_invalid_path(path)
-      forbid('Invalid path' => (!path.blank? && path !~ /^#{PATH_PATTERN}$/))
-    end
+    static do
+      protected
 
-    def self.git_find(repo, path, commit)
-      return nil if !commit
-      if path.blank?
-        return commit.gtree rescue nil
-      elsif path =~ /\//
-        return path.split('/').inject(commit.gtree) { |t, x| t.children[x] } rescue nil
-      else
-        return commit.gtree.children[path] rescue nil
+      def forbid_invalid_path(path)
+        forbid('Invalid path' => (!path.blank? && path !~ /^#{PATH_PATTERN}$/))
+      end
+
+      def git_find(repo, path, commit)
+        return nil if !commit
+        if path.blank?
+          return commit.gtree rescue nil
+        elsif path =~ /\//
+          return path.split('/').inject(commit.gtree) { |t, x| t.children[x] } rescue nil
+        else
+          return commit.gtree.children[path] rescue nil
+        end
       end
     end
 
@@ -174,7 +178,7 @@ module Wiki
 
       @content = @prev_commit = @last_commit = @history = nil
       @commit = history.first
-      @object = Object.git_find(@repo, @path, @commit) || raise(NotFound.new(path))
+      @object = git_find(@repo, @path, @commit) || raise(NotFound.new(path))
       @current = true
     end
 

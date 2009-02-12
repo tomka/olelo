@@ -27,8 +27,6 @@ module Wiki
       !!find_lexer(filename)
     end
 
-    private
-
     @mapping = nil
 
     def self.lexer_mapping
@@ -51,5 +49,7 @@ module Wiki
       pattern = lexer_mapping.keys.find {|pattern| File.fnmatch(pattern, name)}
       pattern && lexer_mapping[pattern]
     end
+
+    private_class_method :lexer_mapping, :find_lexer
   end
 end

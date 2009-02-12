@@ -5,6 +5,7 @@ module Wiki
 
   module Utils
     def self.included(base)
+      # Also as class methods
       base.extend self
     end
 

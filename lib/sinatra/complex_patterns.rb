@@ -4,8 +4,22 @@ module Sinatra
       base.extend(ClassMethods)
       base.class_eval { include InstanceMethods }
       %w(get put post delete head).each do |method|
-        base.instance_eval %Q{
+        base.instance_eval { redefine_route_method method }
+      end
+    end
+
+    module ClassMethods
+      def pattern(key, pattern)
+        @patterns ||= {}
+        @patterns[key] = pattern
+      end
+
+      private
+
+      def redefine_route_method(method)
+        instance_eval %Q{
           alias #{method}_without_complex_patterns #{method}
+
           def #{method}(*paths, &block)
             opts = paths.last.is_a?(Hash) ? paths.pop : {}
             paths.each do |path|
@@ -17,13 +31,6 @@ module Sinatra
             end
           end
         }
-      end
-    end
-
-    module ClassMethods
-      def pattern(key, pattern)
-        @patterns ||= {}
-        @patterns[key] = pattern
       end
 
       def replace_complex_patterns(path, opts = {})
@@ -39,6 +46,8 @@ module Sinatra
     end
 
     module InstanceMethods
+      private
+
       def captures_to_params(params, keys)
         (0..keys.length-1).each do |i|
           params[keys[i]] = params[:captures][i]
