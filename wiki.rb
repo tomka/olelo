@@ -14,17 +14,25 @@ module Wiki
     set :haml, { :format => :xhtml, :attr_wrapper  => '"' }
     set :methodoverride, true
     set :static, true
-    set :app_file, 'wiki.rb'
+    set :root, File.expand_path(File.dirname(__FILE__))
     set :raise_errors, false
     set :dump_errors, true
 
     def initialize
-      %w(title repository workspace store cache loglevel default_mime).each do |key|
+      %w(title repository workspace store cache loglevel logfile default_mime).each do |key|
         raise RuntimeError.new('Application not properly configured') if App.config[key].blank?
       end
-      
-      @logger = Logger.new(STDOUT)
+
+      FileUtils.mkdir_p File.dirname(App.config['store']), :mode => 0755
+      FileUtils.mkdir_p File.dirname(App.config['logfile']), :mode => 0755
+      FileUtils.mkdir_p App.config['cache'], :mode => 0755
+
+      Entry.store = App.config['store']
+      Cache.instance = Cache::Disk.new(App.config['cache'])
+     
+      @logger = Logger.new(App.config['logfile'])
       @logger.level = Logger.const_get(App.config['loglevel'])
+
       if File.exists?(App.config['repository']) && File.exists?(App.config['workspace'])
         @logger.info 'Opening repository'
         @repo = Git.open(App.config['workspace'], :repository => App.config['repository'],
@@ -37,9 +45,7 @@ module Wiki
         page.write('This file is used to initialize the repository. It can be deleted.', 'Initialize Repository')
         @logger.info 'Repository initialized'
       end
-      Entry.store = App.config['store']
-      Cache.instance = Cache::Disk.new(App.config['cache'])
-    end
+   end
 
     before do
       @logger.debug request.env

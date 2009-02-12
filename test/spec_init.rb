@@ -12,6 +12,7 @@ shared_context 'wiki init' do
       'store'        => File.join(@test_path, 'store.yml'),
       'cache'        => File.join(@test_path, 'cache'),
       'loglevel'     => 'INFO',
+      'logfile'      => File.join(@test_path, 'log'),
       'default_mime' => 'text/x-creole',
     }
     Wiki::App.set :config, config

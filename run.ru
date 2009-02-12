@@ -12,6 +12,7 @@ else
     'store'        => File.join(path, '.wiki', 'store.yml'),
     'cache'        => File.join(path, '.wiki', 'cache'),
     'loglevel'     => 'INFO',
+    'logfile'      => File.join(path, '.wiki', 'log'),
     'default_mime' => 'text/x-creole'
   }
 end

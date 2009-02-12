@@ -4,4 +4,5 @@ workspace:    '/home/user/wiki/workspace'
 store:        '/home/user/wiki/store.yml'
 cache:        '/home/user/wiki/cache'
 loglevel:     INFO
+logfile:      '/home/user/wiki/log'
 default_mime: 'text/x-creole'
