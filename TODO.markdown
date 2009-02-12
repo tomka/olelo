@@ -36,14 +36,14 @@ Known bugs
 - Removed files have a next button for the last existing revision
   because the deletion is registered as commit for the respective file
   (see Page.next_commit)
-- Tablesorter doesn't get the colspan on /history
+- (WORKAROUND, no colspan used) Tablesorter doesn't get the colspan on /history
 - If the page is too far in the past the next button does not work correctly
   (see Page.next_commit)
 
 ruby-git TODO
 -------------
 
-- Get my patches included
+- (DONE) Get my patches included
 - (DONE) Commits aren't parsed correctly
 - (DONE) Fix uninitialized variables ($VERBOSE = 1 in the tests)
 
