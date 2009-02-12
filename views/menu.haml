@@ -1,7 +1,7 @@
 - object = @object || @page || @tree
 %ul
   %li
-    %a{:href=>'/'}
+    %a{:href=>object_path(object, :path => '/')}
       = image('Home', :home)
       Home
   = breadcrumbs(object)

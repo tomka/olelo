@@ -188,7 +188,7 @@ module Wiki
     end
 
     def mime
-      @mime ||= Mime.by_extension(extension) || Mime.new(App.config['default_mime'])
+      @mime ||= Mime.by_extension(extension) || Mime.by_magic(content) || Mime.new(App.config['default_mime'])
     end
   end
   

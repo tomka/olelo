@@ -11,8 +11,8 @@ module Wiki
       @subtype   = @type.split('/')[1]
     end
 
-    def self.add(type, extensions, parents)
-      TYPES[type] = [extensions, parents]
+    def self.add(type, extensions, parents, &block)
+      TYPES[type] = [extensions, parents, block_given? ? proc(&block) : nil]
       extensions.each do |ext|
         EXTENSIONS[ext] = type
       end
@@ -34,7 +34,16 @@ module Wiki
       mime = EXTENSIONS[ext.downcase]
       mime ? new(mime) : nil
     end
-    
+
+    def self.by_magic(content)
+      io = content.respond_to?(:rewind) ? content : StringIO.new(content.to_s, 'rb')
+      mime = TYPES.keys.find do |type|
+        io.rewind
+        TYPES[type][2] && TYPES[type][2].call(io)
+      end
+      mime ? new(mime) : nil
+    end
+
     def to_s
       type
     end

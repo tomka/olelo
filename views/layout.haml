@@ -13,9 +13,12 @@
     - if @feed
       %link{:rel => 'alternate',  :href => @feed, :type => 'application/rss+xml', :title=> 'RSS'}
   - object = @object || @page || @tree
-  %body{:class => object && !object.current? ? 'old' : ''}
+  - timemachine = object && !object.current?
+  %body{:class => timemachine ? 'timemachine' : ''}
     #header
       %h1&= Wiki::App.config['title']
+      - if timemachine
+        %h1.timemachine Time Machine
       #box
         User
         %a{:href=>'/profile'}= @user.name

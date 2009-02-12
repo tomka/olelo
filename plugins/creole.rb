@@ -1,7 +1,9 @@
 require 'creole'
 
 module Wiki
-  Mime.add('text/x-creole', %w(creole text), %w(text/plain))
+  Mime.add('text/x-creole', %w(creole text), %w(text/plain)) do |io|
+    io.read(8) == '#!creole'
+  end
 
   Engine.create(:creole, 1, true) do
     accepts do |page|
@@ -24,7 +26,8 @@ module Wiki
         end
       end
       creole.page = page
-      fix_punctuation(creole.parse(page.content))
+      content = page.content.sub(/^#!creole\s+/,'')
+      fix_punctuation(creole.parse(content))
     end
   end
 end

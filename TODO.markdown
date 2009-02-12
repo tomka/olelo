@@ -1,12 +1,14 @@
 TODO
 ====
 
-Brainstorming...
-----------------
-
+- Plugin system
+- Stackable output filters/engines
+   - rubypants as filter, latex support as filter....
 - Documentation
 - Code comments and rdoc generation
-- Rspec and maybe some unit tests
+- More specs and more unit tests, or throw away
+  the specs and write only unit tests. I don't like
+  this spec syntax that much.
 - LaTeX integration
 - Captcha support
 - Image support, Image gallery
@@ -15,7 +17,8 @@ Brainstorming...
   via rack middleware, generated links must be adapted)
 - Cache-control and etag support
 - Clean up stylesheet
-- Tablesorter doesn't get the colspan on /history
+- More caching where it makes sense
+- Support for branching operations (Maybe not that important for a gui?)
 - (DONE) Problem with last modified dates, they always refer to the whole tree
 - (DONE) Breadcrumbs for tree browsing
 - (DONE) Automatic file extensions for wikitext files
@@ -26,6 +29,16 @@ Brainstorming...
 - (DONE) Login
 - (DONE) Editable user profile, change pw function
 - (DONE, but could be a lot improved) RSS/Atom Changelog
+
+Known bugs
+----------
+
+- Removed files have a next button for the last existing revision
+  because the deletion is registered as commit for the respective file
+  (see Page.next_commit)
+- Tablesorter doesn't get the colspan on /history
+- If the page is too far in the past the next button does not work correctly
+  (see Page.next_commit)
 
 ruby-git TODO
 -------------
