@@ -41,8 +41,8 @@ module Wiki
         @logger.info 'Initializing repository'
         @repo = Git.init(App.config['workspace'], :repository => App.config['repository'],
                          :index => File.join(App.config['repository'], 'index'), :log => @logger)
-        page = Page.new(@repo, 'init.txt')
-        page.write('This file is used to initialize the repository. It can be deleted.', 'Initialize Repository')
+        page = Page.new(@repo, 'Home')
+        page.write('This is the main page of the wiki.', 'Initialize Repository')
         @logger.info 'Repository initialized'
       end
    end
@@ -224,6 +224,7 @@ module Wiki
       begin
         show
       rescue Object::NotFound
+        params[:path] ||= ''
         redirect(params[:sha] ? params[:path].urlpath : (params[:path]/'new').urlpath)
       end
     end
