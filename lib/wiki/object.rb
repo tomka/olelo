@@ -4,7 +4,7 @@ require 'wiki/utils'
 require 'wiki/extensions'
 
 module Wiki
-  PATH_PATTERN = '[\w.+\-_\/](?:[\w.+\-_\/ ]+[\w.+\-_\/])?'
+  PATH_PATTERN = '[\w.+\-_\/](?:[\w.+\-_\/ ]*[\w.+\-_\/])?'
   SHA_PATTERN = '[A-Fa-f0-9]{40}'
 
   class Object
@@ -116,7 +116,7 @@ module Wiki
       protected
 
       def forbid_invalid_path(path)
-        forbid('Invalid path' => (!path.blank? && path !~ /^#{PATH_PATTERN}$/))
+	forbid('Invalid path' => (!path.blank? && path !~ /^#{PATH_PATTERN}$/))
       end
 
       def git_find(repo, path, commit)
