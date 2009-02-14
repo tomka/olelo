@@ -19,7 +19,7 @@ module Wiki
     set :dump_errors, true
 
     def initialize
-      %w(title repository workspace store cache loglevel logfile default_mime).each do |key|
+      %w(title repository workspace store cache loglevel logfile default_mime main_page).each do |key|
         raise RuntimeError.new('Application not properly configured') if App.config[key].blank?
       end
 
@@ -41,7 +41,7 @@ module Wiki
         @logger.info 'Initializing repository'
         @repo = Git.init(App.config['workspace'], :repository => App.config['repository'],
                          :index => File.join(App.config['repository'], 'index'), :log => @logger)
-        page = Page.new(@repo, 'Home')
+        page = Page.new(@repo, App.config['main_page'])
         page.write('This is the main page of the wiki.', 'Initialize Repository')
         @logger.info 'Repository initialized'
       end
@@ -76,7 +76,7 @@ module Wiki
     end
 
     get '/' do
-      redirect '/Home'
+      redirect App.config['main_page'].urlpath
     end
 
     get '/login', '/signup' do
