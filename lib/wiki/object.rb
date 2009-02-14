@@ -5,7 +5,7 @@ require 'wiki/extensions'
 
 module Wiki
   PATH_PATTERN = '[\w.+\-_\/](?:[\w.+\-_\/ ]*[\w.+\-_\/])?'
-  SHA_PATTERN = '[A-Fa-f0-9]{40}'
+  SHA_PATTERN = '[A-Fa-f0-9]{5,40}'
 
   class Object
     include Utils
