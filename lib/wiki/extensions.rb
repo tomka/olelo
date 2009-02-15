@@ -10,20 +10,20 @@ class Class
     old = instance_method(name)
     new = lambda(&block).to_method(self)
     remove_method name
-    define_method(name) {|*args| new.bind(self)[*old.bind(self)[*args]] }
+    define_method(name) {|*args| old.bind(self)[*new.bind(self)[*args]] }
   end
 
   def append(name, &block)
     old = instance_method(name)
     new = lambda(&block).to_method(self)
     remove_method name
-    define_method(name) {|*args| old.bind(self)[*new.bind(self)[*args]] }
+    define_method(name) {|*args| new.bind(self)[*old.bind(self)[*args]] }
   end
 end
 
 class Proc
   def to_method(klass)
-    block, name = self, "to_method_#{self.object_id}"
+    block, name = self, "to_method_#{self.object_id.to_s(36)}"
     klass.class_eval do
       define_method(name, &block)
       method = instance_method(name)

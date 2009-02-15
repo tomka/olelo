@@ -3,7 +3,7 @@ Wiki::Plugin.define :rubypants do
   depends_on :creole
 
   Wiki::Engine.extend :creole do
-    prepend :filter do |page, content|
+    append :filter do |page, content|
       [page, RubyPants.new(content).to_html]
     end
   end

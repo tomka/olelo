@@ -45,9 +45,10 @@ module Wiki
         @logger.info 'Repository initialized'
       end
 
+      Plugin.logger = @logger
       Plugin.dir = File.join(App.root, 'plugins')
       Plugin.load_all
-   end
+    end
 
     before do
       @logger.debug request.env
@@ -69,6 +70,10 @@ module Wiki
     not_found do
       @error = request.env['sinatra.error']
       haml :error
+    end
+
+    def page_not_found
+      redirect(params[:sha] ? params[:path].urlpath : (params[:path]/'new').urlpath)
     end
 
     error do
@@ -227,7 +232,7 @@ module Wiki
         show
       rescue Object::NotFound
         params[:path] ||= ''
-        redirect(params[:sha] ? params[:path].urlpath : (params[:path]/'new').urlpath)
+        page_not_found
       end
     end
 
