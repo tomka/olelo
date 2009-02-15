@@ -5,6 +5,32 @@ class Class
     block.call
     instance_eval(&block)
   end
+
+  def prepend(name, &block)
+    old = instance_method(name)
+    new = lambda(&block).to_method(self)
+    remove_method name
+    define_method(name) {|*args| new.bind(self)[*old.bind(self)[*args]] }
+  end
+
+  def append(name, &block)
+    old = instance_method(name)
+    new = lambda(&block).to_method(self)
+    remove_method name
+    define_method(name) {|*args| old.bind(self)[*new.bind(self)[*args]] }
+  end
+end
+
+class Proc
+  def to_method(klass)
+    block, name = self, "to_method_#{self.object_id}"
+    klass.class_eval do
+      define_method(name, &block)
+      method = instance_method(name)
+      remove_method(name)
+      method
+    end
+  end
 end
 
 class Object
@@ -37,10 +63,12 @@ class String
     end
   end
 
-  def ends_with?(str)
-    str = str.to_str
-    tail = self[-str.length, str.length]
-    tail == str      
+  def begins_with?(s)
+    index(s) == 0
+  end
+
+  def ends_with?(s)
+    rindex(s) == size - s.size
   end
 
   def cleanpath

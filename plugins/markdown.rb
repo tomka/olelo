@@ -1,11 +1,11 @@
-require 'rdiscount'
+Wiki::Plugin.define :markdown do
+  require 'rdiscount'
 
-module Wiki
-  Mime.add('text/x-markdown', %w(markdown md mdown mkdn mdown), %w(text/plain)) do |io|
+  Wiki::Mime.add('text/x-markdown', %w(markdown md mdown mkdn mdown), %w(text/plain)) do |io|
     io.read(10) == '#!markdown'
   end
 
-  Engine.create(:markdown, 1, true) do
+  Wiki::Engine.create(:markdown, 1, true) do
     accepts {|page| page.mime == 'text/x-markdown' }
     output do |page|
       content = page.content.sub(/^#!creole\s+/,'')

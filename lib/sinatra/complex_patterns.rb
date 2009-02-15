@@ -9,11 +9,6 @@ module Sinatra
     end
 
     module ClassMethods
-      def pattern(key, pattern)
-        @patterns ||= {}
-        @patterns[key] = pattern
-      end
-
       private
 
       def redefine_route_method(method)
@@ -35,11 +30,13 @@ module Sinatra
 
       def replace_complex_patterns(path, opts = {})
         keys = []
-        patterns = opts.merge(@patterns)
+        patterns = self.patterns if respond_to?(:patterns)
+        patterns.merge!(opts[:patterns]) if opts.key?(:patterns)
+
         path.gsub!(/:(\w+)/) do |key|
           key = $1.to_sym
           keys << key
-          patterns.has_key?(key) ? '(' + patterns[key] + ')' : '([^/?&#\.]+)'
+          patterns.has_key?(key) ? "(#{patterns[key]})" : '([^/?&#\.]+)'
         end
         return Regexp.new('^' + path + '$'), keys
       end

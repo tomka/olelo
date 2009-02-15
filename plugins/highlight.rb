@@ -1,5 +1,5 @@
-module Wiki
-  Engine.create(:highlight, 2, true) do
+Wiki::Plugin.define :highlight do
+  Wiki::Engine.create(:highlight, 2, true) do
     accepts { |page| Highlighter.supports?(page.name) }
 
     output do |page|

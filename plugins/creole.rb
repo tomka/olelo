@@ -1,20 +1,21 @@
-require 'creole'
+require 'wiki/mime'
 
-module Wiki
-  Mime.add('text/x-creole', %w(creole text), %w(text/plain)) do |io|
+Wiki::Plugin.define :creole do
+  require 'creole'
+
+  Wiki::Mime.add('text/x-creole', %w(creole text), %w(text/plain)) do |io|
     io.read(8) == '#!creole'
   end
 
-  Engine.create(:creole, 1, true) do
+  Wiki::Engine.create(:creole, 1, true) do
     accepts do |page|
       page.mime == 'text/x-creole'
     end
 
-    output do |page|
+    filter do |page,content|
       creole = Creole::CreoleParser.new
       class<< creole
         include Wiki::Helper
-        attr_writer :page
         def make_local_link(path)
           object_path(@page, :path => path)
         end
@@ -25,9 +26,8 @@ module Wiki
           "<a href=\"#{page_path}\"><img src=\"#{image_path}\"#{alt}/></a>"
         end
       end
-      creole.page = page
-      content = page.content.sub(/^#!creole\s+/,'')
-      fix_punctuation(creole.parse(content))
+      creole.instance_variable_set(:@page, page)
+      [page, creole.parse(content.sub(/^#!creole\s+/,''))]
     end
   end
 end

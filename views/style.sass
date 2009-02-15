@@ -246,15 +246,17 @@ hr
     :width 65%
   #sidebar
     :min-height 600px
+    :margin 0
+    :padding 1em
+    :margin-bottom -32000px
+    :padding-bottom 32000px
     :width 12em
     :display block
     :float left
-    :border-right 1px solid #999
-    :border-bottom 1px solid #999
-    :background #EEF
+    :background-image url(/images/sidebar_bg.png)
+    :background-repeat repeat-y
+    :background-position top right
     :height 20em
-    :padding 1em
-    :margin 0 0 1em 0
 
 .sha, tt, pre, code, kbd
   :font-family "Bitstream Vera Mono", monospace
@@ -330,17 +332,18 @@ form
     :float left
     :width 100%
     > li
-      :background #FFF
+      :font-variant small-caps
+      :background #EEF
       :float left
       :padding 0
       :margin -1px 0 0 1em
       :height 1.7em
       :line-height 1.7em
       :border 1px solid #999
-      :border-bottom none
       :color #333
       &.ui-tabs-selected > a
-        :background #EEF
+        :background #FFF
+        :border-bottom 1px solid #FFF
       > a
         :display block
         :text-decoration none

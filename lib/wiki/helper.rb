@@ -81,8 +81,5 @@ module Wiki
       end
     end
 
-    def fix_punctuation(text)
-      safe_require('rubypants') ? RubyPants.new(text).to_html : text
-    end
   end
 end

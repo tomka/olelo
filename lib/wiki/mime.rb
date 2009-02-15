@@ -27,7 +27,7 @@ module Wiki
     end
     
     def extensions
-      TYPES.include?(type) ? TYPES[type][0] : []
+      TYPES.key?(type) ? TYPES[type][0] : []
     end
     
     def self.by_extension(ext)
@@ -56,7 +56,7 @@ module Wiki
 
     def child?(child, parent)
       return true if child == parent
-      TYPES.include?(child) ? TYPES[child][1].any? {|p| child?(p, parent) } : false
+      TYPES.key?(child) ? TYPES[child][1].any? {|p| child?(p, parent) } : false
     end
   end
 end

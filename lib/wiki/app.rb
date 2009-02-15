@@ -1,16 +1,15 @@
 %w(rubygems sinatra/base sinatra/complex_patterns git haml
 sass logger cgi wiki/extensions wiki/utils
-wiki/object wiki/helper wiki/user wiki/engine wiki/highlighter wiki/cache).each { |dep| require dep }
+wiki/object wiki/helper wiki/user wiki/engine wiki/highlighter wiki/cache wiki/mime wiki/plugin).each { |dep| require dep }
 
 module Wiki
   class App < Sinatra::Base
-    include Sinatra::ComplexPatterns
+    # ONLY necessary with unpatched sinatra
+    #include Sinatra::ComplexPatterns
     include Helper
     include Utils
 
-    pattern :path, PATH_PATTERN
-    pattern :sha,  SHA_PATTERN
-
+    set :patterns, :path => PATH_PATTERN, :sha => SHA_PATTERN
     set :haml, :format => :xhtml, :attr_wrapper  => '"'
     set :methodoverride, true
     set :static, true
@@ -45,6 +44,9 @@ module Wiki
         page.write('This is the main page of the wiki.', 'Initialize Repository')
         @logger.info 'Repository initialized'
       end
+
+      Plugin.dir = File.join(App.root, 'plugins')
+      Plugin.load_all
    end
 
     before do
@@ -52,7 +54,7 @@ module Wiki
 
       # Sinatra does not unescape before pattern matching
       # Paths with spaces won't be recognized
-      # FIXME: Implement this as middleware?
+      # ONLY necessary with unpatched sinatra
       request.path_info = CGI::unescape(request.path_info)
 
       content_type 'application/xhtml+xml', :charset => 'utf-8'
@@ -322,5 +324,3 @@ module Wiki
 
   end
 end
-
-Wiki::App.safe_require_all(File.join(Wiki::App.root, 'plugins'))

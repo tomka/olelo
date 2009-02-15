@@ -19,12 +19,8 @@ module Wiki
     def safe_require(name)
       require(name)
       true
-    rescue LoadError
+    rescue
       false
-    end
-
-    def safe_require_all(name)
-      Dir.glob(File.join(name, '**/*.rb')).each { |file| safe_require file }
     end
   end
 end
