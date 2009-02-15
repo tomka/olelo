@@ -59,7 +59,7 @@ module Wiki
     end
 
     accepts {|page| false }
-    output  {|page| filter(page, page.content).last }
+    output  {|page| filter(page, page.content.dup).last }
     filter  {|page,content| [page, content] }
     mime    {|page| 'text/plain' }
 
