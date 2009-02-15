@@ -2,7 +2,7 @@ Wiki::Plugin.define :latex do
   require 'latex_renderer'
   depends_on :creole
 
-  $latex = Latex::AsyncRenderer.new
+  $latex = Latex::AsyncRenderer.new(:debug => true)
 
   class Wiki::App
     alias page_not_found_without_latex page_not_found
@@ -13,7 +13,7 @@ Wiki::Plugin.define :latex do
           name, path, hash = $latex.result($1)
           send_file path
         rescue
-          send_file File.join(Wiki::App.public, 'images', 'latex-failed.png')
+          redirect '/images/latex-failed.png'
         end
       else
         page_not_found_without_latex
