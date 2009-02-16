@@ -65,15 +65,16 @@ module Wiki
       @footer = nil
       @feed = nil
       @title = ''
+      @redirect_to_new = nil
     end
 
     not_found do
-      @error = request.env['sinatra.error']
-      haml :error
-    end
-
-    def page_not_found
-      redirect(params[:sha] ? params[:path].urlpath : (params[:path]/'new').urlpath)
+      if @redirect_to_new
+        redirect(params[:sha] ? params[:path].urlpath : (params[:path]/'new').urlpath)
+      else
+        @error = request.env['sinatra.error']
+        haml :error
+      end
     end
 
     error do
@@ -231,8 +232,8 @@ module Wiki
       begin
         show
       rescue Object::NotFound
-        params[:path] ||= ''
-        page_not_found
+        @redirect_to_new = true
+        pass
       end
     end
 
