@@ -1,6 +1,7 @@
 require 'wiki/mime'
 require 'wiki/extensions'
 require 'wiki/filter'
+require 'wiki/tags'
 
 module Wiki
   class Engine
@@ -25,7 +26,7 @@ module Wiki
       @layout = layout
     end
 
-    def self.extend(*names, &block)
+    def self.enhance(*names, &block)
       names.each do |name|
         name = name.to_s
         @engines.key?(name) && @engines[name].metaclass.instance_eval(&block)

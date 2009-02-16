@@ -1,6 +1,6 @@
-Wiki::Plugin.define 'misc/latex' do
+Wiki::Plugin.define 'tag/latex' do
   require 'latex-renderer'
-  depends_on 'engine/creole'
+  load_after 'engine/*'
 
   latex = Latex::AsyncRenderer.new(:debug => Wiki::App.development?)
 
@@ -16,17 +16,12 @@ Wiki::Plugin.define 'misc/latex' do
     end
   end
 
-  Wiki::Engine.extend :creole do
-    prepend_filter do |page, content|
-      content.gsub!(/<math>(.*?)<\/math>/m) do |match|
-        begin
-          name, path, hash = latex.render($1)
-          "{{/latex/#{name}|nolink|raw}}"
-        rescue
-          $1
-        end
-      end
-      [page, content]
+  Wiki::Engine.enhance :creole, :textile, :markdown do
+    include Wiki::Engine::Tags
+
+    define_tag(:math) do |page,code,attrs|
+      name, path, hash = latex.render(code)
+      "<img src=\"/latex/#{name}\"/>"
     end
   end
 end

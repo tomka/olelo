@@ -1,11 +1,20 @@
 require 'open3'
 require 'cgi'
 require 'wiki/extensions'
+require 'digest'
+require 'wiki/cache'
 
 module Wiki
   module Highlighter
     def self.installed?
       !lexer_mapping.empty?
+    end
+
+    def self.cached_text(text, format, options = {})
+      hash = Digest::MD5.hexdigest(text + format)
+      Wiki::Cache.cache('highlight_text', hash, options) do
+        text(text, format)
+      end
     end
 
     def self.text(text, format)

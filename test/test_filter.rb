@@ -145,6 +145,31 @@ class TC_Filter < Test::Unit::TestCase
     end
   end
 
+  class SuperMachine2
+    extend Wiki::Filter
+
+    def work(a, b)
+      ["#{a}1", "#{b}1"]
+    end
+
+    def work_step2(a, b)
+      ["#{a}2", "#{b}2"]
+    end
+
+    def work_step3(a, b)
+      ["#{a}3", "#{b}3"]
+    end
+
+    def work_step4(proc, a, b)
+      a, b = proc["4#{a}", "4#{b}"]
+      ["#{a}5", "#{b}5"]
+    end
+
+    prepend_work :work_step2
+    append_work :work_step3
+    around_work :work_step4
+  end
+
   def test_prepend
     machine = SimplePrependMachine.new
     assert_equal "metal\nmelt\nfound", machine.process("metal")
@@ -201,6 +226,13 @@ class TC_Filter < Test::Unit::TestCase
 
   def test_super
     machine = SuperMachine.new
+    a,b = machine.work("a", "b")
+    assert_equal "4a2135", a
+    assert_equal "4b2135", b
+  end
+
+  def test_super2
+    machine = SuperMachine2.new
     a,b = machine.work("a", "b")
     assert_equal "4a2135", a
     assert_equal "4b2135", b
