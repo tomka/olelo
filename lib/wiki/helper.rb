@@ -5,6 +5,10 @@ module Wiki
   module Helper
     include Utils
 
+    def format_patch(diff)
+      "<pre>#{escape_html diff.patch}</pre>"
+    end
+
     def date(t)
       "<span class=\"date seconds=#{t.to_i}\">#{t.strftime('%d %h %Y %H:%M')}</span>"
     end
@@ -36,7 +40,7 @@ module Wiki
     end
 
     def image(alt, name)
-      "<img src=\"/images/#{name}.png\" alt=\"#{CGI::escapeHTML alt}\"/>"
+      "<img src=\"/images/#{name}.png\" alt=\"#{escape_html alt}\"/>"
     end
 
     def tab_selected(action)

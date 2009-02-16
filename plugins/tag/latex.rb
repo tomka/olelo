@@ -1,5 +1,6 @@
 Wiki::Plugin.define 'tag/latex' do
   require 'latex-renderer'
+  depends_on 'tag/support'
   load_after 'engine/*'
 
   latex = Latex::AsyncRenderer.new(:debug => Wiki::App.development?)
@@ -17,8 +18,6 @@ Wiki::Plugin.define 'tag/latex' do
   end
 
   Wiki::Engine.enhance :creole, :textile, :markdown do
-    include Wiki::Engine::Tags
-
     define_tag(:math) do |page,code,attrs|
       name, path, hash = latex.render(code)
       "<img src=\"/latex/#{name}\"/>"

@@ -1,6 +1,6 @@
 %w(rubygems sinatra/base sinatra/complex_patterns git haml
 sass logger cgi wiki/extensions wiki/utils
-wiki/object wiki/helper wiki/user wiki/engine wiki/highlighter wiki/cache wiki/mime wiki/plugin).each { |dep| require dep }
+wiki/object wiki/helper wiki/user wiki/engine wiki/cache wiki/mime wiki/plugin).each { |dep| require dep }
 
 module Wiki
   class App < Sinatra::Base
@@ -56,7 +56,7 @@ module Wiki
       # Sinatra does not unescape before pattern matching
       # Paths with spaces won't be recognized
       # ONLY necessary with unpatched sinatra
-      request.path_info = CGI::unescape(request.path_info)
+      #request.path_info = CGI::unescape(request.path_info)
 
       content_type 'application/xhtml+xml', :charset => 'utf-8'
 
@@ -179,27 +179,6 @@ module Wiki
     get '/history', '/:path/history' do
       @object = Object.find!(@repo, params[:path])
       haml :history
-    end
-
-    get '/changelog.rss', '/:path/changelog.rss' do
-      object = Object.find!(@repo, params[:path])
-      cache_control(object, 'changelog')
-
-      require 'rss/maker'
-      content_type 'application/rss+xml', :charset => 'utf-8'
-      content = RSS::Maker.make('2.0') do |rss|
-        rss.channel.title = App.config['title']
-        rss.channel.link = request.scheme + '://' +  (request.host + ':' + request.port.to_s)
-        rss.channel.description = App.config['title'] + ' Changelog'
-        rss.items.do_sort = true
-        object.history.each do |commit|
-          i = rss.items.new_item
-          i.title = commit.message
-          i.link = request.scheme + '://' + (request.host + ':' + request.port.to_s)/object.path/commit.sha
-          i.date = commit.committer.date
-        end
-      end
-      content.to_s
     end
 
     get '/diff', '/:path/diff' do

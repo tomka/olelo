@@ -1,7 +1,7 @@
 require 'wiki/mime'
 require 'wiki/extensions'
 require 'wiki/filter'
-require 'wiki/tags'
+require 'wiki/utils'
 
 module Wiki
   class Engine

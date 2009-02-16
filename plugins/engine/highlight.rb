@@ -1,12 +1,11 @@
 Wiki::Plugin.define 'engine/highlight' do
+  depends_on 'misc/pygments'
+
   Wiki::Engine.create(:highlight, 2, true) do
-    accepts { |page| Wiki::Highlighter.supports?(page.name) }
+    accepts { |page| Pygments.supports?(page.name) }
 
     output do |page|
-      Wiki::Cache.cache('highlight', page.sha, :disable => !page.saved?) {
-        Wiki::Highlighter.file(page.content, page.name)
-      }
+      Pygments.pygmentize(page.content, :filename => page.name, :cache => page.saved?, :cache_key => page.sha)
     end
-
   end
 end
