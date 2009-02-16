@@ -1,12 +1,13 @@
 require 'wiki/utils'
+require 'pathname'
 
 module Wiki
   class Plugin
-    include Utils
-    
     @plugins = {}
     @dir = ''
     @logger = nil
+
+    include ::Wiki
 
     class<< self
       attr_reader :plugins
@@ -24,15 +25,24 @@ module Wiki
       end
 
       def load_all
-        Dir.glob(File.join(@dir, "**/*.rb")).each {|x| safe_require x }
+        load('*')
       end
 
       def load(name)
-        name = name.to_s
-        if !@plugins.key?(name)
-          file = Dir.glob(File.join(@dir, "**/#{name}.rb")).first
-          file && safe_require(file)
+        name = Pathname.new(name).cleanpath
+        Dir.glob(File.join(@dir, "**/#{name}.rb")).inject(true) do |result,file|
+          safe_require(file) && result
         end
+      end
+
+      private
+
+      def safe_require(name)
+        require(name)
+        true
+      rescue Exception => ex
+        @logger.error ex
+        false
       end
     end
 
@@ -42,6 +52,12 @@ module Wiki
       @name = name
     end
 
+    def load_after(*list)
+      list.each do |x|
+        Plugin.load(x)
+      end
+    end
+
     def depends_on(*list)
       list.each do |x|
         raise RuntimeError.new("Could not load dependency #{x}") if !Plugin.load(x)
@@ -49,5 +65,6 @@ module Wiki
     end
 
     private_class_method :new
+
   end
 end

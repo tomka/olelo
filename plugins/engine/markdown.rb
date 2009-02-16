@@ -1,4 +1,4 @@
-Wiki::Plugin.define :markdown do
+Wiki::Plugin.define 'engine/markdown' do
   require 'rdiscount'
 
   Wiki::Mime.add('text/x-markdown', %w(markdown md mdown mkdn mdown), %w(text/plain)) do |io|

@@ -1,6 +1,6 @@
 require 'wiki/mime'
 
-Wiki::Plugin.define :creole do
+Wiki::Plugin.define 'engine/creole' do
   require 'creole'
 
   Wiki::Mime.add('text/x-creole', %w(creole text), %w(text/plain)) do |io|

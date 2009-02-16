@@ -1,9 +1,11 @@
 require 'wiki/mime'
 require 'wiki/extensions'
+require 'wiki/filter'
 
 module Wiki
   class Engine
     include Helper
+    extend Filter
 
     class NotAvailable < ArgumentError
       def initialize(name)
@@ -14,6 +16,7 @@ module Wiki
     @engines = {}
 
     attr_reader :name, :priority
+
     def layout?; @layout; end
     
     def initialize(name, priority, layout)
@@ -22,10 +25,11 @@ module Wiki
       @layout = layout
     end
 
-    def self.extend(name, &block)
-      name = name.to_s
-      raise ArgumentError.new("Engine #{name} not found") if !@engines.key?(name)
-      @engines[name].metaclass.instance_eval(&block)
+    def self.extend(*names, &block)
+      names.each do |name|
+        name = name.to_s
+        @engines.key?(name) && @engines[name].metaclass.instance_eval(&block)
+      end
     end
 
     def self.create(name, priority, layout, &block)
@@ -50,14 +54,11 @@ module Wiki
       raise NotAvailable.new(name)
     end
 
-    def self.method_missing(name, &block)
-      define_method name, &block
-    end
-
-    def self.accepts(&block)
-      define_method :accepts?, &block
-    end
-
+    def self.output(&block);  define_method :output, &block;   end
+    def self.filter(&block);  define_method :filter, &block;   end
+    def self.mime(&block);    define_method :mime, &block;     end
+    def self.accepts(&block); define_method :accepts?, &block; end
+    
     accepts {|page| false }
     output  {|page| filter(page, page.content.dup).last }
     filter  {|page,content| [page, content] }

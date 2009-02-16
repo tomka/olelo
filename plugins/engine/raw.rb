@@ -1,4 +1,4 @@
-Wiki::Plugin.define :raw do
+Wiki::Plugin.define 'engine/raw' do
   Wiki::Engine.create(:raw, 5, false) do
     accepts {|page| true }
     output  {|page| page.content }

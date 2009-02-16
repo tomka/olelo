@@ -15,12 +15,5 @@ module Wiki
       failed = conds.keys.select {|key| conds[key]}
       raise MessageError.new(failed) if !failed.empty?
     end
-
-    def safe_require(name)
-      require(name)
-      true
-    rescue
-      false
-    end
   end
 end

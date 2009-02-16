@@ -5,20 +5,6 @@ class Class
     block.call
     instance_eval(&block)
   end
-
-  def prepend(name, &block)
-    old = instance_method(name)
-    new = lambda(&block).to_method(self)
-    remove_method name
-    define_method(name) {|*args| old.bind(self)[*new.bind(self)[*args]] }
-  end
-
-  def append(name, &block)
-    old = instance_method(name)
-    new = lambda(&block).to_method(self)
-    remove_method name
-    define_method(name) {|*args| new.bind(self)[*old.bind(self)[*args]] }
-  end
 end
 
 class Proc

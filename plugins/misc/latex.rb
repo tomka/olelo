@@ -1,6 +1,6 @@
-Wiki::Plugin.define :latex do
+Wiki::Plugin.define 'misc/latex' do
   require 'latex-renderer'
-  depends_on :creole
+  depends_on 'engine/creole'
 
   latex = Latex::AsyncRenderer.new(:debug => Wiki::App.development?)
 
@@ -17,7 +17,7 @@ Wiki::Plugin.define :latex do
   end
 
   Wiki::Engine.extend :creole do
-    prepend :filter do |page, content|
+    prepend_filter do |page, content|
       content.gsub!(/<math>(.*?)<\/math>/m) do |match|
         begin
           name, path, hash = latex.render($1)

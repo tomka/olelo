@@ -1,4 +1,4 @@
-Wiki::Plugin.define :css do
+Wiki::Plugin.define 'engine/css' do
   Wiki::Mime.add('text/x-sass', %w(sass), %w(text/plain))
 
   Wiki::Engine.create(:css, 6, false) do
