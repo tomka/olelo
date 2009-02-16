@@ -1,9 +1,6 @@
 TODO
 ====
 
-- Plugin system
-- Stackable output filters/engines
-   - rubypants as filter, latex support as filter....
 - Documentation
 - Code comments and rdoc generation
 - More specs and more unit tests, or throw away
@@ -18,6 +15,9 @@ TODO
 - More caching where it makes sense
 - Support for branching operations (Maybe not that important for a gui?)
 - Switch to grit maybe (grit does not support some things yet, but has native implementation of some git features)
+- (DONE) Plugin system
+- (DONE) Stackable output filters/engines
+- (DONE) rubypants as filter, latex support as filter....
 - (DONE) Create a larsch-creole gem
 - (DONE) LaTeX integration
 - (DONE) Problem with last modified dates, they always refer to the whole tree

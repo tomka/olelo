@@ -1,15 +1,15 @@
-require 'wiki/filter'
+require 'wiki/aspect'
 
-class TC_Filter < Test::Unit::TestCase
+class TC_Aspect < Test::Unit::TestCase
 
-  class SimplePrependMachine
-    extend Wiki::Filter
+  class SimpleBeforeMachine
+    extend Wiki::Aspect
     
     def process(data)
       data + "\nfound"
     end
 
-    prepend_method :process do |data|
+    before_method :process do |data|
       data + "\nmelt"
     end
 
@@ -17,19 +17,19 @@ class TC_Filter < Test::Unit::TestCase
       [data1 + "\n2", data2 + "\n2"]
     end
 
-    prepend_method :process2 do |data1,data2|
+    before_method :process2 do |data1,data2|
       [data1 + "\n1", data2 + "\n1"]
     end
   end
 
-  class PrependSugarMachine
-    extend Wiki::Filter
+  class BeforeSugarMachine
+    extend Wiki::Aspect
     
     def process(data)
       data + "\nfound"
     end
 
-    prepend_process do |data|
+    before_process do |data|
       data + "\nmelt"
     end
 
@@ -37,19 +37,19 @@ class TC_Filter < Test::Unit::TestCase
       [data1 + "\n2", data2 + "\n2"]
     end
 
-    prepend_process2 do |data1,data2|
+    before_process2 do |data1,data2|
       [data1 + "\n1", data2 + "\n1"]
     end
   end
 
-  class SimpleAppendMachine
-    extend Wiki::Filter
+  class SimpleAfterMachine
+    extend Wiki::Aspect
     
     def process(data)
       data + "\nfound"
     end
 
-    append_method :process do |data|
+    after_method :process do |data|
       data + "\nmelt"
     end
 
@@ -57,19 +57,19 @@ class TC_Filter < Test::Unit::TestCase
       [data1 + "\n2", data2 + "\n2"]
     end
 
-    append_method :process2 do |data1,data2|
+    after_method :process2 do |data1,data2|
       [data1 + "\n1", data2 + "\n1"]
     end
   end
 
-  class AppendSugarMachine
-    extend Wiki::Filter
+  class AfterSugarMachine
+    extend Wiki::Aspect
     
     def process(data)
       data + "\nfound"
     end
 
-    append_process do |data|
+    after_process do |data|
       data + "\nmelt"
     end
 
@@ -77,13 +77,13 @@ class TC_Filter < Test::Unit::TestCase
       [data1 + "\n2", data2 + "\n2"]
     end
 
-    append_process2 do |data1,data2|
+    after_process2 do |data1,data2|
       [data1 + "\n1", data2 + "\n1"]
     end
   end
 
   class SimpleAroundMachine
-    extend Wiki::Filter
+    extend Wiki::Aspect
 
     def work(data)
       "work with " + data
@@ -104,7 +104,7 @@ class TC_Filter < Test::Unit::TestCase
   end
 
   class AroundSugarMachine
-    extend Wiki::Filter
+    extend Wiki::Aspect
 
     def work(data)
       "work with " + data
@@ -125,17 +125,17 @@ class TC_Filter < Test::Unit::TestCase
   end
 
   class SuperMachine
-    extend Wiki::Filter
+    extend Wiki::Aspect
 
     def work(a, b)
       ["#{a}1", "#{b}1"]
     end
 
-    prepend_work do |a,b|
+    before_work do |a,b|
       ["#{a}2", "#{b}2"]
     end
 
-    append_work do |a,b|
+    after_work do |a,b|
       ["#{a}3", "#{b}3"]
     end
 
@@ -146,7 +146,7 @@ class TC_Filter < Test::Unit::TestCase
   end
 
   class SuperMachine2
-    extend Wiki::Filter
+    extend Wiki::Aspect
 
     def work(a, b)
       ["#{a}1", "#{b}1"]
@@ -165,13 +165,13 @@ class TC_Filter < Test::Unit::TestCase
       ["#{a}5", "#{b}5"]
     end
 
-    prepend_work :work_step2
-    append_work :work_step3
+    before_work :work_step2
+    after_work :work_step3
     around_work :work_step4
   end
 
-  def test_prepend
-    machine = SimplePrependMachine.new
+  def test_before
+    machine = SimpleBeforeMachine.new
     assert_equal "metal\nmelt\nfound", machine.process("metal")
     
     a,b = machine.process2("a", "b")
@@ -179,8 +179,8 @@ class TC_Filter < Test::Unit::TestCase
     assert_equal "b\n1\n2", b
   end
 
-  def test_sugar_prepend
-    machine = PrependSugarMachine.new
+  def test_sugar_before
+    machine = BeforeSugarMachine.new
     assert_equal "metal\nmelt\nfound", machine.process("metal")
     
     a,b = machine.process2("a", "b")
@@ -188,8 +188,8 @@ class TC_Filter < Test::Unit::TestCase
     assert_equal "b\n1\n2", b
   end
 
-  def test_append
-    machine = SimpleAppendMachine.new
+  def test_after
+    machine = SimpleAfterMachine.new
     assert_equal "metal\nfound\nmelt", machine.process("metal")
     
     a,b = machine.process2("a", "b")
@@ -197,8 +197,8 @@ class TC_Filter < Test::Unit::TestCase
     assert_equal "b\n2\n1", b
   end
 
-  def test_sugar_append
-    machine = AppendSugarMachine.new
+  def test_sugar_after
+    machine = AfterSugarMachine.new
     assert_equal "metal\nfound\nmelt", machine.process("metal")
     
     a,b = machine.process2("a", "b")

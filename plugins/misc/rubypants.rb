@@ -3,7 +3,7 @@ Wiki::Plugin.define 'misc/rubypants' do
   load_after 'engine/*'
 
   Wiki::Engine.enhance :creole, :markdown, :textile do
-    append_filter do |page, content|
+    after_filter do |page, content|
       [page, RubyPants.new(content).to_html]
     end
   end

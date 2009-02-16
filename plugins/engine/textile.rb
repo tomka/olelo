@@ -7,8 +7,11 @@ Wiki::Plugin.define 'engine/textile' do
 
   Wiki::Engine.create(:textile, 1, true) do
     accepts {|page| page.mime == 'text/x-textile' }
-    output do |page|
-      page.content.sub(/^#!textile\s+/,'')
+    filter do |page,content|
+      content.sub!(/^#!textile\s+/,'')
+      doc = RedCloth.new(content)
+      doc.sanitize_html = true
+      [page, doc.to_html]
     end
   end
 end

@@ -1,12 +1,12 @@
 require 'wiki/mime'
 require 'wiki/extensions'
-require 'wiki/filter'
+require 'wiki/aspect'
 require 'wiki/utils'
 
 module Wiki
   class Engine
     include Helper
-    extend Filter
+    extend Aspect
 
     class NotAvailable < ArgumentError
       def initialize(name)

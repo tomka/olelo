@@ -54,7 +54,11 @@ module Wiki
     end
 
     def sidebar
-      haml :sidebar, :layout => false
+      if page = Page.find(@repo, 'Sidebar')
+        Engine.find(page).output(page)
+      else
+        '<a href="/Sidebar/new">Create Sidebar</a>'
+      end
     end
 
     def show_messages

@@ -5,7 +5,7 @@ Wiki::Plugin.define 'tag/highlight' do
 
   Wiki::Engine.enhance :creole, :textile, :markdown do
     define_tag(:code) do |page, code, attrs|
-      Pygments.pygmentize(code, :format => attrs['language'], :cache => page.saved?)
+      Pygments.pygmentize(code, :format => attrs['language'] || 'ruby', :cache => page.saved?)
     end
   end
 end
