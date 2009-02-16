@@ -5,7 +5,7 @@ Wiki::Plugin.define :latex do
   latex = Latex::AsyncRenderer.new(:debug => Wiki::App.development?)
 
   Wiki::App.class_eval do
-    get '/latex/:hash' do
+    get "/latex/:hash.png" do
       begin
         name, path, hash = latex.result(params[:hash])
         send_file path
@@ -21,7 +21,7 @@ Wiki::Plugin.define :latex do
       content.gsub!(/<math>(.*?)<\/math>/m) do |match|
         begin
           name, path, hash = latex.render($1)
-          "{{latex/#{hash}}}"
+          "{{/latex/#{name}|nolink|raw}}"
         rescue
           $1
         end
