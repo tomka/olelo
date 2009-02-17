@@ -4,8 +4,6 @@ wiki/object wiki/helper wiki/user wiki/engine wiki/cache wiki/mime wiki/plugin).
 
 module Wiki
   class App < Sinatra::Base
-    # ONLY necessary with unpatched sinatra
-    #include Sinatra::ComplexPatterns
     include Helper
     include Utils
 
@@ -52,11 +50,6 @@ module Wiki
 
     before do
       @logger.debug request.env
-
-      # Sinatra does not unescape before pattern matching
-      # Paths with spaces won't be recognized
-      # ONLY necessary with unpatched sinatra
-      #request.path_info = CGI::unescape(request.path_info)
 
       content_type 'application/xhtml+xml', :charset => 'utf-8'
 
@@ -162,7 +155,7 @@ module Wiki
       end
     end
     
-    get '/archive', '/:path/archive' do
+    get '/?:path?/archive' do
       @tree = Tree.find!(@repo, params[:path])
       content_type 'application/x-tar-gz'
       attachment "#{@tree.safe_name}.tar.gz"
@@ -176,12 +169,12 @@ module Wiki
       end
     end
 
-    get '/history', '/:path/history' do
+    get '/?:path?/history' do
       @object = Object.find!(@repo, params[:path])
       haml :history
     end
 
-    get '/diff', '/:path/diff' do
+    get '/?:path?/diff' do
       @object = Object.find!(@repo, params[:path])
       @diff = @object.diff(params[:from], params[:to])
       haml :diff

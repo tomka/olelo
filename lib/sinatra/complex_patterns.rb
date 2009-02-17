@@ -1,8 +1,13 @@
 module Sinatra
   module ComplexPatterns
     def self.included(base)
+      return if base.respond_to? :patterns
+      puts "included"
       base.extend(ClassMethods)
-      base.class_eval { include InstanceMethods }
+      base.class_eval do
+        include InstanceMethods
+        set :patterns, {}  
+      end
       %w(get put post delete head).each do |method|
         base.instance_eval { redefine_route_method method }
       end
@@ -54,3 +59,8 @@ module Sinatra
 
   end
 end
+
+class Sinatra::Base
+  include Sinatra::ComplexPatterns
+end
+
