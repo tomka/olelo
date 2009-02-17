@@ -1,9 +1,9 @@
-%w(rubygems sinatra/base sinatra/complex_patterns git haml
+%w(rubygems sinatra/base sinatra/extensions git haml
 sass logger cgi wiki/extensions wiki/utils
 wiki/object wiki/helper wiki/user wiki/engine wiki/cache wiki/mime wiki/plugin).each { |dep| require dep }
 
 module Wiki
-  class App < Sinatra::Base
+  class App < Sinatra::Application
     include Helper
     include Utils
 

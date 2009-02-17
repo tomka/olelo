@@ -1,3 +1,4 @@
+require 'test/unit'
 require 'wiki/aspect'
 
 class TC_Aspect < Test::Unit::TestCase

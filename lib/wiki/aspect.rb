@@ -1,3 +1,5 @@
+require 'wiki/extensions'
+
 module Wiki
   module Aspect
     def before_method(name, before_name = nil, &block)
@@ -29,8 +31,6 @@ module Wiki
       define_method(name) { |*args| new.bind(self).call(old.bind(self), *args) }
     end
 
-    alias method_missing_without_aspect method_missing
-    
     def method_missing(name, *args, &block)
       name = name.to_s
       if (name =~ /^before_(\w+)$/)
@@ -40,7 +40,7 @@ module Wiki
       elsif (name =~ /^around_(\w+)$/)
         around_method($1, *args, &block)
       else
-        method_missing_without_aspect(name, *args, &block)
+        super(name, *args, &block)
       end
     end
   end
