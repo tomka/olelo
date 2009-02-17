@@ -31,9 +31,7 @@ module Rack
       end
     end
 
-    def rewrite_links(body)
-
-    end
+    private
 
     def html?(header)
       %w(application/xhtml+xml text/html).any? do |type|
