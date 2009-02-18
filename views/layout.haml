@@ -31,14 +31,15 @@
         %form{:action=>'/search',:method=>'get'}
           %input.clear{:type=>'text',:name=>'pattern', :value=> params[:pattern] || 'Search'}
     #menu= menu
-    #body
-      #sidebar= sidebar
-      #content
-        %h1= @title
-        = yield
-    #footer
-      Powered by
-      %a{:href=>'http://github.com/minad/git-wiki/tree/master'} Git-Wiki
-      - if @footer
-        | 
-        = @footer
+    #container
+      #body
+        #sidebar= sidebar
+        #content
+          %h1= @title
+          = yield
+      #footer
+        Powered by
+        %a{:href=>'http://github.com/minad/git-wiki/tree/master'} Git-Wiki
+        - if @footer
+          | 
+          = @footer

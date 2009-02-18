@@ -55,10 +55,10 @@ h1
   :font-size 180%
 
 h2
-  :font-size 140%
+  :font-size 170%
 
 h3
-  :font-size 140%
+  :font-size 150%
 
 h4
   :font-size 120%
@@ -72,10 +72,14 @@ h6
 h1,h2,h3,h4,h5,h6
   :font-family Georgia, serif
   :color #0b3e71
-  :margin 0.3em 0
+  :margin 1em 0 0.5em 0
+  :border-bottom 1px solid #999
 
 ul,ol,p
   :margin 0.8em 0 0.8em 0
+
+ul,ol,p ul,ol,p
+  :margin 0
 
 ul
   :list-style-type disc 
@@ -85,7 +89,7 @@ ol
 
 ul, ol
   :list-style-position outside
-  :padding-left 2em
+  :padding-left 1.5em
 
 table
   :background #999
@@ -161,6 +165,7 @@ hr
   :clear both
   :height 2.5em
   h1
+    :border none
     :color #FFFFC2
     :font-family Georgia, serif
     :font-size 200%
@@ -241,70 +246,66 @@ hr
           :float left
           :margin 0.2em 0.5em 0.2em 0
 
-#footer
-  :clear both
-  :border-top 1px solid #999
-  :color #999
-  :padding 0 3em
-  :height 2em
-  :text-align right
-  :line-height 2em
-
-#body
-  :display block
-  :overflow hidden
-  :margin 0
-  :padding 0
+#container
   :background-color #FFFFCD
-  :background-image url(images/body_bg.png)
-  :background-repeat repeat-x
+  :background-image url(images/container_bg.png)
+  :background-repeat repeat-y
   :background-position top left
-  #content
-    :padding 2em 3.5em
+  #body
+    :position relative
     :display block
-    :float left
-    :width 65%
-    :background-image url(images/content_bg.png)
-    :background-repeat repeat-y
-    :background-position top left
-    :margin-bottom -32000px
-    :padding-bottom 32000px
-  #sidebar
-    :background #EEF
-    :border-right 1px solid #999
-    :min-height 600px
+    :overflow hidden
     :margin 0
     :padding 0
-    :margin-bottom -32000px
-    :padding-bottom 32000px
-    :width 12em
-    :display block
-    :float left
-    :height 20em
-    :font-variant small-caps
-    h2, h3, h4, h5, h6
-      :background #FFF
-      :font-weight normal
-      :padding 0 5px
-      :margin 1em 0 0 0
-      :border-top 1px solid #85AAFF
-      :border-bottom 1px solid #85AAFF
+    :background-image url(images/body_bg.png)
+    :background-repeat repeat-x
+    :background-position top left
+    #content
+      :padding 1em 3.5em
       :display block
-    ul
+      :float left
+      :width 65%
+    #sidebar
       :margin 0
       :padding 0
-      :list-style-type none
-      li
-        :margin 0
+      :width 155px
+      :display block
+      :float left
+      :height 20em
+      :font-variant small-caps
+      h1, h2, h3, h4, h5, h6
+        :font-size 140%
+        :background #FFF
+        :font-weight normal
+        :padding 0 5px
+        :margin 1em 0 0 0
+        :border-top 1px solid #85AAFF
         :border-bottom 1px solid #85AAFF
-        a
-          :padding 0 5px
+        :display block
+      ul
+        :margin 0
+        :padding 0
+        :list-style-type none
+        li
           :margin 0
-          :display block
-    ul ul a
-      :padding 0 20px
-    ul ul ul a
-      :padding 0 35px
+          :border-bottom 1px solid #85AAFF
+          a
+            :padding 0 5px
+            :margin 0
+            :display block
+      ul ul a
+        :padding 0 20px
+      ul ul ul a
+        :padding 0 35px
+  #footer
+    :color #555
+    :background-image url(images/footer_bg.png)
+    :background-repeat repeat-x
+    :background-position top left
+    :padding 2em 3em 0 3em
+    :text-align right
+    :line-height 2em
+    :clear both
 
 .sha, tt, pre, code, kbd
   :font-family "Bitstream Vera Mono", monospace
@@ -367,6 +368,8 @@ form
   :padding 1em
   :margin-bottom 1em
   :overflow hidden
+  h1, h2, h3, h4, h5, h6
+    :margin 0.2em 0
 
 .ui-tabs
   .ui-tabs-hide
@@ -405,9 +408,19 @@ form
 .date
   :cursor pointer
 
+p.toc
+  :background #FFF
+  :border 1px solid #999
+  :padding 1em
+  > ul
+    :padding 0
+  ul
+    :margin 0
+    :list-style-type none
+  .toc1 a, .toc1 .counter
+    :font-weight bold
+
 body.timemachine
-  #body
-    :background-color #EEE
   #header
     :background-image url(images/header_bg2.png)
     :background-repeat repeat-x
@@ -416,5 +429,7 @@ body.timemachine
       :font-style italic
       :margin-left 1em
       :color #D70
+  #container
+    :background-color #EEE
   tr.odd
     :background #DDD
