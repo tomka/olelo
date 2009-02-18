@@ -1,5 +1,6 @@
 Wiki::Plugin.define 'misc/toc' do
   load_after 'engine/*'
+  require 'hpricot'
 
   Wiki::Engine.enhance :creole, :markdown, :textile do
     after_filter do |page, content|

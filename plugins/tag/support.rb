@@ -12,7 +12,7 @@ Wiki::Plugin.define 'tag/support' do
       def handle_tags(engine, page, content)
         doc = Hpricot(content)
         elements = []
-        metaclass.tags.each do |tag|
+        self.class.tags.each do |tag|
           name, method = tag
           (doc/name).each do |elem|
             elements << [method, elem.inner_text, elem.attributes]
@@ -39,7 +39,7 @@ Wiki::Plugin.define 'tag/support' do
       def define_tag(tag, &block)
         if !@tags
           around_filter :handle_tags
-          @tags = []
+          @tags = superclass.instance_variable_get(:@tags) || []
         end
         @tags << [tag, proc(&block).to_method(self)]
       end

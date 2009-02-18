@@ -3,7 +3,7 @@ module Sinatra
 
   module ComplexPatterns
     METHODS.each do |method|
-      class_eval %Q{
+      class_eval %{
         def #{method}(path, opts, &block)
           path, keys = replace_complex_patterns(path, opts)
           super(path, opts) do
@@ -31,7 +31,7 @@ module Sinatra
 
   module MultiplePaths
     METHODS.each do |method|
-      class_eval %Q{
+      class_eval %{
         def #{method}(*paths, &block)
           opts = paths.last.is_a?(Hash) ? paths.pop : {}
           paths.each {|path| super(path, opts, &block) }

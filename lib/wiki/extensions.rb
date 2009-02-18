@@ -1,9 +1,21 @@
-class Class
+class Module
   # Define a static function helper block
   # Methods will be available in both
   def static(&block)
     block.call
     instance_eval(&block)
+  end
+
+  def question_accessor(*args)
+    args.each do |a|
+      module_eval %{ def #{a}?; !!@#{a}; end }
+    end
+  end
+end
+
+class Hash
+  def map_to_hash(&block)
+    Hash[*(map {|key,value| block[key,value] }.flatten)]
   end
 end
 

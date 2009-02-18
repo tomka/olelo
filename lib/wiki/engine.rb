@@ -15,31 +15,32 @@ module Wiki
     end
 
     @engines = {}
-
-    attr_reader :name, :priority
-
-    def layout?; @layout; end
-    def cacheable?; @cacheable; end
-    
-    def initialize(name, opts = {})
-      @name = name
-      @priority = opts[:priority] || 0
-      @layout = opts[:layout] || false
-      @cacheable = opts[:cacheable] || false
-    end
+    @engine_instances = nil
 
     def self.enhance(*names, &block)
       names.each do |name|
         name = name.to_s
-        @engines.key?(name) && @engines[name].metaclass.instance_eval(&block)
+        if @engines.key?(name) 
+          @engines[name] = Class.new(@engines[name], &block)
+        end
       end
+      @engine_instances = nil
     end
 
     def self.create(name, opts = {}, &block)
       name = name.to_s
       raise ArgumentError.new("Engine #{name} already exists") if @engines.key?(name)
-      @engines[name] = engine = new(name, opts)
-      engine.metaclass.instance_eval(&block)
+      layout = opts[:layout] || false
+      cacheable = opts[:cacheable] || false
+      priority = opts[:priority] || 0
+      @engines[name] = engine = Class.new(Engine)
+      engine.class_eval %{
+        def name; "#{name}"; end
+        def layout?; #{layout}; end
+        def cacheable?; #{cacheable}; end
+        def priority; #{priority}; end
+      }
+      engine.class_eval(&block)
       engine
     end
 
@@ -47,18 +48,18 @@ module Wiki
       name = name.to_s
 
       engine = if name.blank?
-        @engines.values.sort {|a,b| a.priority <=> b.priority }.find { |e| e.accepts? page }
+        engine_instances.values.sort {|a,b| a.priority <=> b.priority }.find { |e| e.accepts? page }
       else
-        e = @engines[name]
+        e = engine_instances[name]
         e && e.accepts?(page) ? e : nil
       end
 
-      return engine if engine
+      return engine.dup if engine
       raise NotAvailable.new(name)
     end
 
-    def render(page)
-      Cache.cache('engine', name + page.sha, :disable => !page.saved? || !cacheable?) { output page }
+    def self.engine_instances
+      @engine_instances ||= @engines.map_to_hash {|name,klass| [name, klass.new] }
     end
 
     def self.output(&block);  define_method :output, &block;   end
@@ -70,7 +71,11 @@ module Wiki
     output  {|page| filter(page, page.content.dup).last }
     filter  {|page,content| [page, content] }
     mime    {|page| 'text/plain' }
+ 
+    def render(page)
+      Cache.cache('engine', name + page.sha, :disable => !page.saved? || !cacheable?) { output page }
+    end
 
-    private_class_method :new
+    private_class_method :engine_instances
   end
 end

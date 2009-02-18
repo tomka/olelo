@@ -30,7 +30,9 @@ module Wiki
 
       def load(name)
         name = Pathname.new(name).cleanpath
-        Dir.glob(File.join(@dir, "**/#{name}.rb")).inject(true) do |result,file|
+        list = Dir.glob(File.join(@dir, "**/#{name}.rb"))
+        return false if list.empty?
+        list.inject(true) do |result,file|
           safe_require(file) && result
         end
       end

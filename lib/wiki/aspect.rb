@@ -32,8 +32,7 @@ module Wiki
     end
 
     def method_missing(name, *args, &block)
-      name = name.to_s
-      case name
+      case name.to_s
       when /^before_(\w+)$/
         before_method($1, *args, &block)
       when /^after_(\w+)$/
