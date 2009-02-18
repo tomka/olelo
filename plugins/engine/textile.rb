@@ -5,7 +5,7 @@ Wiki::Plugin.define 'engine/textile' do
     io.read(9) == '#!textile'
   end
 
-  Wiki::Engine.create(:textile, 1, true) do
+  Wiki::Engine.create(:textile, :priority => 1, :layout => true, :cacheable => true) do
     accepts {|page| page.mime == 'text/x-textile' }
     filter do |page,content|
       content.sub!(/^#!textile\s+/,'')

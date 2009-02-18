@@ -19,11 +19,13 @@ module Wiki
     attr_reader :name, :priority
 
     def layout?; @layout; end
+    def cacheable?; @cacheable; end
     
-    def initialize(name, priority, layout)
+    def initialize(name, opts = {})
       @name = name
-      @priority = priority
-      @layout = layout
+      @priority = opts[:priority] || 0
+      @layout = opts[:layout] || false
+      @cacheable = opts[:cacheable] || false
     end
 
     def self.enhance(*names, &block)
@@ -33,10 +35,10 @@ module Wiki
       end
     end
 
-    def self.create(name, priority, layout, &block)
+    def self.create(name, opts = {}, &block)
       name = name.to_s
       raise ArgumentError.new("Engine #{name} already exists") if @engines.key?(name)
-      @engines[name] = engine = new(name, priority, layout)
+      @engines[name] = engine = new(name, opts)
       engine.metaclass.instance_eval(&block)
       engine
     end
@@ -53,6 +55,10 @@ module Wiki
 
       return engine if engine
       raise NotAvailable.new(name)
+    end
+
+    def render(page)
+      Cache.cache('engine', name + page.sha, :disable => !page.saved? || !cacheable?) { output page }
     end
 
     def self.output(&block);  define_method :output, &block;   end

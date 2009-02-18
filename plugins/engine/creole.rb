@@ -7,7 +7,7 @@ Wiki::Plugin.define 'engine/creole' do
     io.read(8) == '#!creole'
   end
 
-  Wiki::Engine.create(:creole, 1, true) do
+  Wiki::Engine.create(:creole, :priority => 1, :layout => true, :cacheable => true) do
     accepts do |page|
       page.mime == 'text/x-creole'
     end

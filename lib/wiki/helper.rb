@@ -47,15 +47,15 @@ module Wiki
       action?(action) ? {:class=>'ui-tabs-selected'} : {}
     end
 
-    def menu
+    def menu(object)
       @menu ||= []
       @menu = [@menu] if !@menu.is_a?(Array)
-      haml :menu, :layout => false
+      haml :menu, :layout => false, :locals => { :object => object }
     end
 
     def sidebar
       if page = Page.find(@repo, 'Sidebar')
-        Engine.find(page).output(page)
+        Engine.find(page).render(page)
       else
         '<a href="/Sidebar/new">Create Sidebar</a>'
       end

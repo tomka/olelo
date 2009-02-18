@@ -226,7 +226,7 @@ module Wiki
 
           if params[:preview]
             engine = Engine.find(@page)
-            @preview_content = engine.output(@page) if engine.layout?
+            @preview_content = engine.render(@page) if engine.layout?
             haml :edit
           else
             @page.save(params[:message], @user.author)
@@ -249,7 +249,7 @@ module Wiki
           @page.content = params[:content]
           if params[:preview]
             engine = Engine.find(@page)
-            @preview_content = engine.output(@page) if engine.layout?
+            @preview_content = engine.render(@page) if engine.layout?
             haml :new
           else
             @page.save(params[:message], @user.author)
@@ -284,7 +284,7 @@ module Wiki
       else
         @page = object
         engine = Engine.find(@page, params[:output])
-        @content = engine.output(@page)
+        @content = engine.render(@page)
         if engine.layout?
           haml :page
         else

@@ -5,7 +5,7 @@ Wiki::Plugin.define 'engine/markdown' do
     io.read(10) == '#!markdown'
   end
 
-  Wiki::Engine.create(:markdown, 1, true) do
+  Wiki::Engine.create(:markdown, :priority => 1, :layout => true, :cacheable => true) do
     accepts {|page| page.mime == 'text/x-markdown' }
     filter do |page,content|
       content.sub!(/^#!markdown\s+/,'')

@@ -30,7 +30,7 @@
       #search
         %form{:action=>'/search',:method=>'get'}
           %input.clear{:type=>'text',:name=>'pattern', :value=> params[:pattern] || 'Search'}
-    #menu= menu
+    #menu= menu(object)
     #container
       #body
         #sidebar= sidebar

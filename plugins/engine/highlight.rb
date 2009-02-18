@@ -1,7 +1,7 @@
 Wiki::Plugin.define 'engine/highlight' do
   depends_on 'misc/pygments'
 
-  Wiki::Engine.create(:highlight, 2, true) do
+  Wiki::Engine.create(:highlight, :priority => 2, :layout => true) do
     accepts { |page| Pygments.supports?(page.name) }
 
     output do |page|
