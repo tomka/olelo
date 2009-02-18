@@ -9,8 +9,8 @@ module Rack
 
     def call(env)
       if env['PATH_INFO'] =~ %r{^/#{@base}$|^/#{@base}/}
-        env['PATH_INFO'].sub!(%r{^/#{@base}/?}, '/')
-        env['REQUEST_URI'].sub!(%r{^/#{@base}/?}, '/')
+        env['PATH_INFO'] = env['PATH_INFO'].sub(%r{^/#{@base}/?}, '/')
+        env['REQUEST_URI'] = env['REQUEST_URI'].sub(%r{^/#{@base}/?}, '/')
 
         status, header, body = @app.call(env)
 
@@ -26,7 +26,7 @@ module Rack
         [status, header, body]
       else
         response = Response.new
-        response.write "Webserver is not configured correctly. <a href=\"/#{@base}\">Application is available under /#{@base}</a>"
+        response.write "Webserver is not configured correctly. <a href=\"/#{@base}\">Application is available under /#{@base}</a><p>#{CGI::escapeHTML env.inspect}</p>"
         response.finish
       end
     end

@@ -1,9 +1,12 @@
 #!/usr/bin/env rackup
-require 'wiki/app'
 
 ENV['RACK_ENV'] = env
 
 path = File.expand_path(File.dirname(__FILE__))
+
+$: << File.join(path, 'lib')
+require 'wiki/app'
+
 config_file = if ENV['WIKI_CONFIG']
   ENV['WIKI_CONFIG']
 else
@@ -27,6 +30,9 @@ else
   }
 end
 
+require 'rack/path_info'
+use Rack::PathInfo
+
 if config['profiling']
   require 'rack/contrib'
   use Rack::Profiler, :printer => :graph
@@ -35,6 +41,12 @@ end
 if !config['rewrite_base'].blank?
   require 'rack/rewrite'
   use Rack::Rewrite, :base => config['rewrite_base']
+end
+
+# FIXME: Problem with fastcgi handler
+if server == 'fastcgi'
+  options.delete :File
+  options.delete :Port
 end
 
 use Rack::Session::Pool
