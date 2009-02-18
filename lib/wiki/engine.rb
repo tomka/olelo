@@ -48,7 +48,7 @@ module Wiki
         @engines.values.sort {|a,b| a.priority <=> b.priority }.find { |e| e.accepts? page }
       else
         e = @engines[name]
-        e && e.accepts?(page) ? e : nil
+        e.accepts?(page) ? e : nil
       end
 
       return engine if engine
