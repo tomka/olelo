@@ -20,7 +20,7 @@ module Rack
           tmp = ''
           body.each {|data| tmp << data}
           body = tmp
-          body.gsub!(/(<(a|img|link|script|input|area)\s[^>]*(src|href)=["'])\/([^"']+["'])/m, "\\1/#{@base}/\\4")
+          body.gsub!(/(<(a|img|link|script|input|area|form)\s[^>]*(src|href|action)=["'])\/([^"']*["'])/m, "\\1/#{@base}/\\4")
           header['Content-Length'] = body.length.to_s
         end
         [status, header, body]

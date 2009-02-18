@@ -1,12 +1,16 @@
 #!/usr/bin/env rackup
-require 'rack'
-#require 'rack/rewrite'
-#require 'rack/contrib'
 require 'wiki/app'
 
+ENV['RACK_ENV'] = env
+
 path = File.expand_path(File.dirname(__FILE__))
-config_file = File.join(path, 'config.yml')
-config = if File.exists?(config_file)
+config_file = if ENV['WIKI_CONFIG']
+  ENV['WIKI_CONFIG']
+else
+  File.join(path, 'config.yml')
+end
+
+config = if File.file?(config_file)
   YAML.load_file(config_file)
 else
   { 'title'        => 'Git-Wiki',
@@ -17,13 +21,23 @@ else
     'loglevel'     => 'INFO',
     'logfile'      => File.join(path, '.wiki', 'log'),
     'default_mime' => 'text/x-creole',
-    'main_page'    => 'Home'
+    'main_page'    => 'Home',
+    'rewrite_base' => nil,
+    'profiling'    => false,
   }
 end
 
-#use Rack::Rewrite, :base => '/~user/wiki'
+if config['profiling']
+  require 'rack/contrib'
+  use Rack::Profiler, :printer => :graph
+end
+
+if !config['rewrite_base'].blank?
+  require 'rack/rewrite'
+  use Rack::Rewrite, :base => config['rewrite_base']
+end
+
 use Rack::Session::Pool
-#use Rack::Lint
-#use Rack::Profiler, :printer => :graph
 Wiki::App.set :config, config
 run Wiki::App
+

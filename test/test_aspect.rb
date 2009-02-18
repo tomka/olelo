@@ -140,7 +140,7 @@ class TC_Aspect < Test::Unit::TestCase
       ["#{a}3", "#{b}3"]
     end
 
-    around_work do |proc,a,b|
+    around_work do |proc, a, b|
       a, b = proc["4#{a}", "4#{b}"]
       ["#{a}5", "#{b}5"]
     end
@@ -169,6 +169,35 @@ class TC_Aspect < Test::Unit::TestCase
     before_work :work_step2
     after_work :work_step3
     around_work :work_step4
+
+    around_work do |proc, a, b|
+      a, b = proc["x#{a}", "x#{b}"]
+      ["#{a}y", "#{b}y"]
+    end
+  end
+
+  class SuperMachine3 < SuperMachine2
+    around_work do |proc, a, b|
+      a, b = proc[".#{a}", ".#{b}"]
+      ["#{a},", "#{b},"]
+    end
+
+    after_work do |a, b|
+      ["#{a}n", "#{b}n"]
+    end
+
+    after_work do |a, b|
+      ["#{a}j", "#{b}j"]
+    end
+
+    before_work do |a, b|
+      ["m#{a}", "m#{b}"]
+    end
+
+    around_work do |proc,a, b|
+      a, b = proc["A#{a}", "A#{b}"]
+      ["#{a}E", "#{b}E"]
+    end
   end
 
   def test_before
@@ -216,7 +245,7 @@ class TC_Aspect < Test::Unit::TestCase
     assert_equal "2 before b after", b
   end
 
-  def test_around
+  def test_sugar_around
     machine = AroundSugarMachine.new
     assert_equal "work with before ruby after", machine.work('ruby')
 
@@ -235,7 +264,14 @@ class TC_Aspect < Test::Unit::TestCase
   def test_super2
     machine = SuperMachine2.new
     a,b = machine.work("a", "b")
-    assert_equal "4a2135", a
-    assert_equal "4b2135", b
+    assert_equal "4xa2135y", a
+    assert_equal "4xb2135y", b
+  end
+
+  def test_super3
+    machine = SuperMachine3.new
+    a,b = machine.work("a", "b")
+    assert_equal "4x.mAa2135y,njE", a
+    assert_equal "4x.mAb2135y,njE", b
   end
 end
