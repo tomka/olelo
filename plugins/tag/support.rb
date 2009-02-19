@@ -10,7 +10,7 @@ Wiki::Plugin.define 'tag/support' do
 
     module InstanceMethods
       def handle_tags(engine, page, content)
-        doc = Hpricot(content)
+        doc = Hpricot::XML(content)
         elements = []
         self.class.tags.each do |tag|
           name, method = tag
@@ -36,12 +36,20 @@ Wiki::Plugin.define 'tag/support' do
     module ClassMethods
       attr_reader :tags
 
-      def define_tag(tag, &block)
+      def define_tag(tag, opts = {}, &block)
         if !@tags
           around_filter :handle_tags
           @tags = superclass.instance_variable_get(:@tags) || []
         end
-        @tags << [tag, proc(&block).to_method(self)]
+        method = block.to_method(self)
+        define_method("handle_tag_#{tag}") do |page, content, attrs|
+          if opts[:requires] && attr = [opts[:requires]].flatten.find {|a| attrs[a.to_s].blank? }
+            "<span class=\"error\">Attribute \"#{attr}\" is required for tag \"#{tag}\"</span>" if attrs[attr.to_s].blank?
+          else
+            method.bind(self)[page, content, attrs]
+          end
+        end
+        @tags << [tag, instance_method("handle_tag_#{tag}")]
       end
     end
   end

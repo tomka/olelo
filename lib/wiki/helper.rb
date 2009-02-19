@@ -16,11 +16,11 @@ module Wiki
     def breadcrumbs(object)
       path = object.respond_to?(:path) ? object.path : ''
       links = ["<a href=\"#{object_path(object, :path => '/root')}\">&radic;&macr; Root</a>"]
-      path.split('/').inject('') {|parent,elem|        
+      path.split('/').inject('') {|parent,elem|
         links << "<a href=\"#{object_path(object, :path => parent/elem)}\">#{elem}</a>"
         parent/elem
       }
-      
+
       result = []
       links.each_with_index {|link,i|
         result << "<li class=\"breadcrumb#{i==0 ? ' first' : ''}#{i==links.size-1 ? ' last' : ''}\">#{link}</li>\n"
@@ -55,7 +55,12 @@ module Wiki
 
     def sidebar
       if page = Page.find(@repo, 'Sidebar')
-        Engine.find(page).render(page)
+        engine = Engine.find(page)
+        if engine.layout?
+          engine.render(page)
+        else
+          '<span class="error">No engine found for Sidebar</span>'
+        end
       else
         '<a href="/Sidebar/new">Create Sidebar</a>'
       end

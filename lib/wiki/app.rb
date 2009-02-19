@@ -26,7 +26,7 @@ module Wiki
 
       Entry.store = App.config['store']
       Cache.instance = Cache::Disk.new(App.config['cache'])
-     
+
       @logger = Logger.new(App.config['logfile'])
       @logger.level = Logger.const_get(App.config['loglevel'])
 
@@ -130,17 +130,6 @@ module Wiki
       haml :profile
     end
 
-    get '/search' do
-      matches = @repo.grep(params[:pattern], nil, :ignore_case => true)
-      @matches = []
-      matches.each_pair do |id,lines|
-        if id =~ /^#{SHA_PATTERN}:(.+)$/
-          @matches << [$1,lines.map {|x| x[1] }.join("\n").truncate(100)]
-        end
-      end
-      haml :search
-    end
-
     get '/style.css' do
       begin
         # Try to use wiki version
@@ -154,7 +143,7 @@ module Wiki
         sass :style, :sass => {:style => :compact}
       end
     end
-    
+
     get '/?:path?/archive' do
       @tree = Tree.find!(@repo, params[:path])
       content_type 'application/x-tar-gz'
@@ -192,11 +181,14 @@ module Wiki
 
     get '/new', '/upload', '/:path/new', '/:path/upload' do
       begin
+        if !params[:path].blank? && Object.find(@repo, params[:path])
+          redirect (params[:path]/'edit').urlpath
+        end
         @page = Page.new(@repo, params[:path])
         boilerplate @page
       rescue MessageError => error
         message :new, error.message
-      end        
+      end
       haml :new
     end
 

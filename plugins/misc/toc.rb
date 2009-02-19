@@ -56,7 +56,7 @@ Wiki::Plugin.define 'misc/toc' do
       end
 
       def section
-        @count[0..@level-1].join('_')      
+        @count[0..@level-1].join('_')
       end
 
       def indent

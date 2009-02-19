@@ -4,7 +4,7 @@ require 'wiki/extensions'
 module Wiki
   class Mime
     attr_reader :type, :mediatype, :subtype
-    
+
     def initialize(type)
       @type      = type
       @mediatype = @type.split('/')[0]
@@ -17,19 +17,19 @@ module Wiki
         EXTENSIONS[ext] = type
       end
     end
-    
+
     def text?
       child_of? 'text/plain'
     end
-    
+
     def child_of?(parent)
       child?(type, parent)
     end
-    
+
     def extensions
       TYPES.key?(type) ? TYPES[type][0] : []
     end
-    
+
     def self.by_extension(ext)
       mime = EXTENSIONS[ext.downcase]
       mime ? new(mime) : nil

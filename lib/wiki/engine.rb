@@ -20,7 +20,7 @@ module Wiki
     def self.enhance(*names, &block)
       names.each do |name|
         name = name.to_s
-        if @engines.key?(name) 
+        if @engines.key?(name)
           @engines[name] = Class.new(@engines[name], &block)
         end
       end
@@ -66,12 +66,12 @@ module Wiki
     def self.filter(&block);  define_method :filter, &block;   end
     def self.mime(&block);    define_method :mime, &block;     end
     def self.accepts(&block); define_method :accepts?, &block; end
-    
+
     accepts {|page| false }
     output  {|page| filter(page, page.content.dup).last }
     filter  {|page,content| [page, content] }
     mime    {|page| 'text/plain' }
- 
+
     def render(page)
       Cache.cache('engine', name + page.sha, :disable => !page.saved? || !cacheable?) { output page }
     end

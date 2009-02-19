@@ -1,6 +1,6 @@
 Wiki::Plugin.define 'engine/maruku' do
   require 'maruku'
-  
+
   Wiki::Mime.add('text/x-maruku', %w(maruku), %w(text/plain)) do |io|
     io.read(8) == '#!maruku'
   end

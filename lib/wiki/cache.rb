@@ -20,7 +20,7 @@ module Wiki
 
     class Disk < Cache
       attr_reader :root
-      
+
       def initialize(root)
         @root = root
         FileUtils.mkdir_p root, :mode => 0755

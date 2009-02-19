@@ -25,7 +25,7 @@ module Wiki
       commit = sha ? repo.gcommit(sha) : repo.log(1).path(path).first rescue nil
       return nil if !commit
       object = git_find(repo, path, commit)
-      return nil if !object 
+      return nil if !object
       return Page.new(repo, path, object, commit, !sha) if object.blob?
       return Tree.new(repo, path, object, commit, !sha) if object.tree?
       nil
@@ -67,7 +67,7 @@ module Wiki
       h.each_index { |i| return (i == 0 ? nil : h[i - 1]) if h[i].committer_date <= @commit.committer_date }
       h.last # FIXME. Does not work correctly if history is too short
     end
-      
+
     def page?; self.class == Page; end
     def tree?; self.class == Tree; end
 
@@ -191,13 +191,13 @@ module Wiki
       @mime ||= Mime.by_extension(extension) || Mime.by_magic(content) || Mime.new(App.config['default_mime'])
     end
   end
-  
+
   class Tree < Object
     def initialize(repo, path, object = nil, commit = nil, current = false)
       super(repo, path, object, commit, current)
       @children = nil
     end
-    
+
     def self.find(repo, path, sha = nil)
       object = super(repo, path, sha)
       object && object.tree? ? object : nil

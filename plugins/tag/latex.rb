@@ -17,7 +17,7 @@ Wiki::Plugin.define 'tag/latex' do
     end
   end
 
-  Wiki::Engine.enhance :creole, :textile, :markdown do
+  Wiki::Engine.enhance :creole, :textile, :markdown, :maruku do
     define_tag(:math) do |page,code,attrs|
       name, path, hash = latex.render(code)
       "<img src=\"/latex/#{name}\"/>"

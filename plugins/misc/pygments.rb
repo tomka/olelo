@@ -49,7 +49,7 @@ Wiki::Plugin.define 'misc/pygments' do
     def self.lexer_mapping
       if !@mapping
         @mapping = {}
-        lexer = ''  
+        lexer = ''
         output = `#{PROGRAM} #{LOOKUP_OPTIONS}`
         output.split("\n").each do |line|
           if line =~ /^\* ([^:]+):$/
