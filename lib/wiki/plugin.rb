@@ -2,6 +2,7 @@ require 'wiki/utils'
 require 'pathname'
 
 module Wiki
+  # Wiki plugin system
   class Plugin
     @plugins = {}
     @dir = ''
@@ -13,6 +14,7 @@ module Wiki
       attr_reader :plugins
       attr_accessor :dir, :logger
 
+      # Define plugin with name
       def define(name, &block)
         if !@plugins.key?(name)
           name = name.to_s
@@ -24,10 +26,12 @@ module Wiki
         @logger.error(ex) if @logger
       end
 
+      # Load all available plugins
       def load_all
         load('*')
       end
 
+      # Load plugin by name and return a boolean for success
       def load(name)
         name = Pathname.new(name).cleanpath
         list = Dir.glob(File.join(@dir, "**/#{name}.rb"))
@@ -39,6 +43,7 @@ module Wiki
 
       private
 
+      # Require ruby file without raising exceptions
       def safe_require(name)
         require(name)
         true
@@ -54,12 +59,17 @@ module Wiki
       @name = name
     end
 
+    # Load specified plugins before this one.
+    # This method can be used to specify optional
+    # dependencies which should be loaded before this plugin.
     def load_after(*list)
       list.each do |x|
         Plugin.load(x)
       end
     end
 
+    # Load specified plugins and fail if
+    # dependencies are missing.
     def depends_on(*list)
       list.each do |x|
         raise RuntimeError.new("Could not load dependency #{x}") if !Plugin.load(x)

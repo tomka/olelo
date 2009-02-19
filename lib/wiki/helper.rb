@@ -2,6 +2,9 @@ require 'wiki/extensions'
 require 'wiki/utils'
 
 module Wiki
+  # Wiki helper methods which are mainly used in the views
+  # TODO: Restructure this a little bit. Separate view
+  # from controller helpers maybe.
   module Helper
     include Utils
 

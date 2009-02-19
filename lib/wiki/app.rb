@@ -3,10 +3,12 @@ sass logger cgi wiki/extensions wiki/utils
 wiki/object wiki/helper wiki/user wiki/engine wiki/cache wiki/mime wiki/plugin).each { |dep| require dep }
 
 module Wiki
+  # Main class of the application
   class App < Sinatra::Application
     include Helper
     include Utils
 
+    # Sinatra options
     set :patterns, :path => PATH_PATTERN, :sha => SHA_PATTERN
     set :haml, :format => :xhtml, :attr_wrapper  => '"'
     set :methodoverride, true
@@ -48,6 +50,7 @@ module Wiki
       Plugin.load_all
     end
 
+    # Executed before each request
     before do
       @logger.debug request.env
 
@@ -61,8 +64,10 @@ module Wiki
       @redirect_to_new = nil
     end
 
+    # Handle 404s
     not_found do
       if @redirect_to_new
+        # Redirect to create new page if flag is set
         redirect(params[:sha] ? params[:path].urlpath : (params[:path]/'new').urlpath)
       else
         @error = request.env['sinatra.error']
@@ -70,6 +75,7 @@ module Wiki
       end
     end
 
+    # Show wiki error page
     error do
       @error = request.env['sinatra.error']
       @logger.error @error
@@ -181,6 +187,7 @@ module Wiki
 
     get '/new', '/upload', '/:path/new', '/:path/upload' do
       begin
+        # Redirect to edit for existing pages
         if !params[:path].blank? && Object.find(@repo, params[:path])
           redirect (params[:path]/'edit').urlpath
         end
@@ -201,6 +208,7 @@ module Wiki
       end
     end
 
+    # Edit form sends put requests
     put '/:path' do
       @page = Page.find!(@repo, params[:path])
       begin
@@ -231,6 +239,7 @@ module Wiki
       end
     end
 
+    # New form sends post request
     post '/', '/:path' do
       begin
         @page = Page.new(@repo, params[:path])
@@ -258,6 +267,7 @@ module Wiki
 
     private
 
+    # Cache control for object
     def cache_control(object, tag)
       if App.production?
         response['Cache-Control'] = 'private, must-revalidate, max-age=0'
@@ -266,6 +276,7 @@ module Wiki
       end
     end
 
+    # Show page or tree
     def show(object = nil)
       object = Object.find!(@repo, params[:path], params[:sha]) if !object || object.new?
       cache_control(object, 'show')
@@ -286,6 +297,7 @@ module Wiki
       end
     end
 
+    # Boilerplate for new pages
     def boilerplate(page)
       if page.path == 'style.sass'
         page.content = lookup_template :sass, :style
