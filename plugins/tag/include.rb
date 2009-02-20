@@ -3,7 +3,8 @@ Wiki::Plugin.define 'tag/include' do
   load_after 'engine/*'
 
   Wiki::Engine.enhance :creole, :textile, :markdown do
-    define_tag(:include, :requires => :page) do |page,code,attrs|
+    define_tag(:include, :requires => :page) do |page,elem|
+      attrs = elem.attributes
       if page = Wiki::Page.find(page.repo, attrs['page'])
         engine = Wiki::Engine.find(page)
         if engine.layout?
