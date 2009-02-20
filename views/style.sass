@@ -126,30 +126,28 @@ table
     .linenos
       :color #555
 
-a, a:visited
-  :color #0B3E71
-  :text-decoration none
-
-a:hover, a:active
-  :color #FFF
-  :background #0B3E71
-  :text-decoration none
+a
+  &, &:visited
+    :color #0B3E71
+    :text-decoration none
+  &:hover, &:active
+    :color #FFF
+    :background #0B3E71
+    :text-decoration none
+  &.img
+    :background transparent
+  div.img &
+    :border 1px solid #999
+    :float right
+    :text-align center
+    :color #000
+    :background #FFF
+    :padding 0.2em
+    img
+      :display block
 
 img
   :vertical-align middle
-
-div.img a, a.img
-  :background transparent
-
-div.img a
-  :border 1px solid #999
-  :float right
-  :text-align center
-  :color #000
-  :background #FFF
-  :padding 0.2em
-  img
-    :display block
 
 hr
   :background #999
@@ -252,7 +250,6 @@ hr
   :background-repeat repeat-y
   :background-position top left
   #body
-    :position relative
     :display block
     :overflow hidden
     :margin 0

@@ -6,9 +6,8 @@ module Sinatra
       class_eval %{
         def #{method}(path, opts, &block)
           path, keys = replace_complex_patterns(path, opts)
-          super(path, opts) do
-            c = params[:captures]
-            keys.each_with_index {|k,i| params[k] = c ? c[i] : nil }
+          super(path, opts) do |*c|
+            keys.each_with_index {|k,i| params[k] = c[i] }
             instance_eval(&block)
           end
         end
