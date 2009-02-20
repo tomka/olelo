@@ -20,7 +20,7 @@ module Wiki
     end
 
     def escape_html(html)
-      CGI::escapeHTML(html)
+      CGI::escapeHTML(html.to_s)
     end
 
     def forbid(conds)
