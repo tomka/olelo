@@ -6,6 +6,7 @@ require 'wiki/extensions'
 module Wiki
   PATH_PATTERN = '[\w:.+\-_\/](?:[\w:.+\-_\/ ]*[\w.+\-_\/])?'
   SHA_PATTERN = '[A-Fa-f0-9]{5,40}'
+  STRICT_SHA_PATTERN = '[A-Fa-f0-9]{40}'
 
   # Wiki repository object
   class Object

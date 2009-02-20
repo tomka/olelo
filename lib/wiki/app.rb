@@ -12,7 +12,7 @@ module Wiki
     set :patterns, :path => PATH_PATTERN, :sha => SHA_PATTERN
     set :haml, :format => :xhtml, :attr_wrapper  => '"'
     set :methodoverride, true
-    set :static, true
+    set :static, false
     set :root, File.expand_path(File.join(File.dirname(__FILE__), '..', '..'))
     set :raise_errors, false
     set :dump_errors, true
@@ -61,16 +61,15 @@ module Wiki
       @footer = nil
       @feed = nil
       @title = ''
-      @redirect_to_new = nil
     end
 
     # Handle 404s
     not_found do
-      if @redirect_to_new
+      if request.env['wiki.redirect_to_new']
         # Redirect to create new page if flag is set
         redirect(params[:sha] ? params[:path].urlpath : (params[:path]/'new').urlpath)
       else
-        @error = request.env['sinatra.error']
+        @error = request.env['sinatra.error'] || Sinatra::NotFound.new
         haml :error
       end
     end
@@ -80,6 +79,13 @@ module Wiki
       @error = request.env['sinatra.error']
       @logger.error @error
       haml :error
+    end
+
+    # Static files
+    get %r{^/sys/(.*[^/])$} do |path|
+      path = File.join(options.public, path)
+      not_found if !File.file?(path)
+      send_file path
     end
 
     get '/' do
@@ -193,8 +199,9 @@ module Wiki
         end
         @page = Page.new(@repo, params[:path])
         boilerplate @page
+        check_name_clash(params[:path])
       rescue MessageError => error
-        message :new, error.message
+        message :error, error.message
       end
       haml :new
     end
@@ -203,7 +210,7 @@ module Wiki
       begin
         show
       rescue Object::NotFound
-        @redirect_to_new = true
+        request.env['wiki.redirect_to_new'] = true
         pass
       end
     end
@@ -244,6 +251,7 @@ module Wiki
       begin
         @page = Page.new(@repo, params[:path])
         if action?(:upload) && params[:file]
+          check_name_clash(params[:path])
           @page.write(params[:file][:tempfile].read, 'File uploaded', @user.author)
           redirect params[:path].urlpath
         elsif action?(:new)
@@ -253,6 +261,7 @@ module Wiki
             @preview_content = engine.render(@page) if engine.layout?
             haml :new
           else
+            check_name_clash(params[:path])
             @page.save(params[:message], @user.author)
             redirect params[:path].urlpath
           end
@@ -266,6 +275,26 @@ module Wiki
     end
 
     private
+
+    def check_name_clash(path)
+      path = (path || '').urlpath
+      patterns = self.class.routes.values.inject([], &:+).map {|x| x[0] }.uniq
+
+      # Remove overly general patterns
+      patterns.delete(%r{.*[^\/]$}) # Sinatra static files
+      patterns.delete(%r{^/(#{PATH_PATTERN})$}) # Path
+      patterns.delete(%r{^/(#{PATH_PATTERN})/(#{SHA_PATTERN})$}) # Path with unstrict sha
+      patterns.delete(%r{^/(#{SHA_PATTERN})$}) # Root with unstrict sha
+
+      # Add pattern to ensure availability of strict sha urls
+      # Shortcut sha urls (e.g /Beef) can be overridden
+      patterns << %r{^/(#{STRICT_SHA_PATTERN})$}
+      patterns << %r{^/(#{PATH_PATTERN})/(#{STRICT_SHA_PATTERN})$}
+
+      patterns.each do |pattern|
+        raise MessageError.new("Path is not allowed") if pattern =~ path
+      end
+    end
 
     # Cache control for object
     def cache_control(object, tag)

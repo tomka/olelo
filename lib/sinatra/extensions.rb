@@ -5,10 +5,14 @@ module Sinatra
     METHODS.each do |method|
       class_eval %{
         def #{method}(path, opts, &block)
-          path, keys = replace_complex_patterns(path, opts)
-          super(path, opts) do |*c|
-            keys.each_with_index {|k,i| params[k] = c[i] }
-            instance_eval(&block)
+          if path.respond_to? :to_str
+            path, keys = replace_complex_patterns(path, opts)
+            super(path, opts) do |*c|
+              keys.each_with_index {|k,i| params[k] = c[i] }
+              instance_eval(&block)
+            end
+          else
+            super(path, opts, &block)
           end
         end
       }

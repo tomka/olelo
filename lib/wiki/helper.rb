@@ -43,7 +43,7 @@ module Wiki
     end
 
     def image(alt, name)
-      "<img src=\"/images/#{name}.png\" alt=\"#{escape_html alt}\"/>"
+      "<img src=\"/sys/images/#{name}.png\" alt=\"#{escape_html alt}\"/>"
     end
 
     def tab_selected(action)
