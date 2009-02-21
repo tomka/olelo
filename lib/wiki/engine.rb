@@ -37,9 +37,9 @@ module Wiki
     def self.create(name, opts = {}, &block)
       name = name.to_s
       raise ArgumentError.new("Engine #{name} already exists") if @engines.key?(name)
-      layout = opts[:layout] || false
-      cacheable = opts[:cacheable] || false
-      priority = opts[:priority] || 0
+      layout = !!opts[:layout]
+      cacheable = !!opts[:cacheable]
+      priority = opts[:priority].to_i
       @engines[name] = engine = Class.new(Engine)
       engine.class_eval %{
         def name; "#{name}"; end

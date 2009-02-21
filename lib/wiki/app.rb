@@ -291,7 +291,7 @@ module Wiki
     private
 
     def check_name_clash(path)
-      path = (path || '').urlpath
+      path = path.to_s.urlpath
       patterns = self.class.routes.values.inject([], &:+).map {|x| x[0] }.uniq
 
       # Remove overly general patterns

@@ -56,7 +56,7 @@ end
 class String
   # Pluralize string
   def pluralize(count, plural)
-    "#{count || 0} " + (count.to_s == '1' ? self : plural)
+    "#{count.to_i} " + (count.to_s == '1' ? self : plural)
   end
 
   # Return the last n lines of the string

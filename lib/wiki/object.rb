@@ -23,8 +23,7 @@ module Wiki
 
     # Find object in repo by path and commit sha
     def self.find(repo, path, sha = nil)
-      path ||= ''
-      path = path.cleanpath
+      path = path.to_s.cleanpath
       forbid_invalid_path(path)
       commit = sha ? repo.gcommit(sha) : repo.log(1).path(path).first rescue nil
       return nil if !commit
@@ -42,8 +41,7 @@ module Wiki
 
     # Constructor
     def initialize(repo, path, object = nil, commit = nil, current = false)
-      path ||= ''
-      path = path.cleanpath
+      path = path.to_s.cleanpath
       forbid_invalid_path(path)
       @repo = repo
       @path = path.cleanpath
@@ -210,7 +208,7 @@ module Wiki
     # Page extension
     def extension
       path =~ /.\.([^.]+)$/
-      $1 || ''
+      $1.to_s
     end
 
     # Detect mime type by extension, by content or use default mime type
