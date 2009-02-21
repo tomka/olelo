@@ -23,7 +23,7 @@ At first you have to install the gem dependencies via "gem".
 
     gem sources -a http://gems.github.org/
     gem install minad-creole
-    gem install schacon-git
+    gem install minad-git
     gem install haml
     gem install thin
     gem install rack
