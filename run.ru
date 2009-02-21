@@ -4,8 +4,7 @@ ENV['RACK_ENV'] = env
 
 path = File.expand_path(File.dirname(__FILE__))
 
-$: << File.join(path, 'lib')
-$: << File.join(path, 'deps/sinatra/lib')
+$: << File.join(path, 'lib') << File.join(path, 'deps/sinatra/lib')
 require 'wiki/app'
 
 config_file = if ENV['WIKI_CONFIG']

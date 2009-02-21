@@ -12,7 +12,7 @@ Wiki::Plugin.define 'tag/support' do
       def handle_tags(engine, page, content)
         doc = Hpricot::XML(content)
         elements = []
-        self.class.tags.to_a.each do |tag|
+        self.class.tags.each do |tag|
           name, method = tag
           (doc/name).each do |elem|
             elements << [method, elem]
