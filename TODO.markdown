@@ -13,6 +13,7 @@ TODO
 - More caching where it makes sense
 - Support for branching operations (Maybe not that important for a gui?)
 - Switch to grit maybe (grit does not support some things yet, but has native implementation of some git features)
+- Full commit revert action should be a partial commit revert action. Even better would be a patchset revert from the diff view.
 - (DONE) Wiki installation under subpath (path_info translation could be done
   via rack middleware, generated links must be adapted)
 - (DONE) Plugin system
@@ -34,6 +35,7 @@ TODO
 Known bugs
 ----------
 
+- self.class.tags is nil in plugins/tag/support.rb:16
 - Removed files have a next button for the last existing revision
   because the deletion is registered as commit for the respective file
   (see Page.next_commit)

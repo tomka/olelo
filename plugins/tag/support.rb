@@ -34,12 +34,13 @@ Wiki::Plugin.define 'tag/support' do
     end
 
     module ClassMethods
-      attr_reader :tags
-
       def define_tag(tag, opts = {}, &block)
         if !@tags
+          class << self
+            attr_reader :tags
+          end
           around_filter :handle_tags
-          @tags = superclass.instance_variable_get(:@tags) || []
+          @tags = superclass.instance_variable_get(:@tags).to_a
         end
         method = block.to_method(self)
         define_method("handle_tag_#{tag}") do |page, elem|

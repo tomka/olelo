@@ -20,7 +20,7 @@ Wiki::Plugin.define 'engine/creole' do
           object_path(@page, :path => path)
         end
         def make_image(path, title)
-          args = (title || '').split('|')
+          args = title.to_s.split('|')
           image_path, page_path = path, path
           if !args.delete('raw')
             image_path = object_path(@page, :path => path, :output => :raw)
