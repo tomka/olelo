@@ -1,7 +1,7 @@
 // From http://nullstyle.com/2007/06/02/caching-time_ago_in_words/
 
 function timeAgo(from) {
-    return timeDistance(new Date().getTime(), new Date(from * 1000)) + ' ago'; 
+    return timeDistance(new Date().getTime(), new Date(from * 1000)) + ' ago';
 }
 
 function timeDistance(to, from) {
@@ -16,7 +16,7 @@ function timeDistance(to, from) {
     if (n < 86400) return 'about 1 month';
     if (n < 525960) return Math.round(n / 43200) + ' months';
     if (n < 1051920) return 'about 1 year';
-    return 'over ' + Math.round(n / 525960) + ' years'; 
+    return 'over ' + Math.round(n / 525960) + ' years';
 }
 
 function toggleTime() {
@@ -31,20 +31,25 @@ function toggleTime() {
     }
 }
 
+function confirmSubmit() {
+    return confirm('Are you sure?');
+}
+
 $(document).ready(function(){
     $('.ui-tabs').tabs();
     $('table.sortable').tablesorter({widgets: ['zebra']});
     $('table.history').tablesorter({
 	widgets: ['zebra'],
-        headers: { 
-            0: { sorter: false }, 
-            1: { sorter: false }, 
+        headers: {
+            0: { sorter: false },
+            1: { sorter: false },
             2: { sorter: 'text' },
 	    3: { sorter: 'text' },
 	    4: { sorter: 'text' }, // FIXME: Write parser for date
-	    5: { sorter: 'text' }
+	    5: { sorter: 'text' },
+            6: { sorter: false }
         }
-    }); 
+    });
 
     $('input.clear').focus(function() {
 	if (this.value == this.defaultValue)
@@ -56,4 +61,5 @@ $(document).ready(function(){
 
     $('.date').click(toggleTime);
     $('.date').each(toggleTime);
+    $('.confirm').click(confirmSubmit);
 });
