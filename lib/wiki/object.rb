@@ -2,6 +2,7 @@ require 'sinatra/base'
 require 'git'
 require 'wiki/utils'
 require 'wiki/extensions'
+require 'wiki/config'
 
 module Wiki
   PATH_PATTERN = '[\w:.+\-_\/](?:[\w:.+\-_\/ ]*[\w.+\-_\/])?'
@@ -36,7 +37,7 @@ module Wiki
 
     # Find object but raise not found exceptions
     def self.find!(repo, path, sha = nil)
-      find(repo, path, sha) || raise(NotFound.new(path))
+      find(repo, path, sha) || raise(NotFound, path)
     end
 
     # Constructor
@@ -201,7 +202,7 @@ module Wiki
 
       @content = @prev_commit = @latest_commit = @history = nil
       @commit = history.first
-      @object = git_find(@repo, @path, @commit) || raise(NotFound.new(path))
+      @object = git_find(@repo, @path, @commit) || raise(NotFound, path)
       @current = true
     end
 
@@ -213,7 +214,7 @@ module Wiki
 
     # Detect mime type by extension, by content or use default mime type
     def mime
-      @mime ||= Mime.by_extension(extension) || Mime.by_magic(content) || Mime.new(App.config['default_mime'])
+      @mime ||= Mime.by_extension(extension) || Mime.by_magic(content) || Mime.new(Config.default_mime)
     end
   end
 

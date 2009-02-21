@@ -25,7 +25,7 @@ module Wiki
 
     def forbid(conds)
       failed = conds.keys.select {|key| conds[key]}
-      raise MessageError.new(failed) if !failed.empty?
+      raise(MessageError, failed) if !failed.empty?
     end
   end
 end

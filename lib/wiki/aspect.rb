@@ -6,7 +6,7 @@ module Wiki
     # Put an adviser before the method. Return values of adviser
     # are passed as arguments to the advised methods.
     def before_method(name, before_name = nil, &block)
-      raise ArgumentError.new('block or method name has to be supplied') if !block && !before_name
+      raise(ArgumentError, 'block or method name has to be supplied') if !block && !before_name
       old = instance_method(name)
       new = block ? lambda(&block).to_method(self) : instance_method(before_name)
       define_method(name) do |*args|
@@ -19,7 +19,7 @@ module Wiki
     # Put an adviser before the method. Return values
     # of the advised method are passed as arguments to the adviser.
     def after_method(name, after_name = nil, &block)
-      raise ArgumentError.new('block or method name has to be supplied') if !block && !after_name
+      raise(ArgumentError, 'block or method name has to be supplied') if !block && !after_name
       old = instance_method(name)
       new = block ? lambda(&block).to_method(self) : instance_method(after_name)
       define_method(name) do |*args|
@@ -31,7 +31,7 @@ module Wiki
 
     # Put adviser around method
     def around_method(name, around_name = nil, &block)
-      raise ArgumentError.new('block or method name has to be supplied') if !block && !around_name
+      raise(ArgumentError, 'block or method name has to be supplied') if !block && !around_name
       old = instance_method(name)
       new = block ? lambda(&block).to_method(self) : instance_method(around_name)
       define_method(name) { |*args| new.bind(self)[old.bind(self), *args] }

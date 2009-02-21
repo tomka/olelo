@@ -8,9 +8,9 @@ Wiki::Plugin.define 'misc/changelog' do
 
       content_type 'application/rss+xml', :charset => 'utf-8'
       content = RSS::Maker.make('2.0') do |rss|
-        rss.channel.title = Wiki::App.config['title']
+        rss.channel.title = Wiki::Config.title
         rss.channel.link = request.scheme + '://' +  (request.host + ':' + request.port.to_s)
-        rss.channel.description = Wiki::App.config['title'] + ' Changelog'
+        rss.channel.description = Wiki::Config.title + ' Changelog'
         rss.items.do_sort = true
         object.history.each do |commit|
           i = rss.items.new_item

@@ -1,11 +1,15 @@
 title:        'Git-Wiki'
-repository:   '/home/user/wiki/repository'
-workspace:    '/home/user/wiki/workspace'
 store:        '/home/user/wiki/store.yml'
 cache:        '/home/user/wiki/cache'
-loglevel:     INFO
-logfile:      '/home/user/wiki/log'
 default_mime: 'text/x-creole'
 main_page:    'Home'
-rewrite_base: ''
-profiling:    false
+rack:
+  rewrite_base: ''
+  profiling:    false
+log:
+  level:     INFO
+  file:      '/home/user/wiki/log'
+git:
+  repository:   '/home/user/wiki/repository'
+  workspace:    '/home/user/wiki/workspace'
+

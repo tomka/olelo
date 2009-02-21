@@ -13,34 +13,40 @@ else
   File.join(path, 'config.yml')
 end
 
-config = if File.file?(config_file)
-  YAML.load_file(config_file)
-else
-  { 'title'        => 'Git-Wiki',
-    'repository'   => File.join(path, '.wiki', 'repository'),
-    'workspace'    => File.join(path, '.wiki', 'workspace'),
-    'store'        => File.join(path, '.wiki', 'store.yml'),
-    'cache'        => File.join(path, '.wiki', 'cache'),
-    'loglevel'     => 'INFO',
-    'logfile'      => File.join(path, '.wiki', 'log'),
-    'default_mime' => 'text/x-creole',
-    'main_page'    => 'Home',
-    'rewrite_base' => nil,
-    'profiling'    => false,
-  }
-end
+default_config = {
+  :title        => 'Git-Wiki',
+  :store        => File.join(path, '.wiki', 'store.yml'),
+  :cache        => File.join(path, '.wiki', 'cache'),
+  :default_mime => 'text/x-creole',
+  :main_page    => 'Home',
+  :rack => {
+    :rewrite_base => nil,
+    :profiling    => false,
+  },
+  :git => {
+    :repository => File.join(path, '.wiki', 'repository'),
+    :workspace  => File.join(path, '.wiki', 'workspace'),
+  },
+  :log => {
+    :level => 'INFO',
+    :file  => File.join(path, '.wiki', 'log'),
+  },
+}
+
+Wiki::Config.update(default_config)
+Wiki::Config.load(config_file)
 
 require 'rack/path_info'
 use Rack::PathInfo
 
-if config['profiling']
+if Wiki::Config.rack.profiling
   require 'rack/contrib'
   use Rack::Profiler, :printer => :graph
 end
 
-if !config['rewrite_base'].blank?
+if !Wiki::Config.rack.rewrite_base.blank?
   require 'rack/rewrite'
-  use Rack::Rewrite, :base => config['rewrite_base']
+  use Rack::Rewrite, :base => Wiki::Config.rack.rewrite_base
 end
 
 # FIXME: Problem with fastcgi handler
@@ -50,6 +56,4 @@ if server == 'fastcgi'
 end
 
 use Rack::Session::Pool
-Wiki::App.set :config, config
 run Wiki::App
-

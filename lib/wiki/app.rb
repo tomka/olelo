@@ -18,29 +18,19 @@ module Wiki
     set :dump_errors, true
 
     def initialize
-      %w(title repository workspace store cache loglevel logfile default_mime main_page).each do |key|
-        raise RuntimeError.new('Application not properly configured') if App.config[key].blank?
-      end
+      FileUtils.mkdir_p File.dirname(Config.log.file), :mode => 0755
+      @logger = Logger.new(Config.log.file)
+      @logger.level = Logger.const_get(Config.log.level)
 
-      FileUtils.mkdir_p File.dirname(App.config['store']), :mode => 0755
-      FileUtils.mkdir_p File.dirname(App.config['logfile']), :mode => 0755
-      FileUtils.mkdir_p App.config['cache'], :mode => 0755
-
-      Entry.store = App.config['store']
-      Cache.instance = Cache::Disk.new(App.config['cache'])
-
-      @logger = Logger.new(App.config['logfile'])
-      @logger.level = Logger.const_get(App.config['loglevel'])
-
-      if File.exists?(App.config['repository']) && File.exists?(App.config['workspace'])
+      if File.exists?(Config.git.repository) && File.exists?(Config.git.workspace)
         @logger.info 'Opening repository'
-        @repo = Git.open(App.config['workspace'], :repository => App.config['repository'],
-                         :index => File.join(App.config['repository'], 'index'), :log => @logger)
+        @repo = Git.open(Config.git.workspace, :repository => Config.git.repository,
+                         :index => File.join(Config.git.repository, 'index'), :log => @logger)
       else
         @logger.info 'Initializing repository'
-        @repo = Git.init(App.config['workspace'], :repository => App.config['repository'],
-                         :index => File.join(App.config['repository'], 'index'), :log => @logger)
-        page = Page.new(@repo, App.config['main_page'])
+        @repo = Git.init(Config.git.workspace, :repository => Config.git.repository,
+                         :index => File.join(Config.git.repository, 'index'), :log => @logger)
+        page = Page.new(@repo, Config.main_page)
         page.write('This is the main page of the wiki.', 'Initialize Repository')
         @logger.info 'Repository initialized'
       end
@@ -89,7 +79,7 @@ module Wiki
     end
 
     get '/' do
-      redirect App.config['main_page'].urlpath
+      redirect Config.main_page.urlpath
     end
 
     get '/login', '/signup' do
@@ -306,7 +296,7 @@ module Wiki
       patterns << %r{^/(#{PATH_PATTERN})/(#{STRICT_SHA_PATTERN})$}
 
       patterns.each do |pattern|
-        raise MessageError.new("Path is not allowed") if pattern =~ path
+        raise(MessageError, 'Path is not allowed') if pattern =~ path
       end
     end
 

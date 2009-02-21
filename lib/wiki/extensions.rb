@@ -39,6 +39,10 @@ class Proc
 end
 
 class Object
+  def metaclass
+    (class << self; self; end)
+  end
+
   # Nice blank? helper from rails activesupport
   def blank?
     respond_to?(:empty?) ? empty? : !self

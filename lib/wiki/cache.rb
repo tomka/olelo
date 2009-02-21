@@ -1,8 +1,12 @@
+require 'wiki/cache'
+
 module Wiki
 
   class Cache
     class<< self
-      attr_accessor :instance
+      def instance
+        @instance ||= Disk.new(Config.cache)
+      end
 
       def cache(bucket, key, opts = {}, &block)
         instance.cache(bucket, key, opts, &block)

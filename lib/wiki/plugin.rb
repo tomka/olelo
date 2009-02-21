@@ -72,7 +72,7 @@ module Wiki
     # dependencies are missing.
     def depends_on(*list)
       list.each do |x|
-        raise RuntimeError.new("Could not load dependency #{x}") if !Plugin.load(x)
+        raise(RuntimeError, "Could not load dependency #{x}") if !Plugin.load(x)
       end
     end
 

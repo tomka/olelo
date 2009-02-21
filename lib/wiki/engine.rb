@@ -36,7 +36,7 @@ module Wiki
     # register an engine class in one step.
     def self.create(name, opts = {}, &block)
       name = name.to_s
-      raise ArgumentError.new("Engine #{name} already exists") if @engines.key?(name)
+      raise(ArgumentError, "Engine #{name} already exists") if @engines.key?(name)
       layout = !!opts[:layout]
       cacheable = !!opts[:cacheable]
       priority = opts[:priority].to_i
@@ -64,7 +64,7 @@ module Wiki
       end
 
       return engine.dup if engine
-      raise NotAvailable.new(name)
+      raise NotAvailable, name
     end
 
     def self.engine_instances

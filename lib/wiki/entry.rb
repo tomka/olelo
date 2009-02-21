@@ -1,19 +1,10 @@
 require 'yaml/store'
 require 'wiki/extensions'
+require 'wiki/config'
 
 module Wiki
   class Entry
     class ConcurrentModificationError < RuntimeError; end
-
-    @store = nil
-
-    class<< self
-      attr_reader :store
-
-      def store=(store_file)
-        @store = YAML::Store.new(store_file)
-      end
-    end
 
     @@transient_variables = []
 
@@ -23,6 +14,14 @@ module Wiki
 
     def self.transient_variables
       @@transient_variables
+    end
+
+    def self.store
+      @store ||=\
+      begin
+        FileUtils.mkdir_p File.dirname(Config.store), :mode => 0755
+        YAML::Store.new(Config.store)
+      end
     end
 
     attr_reader :version, :name

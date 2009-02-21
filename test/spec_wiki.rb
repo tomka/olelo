@@ -7,18 +7,27 @@ describe 'wiki' do
   before(:each) do
     @test_path = File.expand_path(File.join(File.dirname(__FILE__), '.test'))
 
-    config = {
-      'title'        => 'Git-Wiki',
-      'repository'   => File.join(@test_path, 'repository'),
-      'workspace'    => File.join(@test_path, 'workspace'),
-      'store'        => File.join(@test_path, 'store.yml'),
-      'cache'        => File.join(@test_path, 'cache'),
-      'loglevel'     => 'INFO',
-      'logfile'      => File.join(@test_path, 'log'),
-      'default_mime' => 'text/x-creole',
-      'main_page'    => 'Home'
+    default_config = {
+      :title        => 'Git-Wiki',
+      :store        => File.join(@test_path, 'store.yml'),
+      :cache        => File.join(@test_path, 'cache'),
+      :default_mime => 'text/x-creole',
+      :main_page    => 'Home',
+      :rack => {
+        :rewrite_base => nil,
+        :profiling    => false,
+      },
+      :git => {
+        :repository => File.join(@test_path, 'repository'),
+        :workspace  => File.join(@test_path, 'workspace'),
+      },
+      :log => {
+        :level => 'INFO',
+        :file  => File.join(@test_path, 'log'),
+      },
     }
-    Wiki::App.set :config, config
+    Wiki::Config.update default_config
+
     @app = Wiki::App.new
   end
 
@@ -61,7 +70,7 @@ describe 'wiki' do
       'message' => 'Commit message'
     }
     post('/Testfolder/Testpage', data)
-    
+
     should.be.redirect
     location.should.equal '/Testfolder/Testpage'
 

@@ -3,11 +3,10 @@ require 'wiki/entry'
 
 module EntrySupport
   def setup
-    @store_path = File.expand_path(File.join(File.dirname(__FILE__), '.store.yml'))
-    Wiki::Entry.store = @store_path
+    Wiki::Config.store = File.expand_path(File.join(File.dirname(__FILE__), '.store.yml'))
   end
 
   def teardown
-    File.unlink(@store_path) if File.exists?(@store_path)
+    File.unlink(Wiki::Config.store) if File.exists?(Wiki::Config.store)
   end
 end

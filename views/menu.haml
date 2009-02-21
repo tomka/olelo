@@ -1,6 +1,6 @@
 %ul
   %li
-    %a{:href=>object_path(object, :path => Wiki::App.config['main_page'].urlpath), :accesskey=>'z'}
+    %a{:href=>object_path(object, :path => Wiki::Config.main_page.urlpath), :accesskey=>'z'}
       = image('Home', :home)
       Home
   = breadcrumbs(object)

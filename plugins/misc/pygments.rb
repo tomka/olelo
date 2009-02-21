@@ -15,7 +15,7 @@ Wiki::Plugin.define 'misc/pygments' do
 
     def self.pygmentize(text, options = {})
       if options[:format].blank? && options[:filename].blank?
-        raise ArgumentError.new('Either format or filename must be supplied')
+        raise ArgumentError, 'Either format or filename must be supplied'
       end
 
       format = options[:filename] ? find_lexer(options[:filename]) : options[:format]
@@ -70,5 +70,5 @@ Wiki::Plugin.define 'misc/pygments' do
     private_class_method :lexer_mapping, :find_lexer, :run
   end
 
-  raise RuntimeError.new('pygments is not installed') if !Pygments.installed?
+  raise(RuntimeError, 'pygments is not installed') if !Pygments.installed?
 end
