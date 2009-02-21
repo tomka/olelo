@@ -3,6 +3,8 @@ store:        '/home/user/wiki/store.yml'
 cache:        '/home/user/wiki/cache'
 default_mime: 'text/x-creole'
 main_page:    'Home'
+disabled_plugins:
+  - misc/private_wiki
 rack:
   rewrite_base: ''
   profiling:    false
@@ -12,4 +14,3 @@ log:
 git:
   repository:   '/home/user/wiki/repository'
   workspace:    '/home/user/wiki/workspace'
-

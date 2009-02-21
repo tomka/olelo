@@ -29,9 +29,9 @@ At first you have to install the gem dependencies via "gem".
     gem install rack
 
 Sinatra is installed as submodule. You might need to run
-git submodule init
-git submodule update
 
+    git submodule init
+    git submodule update
 
 Optional:
     gem install hpricot

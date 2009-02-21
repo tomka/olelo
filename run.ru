@@ -19,6 +19,7 @@ default_config = {
   :cache        => File.join(path, '.wiki', 'cache'),
   :default_mime => 'text/x-creole',
   :main_page    => 'Home',
+  :disabled_plugins => ['misc/private_wiki'],
   :rack => {
     :rewrite_base => nil,
     :profiling    => false,
