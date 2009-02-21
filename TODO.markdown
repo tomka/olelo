@@ -8,13 +8,13 @@ TODO
   this spec syntax that much.
 - Captcha support
 - Image support, Image gallery
-- Wiki installation under subpath (path_info translation could be done
-  via rack middleware, generated links must be adapted)
 - Cache-control and etag support
 - Clean up stylesheet
 - More caching where it makes sense
 - Support for branching operations (Maybe not that important for a gui?)
 - Switch to grit maybe (grit does not support some things yet, but has native implementation of some git features)
+- (DONE) Wiki installation under subpath (path_info translation could be done
+  via rack middleware, generated links must be adapted)
 - (DONE) Plugin system
 - (DONE) Stackable output filters/engines
 - (DONE) rubypants as filter, latex support as filter....

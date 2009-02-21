@@ -156,6 +156,20 @@ module Wiki
       end
     end
 
+    get '/commit/:sha' do
+      @commit = @repo.gcommit(params[:sha])
+      @diff = @commit.diff_parent
+      haml :commit
+    end
+
+    post '/revert/:sha' do
+      @commit = @repo.gcommit(params[:sha])
+      @commit.revert
+      @commit = @repo.log(1).to_a[0]
+      @diff = @commit.diff_parent
+      haml :commit
+    end
+
     get '/?:path?/archive' do
       @tree = Tree.find!(@repo, params[:path])
       content_type 'application/x-tar-gz'

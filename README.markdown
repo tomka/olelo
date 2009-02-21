@@ -3,10 +3,44 @@ README
 
 Git-Wiki is a a wiki that stores pages in a git repository.
 
+Demo installation at http://git-wiki.kicks-ass.org/
+
+Features
+--------
+
+- History
+- Show diffs
+- Edit page, append to page, upload files
+- Plugin system
+- Multiple renderers
+- LaTeX
+- Syntax highlighting (embedded code blocks)
+
 Installation
 ------------
 
-Run with `./run.ru -sthin -p4567` and point your browser at <http://localhost:4567>.
+At first you have to install the gem dependencies via "gem".
+
+    gem sources -a http://gems.github.org/
+    gem install minad-creole
+    gem install minad-git
+    gem install haml
+    gem install thin
+    gem install rack
+
+Currently git-wiki requires the newest sinatra from github. If sinatra 0.9.1 is released this is also done via gem. You have to put the sinatra lib directory in the RUBYLIB environment variable.
+
+    git clone git://github.com/sinatra/sinatra.git
+    export RUBYLIB=$RUBYLIB:$PWD/sinatra/lib
+
+Optional:
+    gem install hpricot
+    gem install rdiscount
+    gem install RedCloth
+    gem install rubypants
+    gem install minad-latex-renderer
+
+Then run with `./run.ru -sthin -p4567` and. point your browser at <http://localhost:4567>.
 It automatically creates a repository in the directory '.wiki'.
 
 Dependencies
@@ -22,11 +56,13 @@ Optional Dependencies
 
 - [RubyPants][] to fix puncation
 - [Pygments][] for syntax highlighting
+- [latex-renderer][] for latex output (minad-latex-renderer gem from github)
+- [hpricot][] for tags in the wikitext
 
 Dependencies for page rendering
 -------------------------------
 
-- [creole][] for creole wikitext rendering
+- [creole][] for creole wikitext rendering (minad-creole gem from github)
 - [RDiscount][] for markdown rendering
 - [RedCloth][] for textile rendering
 
@@ -38,6 +74,7 @@ At least one of the renderers should be installed.
   [RDiscount]: http://github.com/rtomayko/rdiscount
   [RedCloth]: http://whytheluckystiff.net/ruby/redcloth/
   [RubyPants]: http://chneukirchen.org/blog/static/projects/rubypants.html
-  [creole]: http://github.com/larsch/creole
+  [creole]: http://github.com/minad/creole
+  [latex-renderer]: http://github.com/minad/latex-renderer
   [pygments]: http://pygments.org/
-
+  [hpricot]: http://wiki.github.com/why/hpricot

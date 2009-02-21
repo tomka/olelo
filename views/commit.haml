@@ -1,0 +1,27 @@
+- @menu  = :new
+- @title = "Commit <span class=\"sha\">#{@commit.sha}</span>"
+%table
+  %tbody
+    %tr
+      %td Message
+      %td= @commit.message
+    %tr
+      %td Author
+      %td= @commit.author.name
+    %tr
+      %td Date
+      %td= date @commit.date
+    %tr
+      %td Deletions
+      %td= @diff.deletions
+    %tr
+      %td Insertions
+      %td= @diff.insertions
+    %tr
+      %td Files
+      %td= @diff.size
+%p~ format_patch(@diff)
+%form.confirm{:action=>"/revert/#{@commit.sha}", :method=>'post'}
+  %div
+    %input{:type=>'submit', :value=>'Revert this commit'}
+    %br

@@ -2,17 +2,19 @@
 - @title = "History of #{@object.pretty_name}"
 - @feed = (@object.path/'changelog.rss').urlpath
 %form{:action=> action_path(@object, :diff) }
-  %input{:type=>'submit', :value=>'Show Diff'}
-  %br
+  %div
+    %input{:type=>'submit', :value=>'Show Diff'}
+    %br
   %table.history
     %thead
       %tr
         %th Fr
         %th To
-        %th SHA
+        %th SHA (Version identifier)
         %th Author
         %th Date
         %th Message
+        %th Commit
     %tbody
       - @object.history.each do |commit|
         %tr
@@ -20,8 +22,10 @@
             %input{:type=>'radio', :name=>'from', :value=> commit.sha}
           %td
             %input{:type=>'radio', :name=>'to', :value=> commit.sha}
-          %td
+          %td.nobreak
             %a.sha{:href=>object_path(@object, :sha => commit)}=commit.sha
           %td&= commit.author.name
-          %td= date(commit.author_date)
+          %td= date commit.date
           %td&= commit.message.truncate(50)
+          %td
+            %a{:href=> ('commit'/commit.sha).urlpath } Commit

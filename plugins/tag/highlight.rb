@@ -4,8 +4,8 @@ Wiki::Plugin.define 'tag/highlight' do
   depends_on 'misc/pygments'
 
   Wiki::Engine.enhance :creole, :textile, :markdown, :maruku do
-    define_tag(:code, :requires => :language) do |page, code, attrs|
-      Pygments.pygmentize(code, :format => attrs['language'], :cache => page.saved?)
+    define_tag(:code, :requires => :language) do |page, elem|
+      Pygments.pygmentize(elem.inner_text, :format => elem.attributes['language'], :cache => page.saved?)
     end
   end
 end

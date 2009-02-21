@@ -15,7 +15,7 @@ Wiki::Plugin.define 'tag/support' do
         self.class.tags.each do |tag|
           name, method = tag
           (doc/name).each do |elem|
-            elements << [method, elem.inner_text, elem.attributes]
+            elements << [method, elem]
             elem.swap "WIKI_TAG_#{elements.length-1}"
           end
         end
@@ -24,7 +24,7 @@ Wiki::Plugin.define 'tag/support' do
         content.gsub!(/WIKI_TAG_(\d+)/) do |match|
           elem = elements[$1.to_i]
           if elem
-            elem[0].bind(self).call(page, elem[1], elem[2])
+            elem[0].bind(self).call(page, elem[1])
           else
             match
           end
@@ -42,11 +42,11 @@ Wiki::Plugin.define 'tag/support' do
           @tags = superclass.instance_variable_get(:@tags) || []
         end
         method = block.to_method(self)
-        define_method("handle_tag_#{tag}") do |page, content, attrs|
-          if opts[:requires] && attr = [opts[:requires]].flatten.find {|a| attrs[a.to_s].blank? }
-            "<span class=\"error\">Attribute \"#{attr}\" is required for tag \"#{tag}\"</span>" if attrs[attr.to_s].blank?
+        define_method("handle_tag_#{tag}") do |page, elem|
+          if opts[:requires] && attr = [opts[:requires]].flatten.find {|a| elem.attributes[a.to_s].blank? }
+            "<span class=\"error\">Attribute \"#{attr}\" is required for tag \"#{tag}\"</span>" if elem.attributes[attr.to_s].blank?
           else
-            method.bind(self)[page, content, attrs]
+            method.bind(self)[page, elem]
           end
         end
         @tags << [tag, instance_method("handle_tag_#{tag}")]
