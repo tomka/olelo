@@ -2,7 +2,7 @@ Wiki::Plugin.define 'misc/private_wiki' do
   module Wiki::Helper
     alias sidebar_without_auth sidebar
     def sidebar
-      authenticated? ? sidebar_without_auth : ''
+      @user.anonymous? ? '' : sidebar_without_auth
     end
   end
 
@@ -16,12 +16,8 @@ Wiki::Plugin.define 'misc/private_wiki' do
 
     before do
       if !WHITE_LIST.any? {|pattern| request.path_info =~ /^#{pattern}$/ }
-        redirect '/login' if !authenticated?
+        redirect '/login' if @user.anonymous?
       end
-    end
-
-    def authenticated?
-      !!session[:user]
     end
   end
 end

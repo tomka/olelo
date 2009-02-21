@@ -7,15 +7,23 @@ module Wiki
       update(hash) if hash
     end
 
-    def set(name, value)
-      name = name.to_sym
-      if !respond_to?(name)
-        metaclass.class_eval do
-          define_method(name) { @config[name] }
-          define_method("#{name}=") { |x| @config[name] = x }
+    def set(key, value)
+      key = key.to_sym
+      create_accessor(key)
+      @config[key] = value.is_a?(Hash) ? Config.new(value) : value
+    end
+
+    def update(hash)
+      hash.each_pair do |key, value|
+        key = key.to_sym
+        create_accessor(key)
+        if value.is_a?(Hash)
+          @config[key] ||= Config.new
+          @config[key].update(value)
+        else
+          @config[key] = value
         end
       end
-      @config[name] = value.is_a?(Hash) ? Config.new(value) : value
     end
 
     def method_missing(mid, *args)
@@ -36,10 +44,6 @@ module Wiki
       @config.delete name.to_sym
     end
 
-    def update(hash)
-      hash.each_pair {|k,v| set(k, v) }
-    end
-
     def reset
       @config.clear
     end
@@ -56,5 +60,17 @@ module Wiki
       @instance ||= Config.new
       @instance.__send__(name, *args)
     end
+
+    private
+
+    def create_accessor(key)
+      if !respond_to?(key)
+        metaclass.class_eval do
+          define_method(key) { @config[key] }
+          define_method("#{key}=") { |x| @config[key] = x }
+        end
+      end
+    end
+
   end
 end

@@ -16,7 +16,7 @@ module Wiki
 
       # Define plugin with name
       def define(name, &block)
-        if !@plugins.key?(name) && !Config.disabled_plugins.include?(name)
+        if !@plugins.key?(name) && !Config.disabled_plugins.to_a.include?(name)
           name = name.to_s
           plugin = new(name)
           plugin.instance_eval(&block)
