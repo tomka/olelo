@@ -19,7 +19,28 @@ Features
 Installation
 ------------
 
-Run with `./run.ru -sthin -p4567` and point your browser at <http://localhost:4567>.
+At first you have to install the gem dependencies via "gem".
+
+    gem sources -a http://gems.github.org/
+    gem install minad-creole
+    gem install schacon-git
+    gem install haml
+    gem install thin
+    gem install rack
+
+Currently git-wiki requires the newest sinatra from github. If sinatra 0.9.1 is released this is also done via gem. You have to put the sinatra lib directory in the RUBYLIB environment variable.
+
+    git clone git://github.com/sinatra/sinatra.git
+    export RUBYLIB=$RUBYLIB:$PWD/sinatra/lib
+
+Optional:
+    gem install hpricot
+    gem install rdiscount
+    gem install RedCloth
+    gem install rubypants
+    gem install minad-latex-renderer
+
+Then run with `./run.ru -sthin -p4567` and. point your browser at <http://localhost:4567>.
 It automatically creates a repository in the directory '.wiki'.
 
 Dependencies
@@ -36,6 +57,7 @@ Optional Dependencies
 - [RubyPants][] to fix puncation
 - [Pygments][] for syntax highlighting
 - [latex-renderer][] for latex output (minad-latex-renderer gem from github)
+- [hpricot][] for tags in the wikitext
 
 Dependencies for page rendering
 -------------------------------
@@ -55,4 +77,4 @@ At least one of the renderers should be installed.
   [creole]: http://github.com/minad/creole
   [latex-renderer]: http://github.com/minad/latex-renderer
   [pygments]: http://pygments.org/
-
+  [hpricot]: http://wiki.github.com/why/hpricot
