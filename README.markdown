@@ -28,10 +28,10 @@ At first you have to install the gem dependencies via "gem".
     gem install thin
     gem install rack
 
-Currently git-wiki requires the newest sinatra from github. If sinatra 0.9.1 is released this is also done via gem. You have to put the sinatra lib directory in the RUBYLIB environment variable.
+Sinatra is installed as submodule. You might need to run
+git submodule init
+git submodule update
 
-    git clone git://github.com/sinatra/sinatra.git
-    export RUBYLIB=$RUBYLIB:$PWD/sinatra/lib
 
 Optional:
     gem install hpricot
