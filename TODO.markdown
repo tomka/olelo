@@ -14,6 +14,7 @@ TODO
 - Support for branching operations (Maybe not that important for a gui?)
 - Switch to grit maybe (grit does not support some things yet, but has native implementation of some git features)
 - Full commit revert action should be a partial commit revert action. Even better would be a patchset revert from the diff view.
+- Better syntax highlighting classes which use ultraviolet, coderay or pygments
 - (DONE) Wiki installation under subpath (path_info translation could be done
   via rack middleware, generated links must be adapted)
 - (DONE) Plugin system
