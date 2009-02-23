@@ -3,7 +3,7 @@ README
 
 Git-Wiki is a a wiki that stores pages in a git repository.
 
-Demo installation at http://git-wiki.kicks-ass.org/
+Demo installation at <http://git-wiki.kicks-ass.org/>
 
 Features
 --------
