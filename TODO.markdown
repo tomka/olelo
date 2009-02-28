@@ -36,7 +36,6 @@ TODO
 Known bugs
 ----------
 
-- self.class.tags is nil in plugins/tag/support.rb:16
 - Removed files have a next button for the last existing revision
   because the deletion is registered as commit for the respective file
   (see Page.next_commit)

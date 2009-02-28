@@ -34,23 +34,20 @@ Wiki::Plugin.define 'tag/support' do
     end
 
     module ClassMethods
+      def tag_handler
+        instance_methods.select {|x| x.begins_with? 'TAG ' }.map {|x| [x[4..-1], instance_method(x)] }
+      end
+
       def define_tag(tag, opts = {}, &block)
-        if !@tags
-          class << self
-            attr_reader :tags
-          end
-          around_filter :handle_tags
-          @tags = superclass.instance_variable_get(:@tags).to_a
-        end
+        around_filter :handle_tags if tag_handler.empty?
         method = block.to_method(self)
-        define_method("handle_tag_#{tag}") do |page, elem|
+        define_method("TAG #{tag}") do |page, elem|
           if opts[:requires] && attr = [opts[:requires]].flatten.find {|a| elem.attributes[a.to_s].blank? }
             "<span class=\"error\">Attribute \"#{attr}\" is required for tag \"#{tag}\"</span>" if elem.attributes[attr.to_s].blank?
           else
             method.bind(self)[page, elem]
           end
         end
-        @tags << [tag, instance_method("handle_tag_#{tag}")]
       end
     end
   end
