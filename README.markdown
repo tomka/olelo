@@ -28,7 +28,7 @@ At first you have to install the gem dependencies via "gem".
     gem install thin
     gem install rack
 
-Sinatra is installed as submodule. You might need to run
+Sinatra can be installed either as submodule or as gem (gem install sinatra-sinatra). You might need to run
 
     git submodule init
     git submodule update
