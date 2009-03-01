@@ -148,7 +148,7 @@ module Wiki
 
     get '/commit/:sha' do
       @commit = @repo.gcommit(params[:sha])
-      @diff = @commit.diff_parent
+      @diff = @repo.diff(@commit.parent, @commit.sha)
       haml :commit
     end
 
@@ -156,7 +156,7 @@ module Wiki
       @commit = @repo.gcommit(params[:sha])
       @commit.revert
       @commit = @repo.log(1).to_a[0]
-      @diff = @commit.diff_parent
+      @diff = @repo.diff(@commit.parent, @commit.sha)
       haml :commit
     end
 
