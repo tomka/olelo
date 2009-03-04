@@ -31,7 +31,7 @@ default_config = {
   :rack => {
     :rewrite_base => nil,
     :profiling    => false,
-    :tidy         => false
+    :tidy         => nil
   },
   :git => {
     :repository => File.join(path, '.wiki', 'repository'),
@@ -57,7 +57,7 @@ use Rack::PathInfo
 if !Wiki::Config.rack.tidy.blank?
   begin
     require 'rack/contrib'
-    use Rack::Tidy, :mode => :xmllint
+    use Rack::Tidy, :mode => Wiki::Config.rack.tidy.to_sym
   rescue
   end
 end

@@ -2,7 +2,7 @@
   @menu   = :version, :history, :archive, :new
   @title  = @tree.pretty_name
   @footer = "<a href=\"#{object_path(@tree, :sha => @tree.latest_commit)}\">Permalink</a> | " +
-            "Version <a class=\"sha\" href=\"#{object_path(@tree, :sha => @tree.latest_commit)}\">#{@tree.latest_commit.sha.truncate(8, '&hellip;')}</a> " +
+            "Version <a class=\"sha\" href=\"#{object_path(@tree, :sha => @tree.latest_commit)}\">#{@tree.latest_commit.sha.truncate(8, '&#8230;')}</a> " +
             "by #{@tree.latest_commit.committer.name}, #{date @tree.latest_commit.committer_date}"
   @feed = (@tree.path/'changelog.rss').urlpath
 %table.sortable
@@ -13,15 +13,15 @@
   %tbody
     - if !@tree.path.empty?
       %tr
-        %td= image('Tree', :tree)
+        %td= image(:tree, :alt => 'Tree')
         %td
           %a{:href=> object_path(@tree, :path => @tree.path/'..') } ..
     - @tree.children.each do |child|
       %tr
         %td
           - if child.page?
-            = image('Page', :page)
+            = image(:page, :alt => 'Page')
           - else
-            = image('Tree', :tree)
+            = image(:tree, :alt => 'Tree')
         %td
           %a{:href=> object_path(child) }=child.name

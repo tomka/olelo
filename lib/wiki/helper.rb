@@ -33,7 +33,7 @@ module Wiki
 
     def breadcrumbs(object)
       path = object.respond_to?(:path) ? object.path : ''
-      links = ["<a href=\"#{object_path(object, :path => '/root')}\">&radic;&macr; Root</a>"]
+      links = ["<a href=\"#{object_path(object, :path => '/root')}\">&#8730;&#175; Root</a>"]
       path.split('/').inject('') {|parent,elem|
         links << "<a href=\"#{object_path(object, :path => parent/elem)}\">#{elem}</a>"
         parent/elem
@@ -57,8 +57,11 @@ module Wiki
       (object.path/action.to_s).urlpath
     end
 
-    def image(alt, name)
-      "<img src=\"/sys/images/#{name}.png\" alt=\"#{escape_html alt}\"/>"
+    def image(name, opts = {})
+      opts[:alt] ||= ''
+      attrs = []
+      opts.each_pair {|key,value| attrs << "#{key}=\"#{escape_html value}\"" }
+      "<img src=\"/sys/images/#{name}.png\" #{attrs.join(' ')}/>"
     end
 
     def tab_selected(action)

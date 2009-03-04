@@ -2,7 +2,7 @@
   @menu   = :version, :edit, :history, :new
   @title  = @page.pretty_name
   @footer = "<a href=\"#{object_path(@page, :sha => @page.latest_commit)}\">Permalink</a> | " +
-            "Version <a class=\"sha\" href=\"#{object_path(@page, :sha => @page.latest_commit)}\">#{@page.latest_commit.sha.truncate(8, '&hellip;')}</a> " +
+            "Version <a class=\"sha\" href=\"#{object_path(@page, :sha => @page.latest_commit)}\">#{@page.latest_commit.sha.truncate(8, '&#8230;')}</a> " +
             "by #{@page.latest_commit.committer.name}, #{date @page.latest_commit.committer_date}"
   @feed = (@page.path/'changelog.rss').urlpath
 ~ @content

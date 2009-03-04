@@ -249,7 +249,7 @@ module Wiki
 
     # Pretty name
     def pretty_name
-      '&radic;&macr; Root'/path
+      '&#8730;&#175; Root'/path
     end
 
     # Get archive of current tree

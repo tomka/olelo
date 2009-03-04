@@ -24,7 +24,8 @@
       #search
         %form{:action=>'/search',:method=>'get'}
           %div
-            %input.clear{:type=>'text',:name=>'pattern', :value=> params[:pattern] || 'Search'}
+            %label.hidden{:for=>'pattern'} Search
+            %input.clear{:type=>'text',:id=>'pattern',:name=>'pattern', :value=> params[:pattern] || 'Search'}
     #menu= menu(object)
     #container
       #body

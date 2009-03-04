@@ -1,11 +1,11 @@
 %ul
   %li
     %a{:href=>object_path(object, :path => Wiki::Config.main_page.urlpath), :accesskey=>'z'}
-      = image('Home', :home)
+      = image(:home)
       Home
   = breadcrumbs(object)
   - if object && !object.current?
-    %li.noborder= "Tree version #{object.commit.sha.truncate(8, '&hellip;')}"
+    %li.noborder= "Tree version #{object.commit.sha.truncate(8, '&#8230;')}"
 %ul.wiki
   %li.title Wiki Menu
   - if @menu.include?(:version)
@@ -24,20 +24,20 @@
   - if @menu.include?(:new)
     %li
       %a{:href=> object && object.tree? ? (object.path/'new page/new').urlpath : '/new page/new'  }
-        = image('New Page', :new)
+        = image(:new)
         New Page
   - if @menu.include?(:edit) && object.page?
     %li
       %a{:href=>action_path(object, :edit), :accesskey=>'e'}
-        = image('Edit', :edit)
+        = image(:edit)
         Edit
   - if @menu.include?(:history)
     %li
       %a{:href=>action_path(object, :history), :accesskey=>'h'}
-        = image('History', :history)
+        = image(:history)
         History
   - if @menu.include?(:archive)
     %li
       %a{:href=>action_path(object, :archive)}
-        = image('Archive', :archive)
+        = image(:archive)
         Archive
