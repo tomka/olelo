@@ -28,7 +28,7 @@ module Wiki
     end
 
     def date(t)
-      "<span class=\"date seconds=#{t.to_i}\">#{t.strftime('%d %h %Y %H:%M')}</span>"
+      "<span class=\"date seconds_#{t.to_i}\">#{t.strftime('%d %h %Y %H:%M')}</span>"
     end
 
     def breadcrumbs(object)

@@ -15,6 +15,12 @@ else
   File.join(path, 'config.yml')
 end
 
+# FIXME: Problem with fastcgi handler
+if server == 'fastcgi'
+  options.delete :File
+  options.delete :Port
+end
+
 default_config = {
   :title        => 'Git-Wiki',
   :store        => File.join(path, '.wiki', 'store.yml'),
@@ -25,6 +31,7 @@ default_config = {
   :rack => {
     :rewrite_base => nil,
     :profiling    => false,
+    :tidy         => false
   },
   :git => {
     :repository => File.join(path, '.wiki', 'repository'),
@@ -44,20 +51,22 @@ if Wiki::Config.rack.profiling
   use Rack::Profiler, :printer => :graph
 end
 
+use Rack::Session::Pool
 use Rack::PathInfo
+
+if !Wiki::Config.rack.tidy.blank?
+  begin
+    require 'rack/contrib'
+    use Rack::Tidy, :mode => :xmllint
+  rescue
+  end
+end
 
 if !Wiki::Config.rack.rewrite_base.blank?
   require 'rack/rewrite'
   use Rack::Rewrite, :base => Wiki::Config.rack.rewrite_base
 end
 
-# FIXME: Problem with fastcgi handler
-if server == 'fastcgi'
-  options.delete :File
-  options.delete :Port
-end
-
-use Rack::Session::Pool
 use Rack::ESI
 
 if env == 'deployment' || env == 'production'

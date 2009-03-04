@@ -10,7 +10,7 @@ module Wiki
 
     # Sinatra options
     set :patterns, :path => PATH_PATTERN, :sha => SHA_PATTERN
-    set :haml, :format => :xhtml, :attr_wrapper  => '"'
+    set :haml, :format => :xhtml, :attr_wrapper  => '"', :ugly => true
     set :methodoverride, true
     set :static, false
     set :root, File.expand_path(File.join(File.dirname(__FILE__), '..', '..'))

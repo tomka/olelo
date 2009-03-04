@@ -21,7 +21,7 @@ function timeDistance(to, from) {
 
 function toggleTime() {
     elem = $(this);
-    match = elem.attr('class').match(/seconds=(\d+)/);
+    match = elem.attr('class').match(/seconds_(\d+)/);
     if (elem.attr('oldtext')) {
 	elem.text(elem.attr('oldtext'));
 	elem.removeAttr('oldtext');

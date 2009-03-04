@@ -20,7 +20,7 @@ Wiki::Plugin.define 'tag/latex' do
   Wiki::Engine.enhance :creole, :textile, :markdown, :maruku do
     define_tag(:math) do |page,elem|
       name, path, hash = latex.render(elem.inner_text)
-      "<img src=\"/sys/latex/#{name}\"/>"
+      "<img src=\"/sys/latex/#{name}\" alt=\"LaTeX\"/>"
     end
   end
 end

@@ -23,7 +23,8 @@
         %esi:include{:src=>'/sys/fragments/user'}/
       #search
         %form{:action=>'/search',:method=>'get'}
-          %input.clear{:type=>'text',:name=>'pattern', :value=> params[:pattern] || 'Search'}
+          %div
+            %input.clear{:type=>'text',:name=>'pattern', :value=> params[:pattern] || 'Search'}
     #menu= menu(object)
     #container
       #body
