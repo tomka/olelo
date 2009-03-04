@@ -8,7 +8,6 @@ TODO
   this spec syntax that much.
 - Captcha support
 - Image support, Image gallery
-- Cache-control and etag support
 - Clean up stylesheet
 - More caching where it makes sense
 - Support for branching operations (Maybe not that important for a gui?)
@@ -17,6 +16,7 @@ TODO
 - Better syntax highlighting classes which use ultraviolet, coderay or pygments
 - (DONE) Wiki installation under subpath (path_info translation could be done
   via rack middleware, generated links must be adapted)
+- (DONE) Cache-control and etag support
 - (DONE) Plugin system
 - (DONE) Stackable output filters/engines
 - (DONE) rubypants as filter, latex support as filter....
@@ -42,11 +42,3 @@ Known bugs
 - (WORKAROUND, no colspan used) Tablesorter doesn't get the colspan on /history
 - If the page is too far in the past the next button does not work correctly
   (see Page.next_commit)
-
-ruby-git TODO
--------------
-
-- (DONE) Get my patches included
-- (DONE) Commits aren't parsed correctly
-- (DONE) Fix uninitialized variables ($VERBOSE = 1 in the tests)
-

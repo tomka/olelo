@@ -1,9 +1,12 @@
 require 'wiki/app'
-require 'sinatra/test/spec'
+require 'test/spec'
+require 'sinatra/test'
 
 Rack::MockRequest::DEFAULT_ENV['REMOTE_ADDR'] = 'localhorst'
 
 describe 'wiki' do
+  include Sinatra::Test
+
   before(:each) do
     @test_path = File.expand_path(File.join(File.dirname(__FILE__), '.test'))
 
