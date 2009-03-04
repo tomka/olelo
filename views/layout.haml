@@ -1,6 +1,6 @@
 !!! XML
 !!! 1.1
-%html{:xmlns=>"http://www.w3.org/1999/xhtml"}
+%html{:xmlns=>"http://www.w3.org/1999/xhtml", 'xmlns:esi' => 'http://www.edge-delivery.org/esi/1.0'}
   %head
     %title= Wiki::Config.title + ' - ' + @title
     %link{:rel => 'stylesheet', :href => '/style.css', :type => 'text/css'}
@@ -20,20 +20,15 @@
       - if timemachine
         %h1.timemachine Time Machine
       #info
-        User
-        %a{:href=>'/profile'}= @user.name
-        |
-        - if @user.anonymous?
-          %a{:href=>'/login'} Login
-        - else
-          %a{:href=>'/logout'} Logout
+        %esi:include{:src=>'/sys/fragments/user'}/
       #search
         %form{:action=>'/search',:method=>'get'}
           %input.clear{:type=>'text',:name=>'pattern', :value=> params[:pattern] || 'Search'}
     #menu= menu(object)
     #container
       #body
-        #sidebar= sidebar
+        #sidebar
+          %esi:include{:src=>'/sys/fragments/sidebar'}/
         #content
           %h1= @title
           = yield

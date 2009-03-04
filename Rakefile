@@ -41,7 +41,7 @@ task 'clean:all' => :clean do |t|
   FileUtils.rm_rf '.wiki'
 end
 
-desc 'Generate AkaPortal documentation'
+desc 'Generate documentation'
 Rake::RDocTask.new(:doc) { |rdoc|
   rdoc.rdoc_dir = 'doc'
   rdoc.title    = 'Git-Wiki Documentation'
@@ -49,3 +49,14 @@ Rake::RDocTask.new(:doc) { |rdoc|
   rdoc.options << '--charset' << 'utf-8'
   rdoc.rdoc_files.include('**/*.rb')
 }
+
+namespace('notes') do
+  task('todo')      do; system('ack TODO');      end
+  task('fixme')     do; system('ack FIXME');     end
+  task('hack')      do; system('ack HACK');      end
+  task('warning')   do; system('ack WARNING');   end
+  task('important') do; system('ack IMPORTANT'); end
+end
+
+desc 'Show annotations'
+task('notes' => %w(notes:todo notes:fixme notes:hack notes:warning notes:important))

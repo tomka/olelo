@@ -1,0 +1,7 @@
+User
+%a{:href=>'/profile'}= @user.name
+|
+- if @user.anonymous?
+  %a{:href=>'/login'} Login
+- else
+  %a{:href=>'/logout'} Logout

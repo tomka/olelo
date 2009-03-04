@@ -71,10 +71,29 @@ module Wiki
       haml :error
     end
 
+    get '/sys/fragments/user' do
+      haml :'fragments/user', :layout => false
+    end
+
+    get '/sys/fragments/sidebar' do
+      if page = Page.find(@repo, 'Sidebar')
+        engine = Engine.find(page)
+        if engine.layout?
+          #cache_control :etag => page.commit.sha, :last_modified => page.latest_commit.committer_date
+          cache_control :max_age => 120
+          engine.render(page)
+        else
+          '<span class="error">No engine found for Sidebar</span>'
+        end
+      else
+        '<a href="/Sidebar/new">Create Sidebar</a>'
+      end
+    end
+
     # Static files
     get %r{^/sys/(.*[^/])$} do |path|
       path = File.join(options.public, path)
-      not_found if !File.file?(path)
+      pass if !File.file?(path)
       send_file path
     end
 
@@ -83,6 +102,7 @@ module Wiki
     end
 
     get '/login', '/signup' do
+      cache_control :static => true
       haml :login
     end
 
@@ -139,7 +159,7 @@ module Wiki
         params[:path] = 'style.sass'
         show
       rescue Object::NotFound
-        last_modified(File.mtime(template_path(:sass, :style)))
+        cache_control :max_age => 120
         # Fallback to default style
         content_type 'text/css', :charset => 'utf-8'
         sass :style, :sass => {:style => :compact}
@@ -147,7 +167,9 @@ module Wiki
     end
 
     get '/commit/:sha' do
+      cache_control :etag => params[:sha], :validate_only => true
       @commit = @repo.gcommit(params[:sha])
+      cache_control :etag => @commit.sha, :last_modified => @commit.committer_date
       @diff = @repo.diff(@commit.parent, @commit.sha)
       haml :commit
     end
@@ -162,6 +184,7 @@ module Wiki
 
     get '/?:path?/archive' do
       @tree = Tree.find!(@repo, params[:path])
+      cache_control :etag => @tree.sha, :last_modified => @tree.commit.committer_date
       content_type 'application/x-tar-gz'
       attachment "#{@tree.safe_name}.tar.gz"
       archive = @tree.archive
@@ -176,10 +199,12 @@ module Wiki
 
     get '/?:path?/history' do
       @object = Object.find!(@repo, params[:path])
+      cache_control :etag => @object.sha, :last_modified => @object.commit.committer_date
       haml :history
     end
 
     get '/?:path?/diff' do
+      cache_control :static => true
       @object = Object.find!(@repo, params[:path])
       @diff = @object.diff(params[:from], params[:to])
       haml :diff
@@ -212,6 +237,7 @@ module Wiki
 
     get '/:sha', '/:path/:sha', '/:path' do
       begin
+        pass if name_clash?(params[:path])
         show
       rescue Object::NotFound
         request.env['wiki.redirect_to_new'] = true
@@ -280,7 +306,7 @@ module Wiki
 
     private
 
-    def check_name_clash(path)
+    def name_clash?(path)
       path = path.to_s.urlpath
       patterns = self.class.routes.values.inject([], &:+).map {|x| x[0] }.uniq
 
@@ -295,24 +321,18 @@ module Wiki
       patterns << %r{^/(#{STRICT_SHA_PATTERN})$}
       patterns << %r{^/(#{PATH_PATTERN})/(#{STRICT_SHA_PATTERN})$}
 
-      patterns.each do |pattern|
-        raise(MessageError, 'Path is not allowed') if pattern =~ path
-      end
+      patterns.any? {|pattern| pattern =~ path }
     end
 
-    # Cache control for object
-    def cache_control(object, tag)
-      if App.production?
-        response['Cache-Control'] = 'private, must-revalidate, max-age=0'
-        etag(object.sha + tag)
-        last_modified(object.commit.committer_date)
-      end
+    def check_name_clash(path)
+      forbid('Path is not allowed' => name_clash?(path))
     end
 
     # Show page or tree
     def show(object = nil)
+      cache_control :etag => params[:sha], :validate_only => true
       object = Object.find!(@repo, params[:path], params[:sha]) if !object || object.new?
-      cache_control(object, 'show')
+      cache_control :etag => object.latest_commit.sha, :last_modified => object.latest_commit.committer_date
 
       if object.tree?
         @tree = object

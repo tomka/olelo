@@ -8,6 +8,21 @@ module Wiki
   module Helper
     include Utils
 
+    # Cache control for object
+    def cache_control(opts)
+      return if !App.production?
+      etag(opts[:etag]) if opts[:etag]
+      last_modified(opts[:last_modified]) if opts[:last_modified]
+      if opts[:validate_only]
+        response['ETag'] = nil
+        response['Last-Modified'] = nil
+        return
+      end
+      mode = opts[:private] ? 'private' : 'public'
+      max_age = opts[:max_age] || (opts[:static] ? 86400 : 0)
+      response['Cache-Control'] = "#{mode}, max-age=#{max_age}, must-revalidate"
+    end
+
     def format_patch(diff)
       "<pre>#{escape_html diff.patch}</pre>"
     end
@@ -54,19 +69,6 @@ module Wiki
       @menu ||= []
       @menu = [@menu] if !@menu.is_a?(Array)
       haml :menu, :layout => false, :locals => { :object => object }
-    end
-
-    def sidebar
-      if page = Page.find(@repo, 'Sidebar')
-        engine = Engine.find(page)
-        if engine.layout?
-          engine.render(page)
-        else
-          '<span class="error">No engine found for Sidebar</span>'
-        end
-      else
-        '<a href="/Sidebar/new">Create Sidebar</a>'
-      end
     end
 
     def show_messages

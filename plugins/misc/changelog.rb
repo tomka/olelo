@@ -4,7 +4,7 @@ Wiki::Plugin.define 'misc/changelog' do
   Wiki::App.class_eval do
     get '/changelog.rss', '/:path/changelog.rss' do
       object = Wiki::Object.find!(@repo, params[:path])
-      cache_control(object, 'changelog')
+      cache_control :etag => object.latest_commit.sha, :last_modified => object.latest_commit.committer_date
 
       content_type 'application/rss+xml', :charset => 'utf-8'
       content = RSS::Maker.make('2.0') do |rss|

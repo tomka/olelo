@@ -6,6 +6,8 @@ path = File.expand_path(File.dirname(__FILE__))
 
 $: << File.join(path, 'lib') << File.join(path, 'deps/sinatra/lib')
 require 'wiki/app'
+require 'rack/path_info'
+require 'rack/esi'
 
 config_file = if ENV['WIKI_CONFIG']
   ENV['WIKI_CONFIG']
@@ -37,13 +39,12 @@ default_config = {
 Wiki::Config.update(default_config)
 Wiki::Config.load(config_file)
 
-require 'rack/path_info'
-use Rack::PathInfo
-
 if Wiki::Config.rack.profiling
   require 'rack/contrib'
   use Rack::Profiler, :printer => :graph
 end
+
+use Rack::PathInfo
 
 if !Wiki::Config.rack.rewrite_base.blank?
   require 'rack/rewrite'
@@ -57,4 +58,17 @@ if server == 'fastcgi'
 end
 
 use Rack::Session::Pool
+use Rack::ESI
+
+if env == 'deployment' || env == 'production'
+  require 'rack/cache'
+  use Rack::Cache,
+    :verbose     => false,
+    :metastore   => "file:#{File.join(Wiki::Config.cache, 'rack', 'meta')}",
+    :entitystore => "file:#{File.join(Wiki::Config.cache, 'rack', 'entity')}"
+
+  # FIXME: This is a sinatra problem
+  Wiki::App.set :environment, :production
+end
+
 run Wiki::App
