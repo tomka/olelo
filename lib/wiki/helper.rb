@@ -14,8 +14,8 @@ module Wiki
       etag(opts[:etag]) if opts[:etag]
       last_modified(opts[:last_modified]) if opts[:last_modified]
       if opts[:validate_only]
-        response['ETag'] = nil
-        response['Last-Modified'] = nil
+        response.headers.delete 'ETag'
+        response.headers.delete 'Last-Modified'
         return
       end
       mode = opts[:private] ? 'private' : 'public'
