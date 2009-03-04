@@ -16,6 +16,7 @@ module Wiki
     set :root, File.expand_path(File.join(File.dirname(__FILE__), '..', '..'))
     set :raise_errors, false
     set :dump_errors, true
+    set :logging, false
 
     def initialize
       FileUtils.mkdir_p File.dirname(Config.log.file), :mode => 0755

@@ -68,6 +68,7 @@ if !Wiki::Config.rack.rewrite_base.blank?
 end
 
 use Rack::ESI
+use Rack::CommonLogger
 
 if env == 'deployment' || env == 'production'
   require 'rack/cache'

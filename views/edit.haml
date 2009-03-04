@@ -34,7 +34,7 @@
         %input{:type=>'hidden', :name=> 'action',  :value=>'append'}
         %label{:for=>'append-excerpt'} Excerpt
         %br
-        %pre#append-excerpt&= @page.saved_content.last_lines(5)
+        %textarea#append-excerpt{:readonly=>true, :cols=>100, :rows=>5}&= @page.saved_content.last_lines(5)
         %br
         %label{:for=>'append-appendix'} Appendix
         %textarea#append-appendix{:name=>'appendix', :cols=>100, :rows=>18}&= params[:appendix]
