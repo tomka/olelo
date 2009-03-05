@@ -35,6 +35,17 @@ function confirmSubmit() {
     return confirm('Are you sure?');
 }
 
+function updateUploadPath() {
+    elem = $('#upload-path');
+    if (elem.size() == 1) {
+	val = elem.val();
+	if (val.match(/^(.*\/)?new page$/)) {
+	    val = val.replace(/new page$/, '') + this.value;
+	    elem.val(val);
+	}
+    }
+}
+
 $(document).ready(function(){
     $('.ui-tabs').tabs();
     $('table.sortable').tablesorter({widgets: ['zebra']});
@@ -62,4 +73,5 @@ $(document).ready(function(){
     $('.date').click(toggleTime);
     $('.date').each(toggleTime);
     $('.confirm').click(confirmSubmit);
+    $('#upload-file').change(updateUploadPath);
 });

@@ -191,14 +191,15 @@ module Wiki
       return if @content == saved_content
 
       forbid('No content'   => @content.blank?,
-             'Object already exists' => new? && Object.find(@repo, @path))
+             'Object already exists' => new? && Object.find(@repo, @path),
+             'Commit message is empty' => message.blank?)
 
       repo.chdir {
         FileUtils.makedirs File.dirname(@path)
         File.open(@path, 'w') {|f| f << @content }
       }
       repo.add(@path)
-      repo.commit(message.blank? ? '(Empty commit message)' : message, :author => author)
+      repo.commit(message, :author => author)
 
       @content = @prev_commit = @latest_commit = @history = nil
       @commit = history.first

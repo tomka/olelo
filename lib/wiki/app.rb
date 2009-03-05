@@ -257,6 +257,7 @@ module Wiki
           end
 
           if params[:preview]
+            message :error, 'Commit message is empty' if params[:message].empty?
             engine = Engine.find(@page)
             @preview_content = engine.render(@page) if engine.layout?
             haml :edit
@@ -277,11 +278,12 @@ module Wiki
         @page = Page.new(@repo, params[:path])
         if action?(:upload) && params[:file]
           check_name_clash(params[:path])
-          @page.write(params[:file][:tempfile].read, 'File uploaded', @user.author)
+          @page.write(params[:file][:tempfile].read, "File #{@page.path} uploaded", @user.author)
           redirect params[:path].urlpath
         elsif action?(:new)
           @page.content = params[:content]
           if params[:preview]
+            message :error, 'Commit message is empty' if params[:message].empty?
             engine = Engine.find(@page)
             @preview_content = engine.render(@page) if engine.layout?
             haml :new

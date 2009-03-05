@@ -14,6 +14,7 @@
   %form{:action => @page.path.urlpath, :method=>'post'}
     #tab-edit.box
       %h2 Edit
+      = show_messages if action? :edit
       %input{:type=>'hidden', :name=> '_method', :value=>'put'}
       %input{:type=>'hidden', :name=> 'action',  :value=>'edit'}
       %label{:for=>'edit-content'} Content
@@ -21,7 +22,7 @@
       %textarea#edit-content{:name=>'content', :cols=>100, :rows=>22}&= @page.mime.text? ? @page.content : ''
       %br
       %label{:for=>'edit-message'} Message
-      %input#edit-message{:type=>'text', :name=>'message', :size => 50}
+      %input#edit-message{:type=>'text', :name=>'message', :size => 50, :value => params[:message]}
       %input{:type=>'submit', :name=>'preview', :value=> 'Preview'}
       %input{:type=>'submit', :value=> 'Save'}
       %input{:type=>'reset', :value=>'Reset'}
@@ -30,6 +31,7 @@
     %form{:action => @page.path.urlpath, :method=>'post'}
       #tab-append.box
         %h2 Append
+        = show_messages if action? :append
         %input{:type=>'hidden', :name=> '_method', :value=>'put'}
         %input{:type=>'hidden', :name=> 'action',  :value=>'append'}
         %label{:for=>'append-excerpt'} Excerpt
@@ -40,7 +42,7 @@
         %textarea#append-appendix{:name=>'appendix', :cols=>100, :rows=>18}&= params[:appendix]
         %br
         %label{:for=>'append-message'} Message
-        %input#append-message{:type=>'text', :name=>'message', :size => 50}
+        %input#append-message{:type=>'text', :name=>'message', :size => 50, :value => params[:message]}
         %input{:type=>'submit', :name=>'preview', :value=> 'Preview'}
         %input{:type=>'submit', :value=> 'Save'}
         %input{:type=>'reset', :value=>'Reset'}
@@ -49,6 +51,7 @@
     #tab-upload.box
       %input{:type=>'hidden', :name=> '_method', :value=>'put'}
       %h2 Upload a file
+      = show_messages if action? :upload
       %label{:for=>'upload-file'} File
       %input#upload-file{:name=>'file',:type=>'file'}
       %input{:type=>'submit', :name=>'action', :value=>'Upload'}
