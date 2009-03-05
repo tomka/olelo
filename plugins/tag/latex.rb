@@ -12,7 +12,7 @@ Wiki::Plugin.define 'tag/latex' do
         send_file path
       rescue Exception => ex
         @logger.error ex
-        redirect '/sys/images/latex_failed.png'
+        redirect image_path('latex_failed')
       end
     end
   end

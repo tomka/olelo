@@ -1,8 +1,9 @@
 Wiki::Plugin.define 'misc/private_wiki' do
   module Wiki::Helper
-    alias sidebar_without_auth sidebar
-    def sidebar
-      @user.anonymous? ? '' : sidebar_without_auth
+    alias cache_control_without_auth cache_control
+
+    def cache_control(opts)
+      cache_control_without_auth(opts.merge(:mode => :private))
     end
   end
 
@@ -10,8 +11,8 @@ Wiki::Plugin.define 'misc/private_wiki' do
     WHITE_LIST =
       [
        '/login',
-       '/style.css',
-       '/sys/.*'
+       '/style\.css',
+       '/sys/fragments/user'
       ]
 
     before do

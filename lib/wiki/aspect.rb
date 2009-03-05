@@ -47,7 +47,7 @@ module Wiki
       when /^around_(\w+)$/
         around_method($1, *args, &block)
       else
-        super(name, *args, &block)
+        super
       end
     end
   end

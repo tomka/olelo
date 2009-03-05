@@ -155,13 +155,13 @@ module Wiki
     attr_writer :content
 
     def initialize(repo, path, object = nil, commit = nil, current = nil)
-      super(repo, path, object, commit, current)
+      super
       @content = nil
     end
 
     # Find page by path and commit sha
     def self.find(repo, path, sha = nil)
-      object = super(repo, path, sha)
+      object = super
       object && object.page? ? object : nil
     end
 
@@ -221,14 +221,14 @@ module Wiki
   # Tree object in repository
   class Tree < Object
     def initialize(repo, path, object = nil, commit = nil, current = false)
-      super(repo, path, object, commit, current)
+      super
       @trees = nil
       @pages = nil
     end
 
     # Find tree by path and optional commit sha
     def self.find(repo, path, sha = nil)
-      object = super(repo, path, sha)
+      object = super
       object && object.tree? ? object : nil
     end
 

@@ -4,10 +4,11 @@ ENV['RACK_ENV'] = env
 
 path = File.expand_path(File.dirname(__FILE__))
 
-$: << File.join(path, 'lib') << File.join(path, 'deps/sinatra/lib')
+$: << File.join(path, 'lib') << File.join(path, 'deps/sinatra/lib') <<  File.join(path, 'deps/rack-cache/lib')
 require 'wiki/app'
 require 'rack/path_info'
 require 'rack/esi'
+require 'fileutils'
 
 config_file = if ENV['WIKI_CONFIG']
   ENV['WIKI_CONFIG']
@@ -53,6 +54,7 @@ end
 
 use Rack::Session::Pool
 use Rack::PathInfo
+use Rack::MethodOverride
 
 if !Wiki::Config.rack.tidy.blank?
   begin
@@ -67,8 +69,12 @@ if !Wiki::Config.rack.rewrite_base.blank?
   use Rack::Rewrite, :base => Wiki::Config.rack.rewrite_base
 end
 
+FileUtils.mkdir_p File.dirname(Wiki::Config.log.file), :mode => 0755
+logger = Logger.new(Wiki::Config.log.file)
+logger.level = Logger.const_get(Wiki::Config.log.level)
+
 use Rack::ESI
-use Rack::CommonLogger
+use Rack::CommonLogger, logger
 
 if env == 'deployment' || env == 'production'
   require 'rack/cache'
@@ -81,4 +87,6 @@ if env == 'deployment' || env == 'production'
   Wiki::App.set :environment, :production
 end
 
-run Wiki::App
+use Rack::Static, :urls => ['/static'], :root => path
+run Wiki::App.new(nil, :logger => logger)
+

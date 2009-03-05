@@ -11,17 +11,18 @@ module Wiki
     # Sinatra options
     set :patterns, :path => PATH_PATTERN, :sha => SHA_PATTERN
     set :haml, :format => :xhtml, :attr_wrapper  => '"', :ugly => true
-    set :methodoverride, true
-    set :static, false
     set :root, File.expand_path(File.join(File.dirname(__FILE__), '..', '..'))
+    set :static, false
     set :raise_errors, false
     set :dump_errors, true
     set :logging, false
+    set :methodoverride, false
 
-    def initialize
-      FileUtils.mkdir_p File.dirname(Config.log.file), :mode => 0755
-      @logger = Logger.new(Config.log.file)
-      @logger.level = Logger.const_get(Config.log.level)
+    def initialize(app = nil, opts = {})
+      super(app)
+
+      @logger = opts[:logger] || Logger.new(nil)
+      @logger.info self.class.dump_routes
 
       if File.exists?(Config.git.repository) && File.exists?(Config.git.workspace)
         @logger.info 'Opening repository'
@@ -89,13 +90,6 @@ module Wiki
       else
         '<a href="/Sidebar/new">Create Sidebar</a>'
       end
-    end
-
-    # Static files
-    get %r{^/sys/(.*[^/])$} do |path|
-      path = File.join(options.public, path)
-      pass if !File.file?(path)
-      send_file path
     end
 
     get '/' do

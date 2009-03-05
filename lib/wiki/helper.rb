@@ -57,11 +57,23 @@ module Wiki
       (object.path/action.to_s).urlpath
     end
 
+    def static_path(name)
+      "/static/#{name}"
+    end
+
+    def script_path(name)
+      static_path "script/#{name}"
+    end
+
+    def image_path(name)
+      static_path "images/#{name}.png"
+    end
+
     def image(name, opts = {})
       opts[:alt] ||= ''
       attrs = []
       opts.each_pair {|key,value| attrs << "#{key}=\"#{escape_html value}\"" }
-      "<img src=\"/sys/images/#{name}.png\" #{attrs.join(' ')}/>"
+      "<img src=\"#{image_path name}\" #{attrs.join(' ')}/>"
     end
 
     def tab_selected(action)

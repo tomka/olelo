@@ -24,11 +24,33 @@ module Sinatra
       keys = []
       pat = respond_to?(:patterns) ? self.patterns : {}
       pat = pat.merge(opts[:patterns]) if opts.key?(:patterns)
-      path.gsub!(/:(\w+)/) do
+      path = path.gsub(/:(\w+)/) do
         keys << key = $1.to_sym
         pat.key?(key) ? "(#{pat[key]})" : '([^/?&#\.]+)'
       end
       return /^#{path}$/, keys
+    end
+  end
+
+  module RouteDumper
+    METHODS.each do |method|
+      class_eval %{
+        def dump_routes
+          s = "=== ROUTES ===\n"
+          @dump_routes.each do |method,routes|
+            s << "  " << method.upcase << ":\n"
+            routes.each {|x| s << '    ' << x << "\n" }
+          end
+          s
+        end
+
+        def #{method}(path, opts = {}, &block)
+          @dump_routes ||= {}
+          routes = @dump_routes['#{method}'] ||= []
+          routes << (Regexp === path ? path.source : path.to_s)
+          super
+        end
+      }
     end
   end
 
@@ -46,5 +68,6 @@ end
 
 if !Sinatra::Application.respond_to? :patterns
   Sinatra::Application.extend Sinatra::ComplexPatterns
+  Sinatra::Application.extend Sinatra::RouteDumper
   Sinatra::Application.extend Sinatra::MultiplePaths
 end
