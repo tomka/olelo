@@ -4,7 +4,9 @@ ENV['RACK_ENV'] = env
 
 path = File.expand_path(File.dirname(__FILE__))
 
-$: << File.join(path, 'lib') << File.join(path, 'deps/sinatra/lib') <<  File.join(path, 'deps/rack-cache/lib')
+$: << File.join(path, 'lib')
+Dir[File.join(path, 'deps', '*', 'lib')].each {|x| $: << x }
+
 require 'wiki/app'
 require 'rack/path_info'
 require 'rack/esi'
@@ -73,7 +75,7 @@ FileUtils.mkdir_p File.dirname(Wiki::Config.log.file), :mode => 0755
 logger = Logger.new(Wiki::Config.log.file)
 logger.level = Logger.const_get(Wiki::Config.log.level)
 
-use Rack::ESI
+use Rack::ESI, :no_cache => true
 use Rack::CommonLogger, logger
 
 if env == 'deployment' || env == 'production'
