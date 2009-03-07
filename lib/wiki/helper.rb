@@ -82,7 +82,7 @@ module Wiki
 
     def menu(object)
       @menu ||= []
-      @menu = [@menu] if !@menu.is_a?(Array)
+      @menu = [@menu].flatten
       haml :menu, :layout => false, :locals => { :object => object }
     end
 
@@ -98,9 +98,8 @@ module Wiki
       ''
     end
 
-    def message(level, messages)
+    def message(level, *messages)
       @messages ||= []
-      messages = [messages] if !messages.is_a?(Array)
       messages.each do |msg|
         @messages << [level, msg]
       end

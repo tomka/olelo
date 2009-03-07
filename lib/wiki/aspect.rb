@@ -11,7 +11,7 @@ module Wiki
       new = block ? lambda(&block).to_method(self) : instance_method(before_name)
       define_method(name) do |*args|
         args = new.bind(self)[*args]
-        args = [args] if !args.is_a? Array
+        args = [args].flatten
         old.bind(self)[*args]
       end
     end
@@ -24,7 +24,7 @@ module Wiki
       new = block ? lambda(&block).to_method(self) : instance_method(after_name)
       define_method(name) do |*args|
         args = old.bind(self)[*args]
-        args = [args] if !args.is_a? Array
+        args = [args].flatten
         new.bind(self)[*args]
       end
     end
