@@ -48,7 +48,7 @@ Wiki::Plugin.define 'misc/toc' do
             @count[@level-1] += 1
             @toc << indent + "<li class=\"toc#{@level-@offset+1}\"><a href=\"#section#{section}\">" +
               "<span class=\"counter\">#{@count[@level-1]}</span> #{child.inner_text}</a></li>"
-            child.inner_html = "<a id=\"section#{section}\">#{@count[0..@level-1].join('.')}</a> " + child.inner_html
+            child.inner_html = "<span class=\"counter\" id=\"section#{section}\">#{@count[0..@level-1].join('.')}</span> " + child.inner_html
           else
             walk(child)
           end
