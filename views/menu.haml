@@ -8,7 +8,7 @@
     %li.noborder= "Tree version #{object.commit.sha.truncate(8, '&#8230;')}"
 %ul.wiki
   %li.title Wiki Menu
-  - if @menu.include?(:version)
+  - if menu.include?(:version)
     - if object.prev_commit
       %li
         %a{:href=>object_path(object, :sha => object.prev_commit), :accesskey=>'o'} &laquo; Older
@@ -18,25 +18,25 @@
     - if !object.current?
       %li
         %a{:href=> object.path.urlpath, :accesskey=>'c'} Current
-  - if @menu.include?(:view)
+  - if menu.include?(:view)
     %li
       %a{:href=> object.path.urlpath, :accesskey=>'c'} View
-  - if @menu.include?(:new)
+  - if menu.include?(:new)
     %li
       %a{:href=> object && object.tree? ? (object.path/'new page/new').urlpath : '/new page/new'  }
         = image(:new)
         New Page
-  - if @menu.include?(:edit) && object.page?
+  - if menu.include?(:edit) && object.page?
     %li
       %a{:href=>action_path(object, :edit), :accesskey=>'e'}
         = image(:edit)
         Edit
-  - if @menu.include?(:history)
+  - if menu.include?(:history)
     %li
       %a{:href=>action_path(object, :history), :accesskey=>'h'}
         = image(:history)
         History
-  - if @menu.include?(:archive)
+  - if menu.include?(:archive)
     %li
       %a{:href=>action_path(object, :archive)}
         = image(:archive)

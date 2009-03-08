@@ -1,5 +1,5 @@
-- @menu  = :new
-- @title = "Search results for #{escape_html params[:pattern]}"
+- menu :new
+- title "Search results for #{escape_html params[:pattern]}"
 = 'match'.pluralize(@matches.length, 'matches')
 %ul
   = list_of @matches do |match|

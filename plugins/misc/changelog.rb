@@ -1,6 +1,18 @@
 Wiki::Plugin.define 'misc/changelog' do
   require 'rss/maker'
 
+  module Wiki::Helper
+    alias include_block_without_changelog include_block
+    
+    def include_block(name)
+      content = include_block_without_changelog(name)
+      if name.to_sym == :head && object
+        content << "<link rel=\"alternate\" href=\"#{(object.path/'changelog.rss').urlpath}\" type=\"application/rss+xml\" title=\"RSS\"/>"
+      end
+      content
+    end
+  end
+
   Wiki::App.class_eval do
     get '/changelog.rss', '/:path/changelog.rss' do
       object = Wiki::Object.find!(@repo, params[:path])

@@ -8,6 +8,36 @@ module Wiki
   module Helper
     include Utils
 
+    def object
+      @object || @page || @tree
+    end
+
+    def define_block(name, content = nil, &block)
+      name = name.to_sym
+      @blocks ||= {}
+      @blocks[name] = block_given? ? capture_haml(&block) : content
+    end
+
+    def append_block(name, content = nil, &block)
+      name = name.to_sym
+      @blocks ||= {}
+      @blocks[name] = @blocks[name].to_s + (block_given? ? capture_haml(&block) : content)
+    end
+
+    def include_block(name)
+      name = name.to_sym
+      @blocks ||= {}
+      @blocks[name].to_s
+    end
+
+    def footer(content = nil, &block); define_block(:footer, content, &block); end
+    def head(content = nil, &block);   define_block(:head, content, &block);   end
+    def title(content = nil, &block);  define_block(:title, content, &block);  end
+
+    def menu(*menu)
+      define_block :menu, haml(:menu, :layout => false, :locals => { :menu => menu })
+    end
+
     # Cache control for object
     def cache_control(opts)
       return if !App.production?
@@ -78,12 +108,6 @@ module Wiki
 
     def tab_selected(action)
       action?(action) ? {:class=>'ui-tabs-selected'} : {}
-    end
-
-    def menu(object)
-      @menu ||= []
-      @menu = [@menu].flatten
-      haml :menu, :layout => false, :locals => { :object => object }
     end
 
     def show_messages

@@ -1,10 +1,11 @@
-:ruby
-  @menu   = :version, :history, :archive, :new
-  @title  = @tree.pretty_name
-  @footer = "<a href=\"#{object_path(@tree, :sha => @tree.latest_commit)}\">Permalink</a> | " +
-            "Version <a class=\"sha\" href=\"#{object_path(@tree, :sha => @tree.latest_commit)}\">#{@tree.latest_commit.sha.truncate(8, '&#8230;')}</a> " +
-            "by #{@tree.latest_commit.committer.name}, #{date @tree.latest_commit.committer_date}"
-  @feed = (@tree.path/'changelog.rss').urlpath
+- menu :version, :history, :archive, :new
+- title @tree.pretty_name
+- footer do
+  |
+  %a{:href=> object_path(@tree, :sha => @tree.latest_commit) } Permalink
+  | Version
+  %a.sha{:href => object_path(@tree, :sha => @tree.latest_commit) }= @tree.latest_commit.sha.truncate(8, '&#8230;')
+  = "by #{@tree.latest_commit.committer.name}, #{date @tree.latest_commit.committer_date}"
 %table.sortable
   %thead
     %tr
