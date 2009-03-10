@@ -15,7 +15,7 @@ class TC_Tree < Test::Unit::TestCase
 
     tree = Wiki::Tree.find!(@repo, '/')
     assert tree.current?
-    
+
     assert_equal tree.children[0].commit.sha, tree.commit.sha
     assert_equal tree.children[1].commit.sha, tree.commit.sha
     assert_equal tree.children[2].commit.sha, tree.commit.sha
@@ -80,12 +80,12 @@ class TC_Tree < Test::Unit::TestCase
     assert tree.children[1].page?
     assert tree.children[2].page?
     assert tree.children[3].page?
-    
+
     tree = Wiki::Tree.find!(@repo, '/tree1/subtree1')
     assert_equal 3, tree.children.size
     assert_equal 'tree1/subtree1/subsubpage1', tree.children[0].path
     assert_equal 'tree1/subtree1/subsubpage2', tree.children[1].path
-    assert_equal 'tree1/subtree1/subsubpage3', tree.children[2].path    
+    assert_equal 'tree1/subtree1/subsubpage3', tree.children[2].path
 
     assert tree.children[0].page?
     assert tree.children[1].page?

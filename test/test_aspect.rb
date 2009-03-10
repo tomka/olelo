@@ -5,7 +5,7 @@ class TC_Aspect < Test::Unit::TestCase
 
   class SimpleBeforeMachine
     extend Wiki::Aspect
-    
+
     def process(data)
       data + "\nfound"
     end
@@ -25,7 +25,7 @@ class TC_Aspect < Test::Unit::TestCase
 
   class BeforeSugarMachine
     extend Wiki::Aspect
-    
+
     def process(data)
       data + "\nfound"
     end
@@ -45,7 +45,7 @@ class TC_Aspect < Test::Unit::TestCase
 
   class SimpleAfterMachine
     extend Wiki::Aspect
-    
+
     def process(data)
       data + "\nfound"
     end
@@ -65,7 +65,7 @@ class TC_Aspect < Test::Unit::TestCase
 
   class AfterSugarMachine
     extend Wiki::Aspect
-    
+
     def process(data)
       data + "\nfound"
     end
@@ -203,7 +203,7 @@ class TC_Aspect < Test::Unit::TestCase
   def test_before
     machine = SimpleBeforeMachine.new
     assert_equal "metal\nmelt\nfound", machine.process("metal")
-    
+
     a,b = machine.process2("a", "b")
     assert_equal "a\n1\n2", a
     assert_equal "b\n1\n2", b
@@ -212,7 +212,7 @@ class TC_Aspect < Test::Unit::TestCase
   def test_sugar_before
     machine = BeforeSugarMachine.new
     assert_equal "metal\nmelt\nfound", machine.process("metal")
-    
+
     a,b = machine.process2("a", "b")
     assert_equal "a\n1\n2", a
     assert_equal "b\n1\n2", b
@@ -221,7 +221,7 @@ class TC_Aspect < Test::Unit::TestCase
   def test_after
     machine = SimpleAfterMachine.new
     assert_equal "metal\nfound\nmelt", machine.process("metal")
-    
+
     a,b = machine.process2("a", "b")
     assert_equal "a\n2\n1", a
     assert_equal "b\n2\n1", b
@@ -230,7 +230,7 @@ class TC_Aspect < Test::Unit::TestCase
   def test_sugar_after
     machine = AfterSugarMachine.new
     assert_equal "metal\nfound\nmelt", machine.process("metal")
-    
+
     a,b = machine.process2("a", "b")
     assert_equal "a\n2\n1", a
     assert_equal "b\n2\n1", b

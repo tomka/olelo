@@ -19,7 +19,7 @@ class TC_Page < Test::Unit::TestCase
     assert_equal 'old content', page.saved_content
     assert !page.new?
     assert page.saved?
-    
+
     assert_equal "message1\ntext", page.commit.message
     assert_equal 'Author1', page.commit.author.name
     assert_equal 'author1@localhorst', page.commit.author.email
@@ -41,7 +41,7 @@ class TC_Page < Test::Unit::TestCase
 
     assert_equal 'message2', page.commit.message
     assert_equal 'Author2', page.commit.author.name
-    assert_equal 'author2@localhorst', page.commit.author.email    
+    assert_equal 'author2@localhorst', page.commit.author.email
   end
 
   def test_duplicate

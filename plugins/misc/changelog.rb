@@ -3,7 +3,7 @@ Wiki::Plugin.define 'misc/changelog' do
 
   module Wiki::Helper
     alias include_block_without_changelog include_block
-    
+
     def include_block(name)
       content = include_block_without_changelog(name)
       if name.to_sym == :head && object
@@ -13,7 +13,7 @@ Wiki::Plugin.define 'misc/changelog' do
     end
   end
 
-  Wiki::App.class_eval do
+  class Wiki::App
     get '/changelog.rss', '/:path/changelog.rss' do
       object = Wiki::Object.find!(@repo, params[:path])
       cache_control :etag => object.latest_commit.sha, :last_modified => object.latest_commit.committer_date

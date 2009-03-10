@@ -9,7 +9,7 @@ class TC_Entry < Test::Unit::TestCase
     assert_equal 0, entry.version
     entry.save
     assert_equal 1, entry.version
-    
+
     entry = Wiki::Entry.find('entry')
     assert_not_nil entry
     assert_equal 'entry', entry.name

@@ -1,7 +1,7 @@
 require 'wiki/extensions'
 
 module Wiki
-  # Class mixin for aspects (use with extend)
+  # Mixin for aspects
   module Aspect
     # Put an adviser before the method. Return values of adviser
     # are passed as arguments to the advised methods.

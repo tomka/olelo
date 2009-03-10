@@ -18,12 +18,6 @@ module Wiki
       @blocks[name] = block_given? ? capture_haml(&block) : content
     end
 
-    def append_block(name, content = nil, &block)
-      name = name.to_sym
-      @blocks ||= {}
-      @blocks[name] = @blocks[name].to_s + (block_given? ? capture_haml(&block) : content)
-    end
-
     def include_block(name)
       name = name.to_sym
       @blocks ||= {}

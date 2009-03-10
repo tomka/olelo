@@ -11,7 +11,7 @@ class TC_User < Test::Unit::TestCase
     assert_nil user.password
     assert_equal 'anonymous@1.2.3.4', user.email
     assert_equal '1.2.3.4 <anonymous@1.2.3.4>', user.author
-    
+
     assert_raise Wiki::MessageError do
       user.save
     end
