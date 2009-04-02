@@ -1,7 +1,7 @@
 Wiki::Plugin.define 'misc/changelog' do
   require 'rss/maker'
 
-  Wiki::App.class_eval do
+  class Wiki::App
     get '/changelog.rss', '/:path/changelog.rss' do
       object = Wiki::Object.find!(@repo, params[:path])
       cache_control(object, 'changelog')

@@ -13,7 +13,7 @@ module Wiki
     set :haml, :format => :xhtml, :attr_wrapper  => '"'
     set :methodoverride, true
     set :static, false
-    set :root, File.expand_path(File.join(File.dirname(__FILE__), '..', '..'))
+    set :root, Config.root
     set :raise_errors, false
     set :dump_errors, true
 
@@ -320,7 +320,7 @@ module Wiki
       else
         @page = object
         engine = Engine.find(@page, params[:output])
-        @content = engine.render(@page)
+        @content = engine.render(@page, params)
         if engine.layout?
           haml :page
         else

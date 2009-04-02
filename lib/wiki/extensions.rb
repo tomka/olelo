@@ -58,6 +58,7 @@ class Symbol
 end
 
 class String
+
   # Pluralize string
   def pluralize(count, plural)
     "#{count.to_i} " + (count.to_s == '1' ? self : plural)

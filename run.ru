@@ -5,7 +5,7 @@ ENV['RACK_ENV'] = env
 path = File.expand_path(File.dirname(__FILE__))
 
 $: << File.join(path, 'lib') << File.join(path, 'deps/sinatra/lib')
-require 'wiki/app'
+require 'wiki/config'
 
 config_file = if ENV['WIKI_CONFIG']
   ENV['WIKI_CONFIG']
@@ -15,6 +15,7 @@ end
 
 default_config = {
   :title        => 'Git-Wiki',
+  :root         => path,
   :store        => File.join(path, '.wiki', 'store.yml'),
   :cache        => File.join(path, '.wiki', 'cache'),
   :default_mime => 'text/x-creole',
@@ -57,4 +58,6 @@ if server == 'fastcgi'
 end
 
 use Rack::Session::Pool
+
+require 'wiki/app'
 run Wiki::App
