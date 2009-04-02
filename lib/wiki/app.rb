@@ -11,7 +11,7 @@ module Wiki
     # Sinatra options
     set :patterns, :path => PATH_PATTERN, :sha => SHA_PATTERN
     set :haml, :format => :xhtml, :attr_wrapper  => '"', :ugly => true
-    set :root, File.expand_path(File.join(File.dirname(__FILE__), '..', '..'))
+    set :root, lambda { Config.root }
     set :static, false
     set :raise_errors, false
     set :dump_errors, true
@@ -336,7 +336,7 @@ module Wiki
       else
         @page = object
         engine = Engine.find(@page, params[:output])
-        @content = engine.render(@page)
+        @content = engine.render(@page, params)
         if engine.layout?
           haml :page
         else

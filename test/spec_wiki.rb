@@ -12,6 +12,7 @@ describe 'wiki' do
 
     default_config = {
       :title        => 'Git-Wiki',
+      :root         => File.expand_path(File.join(File.dirname(__FILE__), '..')),
       :store        => File.join(@test_path, 'store.yml'),
       :cache        => File.join(@test_path, 'cache'),
       :default_mime => 'text/x-creole',

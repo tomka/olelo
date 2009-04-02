@@ -1,13 +1,11 @@
 require 'wiki/mime'
 require 'wiki/extensions'
-require 'wiki/aspect'
 require 'wiki/utils'
 
 module Wiki
   # An Engine renders pages
   class Engine
     include Helper
-    extend Aspect
 
     # Error which is raised if no appropiate engine is found
     class NotAvailable < ArgumentError
@@ -17,38 +15,28 @@ module Wiki
     end
 
     @engines = {}
-    @engine_instances = nil
 
-    # Enhance existing engine classes. This is sugar
-    # for class inheritance. The existing
-    # engine is replaced with the enhanced version.
-    def self.enhance(*names, &block)
-      names.each do |name|
-        name = name.to_s
-        if @engines.key?(name)
-          @engines[name] = Class.new(@engines[name], &block)
-        end
-      end
-      @engine_instances = nil
+    def initialize(name, layout, cacheable, priority)
+      @name = name.to_s
+      @layout = layout
+      @cacheable = cacheable
+      @priority = priority
     end
+
+    attr_reader :name, :priority
+    question_accessor :layout, :cacheable
 
     # Create engine class. This is sugar to create and
     # register an engine class in one step.
     def self.create(name, opts = {}, &block)
-      name = name.to_s
-      raise(ArgumentError, "Engine #{name} already exists") if @engines.key?(name)
-      layout = !!opts[:layout]
-      cacheable = !!opts[:cacheable]
-      priority = opts[:priority].to_i
-      @engines[name] = engine = Class.new(Engine)
-      engine.class_eval %{
-        def name; "#{name}"; end
-        def layout?; #{layout}; end
-        def cacheable?; #{cacheable}; end
-        def priority; #{priority}; end
-      }
+      engine = Class.new(Engine)
       engine.class_eval(&block)
-      engine
+      register engine.new(name, !!opts[:layout], !!opts[:cacheable], opts[:priority].to_i)
+    end
+
+    def self.register(engine)
+      raise(ArgumentError, "Engine #{name} already exists") if @engines.key?(engine.name)
+      @engines[engine.name] = engine
     end
 
     # Find appropiate engine for page. An optional
@@ -57,9 +45,9 @@ module Wiki
       name = name.to_s
 
       engine = if name.blank?
-        engine_instances.values.sort {|a,b| a.priority <=> b.priority }.find { |e| e.accepts? page }
+        @engines.values.sort {|a,b| a.priority <=> b.priority }.find { |e| e.accepts? page }
       else
-        e = engine_instances[name]
+        e = @engines[name]
         e && e.accepts?(page) ? e : nil
       end
 
@@ -67,34 +55,24 @@ module Wiki
       raise NotAvailable, name
     end
 
-    def self.engine_instances
-      @engine_instances ||= @engines.map_to_hash {|name,klass| [name, klass.new] }
-    end
-
     # Sugar to generate methods
     def self.output(&block);  define_method :output, &block;   end
-    def self.filter(&block);  define_method :filter, &block;   end
     def self.mime(&block);    define_method :mime, &block;     end
     def self.accepts(&block); define_method :accepts?, &block; end
 
     # Acceptor should return true if page would be accepted by this engine
     accepts {|page| false }
 
-    # Render page content (internally)
-    output {|page| filter(page, page.content.dup).last }
-
-    # Filter page content
-    filter {|page,content| [page, content] }
+    # Render page content
+    output {|page,params| page.content.dup }
 
     # Get output mime type
     mime {|page| 'text/plain' }
 
     # Render page with caching. This is
     # the primary engine interface
-    def render(page)
-      Cache.cache('engine', name + page.sha, :disable => !page.saved? || !cacheable?) { output page }
+    def render(page, params = {})
+      Cache.cache('engine', Digest::MD5.hexdigest(name + page.sha + params.inspect), :disable => !page.saved? || !cacheable?) { output(page, params) }
     end
-
-    private_class_method :engine_instances
   end
 end

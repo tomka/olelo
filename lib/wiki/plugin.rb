@@ -8,8 +8,6 @@ module Wiki
     @dir = ''
     @logger = nil
 
-    include ::Wiki
-
     class<< self
       attr_reader :plugins
       attr_accessor :dir, :logger
@@ -62,7 +60,7 @@ module Wiki
     # Load specified plugins before this one.
     # This method can be used to specify optional
     # dependencies which should be loaded before this plugin.
-    def load_after(*list)
+    def load(*list)
       list.each do |x|
         Plugin.load(x)
       end

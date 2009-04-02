@@ -11,6 +11,7 @@ require 'wiki/app'
 require 'rack/path_info'
 require 'rack/esi'
 require 'fileutils'
+require 'logger'
 
 config_file = if ENV['WIKI_CONFIG']
   ENV['WIKI_CONFIG']
@@ -26,6 +27,7 @@ end
 
 default_config = {
   :title        => 'Git-Wiki',
+  :root         => path,
   :store        => File.join(path, '.wiki', 'store.yml'),
   :cache        => File.join(path, '.wiki', 'cache'),
   :default_mime => 'text/x-creole',

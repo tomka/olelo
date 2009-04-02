@@ -1,5 +1,5 @@
-Wiki::Plugin.define 'misc/simple_search' do
-  Wiki::App.class_eval do
+Wiki::Plugin.define 'search/grep' do
+  class Wiki::App
     get '/search' do
       matches = @repo.grep(params[:pattern], nil, :ignore_case => true)
       @matches = []

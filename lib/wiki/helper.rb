@@ -71,10 +71,12 @@ module Wiki
     end
 
     def object_path(object, opts = {})
-      sha = opts[:sha] || (object && !object.current? ? object.commit : nil) || ''
+      sha = opts.delete(:sha) || (object && !object.current? ? object.commit : nil) || ''
       sha = sha.sha if sha.respond_to?(:sha)
-      path = opts[:path] || object.path
-      (path/sha).urlpath + (opts[:output] ? "?output=#{opts[:output]}" : '')
+      path = opts.delete(:path) || object.path
+      path = (path/sha).urlpath
+      path << '?' << opts.map {|k,v| "#{k}=#{CGI.escape(v.to_s)}" }.join('&') if !opts.empty?
+      path
     end
 
     def action_path(object, action)
