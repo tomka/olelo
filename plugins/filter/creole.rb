@@ -6,6 +6,7 @@ Wiki::Plugin.define 'filter/creole' do
     include Wiki::Helper
 
     def initialize(page)
+      super()
       @page = page
     end
 

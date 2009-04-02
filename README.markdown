@@ -15,6 +15,9 @@ Features
 - Multiple renderers
 - LaTeX
 - Syntax highlighting (embedded code blocks)
+- Image support, SVG support
+- Auto-generated table of contents
+- Templates
 
 Installation
 ------------
@@ -40,6 +43,7 @@ Optional:
     gem install rdiscount
     gem install RedCloth
     gem install rubypants
+    gem install RMagick
     gem install minad-latex-renderer
 
 Then run with `./run.ru -sthin -p4567` and. point your browser at <http://localhost:4567>.
@@ -60,6 +64,7 @@ Optional Dependencies
 - [Pygments][] for syntax highlighting
 - [latex-renderer][] for latex output (minad-latex-renderer gem from github)
 - [hpricot][] for tags in the wikitext
+- [RMagick][] for image scaling and svg rendering
 
 Dependencies for page rendering
 -------------------------------
@@ -80,3 +85,4 @@ At least one of the renderers should be installed.
   [latex-renderer]: http://github.com/minad/latex-renderer
   [pygments]: http://pygments.org/
   [hpricot]: http://wiki.github.com/why/hpricot
+  [RMagick]: http://rmagick.rubyforge.org/
