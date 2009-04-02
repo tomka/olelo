@@ -1,0 +1,14 @@
+%p
+  %a{:href => object_path(@page, :output => 'raw') }
+    %img{:src=> object_path(@page, :output => 'image', :geometry => '640x480>')}
+%table
+  %tbody
+    %tr
+      %td Name
+      %td&= @page.name
+    %tr
+      %td Last modified
+      %td= date @page.latest_commit.date
+    %tr
+      %td Version
+      %td= @page.latest_commit.sha

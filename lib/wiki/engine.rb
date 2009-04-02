@@ -36,6 +36,12 @@ module Wiki
       end
     end
 
+    # FIXME: Double implementation
+    def haml(name, options = {})
+      engine = ::Haml::Engine.new(File.read(File.join(Config.root, 'views', "#{name}.haml")), options[:options] || {})
+      engine.render(self, options[:locals] || {})
+    end
+
     @engines = {}
 
     def initialize(name, layout, cacheable, priority)

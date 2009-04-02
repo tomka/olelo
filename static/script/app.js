@@ -48,9 +48,8 @@ function updateUploadPath() {
 
 $(document).ready(function(){
     $('.ui-tabs').tabs();
-    $('table.sortable').tablesorter({widgets: ['zebra']});
+    $('table.sortable').tablesorter();
     $('table.history').tablesorter({
-	widgets: ['zebra'],
         headers: {
             0: { sorter: false },
             1: { sorter: false },
@@ -61,6 +60,9 @@ $(document).ready(function(){
             6: { sorter: false }
         }
     });
+
+    $('tr:even').addClass('even');
+    $('tr:odd').addClass('odd');
 
     $('input.clear').focus(function() {
 	if (this.value == this.defaultValue)
