@@ -21,7 +21,3 @@
       %td Files
       %td= @diff.size
 %p~ format_patch(@diff)
-%form.confirm{:action=>"/revert/#{@commit.sha}", :method=>'post'}
-  %div
-    %input{:type=>'submit', :value=>'Revert this commit'}
-    %br

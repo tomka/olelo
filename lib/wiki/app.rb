@@ -168,14 +168,6 @@ module Wiki
       haml :commit
     end
 
-    post '/revert/:sha' do
-      @commit = @repo.gcommit(params[:sha])
-      @commit.revert
-      @commit = @repo.log(1).to_a[0]
-      @diff = @repo.diff(@commit.parent, @commit.sha)
-      haml :commit
-    end
-
     get '/?:path?/archive' do
       @tree = Tree.find!(@repo, params[:path])
       cache_control :etag => @tree.sha, :last_modified => @tree.commit.committer_date
