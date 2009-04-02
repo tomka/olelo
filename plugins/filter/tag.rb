@@ -48,7 +48,7 @@ Wiki::Plugin.define 'filter/tag' do
 
   Wiki::Filter.register Wiki::Tag.new(:tag)
 
-  Wiki::Tag.define :nowiki do |page, attrs, content|
+  Wiki::Tag.define :nowiki do |page, params, attrs, content|
     escape_html(content)
   end
 end
