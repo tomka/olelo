@@ -8,10 +8,11 @@ Wiki::Plugin.define 'engine/image' do
 
     accepts {|page| page.mime.mediatype == 'image' }
 
-    output do |page,params|
-      if svg?(page) || params['geometry']
+    output do |context|
+      page = context.page
+      if svg?(page) || context['geometry']
         image = Magick::Image.from_blob(page.content).first
-        image.change_geometry(params['geometry']) { |w,h| image.resize!(w, h) } if params['geometry']
+        image.change_geometry(context['geometry']) { |w,h| image.resize!(w, h) } if context['geometry']
         image.format = 'png' if svg?(page)
         image.to_blob
       else

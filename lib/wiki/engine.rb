@@ -14,6 +14,28 @@ module Wiki
       end
     end
 
+    class Context < Hash
+      attr_reader :page, :engine
+
+      def initialize(engine, page, params)
+        merge!(params)
+        @engine = engine
+        @page = page
+      end
+
+      def subcontext(engine = nil, page = nil, params = nil)
+        engine ||= @engine
+        page ||= @page
+        sub = Context.new(engine || @engine, page || @page, self)
+        sub.merge!(params)
+        sub
+      end
+
+      def id
+        Digest::MD5.hexdigest(@engine.name + page.sha + inspect)
+      end
+    end
+
     @engines = {}
 
     def initialize(name, layout, cacheable, priority)
@@ -64,7 +86,7 @@ module Wiki
     accepts {|page| false }
 
     # Render page content
-    output {|page,params| page.content.dup }
+    output {|context| context.page.content.dup }
 
     # Get output mime type
     mime {|page| 'text/plain' }
@@ -72,7 +94,8 @@ module Wiki
     # Render page with caching. This is
     # the primary engine interface
     def render(page, params = {})
-      Cache.cache('engine', Digest::MD5.hexdigest(name + page.sha + params.inspect), :disable => !page.saved? || !cacheable?) { output(page, params) }
+      context = Context.new(self, page, params)
+      Cache.cache('engine', context.id, :disable => !page.saved? || !cacheable?) { output(context) }
     end
   end
 end

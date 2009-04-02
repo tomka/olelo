@@ -44,6 +44,6 @@ Wiki::Plugin.define 'filter/creole' do
   end
 
   Wiki::Filter.create :creole do |content|
-    Wiki::CreoleParser.new(page).parse(content)
+    Wiki::CreoleParser.new(context.page).parse(content)
   end
 end

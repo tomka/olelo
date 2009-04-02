@@ -9,30 +9,28 @@ Wiki::Plugin.define 'engine/filter' do
     end
 
     attr_reader :name
-    attr_accessor :page, :params, :sub, :post
+    attr_accessor :context, :sub, :post
 
     def initialize(name)
       @name = name.to_s
-      @page = nil
-      @params = {}
+      @context = nil
       @sub = nil
       @post = nil
     end
 
     def subfilter(content)
-      sub ? sub.call(page, params, content) : content
+      sub ? sub.call(context, content) : content
     end
 
-    def call(page, params, content)
+    def call(context, content)
       f = dup
-      f.page = page
-      f.params = params
+      f.context = context
       f.call!(content)
     end
 
     def call!(content)
       content = filter(content)
-      post ? post.call(page, params, content) : content
+      post ? post.call(context, content) : content
     end
 
     def self.register(filter)
@@ -87,8 +85,8 @@ Wiki::Plugin.define 'engine/filter' do
       @mime || page.mime
     end
 
-    output do |page, params|
-      @filter.call(page, params, page.content)
+    output do |context|
+      @filter.call(context, context.page.content)
     end
   end
 

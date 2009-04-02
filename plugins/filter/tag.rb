@@ -35,7 +35,7 @@ Wiki::Plugin.define 'filter/tag' do
         elem = @elements[$1.to_i-1]
         if elem
           method, attr, text = elem
-          method.bind(self).call(page, params, attr, text)
+          method.bind(self).call(context, attr, text)
         end
       end
       content
@@ -48,7 +48,7 @@ Wiki::Plugin.define 'filter/tag' do
 
   Wiki::Filter.register Wiki::Tag.new(:tag)
 
-  Wiki::Tag.define :nowiki do |page, params, attrs, content|
+  Wiki::Tag.define :nowiki do |context, attrs, content|
     escape_html(content)
   end
 end
