@@ -3,37 +3,25 @@ creole:
   cacheable: true
   priority: 1
   accepts: text/x-creole
-  filter:
-    - shebang
-    - [tag, creole, rubypants]
-    - toc
+  filter: [ shebang, toc, [ tag, [ creole, rubypants ] ] ]
 
 textile:
   layout: true
   cacheable: true
   priority: 1
   accepts: text/x-textile
-  filter:
-    - shebang
-    - [tag, textile, rubypants]
-    - toc
+  filter: [ shebang, toc, [ tag, [ textile, rubypants ] ] ]
 
 markdown:
   layout: true
   cacheable: true
   priority: 1
   accepts: text/x-markdown
-  filter:
-    - shebang
-    - [tag, markdown, rubypants]
-    - toc
+  filter: [ shebang, toc, [ tag, [ markdown, rubypants ] ] ]
 
 maruku:
   layout: true
   cacheable: true
   priority: 1
   accepts: text/x-maruku|text/x-markdown
-  filter:
-    - shebang
-    - [tag, maruku, rubypants]
-    - toc
+  filter: [ shebang, toc, [ tag, [ maruku, rubypants ] ] ]

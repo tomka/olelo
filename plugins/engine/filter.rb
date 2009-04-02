@@ -19,16 +19,8 @@ Wiki::Plugin.define 'engine/filter' do
       @post = nil
     end
 
-    def after(content)
-      content
-    end
-
-    def before(content)
-      content
-    end
-
-    def filter(content)
-      sub ? after(sub.call(page, params, before(content))) : after(before(content))
+    def subfilter(content)
+      sub ? sub.call(page, params, content) : content
     end
 
     def call(page, params, content)
@@ -75,9 +67,8 @@ Wiki::Plugin.define 'engine/filter' do
         filter = Wiki::Filter.find(list.shift)
         list.inject(filter) do |f,name|
           if Array === name
-            f.post = Wiki::Filter.find(name.shift)
-            f.post.sub = build(name)
-            f.post
+            f.sub = build(name)
+            f
           else
             f.post = Wiki::Filter.find(name)
           end

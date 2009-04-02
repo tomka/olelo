@@ -16,7 +16,7 @@ Wiki::Plugin.define 'tag/math' do
     end
   end
 
-  Wiki::Tag.define :math do |page, attrs, content|
+  Wiki::Tag.define :math do |page, params, attrs, content|
     name, path, hash = latex.render(content)
     "<img src=\"/sys/latex/#{name}\" alt=\"#{escape_html content}\"/>"
   end

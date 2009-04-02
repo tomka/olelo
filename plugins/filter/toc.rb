@@ -2,15 +2,19 @@ Wiki::Plugin.define 'filter/toc' do
   require 'hpricot'
   depends_on 'engine/filter'
 
-  class Toc
-    def initialize(content)
+  class Toc < Wiki::Filter
+    def filter(content)
+      content.gsub!('<toc/>', 'WIKI_TOC')
+      content = subfilter(content)
+      content.include?('WIKI_TOC') ? process(content) : content
+    end
+
+    def process(content)
       @toc = []
       @level = 0
       @doc = Hpricot(content)
       @count = [0]
-    end
 
-    def generate
       elem = (@doc/'h1,h2,h3,h4,h5,h6').first
       @offset = elem ? elem.name[1..1].to_i - 1 : 0
 
@@ -20,7 +24,7 @@ Wiki::Plugin.define 'filter/toc' do
         @level -= 1
       end
 
-      @doc.to_html.sub('TOC', "<p class=\"toc\">\n#{@toc.join("\n")}\n</p>")
+      @doc.to_html.sub('WIKI_TOC', "<p class=\"toc\">\n#{@toc.join("\n")}\n</p>")
     end
 
     private
@@ -58,7 +62,5 @@ Wiki::Plugin.define 'filter/toc' do
     end
   end
 
-  Wiki::Filter.create :toc do |content|
-    content.include?('TOC') ? Toc.new(content).generate : content
-  end
+  Wiki::Filter.register Toc.new(:toc)
 end
