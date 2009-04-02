@@ -20,15 +20,7 @@ Wiki::Plugin.define 'misc/pygments' do
 
       format = options[:filename] ? find_lexer(options[:filename]) : options[:format]
       return escape_html(content) if !format
-
-      if options[:cache]
-        key = options[:cache_key] || Digest::MD5.hexdigest(text + format)
-        Wiki::Cache.cache('pygments', key) do
-          run(text, format)
-        end
-      else
-        run(text, format)
-      end
+      run(text, format)
     end
 
     def self.supports?(filename)

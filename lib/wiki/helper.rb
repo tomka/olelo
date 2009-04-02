@@ -48,7 +48,38 @@ module Wiki
     end
 
     def format_patch(diff)
-      "<pre>#{escape_html diff.patch}</pre>"
+      lines = diff.patch.split(/[\n\r]+/)
+      html, plus, minus = '', -1, -1
+      lines.each do |line|
+        if line =~ %r{^diff --git a/(.+) b/(.+)$}
+          path = $1
+          html << '</tbody></table>' if !html.empty?
+          html << "<table class=\"patch\"><thead><tr><th>-</th><th>+</th><th class=\"title\"><a class=\"left\" href=\"#{path.urlpath}\">#{path}</a>"\
+               << "<span class=\"right\"><a href=\"#{(path/diff.from).urlpath}\">#{diff.from.truncate(8, '&#8230;')}</a> to "\
+               << "<a href=\"#{(path/diff.to).urlpath}\">#{diff.to.truncate(8, '&#8230;')}</a></span></th></tr></thead><tbody>"
+          plus, minus = -1, -1
+        elsif line =~ /^@@ -(\d+),\d+ \+(\d+)/
+          minus = $1.to_i
+          plus = $2.to_i
+          html << "<tr><td>&#160;</td><td>&#160;</td><td class=\"marker\">#{escape_html line}</td></tr>"
+        elsif plus >= 0
+          if line[0..0] == '\\'
+            html << "<tr><td>&#160;</td><td>&#160;</td><td class=\"code\">#{escape_html line}</td></tr>"
+          elsif line[0..0] == '-'
+            html << "<tr><td>#{minus}</td><td>&#160;</td><td class=\"code minus\">#{escape_html line}</td></tr>"
+            minus += 1
+          elsif line[0..0] == '+'
+            html << "<tr><td>&#160;</td><td>#{plus}</td><td class=\"code plus\">#{escape_html line}</td></tr>"
+            plus += 1
+          else
+            html << "<tr><td>#{minus}</td><td>#{plus}</td><td class=\"code\">#{escape_html line}</td></tr>"
+            minus += 1
+            plus += 1
+          end
+        end
+      end
+      html << '</tbody></table>' if !html.empty?
+      html
     end
 
     def date(t)

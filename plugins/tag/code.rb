@@ -3,6 +3,6 @@ Wiki::Plugin.define 'tag/code' do
   depends_on 'misc/pygments'
 
   Wiki::Tag.define(:code, :requires => :language) do |context, attrs, content|
-    Pygments.pygmentize(content, :format => attrs['language'], :cache => context.page.saved?)
+    Pygments.pygmentize(content, :format => attrs['language'])
   end
 end

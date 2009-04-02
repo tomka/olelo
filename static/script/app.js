@@ -48,8 +48,9 @@ function updateUploadPath() {
 
 $(document).ready(function(){
     $('.ui-tabs').tabs();
-    $('table.sortable').tablesorter();
+    $('table.sortable').tablesorter({widgets: ['zebra']});
     $('table.history').tablesorter({
+        widgets: ['zebra'],
         headers: {
             0: { sorter: false },
             1: { sorter: false },
@@ -61,8 +62,8 @@ $(document).ready(function(){
         }
     });
 
-    $('tr:even').addClass('even');
-    $('tr:odd').addClass('odd');
+    $('.zebra tr:even').addClass('even');
+    $('.zebra tr:odd').addClass('odd');
 
     $('input.clear').focus(function() {
 	if (this.value == this.defaultValue)

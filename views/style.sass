@@ -126,6 +126,47 @@ table
     .linenos
       :color #555
 
+table.patch
+  :border 1px solid #999
+  :border-collapse collapse
+  :border-spacing 0
+  :width 70em
+  :margin 0.5em 0
+  tr
+    td
+      :background #EEE
+      :color #777
+      :width 2em
+      :padding 0 0.3em
+      :text-align right
+      :border-right 1px solid #999
+    td.code, td.marker
+      :background #FFF
+      :color #000
+      :text-align left
+      :width auto
+      :padding 0 0.5em
+    td.marker
+      :background #EEE
+      :color #777
+    th
+      :border 1px solid #999
+      :font-variant normal
+      :text-align right
+      :padding 0.2em 0.5em
+      &.title
+        :text-align left
+        .left
+          :float left
+        .right
+          :float right
+    td
+      :font-family "Bitstream Vera Mono", monospace
+    td.plus
+      :background #CFC
+    td.minus
+      :background #FCC
+
 a
   &, &:visited
     :color #0B3E71
