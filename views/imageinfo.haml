@@ -7,6 +7,15 @@
       %td Name
       %td&= @page.name
     %tr
+      %td Size
+      %td&= "#{@image.filesize} bytes"
+    %tr
+      %td Format
+      %td&= @image.format
+    %tr
+      %td Geometry
+      %td= "#{@image.columns}x#{@image.rows}"
+    %tr
       %td Last modified
       %td= date @page.latest_commit.date
     %tr
