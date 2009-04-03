@@ -6,7 +6,7 @@
   | Version
   %a.sha{:href => object_path(@tree, :sha => @tree.latest_commit) }= @tree.latest_commit.sha.truncate(8, '&#8230;')
   = "by #{@tree.latest_commit.committer.name}, #{date @tree.latest_commit.committer_date}"
-%table.zebra
+%table.tree.zebra
   %thead
     %tr
       %th Name

@@ -322,11 +322,10 @@ module Wiki
       object = Object.find!(@repo, params[:path], params[:sha]) if !object || object.new?
 
       if object.tree?
-        root = Tree.find!(@repo, '/', params[:sha])
-        cache_control :etag => root.latest_commit.sha, :last_modified => root.latest_commit.committer_date
+        cache_control :etag => object.commit.sha, :last_modified => object.commit.committer_date
 
         @tree = object
-        @children = walk_tree(root, params[:path].to_s.cleanpath.split('/'), 0)
+        @children = walk_tree(Tree.find!(@repo, '/', params[:sha]), params[:path].to_s.cleanpath.split('/'), 0)
         haml :tree
       else
         cache_control :etag => object.latest_commit.sha, :last_modified => object.latest_commit.committer_date
@@ -343,6 +342,7 @@ module Wiki
       end
     end
 
+    # Walk tree and return array with level counter
     def walk_tree(tree, path, level)
       result = []
       tree.children.each do |child|
