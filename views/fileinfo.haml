@@ -10,6 +10,9 @@
       %td Version
       %td= @page.latest_commit.sha
     %tr
+      %td Mime-Type
+      %td= @page.mime
+    %tr
       %td Download
       %td
         %a{:href=> object_path(@page, :output => 'raw')} Download File

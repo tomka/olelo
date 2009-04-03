@@ -82,17 +82,21 @@ module Wiki
       html
     end
 
+    TREE_IMAGES = [
+              [/image\/.*/, 'image', 'Image'],
+              [/video\/.*/, 'video', 'Video'],
+              [/application\/pdf/, 'pdf', 'PDF'],
+              [/zip|compressed/, 'archive', 'Compressed File'],
+              [/.*/, 'page', 'Page']
+             ]
+
     def tree_link(level, object, open)
       html = "<a href=\"#{open ? object_path(object, :path => object.path/'..') : object_path(object)}\" title=\"#{open ? 'Close' : 'Open'}\">"
-      html << image(:tree_blank, :alt => '') * level
+      html << image(:tree_blank) * level
       if object.page?
-        html << image(:tree_blank, :alt => '')
-        mime = object.mime
-        if mime.mediatype == 'image'
-          html << image(:image, :alt => 'Image')
-        else
-          html << image(:page, :alt => 'Page')
-        end
+        mime = object.mime.to_s
+        img = TREE_IMAGES.find { |img| mime =~ img[0] }
+        html << image(:tree_blank) << image(img[1], :alt => img[2])
       else
         html << image(open ? :tree_open : :tree_closed, :alt => '') + image(:tree, :alt => 'Tree')
       end

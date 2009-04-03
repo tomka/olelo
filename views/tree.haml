@@ -16,7 +16,7 @@
   %tbody
     - @children.each do |level, child, open|
       %tr
-        %td= tree_link(level, child, open)
+        %td.link= tree_link(level, child, open)
         %td= date(child.latest_commit.date)
         %td= child.latest_commit.author.name
         %td= child.latest_commit.message.truncate(50)

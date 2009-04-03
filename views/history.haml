@@ -23,10 +23,10 @@
             %input{:type=>'radio', :name=>'from', :value=> commit.sha}
           %td
             %input{:type=>'radio', :name=>'to', :value=> commit.sha}
-          %td.nobreak
+          %td.link
             %a.sha{:href=>object_path(@object, :sha => commit)}=commit.sha
           %td&= commit.author.name
           %td= date commit.date
           %td&= commit.message.truncate(50)
-          %td
+          %td.link
             %a{:href=> ('commit'/commit.sha).urlpath } Commit
