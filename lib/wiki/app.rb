@@ -247,7 +247,7 @@ module Wiki
             redirect @page.path.urlpath/'edit'
           end
 
-          if params[:preview]
+          if @page.mime.text? && params[:preview]
             message :error, 'Commit message is empty' if params[:message].empty?
             engine = Engine.find(@page)
             @preview_content = engine.render(@page) if engine.layout?
@@ -273,7 +273,7 @@ module Wiki
           redirect params[:path].urlpath
         elsif action?(:new)
           @page.content = params[:content]
-          if params[:preview]
+          if @page.mime.text? && params[:preview]
             message :error, 'Commit message is empty' if params[:message].empty?
             engine = Engine.find(@page)
             @preview_content = engine.render(@page) if engine.layout?
