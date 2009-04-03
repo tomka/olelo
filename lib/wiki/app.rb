@@ -320,12 +320,17 @@ module Wiki
     def show(object = nil)
       cache_control :etag => params[:sha], :validate_only => true
       object = Object.find!(@repo, params[:path], params[:sha]) if !object || object.new?
-      cache_control :etag => object.latest_commit.sha, :last_modified => object.latest_commit.committer_date
 
       if object.tree?
+        root = Tree.find!(@repo, '/', params[:sha])
+        cache_control :etag => root.latest_commit.sha, :last_modified => root.latest_commit.committer_date
+
         @tree = object
+        @children = walk_tree(root, params[:path].to_s.cleanpath.split('/'), 0)
         haml :tree
       else
+        cache_control :etag => object.latest_commit.sha, :last_modified => object.latest_commit.committer_date
+
         @page = object
         engine = Engine.find(@page, params[:output])
         @content = engine.render(@page, params)
@@ -336,6 +341,16 @@ module Wiki
           @content
         end
       end
+    end
+
+    def walk_tree(tree, path, level)
+      result = []
+      tree.children.each do |child|
+        open = child.tree? && (child.path == path[0..level].join('/'))
+        result << [level, child, open]
+        result += walk_tree(child, path, level + 1) if open
+      end
+      result
     end
 
     # Boilerplate for new pages

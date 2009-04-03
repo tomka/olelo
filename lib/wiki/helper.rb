@@ -82,6 +82,24 @@ module Wiki
       html
     end
 
+    def tree_link(level, object, open)
+      html = "<a href=\"#{open ? object_path(object, :path => object.path/'..') : object_path(object)}\" title=\"#{open ? 'Close' : 'Open'}\">"
+      html << image(:tree_blank, :alt => '') * level
+      if object.page?
+        html << image(:tree_blank, :alt => '')
+        mime = object.mime
+        if mime.mediatype == 'image'
+          html << image(:image, :alt => 'Image')
+        else
+          html << image(:page, :alt => 'Page')
+        end
+      else
+        html << image(open ? :tree_open : :tree_closed, :alt => '') + image(:tree, :alt => 'Tree')
+      end
+      html << " #{object.name}</a>"
+      html
+    end
+
     def date(t)
       "<span class=\"date seconds_#{t.to_i}\">#{t.strftime('%d %h %Y %H:%M')}</span>"
     end

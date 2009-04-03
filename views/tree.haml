@@ -6,23 +6,17 @@
   | Version
   %a.sha{:href => object_path(@tree, :sha => @tree.latest_commit) }= @tree.latest_commit.sha.truncate(8, '&#8230;')
   = "by #{@tree.latest_commit.committer.name}, #{date @tree.latest_commit.committer_date}"
-%table.sortable
+%table.zebra
   %thead
     %tr
-      %th
       %th Name
+      %th Last modified
+      %th Author
+      %th Message
   %tbody
-    - if !@tree.path.empty?
+    - @children.each do |level, child, open|
       %tr
-        %td= image(:tree, :alt => 'Tree')
-        %td
-          %a{:href=> object_path(@tree, :path => @tree.path/'..') } ..
-    - @tree.children.each do |child|
-      %tr
-        %td
-          - if child.page?
-            = image(:page, :alt => 'Page')
-          - else
-            = image(:tree, :alt => 'Tree')
-        %td
-          %a{:href=> object_path(child) }=child.name
+        %td= tree_link(level, child, open)
+        %td= date(child.latest_commit.date)
+        %td= child.latest_commit.author.name
+        %td= child.latest_commit.message.truncate(50)
