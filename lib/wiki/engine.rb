@@ -63,7 +63,7 @@ module Wiki
     end
 
     def self.register(engine)
-      raise(ArgumentError, "Engine #{name} already exists") if @engines.key?(engine.name)
+      raise(ArgumentError, "Engine #{engine.name} already exists") if @engines.key?(engine.name)
       @engines[engine.name] = engine
     end
 

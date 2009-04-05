@@ -39,7 +39,8 @@ module Wiki
 
       Plugin.logger = @logger
       Plugin.dir = File.join(App.root, 'plugins')
-      Plugin.load_all
+      Plugin.load('*')
+      Plugin.start
     end
 
     # Executed before each request

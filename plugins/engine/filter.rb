@@ -34,6 +34,7 @@ Wiki::Plugin.define 'engine/filter' do
     end
 
     def self.register(filter)
+      raise ArgumentError, "Filter #{filter.name} already exists" if @filters.key?(filter.name)
       @filters[filter.name] = filter
     end
 
@@ -44,13 +45,12 @@ Wiki::Plugin.define 'engine/filter' do
     end
 
     def self.find(name)
+      Wiki::Plugin.load("filter/#{name}")
       name = name.to_s
       raise NotFound, name if !@filters.include?(name)
       @filters[name].dup
     end
   end
-
-  load 'filter/*'
 
   class Wiki::FilterEngine <  Wiki::Engine
     def initialize(name, config)
@@ -90,11 +90,14 @@ Wiki::Plugin.define 'engine/filter' do
     end
   end
 
-  engines = YAML.load_file(File.join(Wiki::Config.root, 'engines.yml'))
-  engines.each_pair do |name, config|
-    begin
-      Wiki::Engine.register(Wiki::FilterEngine.new(name, config))
-    rescue
+  setup do
+    engines = YAML.load_file(File.join(Wiki::Config.root, 'engines.yml'))
+    engines.each_pair do |name, config|
+      begin
+        Wiki::Engine.register(Wiki::FilterEngine.new(name, config))
+      rescue Exception => ex
+        logger.error ex
+      end
     end
   end
 end

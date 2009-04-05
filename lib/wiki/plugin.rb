@@ -14,63 +14,91 @@ module Wiki
 
       # Define plugin with name
       def define(name, &block)
-        if !@plugins.key?(name) && !Config.disabled_plugins.to_a.include?(name)
+        raise ArgumentError, "Plugin #{name} already exists" if @plugins.key?(name)
+        if !Config.disabled_plugins.to_a.include?(name)
           name = name.to_s
-          plugin = new(name)
+          plugin = new(name, @logger)
           plugin.instance_eval(&block)
           @plugins[name] = plugin
+          @logger.debug("Plugin #{name} successfully defined")
         end
       rescue Exception => ex
         @logger.error(ex) if @logger
       end
 
-      # Load all available plugins
-      def load_all
-        load('*')
+      # Start plugins
+      def start
+        @plugins.each_value {|plugin| plugin.start }
       end
 
-      # Load plugin by name and return a boolean for success
-      def load(name)
-        name = Pathname.new(name).cleanpath
-        list = Dir.glob(File.join(@dir, "**/#{name}.rb"))
-        return false if list.empty?
-        list.inject(true) do |result,file|
-          safe_require(file) && result
+      # Load plugins by name and return a boolean for success
+      def load(*list)
+        files = list.map do |name|
+          name = Pathname.new(name).cleanpath
+          Dir.glob(File.join(@dir, "**/#{name}.rb"))
+        end.flatten
+        return false if files.empty?
+        files.inject(true) do |result,file|
+          begin
+            require(file)
+            result
+          rescue Exception => ex
+            @logger.error ex
+            false
+          else
+            @plugins.key?(file[(@dir.size+1)..-4])
+          end
         end
       end
-
-      private
-
-      # Require ruby file without raising exceptions
-      def safe_require(name)
-        require(name)
-        true
-      rescue Exception => ex
-        @logger.error ex
-        false
-      end
     end
 
-    attr_reader :name
+    attr_reader :name, :logger, :started
 
-    def initialize(name)
+    def initialize(name, logger)
       @name = name
+      @logger = logger
+      @setup = []
+      @started = false
     end
 
-    # Load specified plugins before this one.
+    # Add setup method
+    def setup(&block)
+      @setup << proc(&block)
+    end
+
+    # Start the plugin
+    def start
+      return true if @started
+      success = @setup.all? do |setup|
+        begin
+          setup.to_method(Plugin).bind(self).call
+          true
+        rescue Exception => ex
+          Plugin.logger.error ex
+          false
+        end
+      end
+      @started = true
+      if success
+        Plugin.logger.info("Plugin #{name} successfully started")
+      else
+        Plugin.logger.error("Plugin #{name} failed to start")
+      end
+      success
+    end
+
+    # Load specified plugins.
     # This method can be used to specify optional
     # dependencies which should be loaded before this plugin.
     def load(*list)
-      list.each do |x|
-        Plugin.load(x)
-      end
+      Plugin.load(*list)
     end
 
     # Load specified plugins and fail if
     # dependencies are missing.
     def depends_on(*list)
-      list.each do |x|
-        raise(RuntimeError, "Could not load dependency #{x}") if !Plugin.load(x)
+      list.each do |dep|
+        raise(RuntimeError, "Could not load dependency #{dep} for #{name}") if !Plugin.load(dep)
       end
     end
 
