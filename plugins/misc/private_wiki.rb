@@ -16,6 +16,7 @@ Wiki::Plugin.define 'misc/private_wiki' do
       ]
 
     before do
+      halt if request.path_info == '/sys/fragments/sidebar'
       if !WHITE_LIST.any? {|pattern| request.path_info =~ /^#{pattern}$/ }
         redirect '/login' if @user.anonymous?
       end
