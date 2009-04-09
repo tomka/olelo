@@ -173,7 +173,7 @@ module Wiki
 
     def message(level, *messages)
       @messages ||= []
-      messages.each do |msg|
+      messages.flatten.each do |msg|
         @messages << [level, msg]
       end
     end

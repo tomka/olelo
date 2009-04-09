@@ -191,10 +191,16 @@ module Wiki
     end
 
     get '/?:path?/diff' do
-      cache_control :static => true
-      @object = Object.find!(@repo, params[:path])
-      @diff = @object.diff(params[:from], params[:to])
-      haml :diff
+      begin
+        @object = Object.find!(@repo, params[:path])
+        forbid('From not selected' => params[:from].blank?, 'To not selected' => params[:to].blank?)
+        cache_control :static => true
+        @diff = @object.diff(params[:from], params[:to])
+        haml :diff
+      rescue MessageError => error
+        message :error, error.message
+        haml :history
+      end
     end
 
     get '/:path/edit', '/:path/append', '/:path/upload' do
