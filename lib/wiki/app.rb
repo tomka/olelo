@@ -45,6 +45,7 @@ module Wiki
 
     # Executed before each request
     before do
+      start_timer
       @logger.debug request.env
 
       content_type 'application/xhtml+xml', :charset => 'utf-8'

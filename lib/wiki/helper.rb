@@ -8,6 +8,14 @@ module Wiki
   module Helper
     include Utils
 
+    def start_timer
+      @start_time = Time.now
+    end
+
+    def elapsed_time
+      ((Time.now - @start_time) * 1000).to_i
+    end
+
     def object
       @object || @page || @tree
     end
