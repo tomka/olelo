@@ -81,7 +81,7 @@ module Wiki
       if page = Page.find(@repo, 'Sidebar')
         engine = Engine.find(page)
         if engine.layout?
-          #cache_control :etag => page.commit.sha, :last_modified => page.latest_commit.committer_date
+          #cache_control :etag => page.commit.sha, :last_modified => page.latest_commit.date
           cache_control :max_age => 120
           engine.render(page)
         else
@@ -164,14 +164,14 @@ module Wiki
     get '/commit/:sha' do
       cache_control :etag => params[:sha], :validate_only => true
       @commit = @repo.gcommit(params[:sha])
-      cache_control :etag => @commit.sha, :last_modified => @commit.committer_date
+      cache_control :etag => @commit.sha, :last_modified => @commit.date
       @diff = @repo.diff(@commit.parent, @commit.sha)
       haml :commit
     end
 
     get '/?:path?/archive' do
       @tree = Tree.find!(@repo, params[:path])
-      cache_control :etag => @tree.sha, :last_modified => @tree.commit.committer_date
+      cache_control :etag => @tree.sha, :last_modified => @tree.commit.date
       content_type 'application/x-tar-gz'
       attachment "#{@tree.safe_name}.tar.gz"
       archive = @tree.archive
@@ -186,7 +186,7 @@ module Wiki
 
     get '/?:path?/history' do
       @object = Object.find!(@repo, params[:path])
-      cache_control :etag => @object.sha, :last_modified => @object.commit.committer_date
+      cache_control :etag => @object.sha, :last_modified => @object.commit.date
       haml :history
     end
 
@@ -329,13 +329,14 @@ module Wiki
       object = Object.find!(@repo, params[:path], params[:sha]) if !object || object.new?
 
       if object.tree?
-        cache_control :etag => object.commit.sha, :last_modified => object.commit.committer_date
+        root = Tree.find!(@repo, '/', params[:sha])
+        cache_control :etag => root.commit.sha, :last_modified => root.commit.date
 
         @tree = object
-        @children = walk_tree(Tree.find!(@repo, '/', params[:sha]), params[:path].to_s.cleanpath.split('/'), 0)
+        @children = walk_tree(root, params[:path].to_s.cleanpath.split('/'), 0)
         haml :tree
       else
-        cache_control :etag => object.latest_commit.sha, :last_modified => object.latest_commit.committer_date
+        cache_control :etag => object.latest_commit.sha, :last_modified => object.latest_commit.date
 
         @page = object
         engine = Engine.find(@page, params[:output])
