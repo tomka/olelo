@@ -1,7 +1,5 @@
 - menu :view, :edit, :new
 - title "History of #{@object.pretty_name}"
-- head do
-  %link{:rel => 'alternate',  :href => (@object.path/'changelog.rss').urlpath, :type => 'application/rss+xml', :title=> 'RSS'}
 %form{:action=> action_path(@object, :diff) }
   %div
     = show_messages
