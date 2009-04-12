@@ -23,10 +23,8 @@ module Wiki
         @page = page
       end
 
-      def subcontext(engine = nil, page = nil, params = nil)
-        engine ||= @engine
-        page ||= @page
-        sub = Context.new(engine || @engine, page || @page, self)
+      def subcontext(params = {})
+        sub = Context.new(params.delete(:engine) || @engine, params.delete(:page) || @page, self)
         sub.merge!(params)
         sub
       end

@@ -14,14 +14,20 @@ Wiki::Plugin.define 'filter/tag' do
     end
 
     def filter(content)
-      @elements = []
+      @matches = []
       self.class.tags.each do |tag|
-        name, opts, method = tag
-        content.gsub!(%r{<#{name}([^>]*?)(/>|>(.*?)</#{name}>)}m) do |match|
-          attrs = attributes($1)
-          text = $3 || ''
+        name = tag[0]
+        content.scan(%r{(<#{name}([^>]*?)(/>|>(.*?)</#{name}>))}m) do |match, attrs, _, text|
+          @matches << [match, attributes(attrs), text || ''] + tag
+        end
+      end
+      @matches.sort! { |a,b| b[0].length <=> a[0].length }
+
+      @elements = []
+      @matches.each do |match, attrs, text, tag, opts, method|
+        content.sub!(match) do
           if opts[:requires] && attr = [opts[:requires]].flatten.find {|a| attrs[a.to_s].blank? }
-            "<span class=\"error\">Attribute \"#{attr}\" is required for tag \"#{name}\"</span>"
+            "<span class=\"error\">Attribute \"#{attr}\" is required for tag \"#{tag}\"</span>"
           else
             @elements << [method, attrs, text]
             "WIKI_TAG_#{@elements.size}"
