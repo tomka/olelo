@@ -14,23 +14,25 @@ Wiki::Plugin.define 'filter/tag' do
     end
 
     def filter(content)
-      @matches = []
+      return 'Maximum tag nesting exceeded' if context.level > 3
+
+      matches = []
       self.class.tags.each do |tag|
         name = tag[0]
-        content.scan(%r{(<#{name}([^>]*?)(/>|>(.*?)</#{name}>))}m) do |match, attrs, _, text|
-          @matches << [match, attributes(attrs), text || ''] + tag
+        content.scan(%r{(<#{name}([^>]*?)(/>|>(.*)</#{name}>))}m) do |match, attrs, _, text|
+          matches << [match, attributes(attrs), text || ''] + tag
         end
       end
-      @matches.sort! { |a,b| b[0].length <=> a[0].length }
+      matches.sort! { |a,b| b[0].length <=> a[0].length }
 
-      @elements = []
-      @matches.each do |match, attrs, text, tag, opts, method|
+      elements = []
+      matches.each do |match, attrs, text, tag, opts, method|
         content.sub!(match) do
           if opts[:requires] && attr = [opts[:requires]].flatten.find {|a| attrs[a.to_s].blank? }
             "<span class=\"error\">Attribute \"#{attr}\" is required for tag \"#{tag}\"</span>"
           else
-            @elements << [method, attrs, text]
-            "WIKI_TAG_#{@elements.size}"
+            elements << [method, attrs, text]
+            "WIKI_TAG_#{elements.size}"
           end
         end
       end
@@ -38,7 +40,7 @@ Wiki::Plugin.define 'filter/tag' do
       content = subfilter(content)
 
       content.gsub!(/WIKI_TAG_(\d+)/) do |match|
-        elem = @elements[$1.to_i-1]
+        elem = elements[$1.to_i-1]
         if elem
           method, attr, text = elem
           method.bind(self).call(context, attr, text)

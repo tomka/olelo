@@ -15,16 +15,17 @@ module Wiki
     end
 
     class Context < Hash
-      attr_reader :page, :engine
+      attr_reader :page, :engine, :level
 
-      def initialize(engine, page, params)
+      def initialize(engine, page, params, level = 0)
         merge!(params)
         @engine = engine
         @page = page
+        @level = level
       end
 
       def subcontext(params = {})
-        sub = Context.new(params.delete(:engine) || @engine, params.delete(:page) || @page, self)
+        sub = Context.new(params.delete(:engine) || @engine, params.delete(:page) || @page, self, level + 1)
         sub.merge!(params)
         sub
       end

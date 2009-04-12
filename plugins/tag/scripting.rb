@@ -16,10 +16,6 @@ Wiki::Plugin.define 'tag/scripting' do
   end
 
   Wiki::Tag.define(:include, :requires => :page) do |context, attrs, content|
-    context['__includelevel__'] ||= 0
-    context['__includelevel__'] += 1
-    return 'Maximum include level exceeded' if context['__includelevel__'] > 10
-
     if page = Wiki::Page.find(context.page.repo, attrs['page'])
       engine = Wiki::Engine.find(page, attrs['output']) rescue nil
       if engine && engine.layout?
