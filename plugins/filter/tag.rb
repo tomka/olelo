@@ -14,12 +14,12 @@ Wiki::Plugin.define 'filter/tag' do
       @tags[tag.to_s] = [opts, block.to_method(self)]
     end
 
-    def filter(content)
+    def nested_tags(context, content)
       return 'Maximum tag nesting exceeded' if context.level > 3
 
       doc = Hpricot.XML(content)
 
-      elements = []
+      @elements = []
       doc.each_child do |elem|
         if elem.elem?
           tag = self.class.tags[elem.stag.name]
@@ -28,19 +28,28 @@ Wiki::Plugin.define 'filter/tag' do
             attrs = elem.attributes
             text = elem.children.map { |x| x.to_original_html }.join
             if opts[:requires] && attr = [opts[:requires]].flatten.find {|a| attrs[a.to_s].blank? }
-              elem.swap "<span class=\"error\">Attribute \"#{attr}\" is required for tag \"#{tag}\"</span>"
+              elem.swap "#{tag}: Attribute \"#{attr}\" is required"
             else
-              elements << [method, attrs, text]
-              elem.swap "WIKI_TAG_#{elements.length-1}"
+              if opts[:immediate]
+                elem.swap method.bind(self).call(context, attrs, text)
+              else
+                @elements << [method, attrs, text]
+                elem.swap "WIKI_TAG_#{@elements.length-1}"
+              end
             end
           end
         end
       end
 
-      content = subfilter(doc.to_original_html)
+      doc.to_original_html
+    end
+
+    def filter(content)
+      content = nested_tags(context, content)
+      content = subfilter(content)
 
       content.gsub!(/WIKI_TAG_(\d+)/) do |match|
-        elem = elements[$1.to_i]
+        elem = @elements[$1.to_i]
         if elem
           method, attr, text = elem
           method.bind(self).call(context, attr, text)

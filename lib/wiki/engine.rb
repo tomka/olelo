@@ -79,7 +79,11 @@ module Wiki
       end
 
       return engine.dup if engine
-      raise NotAvailable, name
+      nil
+    end
+
+    def self.find!(page, name = nil)
+      find(page, name) || raise NotAvailable, name
     end
 
     # Sugar to generate methods

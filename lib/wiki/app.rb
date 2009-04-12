@@ -80,7 +80,7 @@ module Wiki
 
     get '/sys/fragments/sidebar' do
       if page = Page.find(@repo, 'Sidebar')
-        engine = Engine.find(page)
+        engine = Engine.find!(page)
         if engine.layout?
           #cache_control :etag => page.commit.sha, :last_modified => page.latest_commit.date
           cache_control :max_age => 120
@@ -257,7 +257,7 @@ module Wiki
 
           if @page.mime.text? && params[:preview]
             message :error, 'Commit message is empty' if params[:message].empty?
-            engine = Engine.find(@page)
+            engine = Engine.find!(@page)
             @preview_content = engine.render(@page) if engine.layout?
             haml :edit
           else
@@ -283,7 +283,7 @@ module Wiki
           @page.content = params[:content]
           if @page.mime.text? && params[:preview]
             message :error, 'Commit message is empty' if params[:message].empty?
-            engine = Engine.find(@page)
+            engine = Engine.find!(@page)
             @preview_content = engine.render(@page) if engine.layout?
             haml :new
           else
@@ -340,7 +340,7 @@ module Wiki
         cache_control :etag => object.latest_commit.sha, :last_modified => object.latest_commit.date
 
         @page = object
-        engine = Engine.find(@page, params[:output])
+        engine = Engine.find!(@page, params[:output])
         @content = engine.render(@page, params)
         if engine.layout?
           haml :page
