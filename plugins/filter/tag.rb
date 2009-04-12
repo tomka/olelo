@@ -1,46 +1,46 @@
 Wiki::Plugin.define 'filter/tag' do
   depends_on 'engine/filter'
+  require 'hpricot'
 
   class Wiki::Tag < Wiki::Filter
     include Wiki::Utils
 
     def self.tags
-      @tags.to_a
+      @tags || {}
     end
 
     def self.define(tag, opts = {}, &block)
-      @tags ||= []
-      @tags << [tag, opts, block.to_method(self)]
+      @tags ||= {}
+      @tags[tag.to_s] = [opts, block.to_method(self)]
     end
 
     def filter(content)
       return 'Maximum tag nesting exceeded' if context.level > 3
 
-      matches = []
-      self.class.tags.each do |tag|
-        name = tag[0]
-        content.scan(%r{(<#{name}([^>]*?)(/>|>(.*)</#{name}>))}m) do |match, attrs, _, text|
-          matches << [match, attributes(attrs), text || ''] + tag
-        end
-      end
-      matches.sort! { |a,b| b[0].length <=> a[0].length }
+      doc = Hpricot.XML(content)
 
       elements = []
-      matches.each do |match, attrs, text, tag, opts, method|
-        content.sub!(match) do
-          if opts[:requires] && attr = [opts[:requires]].flatten.find {|a| attrs[a.to_s].blank? }
-            "<span class=\"error\">Attribute \"#{attr}\" is required for tag \"#{tag}\"</span>"
-          else
-            elements << [method, attrs, text]
-            "WIKI_TAG_#{elements.size}"
+      doc.each_child do |elem|
+        if elem.elem?
+          tag = self.class.tags[elem.stag.name]
+          if tag
+            opts, method = tag
+            attrs = elem.attributes
+            text = elem.children.map { |x| x.to_original_html }.join
+            if opts[:requires] && attr = [opts[:requires]].flatten.find {|a| attrs[a.to_s].blank? }
+              elem.swap "<span class=\"error\">Attribute \"#{attr}\" is required for tag \"#{tag}\"</span>"
+            else
+              elements << [method, attrs, text]
+              elem.swap "WIKI_TAG_#{elements.length-1}"
+            end
           end
         end
       end
 
-      content = subfilter(content)
+      content = subfilter(doc.to_original_html)
 
       content.gsub!(/WIKI_TAG_(\d+)/) do |match|
-        elem = elements[$1.to_i-1]
+        elem = elements[$1.to_i]
         if elem
           method, attr, text = elem
           method.bind(self).call(context, attr, text)
