@@ -19,7 +19,7 @@ Wiki::Plugin.define 'filter/tag' do
 
       doc = Hpricot.XML(content)
 
-      @elements = []
+      @elements ||= []
       doc.each_child do |elem|
         if elem.elem?
           tag = self.class.tags[elem.stag.name]
@@ -33,7 +33,7 @@ Wiki::Plugin.define 'filter/tag' do
               if opts[:immediate]
                 elem.swap method.bind(self).call(context, attrs, text)
               else
-                @elements << [method, attrs, text]
+                @elements << method.bind(self).call(context, attrs, text)
                 elem.swap "WIKI_TAG_#{@elements.length-1}"
               end
             end
@@ -45,16 +45,8 @@ Wiki::Plugin.define 'filter/tag' do
     end
 
     def filter(content)
-      content = nested_tags(context, content)
-      content = subfilter(content)
-
-      content.gsub!(/WIKI_TAG_(\d+)/) do |match|
-        elem = @elements[$1.to_i]
-        if elem
-          method, attr, text = elem
-          method.bind(self).call(context, attr, text)
-        end
-      end
+      content = subfilter(nested_tags(context, content))
+      content.gsub!(/WIKI_TAG_(\d+)/) { |match| @elements[$1.to_i] }
       content
     end
 
