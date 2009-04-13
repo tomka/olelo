@@ -18,11 +18,8 @@ Wiki::Plugin.define 'tag/scripting' do
   Wiki::Tag.define(:include, :requires => :page) do |context, attrs, content|
     if page = Wiki::Page.find(context.page.repo, attrs['page'])
       engine = Wiki::Engine.find(page, attrs['output'])
-      if engine && engine.layout?
-        engine.output(context.subcontext(attrs.merge(:engine => engine, :page => page)))
-      else
-        "include: No engine found for #{attrs['page']}"
-      end
+      raise(Exception, "No engine found for #{attrs['page']}") if !engine || engine.layout?
+      engine.output(context.subcontext(attrs.merge(:engine => engine, :page => page)))
     else
       "<a href=\"/#{attrs['page']}/new\">Create #{attrs['page']}</a>"
     end
@@ -31,14 +28,11 @@ Wiki::Plugin.define 'tag/scripting' do
   Wiki::Tag.define(:for, :requires => [:from, :to], :immediate => true) do |context, attrs, content|
     to = attrs['to'].to_i
     from = attrs['from'].to_i
-    if to - from > 10
-      "for: Limits exceeded"
-    else
-      (from..to).map do |i|
-        params = attrs['counter'] ? {attrs['counter'] => i} : {}
-        nested_tags(context.subcontext(params), content.dup)
-      end.join
-    end
+    raise(Exception, "Limits exceeded") if to - from > 10
+    (from..to).map do |i|
+      params = attrs['counter'] ? {attrs['counter'] => i} : {}
+      nested_tags(context.subcontext(params), content.dup)
+    end.join
   end
 
   Wiki::Tag.define(:repeat, :requires => :times, :immediate => true) do |context, attrs, content|

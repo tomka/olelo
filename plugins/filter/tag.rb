@@ -33,18 +33,24 @@ Wiki::Plugin.define 'filter/tag' do
     def walk_elements(parent, context)
       parent.each_child do |elem|
         if elem.elem?
-          tag = self.class.tags[elem.stag.name]
+          name = elem.stag.name.downcase
+          tag = self.class.tags[name]
           if tag
             opts, method = tag
             attrs = elem.attributes
             text = elem.children.map { |x| x.to_original_html }.join
             if opts[:requires] && attr = [opts[:requires]].flatten.find {|a| attrs[a.to_s].blank? }
-              elem.swap "#{tag}: Attribute \"#{attr}\" is required"
+              elem.swap "#{name}: Attribute \"#{attr}\" is required"
             else
+              text = begin
+                       method.bind(self).call(context, attrs, text)
+                     rescue Exception => ex
+                       "#{name}: #{ex.message}"
+                     end
               if opts[:immediate]
-                elem.swap method.bind(self).call(context, attrs, text)
+                elem.swap text
               else
-                @elements << method.bind(self).call(context, attrs, text)
+                @elements << text
                 elem.swap "WIKI_TAG_#{@elements.length-1}"
               end
             end
