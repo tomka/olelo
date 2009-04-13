@@ -16,11 +16,22 @@ Wiki::Plugin.define 'filter/tag' do
 
     def nested_tags(context, content)
       return 'Maximum tag nesting exceeded' if context.level > 3
-
       doc = Hpricot.XML(content)
-
       @elements ||= []
-      doc.each_child do |elem|
+      walk_elements(doc, context)
+      doc.to_original_html
+    end
+
+    def filter(content)
+      content = subfilter(nested_tags(context, content))
+      content.gsub!(/WIKI_TAG_(\d+)/) { |match| @elements[$1.to_i] }
+      content
+    end
+
+    private
+
+    def walk_elements(parent, context)
+      parent.each_child do |elem|
         if elem.elem?
           tag = self.class.tags[elem.stag.name]
           if tag
@@ -37,17 +48,11 @@ Wiki::Plugin.define 'filter/tag' do
                 elem.swap "WIKI_TAG_#{@elements.length-1}"
               end
             end
+          else
+            walk_elements(elem, context)
           end
         end
       end
-
-      doc.to_original_html
-    end
-
-    def filter(content)
-      content = subfilter(nested_tags(context, content))
-      content.gsub!(/WIKI_TAG_(\d+)/) { |match| @elements[$1.to_i] }
-      content
     end
 
     def attributes(attrs)

@@ -32,7 +32,7 @@ Wiki::Plugin.define 'tag/scripting' do
     to = attrs['to'].to_i
     from = attrs['from'].to_i
     if to - from > 10
-      "Limits exceeded"
+      "for: Limits exceeded"
     else
       (from..to).map do |i|
         params = attrs['counter'] ? {attrs['counter'] => i} : {}
