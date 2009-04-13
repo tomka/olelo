@@ -18,7 +18,7 @@ Wiki::Plugin.define 'tag/scripting' do
   Wiki::Tag.define(:include, :requires => :page) do |context, attrs, content|
     if page = Wiki::Page.find(context.page.repo, attrs['page'])
       engine = Wiki::Engine.find(page, attrs['output'])
-      raise(Exception, "No engine found for #{attrs['page']}") if !engine || engine.layout?
+      raise(Exception, "No engine found for #{attrs['page']}") if !engine || !engine.layout?
       engine.output(context.subcontext(attrs.merge(:engine => engine, :page => page)))
     else
       "<a href=\"/#{attrs['page']}/new\">Create #{attrs['page']}</a>"
