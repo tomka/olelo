@@ -34,7 +34,7 @@ module Expr
 
   def self.eval(expr, vars = {})
     table = CONSTANTS.dup
-    vars.each_pair {|k,v| table[k.downcase] = v }
+    vars.each_pair {|k,v| table[k.to_s.downcase] = v }
     tokens = expr.scan(TOKENIZER)
     stack, post = [], []
     prev = nil
