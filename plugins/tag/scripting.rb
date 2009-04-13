@@ -1,17 +1,17 @@
 Wiki::Plugin.define 'tag/scripting' do
   depends_on 'filter/tag'
-  require 'expr'
+  require 'evaluator'
 
   Wiki::Tag.define(:param, :requires => :name, :immediate => true) do |context, attrs, content|
     escape_html(context[attrs['name']])
   end
 
   Wiki::Tag.define(:echo, :requires => :value, :immediate => true) do |context, attrs, content|
-    escape_html(Expr.eval(attrs['value'], context))
+    escape_html(Evaluator(attrs['value'], context))
   end
 
   Wiki::Tag.define(:set, :requires => [:name, :value], :immediate => true) do |context, attrs, content|
-    context[attrs['name']] = Expr.eval(attrs['value'], context)
+    context[attrs['name']] = Evaluator(attrs['value'], context)
     ''
   end
 
@@ -44,7 +44,7 @@ Wiki::Plugin.define 'tag/scripting' do
   end
 
   Wiki::Tag.define(:if, :requires => :test, :immediate => true) do |context, attrs, content|
-    if Expr.eval(attrs['test'], context)
+    if Evaluator(attrs['test'], context)
       nested_tags(context.subcontext, content)
     end
   end
