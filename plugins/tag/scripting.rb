@@ -28,8 +28,21 @@ Wiki::Plugin.define 'tag/scripting' do
     end
   end
 
+  Wiki::Tag.define(:for, :requires => [:from, :to], :immediate => true) do |context, attrs, content|
+    to = attrs['to'].to_i
+    from = attrs['from'].to_i
+    if to - from > 10
+      "Limits exceeded"
+    else
+      (from..to).map do |i|
+        params = attrs['counter'] ? {attrs['counter'] => i} : {}
+        nested_tags(context.subcontext(params), content.dup)
+      end.join
+    end
+  end
+
   Wiki::Tag.define(:repeat, :requires => :times, :immediate => true) do |context, attrs, content|
-    n = [10, attrs['times'].to_i].max
+    n = [10, attrs['times'].to_i].min
     (1..n).map do |i|
       params = attrs['counter'] ? {attrs['counter'] => i} : {}
       nested_tags(context.subcontext(params), content.dup)

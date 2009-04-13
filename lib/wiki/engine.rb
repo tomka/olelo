@@ -83,7 +83,7 @@ module Wiki
     end
 
     def self.find!(page, name = nil)
-      find(page, name) || raise NotAvailable, name
+      find(page, name) || raise(NotAvailable, name)
     end
 
     # Sugar to generate methods
