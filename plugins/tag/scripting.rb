@@ -6,12 +6,12 @@ Wiki::Plugin.define 'tag/scripting' do
     escape_html(context[attrs['name']])
   end
 
-  Wiki::Tag.define(:echo, :requires => :select, :immediate => true) do |context, attrs, content|
-    escape_html(Expr.eval(attrs['select'], context))
+  Wiki::Tag.define(:echo, :requires => :value, :immediate => true) do |context, attrs, content|
+    escape_html(Expr.eval(attrs['value'], context))
   end
 
-  Wiki::Tag.define(:set, :requires => [:name, :select], :immediate => true) do |context, attrs, content|
-    context[attrs['name']] = Expr.eval(attrs['select'], context)
+  Wiki::Tag.define(:set, :requires => [:name, :value], :immediate => true) do |context, attrs, content|
+    context[attrs['name']] = Expr.eval(attrs['value'], context)
     ''
   end
 

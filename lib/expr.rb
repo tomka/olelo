@@ -8,8 +8,8 @@ module Expr
   SYMBOL = /[\w_]+/
   FUNCTIONS = %w(sin cos tan sinh cosh tanh asin acos atan asinh atanh sqrt log ln log10 log2 exp
                  floor ceil string int float rand conj im re round abs minus plus not)
-  OPERATOR = [ %w(||), %w(&&), %w(== != <= >= < >), %w(+ -),
-             %w(<< >>), %w(& | ^), %w(* / %), %w(**), %w(!) ]
+  OPERATOR = [ %w(|| or), %w(&& and), %w(== != <= >= < >), %w(+ -),
+             %w(<< >>), %w(& | ^), %w(* / % div mod), %w(**), %w(!) ]
   UNARY = {
     '+' => 'plus',
     '-' => 'minus',
@@ -116,17 +116,29 @@ module Expr
       b = stack.pop
       a = stack.pop
       case op
-      when '==' then a == b
-      when '!=' then a != b
-      when '<=' then a <= b
-      when '>=' then a >= b
-      when '<'  then a < b
-      when '>'  then a > b
-      when '+'  then a + b
-      when '-'  then a - b
-      when '*'  then a * b
-      when '/'  then a / b
-      when '**' then a ** b
+      when '||'  then a || b
+      when 'or'  then a || b
+      when '&&'  then a && b
+      when 'and' then a && b
+      when '=='  then a == b
+      when '!='  then a != b
+      when '<='  then a <= b
+      when '>='  then a >= b
+      when '<'   then a < b
+      when '>'   then a > b
+      when '+'   then a + b
+      when '-'   then a - b
+      when '*'   then a * b
+      when '/'   then a / b
+      when 'div' then a.div(b)
+      when '%'   then a % b
+      when 'mod' then a % b
+      when '**'  then a ** b
+      when '<<'  then a << b
+      when '>>'  then a >> b
+      when '&'   then a & b
+      when '|'   then a | b
+      when '^'   then a ^ b
       else
         raise(SyntaxError, "Unexpected token #{op}")
       end
