@@ -73,4 +73,11 @@ Wiki::Plugin.define 'tag/scripting' do
       nested_tags(context.subcontext, content)
     end
   end
+
+  Wiki::Tag.define(:quiet, :immediate => true) do |context, attrs, content|
+    doc = Hpricot.XML(content)
+    doc.traverse_text { |elem| elem.content = '' }
+    nested_tags(context.subcontext, doc.to_original_html)
+  end
+
 end
