@@ -38,7 +38,7 @@ Wiki::Plugin.define 'filter/tag' do
     def walk_elements(context, parent)
       parent.each_child do |elem|
         if elem.elem?
-          name = elem.stag.name.downcase
+          name = elem.name.downcase
           tag = self.class.tags[name]
           if tag
             @tag_counter[name] ||= 0
@@ -49,14 +49,18 @@ Wiki::Plugin.define 'filter/tag' do
             elsif opts[:requires] && attr = [opts[:requires]].flatten.find {|a| elem[a.to_s].blank? }
               elem.swap "#{name}: Attribute \"#{attr}\" is required"
             else
-              text = elem.children.map { |x| x.to_original_html }.join
+              text = elem.children ? elem.children.map { |x| x.to_original_html }.join : ''
               text = begin
-                       method.bind(self).call(context, elem.attributes, text) || ''
+                       method.bind(self).call(context, elem.attributes, text)
                      rescue Exception => ex
                        "#{name}: #{ex.message}"
                      end
               if opts[:immediate]
-                elem.swap text
+                if text.blank?
+                  parent.children.delete(elem)
+                else
+                  elem.swap text
+                end
               else
                 @elements << text
                 elem.swap "TAG_#{@elements.length-1}"
