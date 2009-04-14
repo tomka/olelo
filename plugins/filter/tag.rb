@@ -5,7 +5,7 @@ Wiki::Plugin.define 'filter/tag' do
   class Wiki::Tag < Wiki::Filter
     include Wiki::Utils
 
-    MAXIMUM_RECURSION = 200
+    MAXIMUM_RECURSION = 100
 
     def self.tags
       @tags || {}

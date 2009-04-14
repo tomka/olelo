@@ -39,7 +39,7 @@ Wiki::Plugin.define 'tag/scripting' do
     end
   end
 
-  Wiki::Tag.define(:include, :requires => :page, :limit => 3) do |context, attrs, content|
+  Wiki::Tag.define(:include, :requires => :page, :limit => 5) do |context, attrs, content|
     if page = Wiki::Page.find(context.page.repo, attrs['page'])
       engine = Wiki::Engine.find(page, attrs['output'])
       raise(Exception, "No engine found for #{attrs['page']}") if !engine || !engine.layout?
@@ -49,7 +49,7 @@ Wiki::Plugin.define 'tag/scripting' do
     end
   end
 
-  Wiki::Tag.define(:for, :requires => [:from, :to], :immediate => true) do |context, attrs, content|
+  Wiki::Tag.define(:for, :requires => [:from, :to], :immediate => true, :limit => 50) do |context, attrs, content|
     to = attrs['to'].to_i
     from = attrs['from'].to_i
     raise(Exception, "Limits exceeded") if to - from > 10
@@ -59,7 +59,7 @@ Wiki::Plugin.define 'tag/scripting' do
     end.join
   end
 
-  Wiki::Tag.define(:repeat, :requires => :times, :immediate => true) do |context, attrs, content|
+  Wiki::Tag.define(:repeat, :requires => :times, :immediate => true, :limit => 50) do |context, attrs, content|
     n = attrs['times'].to_i
     raise(Exception, "Limits exceeded") if n > 10
     (1..n).map do |i|
