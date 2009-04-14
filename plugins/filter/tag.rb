@@ -5,6 +5,8 @@ Wiki::Plugin.define 'filter/tag' do
   class Wiki::Tag < Wiki::Filter
     include Wiki::Utils
 
+    MAXIMUM_RECURSION = 200
+
     def self.tags
       @tags || {}
     end
@@ -15,35 +17,41 @@ Wiki::Plugin.define 'filter/tag' do
     end
 
     def nested_tags(context, content)
-      return 'Maximum tag nesting exceeded' if context.level > 3
+      context['TAG_RECURSION'] += 1
+      return 'Maximum tag nesting exceeded' if context['TAG_RECURSION'] > MAXIMUM_RECURSION
       doc = Hpricot.XML(content)
-      @elements ||= []
-      walk_elements(doc, context)
+      walk_elements(context, doc)
       doc.to_original_html
     end
 
     def filter(content)
+      @elements = []
+      @tag_counter = {}
+      context['TAG_RECURSION'] = 0
       content = subfilter(nested_tags(context, content))
-      content.gsub!(/WIKI_TAG_(\d+)/) { |match| @elements[$1.to_i] }
+      content.gsub!(/TAG_(\d+)/) { |match| @elements[$1.to_i] }
       content
     end
 
     private
 
-    def walk_elements(parent, context)
+    def walk_elements(context, parent)
       parent.each_child do |elem|
         if elem.elem?
           name = elem.stag.name.downcase
           tag = self.class.tags[name]
           if tag
+            @tag_counter[name] ||= 0
+            @tag_counter[name] += 1
             opts, method = tag
-            attrs = elem.attributes
-            text = elem.children.map { |x| x.to_original_html }.join
-            if opts[:requires] && attr = [opts[:requires]].flatten.find {|a| attrs[a.to_s].blank? }
+            if opts[:limit] && @tag_counter[name] > opts[:limit]
+              elem.swap "#{name}: Tag limit exceeded"
+            elsif opts[:requires] && attr = [opts[:requires]].flatten.find {|a| elem[a.to_s].blank? }
               elem.swap "#{name}: Attribute \"#{attr}\" is required"
             else
+              text = elem.children.map { |x| x.to_original_html }.join
               text = begin
-                       method.bind(self).call(context, attrs, text)
+                       method.bind(self).call(context, elem.attributes, text) || ''
                      rescue Exception => ex
                        "#{name}: #{ex.message}"
                      end
@@ -51,18 +59,14 @@ Wiki::Plugin.define 'filter/tag' do
                 elem.swap text
               else
                 @elements << text
-                elem.swap "WIKI_TAG_#{@elements.length-1}"
+                elem.swap "TAG_#{@elements.length-1}"
               end
             end
           else
-            walk_elements(elem, context)
+            walk_elements(context, elem)
           end
         end
       end
-    end
-
-    def attributes(attrs)
-      Hash[*attrs.scan(/\s*([^=]+)=("[^"]+"|'[^']+')\s*/).map {|a,b| [a, b[1...-1]] }.flatten]
     end
   end
 
