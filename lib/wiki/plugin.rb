@@ -71,7 +71,7 @@ module Wiki
       return true if @started
       success = @setup.all? do |setup|
         begin
-          setup.to_method(Plugin).bind(self).call
+          self.instance_eval(&setup)
           true
         rescue Exception => ex
           Plugin.logger.error ex

@@ -25,19 +25,6 @@ class Hash
   end
 end
 
-class Proc
-  # Convert proc to method of klass
-  def to_method(klass)
-    block, name = self, "to_method_#{self.object_id.abs.to_s(36)}#{Thread.current.object_id.abs.to_s(36)}"
-    klass.class_eval do
-      define_method(name, &block)
-      method = instance_method(name)
-      remove_method(name)
-      method
-    end
-  end
-end
-
 class Object
   def metaclass
     (class << self; self; end)
@@ -46,6 +33,20 @@ class Object
   # Nice blank? helper from rails activesupport
   def blank?
     respond_to?(:empty?) ? empty? : !self
+  end
+
+  # instance_exec implementation for ruby1.8
+  if !new.respond_to?(:instance_exec)
+    def instance_exec(*args, &block)
+      name = "__instance_exec_#{Thread.current.object_id.abs.to_s(36)}"
+      metaclass.class_eval { define_method(name, &block) }
+      begin
+        ret = send(name, *args)
+      ensure
+        metaclass.class_eval { remove_method(name) } rescue nil
+      end
+      ret
+    end
   end
 end
 

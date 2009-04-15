@@ -13,7 +13,7 @@ Wiki::Plugin.define 'filter/tag' do
 
     def self.define(tag, opts = {}, &block)
       @tags ||= {}
-      @tags[tag.to_s] = [opts, block.to_method(self)]
+      @tags[tag.to_s] = [opts, block]
     end
 
     def nested_tags(context, content)
@@ -43,7 +43,7 @@ Wiki::Plugin.define 'filter/tag' do
           if tag
             @tag_counter[name] ||= 0
             @tag_counter[name] += 1
-            opts, method = tag
+            opts, block = tag
             if opts[:limit] && @tag_counter[name] > opts[:limit]
               elem.swap "#{name}: Tag limit exceeded"
             elsif opts[:requires] && attr = [opts[:requires]].flatten.find {|a| elem[a.to_s].blank? }
@@ -51,7 +51,7 @@ Wiki::Plugin.define 'filter/tag' do
             else
               text = elem.children ? elem.children.map { |x| x.to_original_html }.join : ''
               text = begin
-                       method.bind(self).call(context, elem.attributes, text)
+                       instance_exec(context, elem.attributes, text, &block)
                      rescue Exception => ex
                        "#{name}: #{ex.message}"
                      end
