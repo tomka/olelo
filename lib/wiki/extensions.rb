@@ -19,9 +19,17 @@ class Module
 end
 
 class Hash
-  # Map hash to hash. Block should return a list with two elements
-  def map_to_hash(&block)
-    Hash[*(map {|key,value| block[key,value] }.flatten)]
+  # Return a new hash with all keys converted to symbols.
+  def symbolize_keys
+    inject({}) do |hash, (key, val)|
+      hash[(key.to_sym rescue key) || key] = val
+      hash
+    end
+  end
+
+  # Destructively convert all keys to symbols.
+  def symbolize_keys!
+    replace(symbolize_keys)
   end
 end
 

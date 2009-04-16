@@ -42,11 +42,11 @@ module Wiki
 
     @engines = {}
 
-    def initialize(name, layout, cacheable, priority)
+    def initialize(name, opts)
       @name = name.to_s
-      @layout = layout
-      @cacheable = cacheable
-      @priority = priority
+      @layout = !!opts[:layout]
+      @cacheable = !!opts[:cacheable]
+      @priority = (opts[:priority] || 99).to_i
     end
 
     attr_reader :name, :priority
@@ -57,7 +57,7 @@ module Wiki
     def self.create(name, opts = {}, &block)
       engine = Class.new(Engine)
       engine.class_eval(&block)
-      register engine.new(name, !!opts[:layout], !!opts[:cacheable], opts[:priority].to_i)
+      register engine.new(name, opts)
     end
 
     def self.register(engine)
@@ -85,19 +85,14 @@ module Wiki
       find(page, name) || raise(NotAvailable, name)
     end
 
-    # Sugar to generate methods
-    def self.output(&block);  define_method :output, &block;   end
-    def self.mime(&block);    define_method :mime, &block;     end
-    def self.accepts(&block); define_method :accepts?, &block; end
-
     # Acceptor should return true if page would be accepted by this engine
-    accepts {|page| false }
+    def accepts(page); true; end
 
     # Render page content
-    output {|context| context.page.content.dup }
+    def output(context); context.page.content; end
 
     # Get output mime type
-    mime {|page| 'text/plain' }
+    def mime(page); page.mime; end
 
     # Render page with caching. This is
     # the primary engine interface
@@ -106,4 +101,7 @@ module Wiki
       Cache.cache('engine', context.id, :disable => !page.saved? || !cacheable?) { output(context) }
     end
   end
+
+  # Raw engine
+  Engine.register(Engine.new(:raw, :priority => 999, :layout => false))
 end

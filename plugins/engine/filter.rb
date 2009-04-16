@@ -54,10 +54,10 @@ Wiki::Plugin.define 'engine/filter' do
 
   class Wiki::FilterEngine <  Wiki::Engine
     def initialize(name, config)
-      super(name, !!config['layout'], !!config['cacheable'], (config['priority'] || 99).to_i)
-      @accepts = config['accepts']
-      @mime = config['mime']
-      @filter = build(config['filter'])
+      super(name, config.symbolize_keys!)
+      @accepts = config[:accepts]
+      @mime = config[:mime]
+      @filter = build(config[:filter])
     end
 
     def build(list)
@@ -77,15 +77,15 @@ Wiki::Plugin.define 'engine/filter' do
       end
     end
 
-    accepts do |page|
+    def accepts?(page)
       page.mime.to_s =~ /^#{@accepts}$/
     end
 
-    mime do |page|
+    def mime(page)
       @mime || page.mime
     end
 
-    output do |context|
+    def output(context)
       @filter.call(context, context.page.content)
     end
   end

@@ -2,13 +2,11 @@ Wiki::Plugin.define 'engine/image' do
   require 'RMagick'
 
   Wiki::Engine.create(:image, :priority => 2, :layout => false, :cacheable => true) do
-    def svg?(page)
-      page.mime.to_s =~ /svg/
-    end
+    def svg?(page); page.mime.to_s =~ /svg/; end
+    def accepts?(page); page.mime.mediatype == 'image'; end
+    def mime(page); svg?(page) ? 'image/png' : page.mime; end
 
-    accepts {|page| page.mime.mediatype == 'image' }
-
-    output do |context|
+    def output(context)
       page = context.page
       if svg?(page) || context['geometry']
         image = Magick::Image.from_blob(page.content).first
@@ -19,8 +17,5 @@ Wiki::Plugin.define 'engine/image' do
         super
       end
     end
-
-    mime {|page| svg?(page) ? 'image/png' : page.mime }
-
   end
 end
