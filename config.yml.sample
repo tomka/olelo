@@ -1,5 +1,7 @@
 title:        'Git-Wiki'
-store:        '/home/user/wiki/store.yml'
+auth:
+  service: yamlfile
+  store:   '/home/user/wiki/users.yml'
 cache:        '/home/user/wiki/cache'
 default_mime: 'text/x-creole'
 main_page:    'Home'

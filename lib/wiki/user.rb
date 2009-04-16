@@ -1,63 +1,83 @@
-require 'wiki/entry'
 require 'wiki/utils'
 require 'wiki/extensions'
 
 module Wiki
-  class User < Entry
+  class User
     include Utils
 
+    attr_reader :name
     attr_accessor :email
-    attr_reader :password
     question_accessor :anonymous
-    transient :anonymous
 
-    def initialize(name, password, email, anonymous)
-      super(name)
+    def initialize(name, email, anonymous)
+      @name = name
       @email = email
       @anonymous = anonymous
-      @password = crypt(password)
     end
 
     def change_password(oldpassword, password, confirm)
-      forbid('Passwords do not match' => password != confirm,
-             'Password is wrong'      => @password != crypt(oldpassword))
-      @password = crypt(password)
+      validate_password(password, confirm)
+      User.service.change_password(self, oldpassword, password)
     end
 
     def author
       "#{@name} <#{@email}>"
     end
 
-    def save
-      forbid(
-        'E-Mail is invalid' => @email !~ /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\Z/i,
-        'Name is invalid'   => @name !~ /[\w.\-+_]+/,
-        'Password is empty' => @password.blank?,
-        'Anonymous'         => anonymous?
-      )
-      super
+    def modify(&block)
+      copy = dup
+      block.call(copy)
+      validate
+      User.service.update(copy)
+      instance_variables.each do |name|
+        instance_variable_set(name, copy.instance_variable_get(name))
+      end
     end
 
-    def self.anonymous(ip)
-      new(ip, nil, "anonymous@#{ip}", true)
-    end
-
-    def self.authenticate(name, password)
-      user = find(name)
-      forbid('Wrong username or password' => !user || user.password != crypt(password))
-      user
-    end
-
-    def self.create(name, password, confirm, email)
-      forbid('Passwords do not match' => password != confirm,
-             'User already exists'    => find(name))
-      new(name, password, email, false).save
+    def validate
+      forbid('E-Mail is invalid' => email !~ /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\Z/i,
+             'Name is invalid'   => name !~ /[\w.\-+_]+/,
+             'Anonymous'         => anonymous?)
     end
 
     static do
-      private
-      def crypt(s)
-        s.blank? ? s : Digest::SHA256.hexdigest(s)
+      def validate_password(password, confirm)
+        forbid('Passwords do not match' => password != confirm,
+               'Password is empty' => password.blank?)
+      end
+    end
+
+    @services = {}
+
+    class<< self
+      def define_service(name, &block)
+        service = Class.new
+        service.class_eval(&block)
+        @services[name.to_s] = service
+      end
+
+      def service
+        @service ||= begin
+                       serv = @services[Config.auth.service]
+                       raise(ArgumentError, "Authentication service #{Config.auth.service} not found") if !serv
+                       serv.new
+                     end
+      end
+
+      def anonymous(ip)
+        new(ip, "anonymous@#{ip}", true)
+      end
+
+      def authenticate(name, password)
+        service.authenticate(name, password)
+      end
+
+      def create(name, password, confirm, email)
+        validate_password(password, confirm)
+        user = User.new(name, email, false )
+        user.validate
+        service.create(user, password)
+        user
       end
     end
 

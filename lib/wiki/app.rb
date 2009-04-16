@@ -135,7 +135,7 @@ module Wiki
     post '/profile' do
       if !@user.anonymous?
         begin
-          @user.transaction do |user|
+          @user.modify do |user|
             user.change_password(params[:oldpassword], params[:password], params[:confirm]) if !params[:password].blank?
             user.email = params[:email]
           end
@@ -159,7 +159,7 @@ module Wiki
         # Fallback to default style
         cache_control :max_age => 120
         content_type 'text/css', :charset => 'utf-8'
-        sass params[:style].to_sym, :sass => {:style => :compact}
+        sass :"style/#{params[:style]}", :sass => {:style => :compact}
       end
     end
 
@@ -366,7 +366,7 @@ module Wiki
     # Boilerplate for new pages
     def boilerplate(page)
       if page.path =~ /^\w+\.sass$/
-        name = File.join(Config.root, 'views', $&)
+        name = File.join(Config.root, 'views', 'style', $&)
         page.content = File.read(name) if File.file?(name)
       end
     end

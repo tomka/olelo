@@ -28,7 +28,10 @@ end
 default_config = {
   :title        => 'Git-Wiki',
   :root         => path,
-  :store        => ::File.join(path, '.wiki', 'store.yml'),
+  :auth => {
+    :service => 'yamlfile',
+    :store   => ::File.join(path, '.wiki', 'users.yml'),
+  },
   :cache        => ::File.join(path, '.wiki', 'cache'),
   :default_mime => 'text/x-creole',
   :main_page    => 'Home',

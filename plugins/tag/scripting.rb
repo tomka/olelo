@@ -24,7 +24,7 @@ Wiki::Plugin.define 'tag/scripting' do
 
   Wiki::Tag.define(:call, :requires => :name, :immediate => true) do |context, attrs, content|
     name = attrs['name'].downcase
-    raise(Exception, "Function #{name} not found") if !context.function_table[name]
+    raise(NameError, "Function #{name} not found") if !context.function_table[name]
     args, content = context.function_table[name]
     args = args.map do |arg|
       raise(NameError, "Argument #{arg} is required") if !attrs[arg]
@@ -42,7 +42,7 @@ Wiki::Plugin.define 'tag/scripting' do
   Wiki::Tag.define(:include, :requires => :page, :limit => 5) do |context, attrs, content|
     if page = Wiki::Page.find(context.page.repo, attrs['page'])
       engine = Wiki::Engine.find(page, attrs['output'])
-      raise(Exception, "No engine found for #{attrs['page']}") if !engine || !engine.layout?
+      raise(ArgumentError, "No engine found for #{attrs['page']}") if !engine || !engine.layout?
       engine.output(context.subcontext(attrs.merge(:engine => engine, :page => page)))
     else
       "<a href=\"/#{attrs['page']}/new\">Create #{attrs['page']}</a>"
@@ -52,7 +52,7 @@ Wiki::Plugin.define 'tag/scripting' do
   Wiki::Tag.define(:for, :requires => [:from, :to], :immediate => true, :limit => 50) do |context, attrs, content|
     to = attrs['to'].to_i
     from = attrs['from'].to_i
-    raise(Exception, "Limits exceeded") if to - from > 10
+    raise(ArgumentError, "Limits exceeded") if to - from > 10
     (from..to).map do |i|
       params = attrs['counter'] ? {attrs['counter'] => i} : {}
       nested_tags(context.subcontext(params), content)
@@ -61,7 +61,7 @@ Wiki::Plugin.define 'tag/scripting' do
 
   Wiki::Tag.define(:repeat, :requires => :times, :immediate => true, :limit => 50) do |context, attrs, content|
     n = attrs['times'].to_i
-    raise(Exception, "Limits exceeded") if n > 10
+    raise(ArgumentError, "Limits exceeded") if n > 10
     (1..n).map do |i|
       params = attrs['counter'] ? {attrs['counter'] => i} : {}
       nested_tags(context.subcontext(params), content)
