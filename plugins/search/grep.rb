@@ -1,14 +1,12 @@
-Wiki::Plugin.define 'search/grep' do
-  class Wiki::App
-    get '/search' do
-      matches = @repo.grep(params[:pattern], nil, :ignore_case => true)
-      @matches = []
-      matches.each_pair do |id,lines|
-        if id =~ /^.+?:(.+)$/
-          @matches << [$1,lines.map {|x| x[1] }.join("\n").truncate(100)]
-        end
+class Wiki::App
+  get '/search' do
+    matches = @repo.grep(params[:pattern], nil, :ignore_case => true)
+    @matches = []
+    matches.each_pair do |id,lines|
+      if id =~ /^.+?:(.+)$/
+        @matches << [$1,lines.map {|x| x[1] }.join("\n").truncate(100)]
       end
-      haml :search
     end
+    haml :search
   end
 end

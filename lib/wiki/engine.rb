@@ -86,7 +86,7 @@ module Wiki
     end
 
     # Acceptor should return true if page would be accepted by this engine
-    def accepts(page); true; end
+    def accepts?(page); true; end
 
     # Render page content
     def output(context); context.page.content; end

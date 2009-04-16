@@ -1,7 +1,5 @@
-Wiki::Plugin.define 'engine/preformatted' do
-  Wiki::Engine.create(:preformatted, :priority => 3, :layout => true, :cacheable => true) do
-    def accepts?(page); page.mime.text?; end
-    def output(context); "<pre>#{escape_html context.page.content}</pre>"; end
-    def mime(page); page.mime; end
-  end
+Engine.create(:preformatted, :priority => 3, :layout => true, :cacheable => true) do
+  def accepts?(page); page.mime.text?; end
+  def output(context); "<pre>#{escape_html context.page.content}</pre>"; end
+  def mime(page); page.mime; end
 end

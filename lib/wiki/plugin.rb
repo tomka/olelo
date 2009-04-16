@@ -12,20 +12,6 @@ module Wiki
       attr_reader :plugins
       attr_accessor :dir, :logger
 
-      # Define plugin with name
-      def define(name, &block)
-        raise ArgumentError, "Plugin #{name} already exists" if @plugins.key?(name)
-        if !Config.disabled_plugins.to_a.include?(name)
-          name = name.to_s
-          plugin = new(name, @logger)
-          plugin.instance_eval(&block)
-          @plugins[name] = plugin
-          @logger.debug("Plugin #{name} successfully defined")
-        end
-      rescue Exception => ex
-        @logger.error(ex) if @logger
-      end
-
       # Start plugins
       def start
         @plugins.each_value {|plugin| plugin.start }
@@ -33,20 +19,25 @@ module Wiki
 
       # Load plugins by name and return a boolean for success
       def load(*list)
+        dir = File.join(Config.root, 'plugins')
         files = list.map do |name|
           name = Pathname.new(name).cleanpath
-          Dir.glob(File.join(@dir, "**/#{name}.rb"))
+          Dir.glob(File.join(dir, '**', "#{name}.rb"))
         end.flatten
         return false if files.empty?
         files.inject(true) do |result,file|
           begin
-            require(file)
+            name = file[(dir.size+1)..-4]
+            if !@plugins.include?(name) && !Config.disabled_plugins.to_a.include?(name)
+              plugin = new(name, @logger)
+              plugin.instance_eval(File.read(file), file)
+              @plugins[name] = plugin
+              @logger.debug("Plugin #{name} successfully loaded")
+            end
             result
           rescue Exception => ex
             @logger.error ex
             false
-          else
-            @plugins.key?(file[(@dir.size+1)..-4])
           end
         end
       end

@@ -1,7 +1,5 @@
-Wiki::Plugin.define 'filter/shebang' do
-  depends_on 'engine/filter'
+depends_on 'engine/filter'
 
-  Wiki::Filter.create :shebang do |content|
-    content.sub(/^#!(\w+)\s+/,'')
-  end
+Filter.create :shebang do |content|
+  content.sub(/^#!(\w+)\s+/,'')
 end
