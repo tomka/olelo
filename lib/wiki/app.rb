@@ -52,8 +52,6 @@ module Wiki
 
       forbid('No ip given' => !request.ip)
       @user = session[:user] || User.anonymous(request.ip)
-      @footer = nil
-      @title = ''
     end
 
     # Handle 404s

@@ -10,7 +10,9 @@ class Wiki::App
   WHITE_LIST =
     [
      '/login',
-     '/style\.css',
+     '/screen\.css',
+     '/print\.css',
+     '/reset\.css',
      '/sys/fragments/user'
     ]
 
