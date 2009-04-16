@@ -1,4 +1,5 @@
 require 'wiki/extensions'
+require 'yaml'
 
 module Wiki
   class Config
