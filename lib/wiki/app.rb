@@ -148,17 +148,18 @@ module Wiki
       haml :profile
     end
 
-    get '/style.css' do
+    get "/:style.css" do
       begin
         # Try to use wiki version
         params[:output] = 'css'
-        params[:path] = 'style.sass'
+        params[:path] = params[:style] + '.sass'
         show
       rescue Object::NotFound
-        cache_control :max_age => 120
+        raise if !%w(screen print reset).include?(params[:style])
         # Fallback to default style
+        cache_control :max_age => 120
         content_type 'text/css', :charset => 'utf-8'
-        sass :style, :sass => {:style => :compact}
+        sass params[:style].to_sym, :sass => {:style => :compact}
       end
     end
 
@@ -364,8 +365,9 @@ module Wiki
 
     # Boilerplate for new pages
     def boilerplate(page)
-      if page.path == 'style.sass'
-        page.content = lookup_template :sass, :style
+      if page.path =~ /^\w+\.sass$/
+        name = File.join(Config.root, 'views', $&)
+        page.content = File.read(name) if File.file?(name)
       end
     end
 
