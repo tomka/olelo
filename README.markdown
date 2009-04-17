@@ -13,7 +13,7 @@ Features
 - Edit page, append to page, upload files
 - Plugin system
 - Multiple renderers
-- LaTeX
+- LaTeX/Graphviz
 - Syntax highlighting (embedded code blocks)
 - Image support, SVG support
 - Auto-generated table of contents
@@ -44,7 +44,7 @@ Optional:
     gem install RedCloth
     gem install rubypants
     gem install RMagick
-    gem install minad-latex-renderer
+    gem install minad-imaginator
 
 Then run with `./run.ru -sthin -p4567` and. point your browser at <http://localhost:4567>.
 It automatically creates a repository in the directory '.wiki'.
@@ -62,7 +62,7 @@ Optional Dependencies
 
 - [RubyPants][] to fix puncation
 - [Pygments][] for syntax highlighting
-- [latex-renderer][] for latex output (minad-latex-renderer gem from github)
+- [imaginator][] for LaTeX/graphviz output (minad-imaginator gem from github)
 - [hpricot][] for tags in the wikitext
 - [RMagick][] for image scaling and svg rendering
 
@@ -82,7 +82,7 @@ At least one of the renderers should be installed.
   [RedCloth]: http://whytheluckystiff.net/ruby/redcloth/
   [RubyPants]: http://chneukirchen.org/blog/static/projects/rubypants.html
   [creole]: http://github.com/minad/creole
-  [latex-renderer]: http://github.com/minad/latex-renderer
+  [imaginator]: http://github.com/minad/imaginator
   [pygments]: http://pygments.org/
   [hpricot]: http://wiki.github.com/why/hpricot
   [RMagick]: http://rmagick.rubyforge.org/

@@ -1,13 +1,23 @@
 require 'drb'
 depends_on 'filter/tag'
+require 'imaginator'
 
-URI = 'drbunix://' + File.join(Config.cache, 'imaginator.sock')
-Imaginator = DRb::DRbObject.new(nil, URI)
+Imaginator.uri = "drbunix://#{Config.cache}/imaginator.sock"
+Imaginator.dir = File.join(Config.cache, 'imaginator')
+
+Imaginator.run do |server|
+  server.add_renderer(:math,  Imaginator::LaTeX.new)
+  server.add_renderer(:dot,   Imaginator::Graphviz.new(:cmd => 'dot'))
+  server.add_renderer(:neato, Imaginator::Graphviz.new(:cmd => 'neato'))
+  server.add_renderer(:twopi, Imaginator::Graphviz.new(:cmd => 'twopi'))
+  server.add_renderer(:circo, Imaginator::Graphviz.new(:cmd => 'circo'))
+  server.add_renderer(:fdp,   Imaginator::Graphviz.new(:cmd => 'fdp'))
+end
 
 App.class_eval do
   get '/sys/imaginator/:name', :patterns => {:name => '[\w\.]+'} do
     begin
-      send_file Imaginator.result(params[:name])
+      send_file Imaginator.get.result(params[:name])
     rescue Exception => ex
       @logger.error ex
       redirect image_path('image_failed')
@@ -17,7 +27,8 @@ end
 
 def define_tag(type)
   Tag.define type do |context, attrs, content|
-    name = Imaginator.enqueue(type, content)
+    raise(ArgumentError, "Limits exceeded") if content.size > 10240
+    name = Imaginator.get.enqueue(type, content)
     alt = escape_html content.truncate(30).gsub(/\s+/, ' ')
     "<img src=\"/sys/imaginator/#{name}\" alt=\"#{alt}\"/>"
   end
