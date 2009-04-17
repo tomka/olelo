@@ -4,7 +4,7 @@
   |
   %a{:href=> object_path(@tree, :sha => @tree.latest_commit) } Permalink
   | Version
-  %a.sha{:href => object_path(@tree, :sha => @tree.latest_commit) }= @tree.latest_commit.sha.truncate(8, '&#8230;')
+  %a.sha{:href => object_path(@tree, :sha => @tree.latest_commit), :title => @tree.latest_commit.sha}= @tree.latest_commit.sha.truncate(8, '&#8230;')
   = "by #{@tree.latest_commit.committer.name}, #{date @tree.latest_commit.committer_date}"
 %table.tree.zebra
   %thead
@@ -23,7 +23,7 @@
         %td= child.latest_commit.message.truncate(50)
         %td
           - if child.tree?
-            %a{:href=>action_path(child, :archive)}= image(:archive)
+            %a{:href=>action_path(child, :archive), :title => 'Archive'}= image(:archive, :alt => 'Archive')
           - else
-            %a{:href=>action_path(child, :edit)}= image(:edit)
-          %a{:href=>action_path(child, :history)}= image(:history)
+            %a{:href=>action_path(child, :edit), :title => 'Edit'}= image(:edit, :alt => 'Edit')
+          %a{:href=>action_path(child, :history), :title => 'History'}= image(:history, :alt => 'History')

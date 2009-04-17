@@ -4,6 +4,6 @@
   |
   %a{:href=> object_path(@page, :sha => @page.latest_commit) } Permalink
   | Version
-  %a.sha{:href => object_path(@page, :sha => @page.latest_commit) }= @page.latest_commit.sha.truncate(8, '&#8230;')
+  %a.sha{:href => object_path(@page, :sha => @page.latest_commit), :title => @page.latest_commit.sha }= @page.latest_commit.sha.truncate(8, '&#8230;')
   = "by #{@page.latest_commit.committer.name}, #{date @page.latest_commit.committer_date}"
 ~ @content

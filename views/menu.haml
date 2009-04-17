@@ -5,7 +5,10 @@
       Home
   = breadcrumbs(object)
   - if object && !object.current?
-    %li.noborder= "Tree version #{object.commit.sha.truncate(8, '&#8230;')}"
+    %li.noborder
+      Tree version
+      %span.sha{:title => object.commit.sha}
+        = object.commit.sha.truncate(8, '&#8230;')
 %ul.wiki
   %li.title Wiki Menu
   - if menu.include?(:version)
