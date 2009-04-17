@@ -65,7 +65,7 @@ class Wiki::Tag < Filter
             text = begin
                      instance_exec(context, elem.attributes, text, &block)
                    rescue Exception => ex
-                     "#{name}: #{ex.message}"
+                     "#{name}: #{escape_html ex.message}"
                    end
             if opts[:immediate]
               if text.blank?

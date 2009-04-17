@@ -209,7 +209,7 @@ module Wiki
 
     # Page extension
     def extension
-      path =~ /.\.([^.]+)$/
+      path =~ /.\.([^\/.]+)$/
       $1.to_s
     end
 
