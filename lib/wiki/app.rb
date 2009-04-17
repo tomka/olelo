@@ -324,9 +324,9 @@ module Wiki
     end
 
     # Show page or tree
-    def show(object = nil)
+    def show
       cache_control :etag => params[:sha], :validate_only => true
-      object = Object.find!(@repo, params[:path], params[:sha]) if !object || object.new?
+      object = Object.find!(@repo, params[:path], params[:sha])
 
       if object.tree?
         root = Tree.find!(@repo, '/', params[:sha])
