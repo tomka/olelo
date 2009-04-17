@@ -13,6 +13,7 @@
       %th Last modified
       %th Author
       %th Message
+      %th Actions
   %tbody
     - @children.each do |level, child, open|
       %tr
@@ -20,3 +21,9 @@
         %td= date(child.latest_commit.date)
         %td= child.latest_commit.author.name
         %td= child.latest_commit.message.truncate(50)
+        %td
+          - if child.tree?
+            %a{:href=>action_path(child, :archive)}= image(:archive)
+          - else
+            %a{:href=>action_path(child, :edit)}= image(:edit)
+          %a{:href=>action_path(child, :history)}= image(:history)
