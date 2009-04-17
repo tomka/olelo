@@ -1,15 +1,13 @@
 require 'drb'
 depends_on 'filter/tag'
 
-URI = 'drbunix:///tmp/imaginator.sock'
+URI = 'drbunix://' + File.join(Config.cache, 'imaginator.sock')
 Imaginator = DRb::DRbObject.new(nil, URI)
 
 App.class_eval do
-  get '/sys/imaginator/:id.:ext' do
+  get '/sys/imaginator/:name', :patterns => {:name => '[\w\.]+'} do
     begin
-      image = Imaginator.result("#{params[:id]}.#{params[:ext]}")
-      content_type Mime.by_extension(params[:ext]).to_s
-      image
+      send_file Imaginator.result(params[:name])
     rescue Exception => ex
       @logger.error ex
       redirect image_path('image_failed')

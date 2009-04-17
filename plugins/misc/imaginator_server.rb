@@ -172,7 +172,7 @@ END
       end
     end
     raise(RuntimeError, 'Image could not be generated') if !File.exists?(file)
-    File.read(file)
+    file
   end
 
   private
@@ -201,7 +201,7 @@ END
   end
 end
 
-URI = 'drbunix:///tmp/imaginator.sock'
+URI = 'drbunix://' + File.join(Config.cache, 'imaginator.sock')
 if !Imaginator.running?(URI)
   RENDERER = {
     :math  => Imaginator::LaTeX.new,
