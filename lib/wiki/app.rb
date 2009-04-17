@@ -244,7 +244,7 @@ module Wiki
       begin
         if action?(:upload) && params[:file]
           @page.write(params[:file][:tempfile].read, 'File uploaded', @user.author)
-          show(@page)
+          redirect @page.path.urlpath
         else
           if action?(:append) && params[:appendix] && @page.mime.text?
             @page.content = @page.content + "\n" + params[:appendix]
@@ -261,7 +261,7 @@ module Wiki
             haml :edit
           else
             @page.save(params[:message], @user.author)
-            show(@page)
+            redirect @page.path.urlpath
           end
         end
       rescue MessageError => error
@@ -277,7 +277,7 @@ module Wiki
         if action?(:upload) && params[:file]
           check_name_clash(params[:path])
           @page.write(params[:file][:tempfile].read, "File #{@page.path} uploaded", @user.author)
-          redirect params[:path].urlpath
+          redirect @page.path.urlpath
         elsif action?(:new)
           @page.content = params[:content]
           if @page.mime.text? && params[:preview]
@@ -288,7 +288,7 @@ module Wiki
           else
             check_name_clash(params[:path])
             @page.save(params[:message], @user.author)
-            redirect params[:path].urlpath
+            redirect @page.path.urlpath
           end
         else
           redirect '/new'
