@@ -19,7 +19,9 @@ class Toc < Filter
       @level -= 1
     end
 
-    "<p class=\"toc\">\n#{@toc.join("\n")}\n</p>" + @doc.to_html
+    content = @doc.to_html
+    content.gsub!(context['__TOC__'], "<p class=\"toc\">\n#{@toc.join("\n")}\n</p>")
+    content
   end
 
   private
@@ -56,7 +58,7 @@ class Toc < Filter
 end
 
 Tag.define(:toc, :immediate => true) do |context, attrs, content|
-  context['__TOC__'] = true
+  context['__TOC__'] ||= "TOC_#{Thread.current.object_id.abs.to_s(36)}"
 end
 
 Filter.register Toc.new(:toc)
