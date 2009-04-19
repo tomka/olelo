@@ -3,7 +3,7 @@ Filter.create :editsection do |content|
   len = content.length
   pos, off = [], 0
   while (off = content.index(/^([ \t]*=+.*?)=*\s*$/, off))
-    pos << [off, off + $1.size - 1]
+    pos << [off, off + $1.size]
     off += $&.size
   end
   off = 0
