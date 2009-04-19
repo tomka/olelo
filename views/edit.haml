@@ -1,5 +1,5 @@
 - menu :new, :view, :history, :edit
-- title (@preview ? 'Preview ' : 'Edit ') + "\"#{@page.pretty_name}\""
+- title "Editing #{@page.pretty_name}" + (params[:pos] ? ' (Section)' : '')
 - if @preview
   .preview~ @preview
 .ui-tabs

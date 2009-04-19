@@ -3,8 +3,8 @@ Filter.create :editsection do |content|
   prefix = "EDIT_#{Thread.current.object_id.abs.to_s(36)}_"
   len = content.length
   pos, off = [], 0
-  while (off = content.index(/^([ \t]*=+.*?)=*\s*$/, off))
-    pos << [off, off + $1.size]
+  while (off = content.index(/^([ \t]*=+(.*?))=*\s*$/, off))
+    pos << [off, off + $1.size, $2.strip]
     off += $&.size
   end
   off = 0
@@ -18,7 +18,8 @@ Filter.create :editsection do |content|
     i = $1.to_i
     p = pos[i][0]
     l = pos[i+1] ? pos[i+1][0] - pos[i][0] - 1 : len - pos[i][0]
-    "<span class=\"editlink\">[<a href=\"#{action_path(context.page, :edit)}?pos=#{p}&amp;len=#{l}\">Edit</a>]</span>"
+    m = escape_html "#{pos[i][2]} edited"
+    "<span class=\"editlink\">[<a href=\"#{action_path(context.page, :edit)}?pos=#{p}&amp;len=#{l};message=#{m}\">Edit</a>]</span>"
   end
   content
 end
