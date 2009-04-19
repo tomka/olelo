@@ -1,4 +1,6 @@
 class Wiki::Filter
+  include Helper
+
   @filters = {}
 
   class NotFound < ArgumentError

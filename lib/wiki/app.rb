@@ -203,7 +203,7 @@ module Wiki
       end
     end
 
-    get '/:path/edit', '/:path/append', '/:path/upload' do
+    get '/:path/edit', '/:path/upload' do
       begin
         @page = Page.find!(@repo, params[:path])
         haml :edit
@@ -221,7 +221,7 @@ module Wiki
         end
         @page = Page.new(@repo, params[:path])
         boilerplate @page
-        check_name_clash(params[:path])
+        forbid('Path is not allowed' => name_clash?(params[:path]))
       rescue MessageError => error
         message :error, error.message
       end
@@ -243,27 +243,21 @@ module Wiki
       @page = Page.find!(@repo, params[:path])
       begin
         if action?(:upload) && params[:file]
-          @page.write(params[:file][:tempfile].read, 'File uploaded', @user.author)
-          redirect @page.path.urlpath
+          @page.write(params[:file][:tempfile], 'File uploaded', @user.author)
+        elsif action?(:edit) && params[:content]
+          preview(:edit, params[:content])
+          content = if params[:pos]
+                      pos = [[0, params[:pos].to_i].max, @page.content.size].min
+                      len = params[:len] ? [0, params[:len].to_i].max : @page.content.size - params[:len]
+                      @page.content[0,pos].to_s + params[:content] + @page.content[pos+len..-1].to_s
+                    else
+                      params[:content]
+                    end
+          @page.write(content, params[:message], @user.author)
         else
-          if action?(:append) && params[:appendix] && @page.mime.text?
-            @page.content = @page.content + "\n" + params[:appendix]
-          elsif action?(:edit) && params[:content]
-            @page.content = params[:content]
-          else
-            redirect @page.path.urlpath/'edit'
-          end
-
-          if @page.mime.text? && params[:preview]
-            message :error, 'Commit message is empty' if params[:message].empty?
-            engine = Engine.find!(@page)
-            @preview_content = engine.render(@page) if engine.layout?
-            haml :edit
-          else
-            @page.save(params[:message], @user.author)
-            redirect @page.path.urlpath
-          end
+          redirect((@page.path/'edit').urlpath)
         end
+        redirect @page.path.urlpath
       rescue MessageError => error
         message :error, error.message
         haml :edit
@@ -275,24 +269,16 @@ module Wiki
       begin
         @page = Page.new(@repo, params[:path])
         if action?(:upload) && params[:file]
-          check_name_clash(params[:path])
-          @page.write(params[:file][:tempfile].read, "File #{@page.path} uploaded", @user.author)
-          redirect @page.path.urlpath
+          forbid('Path is not allowed' => name_clash?(@page.path))
+          @page.write(params[:file][:tempfile], "File #{@page.path} uploaded", @user.author)
         elsif action?(:new)
-          @page.content = params[:content]
-          if @page.mime.text? && params[:preview]
-            message :error, 'Commit message is empty' if params[:message].empty?
-            engine = Engine.find!(@page)
-            @preview_content = engine.render(@page) if engine.layout?
-            haml :new
-          else
-            check_name_clash(params[:path])
-            @page.save(params[:message], @user.author)
-            redirect @page.path.urlpath
-          end
+          preview(:new, params[:content])
+          forbid('Path is not allowed' => name_clash?(@page.path))
+          @page.write(params[:content], params[:message], @user.author)
         else
           redirect '/new'
         end
+        redirect @page.path.urlpath
       rescue MessageError => error
         message :error, error.message
         haml :new
@@ -300,6 +286,19 @@ module Wiki
     end
 
     private
+
+    def preview(template, content)
+      if params[:preview]
+        message(:error, 'Commit message is empty') if params[:message].empty?
+        message(:error, 'Path is not allowed') if name_clash?(@page.path)
+        @page.preview_content = content
+        if @page.mime.text?
+          engine = Engine.find!(@page)
+          @preview = engine.render(@page) if engine.layout?
+        end
+        halt haml(template)
+      end
+    end
 
     def name_clash?(path)
       path = path.to_s.urlpath
@@ -317,10 +316,6 @@ module Wiki
       patterns << %r{^/(#{PATH_PATTERN})/(#{STRICT_SHA_PATTERN})$}
 
       patterns.any? {|pattern| pattern =~ path }
-    end
-
-    def check_name_clash(path)
-      forbid('Path is not allowed' => name_clash?(path))
     end
 
     # Show page or tree

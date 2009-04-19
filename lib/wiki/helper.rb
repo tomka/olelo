@@ -194,5 +194,17 @@ module Wiki
       end
     end
 
+    def edit_content
+      return params[:content] if params[:content]
+      return '' if !@page.mime.text?
+      if params[:pos] && params[:len]
+        pos = [[0, params[:pos].to_i].max, @page.content.size].min
+        len = [0, params[:len].to_i].max
+        @page.content[pos, len]
+      else
+        @page.content
+      end
+    end
+
   end
 end

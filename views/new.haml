@@ -1,7 +1,7 @@
-- title (@preview_content ? 'Preview new page ' : 'New page ') + "\"#{@page.pretty_name}\""
+- title (@preview ? 'Preview new page ' : 'New page ') + "\"#{@page.pretty_name}\""
 - menu :new
-- if @preview_content
-  .preview= @preview_content
+- if @preview
+  .preview= @preview
 .ui-tabs
   %ul
     %li{tab_selected(:new)}
@@ -18,7 +18,7 @@
       %input{:type=>'hidden', :name=> 'action',:value=>'new'}
       %label{:for=>'text-content'} Content
       %br
-      %textarea#text-content{:name=>'content', :cols=>100, :rows=>22, :value=> params[:content]}&= @page.content
+      %textarea#text-content{:name=>'content', :cols=>100, :rows=>22}&= params[:content]
       %br
       %label{:for=>'text-message'} Message
       %input#text-message{:type=>'text', :name=>'message', :value => params[:message], :size => 50}

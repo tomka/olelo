@@ -152,8 +152,6 @@ module Wiki
 
   # Page object in repository
   class Page < Object
-    attr_writer :content
-
     def initialize(repo, path, object = nil, commit = nil, current = nil)
       super
       @content = nil
@@ -165,14 +163,15 @@ module Wiki
       object && object.page? ? object : nil
     end
 
-    # Page content
-    def content
-      @content || saved_content
+    # Set page content for preview
+    def preview_content=(content)
+      @mime = nil
+      @content = content
     end
 
-    # Page content that is already saved to the repository
-    def saved_content
-      @object ? @object.contents : nil
+    # Page content
+    def content
+      @content || @object.contents
     end
 
     # Check if there is no unsaved content
@@ -180,24 +179,23 @@ module Wiki
       !new? && !@content
     end
 
-    # Shortcut: Set content and save
+    # Write page (commit)
     def write(content, message, author = nil)
-      @content = content
-      save(message, author)
-    end
+      return if content == @object.contents
 
-    # Save changed content (commit)
-    def save(message, author = nil)
-      return if @content == saved_content
-
-      forbid('No content'   => @content.blank?,
+      forbid('No content'   => content.blank?,
              'Object already exists' => new? && Object.find(@repo, @path),
              'Commit message is empty' => message.blank?)
 
-      repo.chdir {
+      repo.chdir do
         FileUtils.makedirs File.dirname(@path)
-        File.open(@path, 'w') {|f| f << @content }
-      }
+        if content.respond_to? :path
+          FileUtils.copy(content.path, @path)
+        else
+          File.open(@path, 'w') {|f| f << content }
+        end
+      end
+
       repo.add(@path)
       repo.commit(message, :author => author)
 

@@ -1,14 +1,11 @@
-- menu :new, :view, :history
-- title (@preview_content ? 'Preview ' : 'Edit ') + "\"#{@page.pretty_name}\""
-- if @preview_content
-  .preview~ @preview_content
+- menu :new, :view, :history, :edit
+- title (@preview ? 'Preview ' : 'Edit ') + "\"#{@page.pretty_name}\""
+- if @preview
+  .preview~ @preview
 .ui-tabs
   %ul
     %li{tab_selected(:edit)}
       %a{:href=>'#tab-edit'} Edit
-    - if @page.mime.text?
-      %li{tab_selected(:append)}
-        %a{:href=>'#tab-append'} Append
     %li{tab_selected(:upload)}
       %a{:href=>'#tab-upload'} Upload
   %form{:action => @page.path.urlpath, :method=>'post'}
@@ -17,9 +14,13 @@
       = show_messages if action? :edit
       %input{:type=>'hidden', :name=> '_method', :value=>'put'}
       %input{:type=>'hidden', :name=> 'action',  :value=>'edit'}
+      - if params[:pos]
+        %input{:type=>'hidden', :name=> 'pos', :value=> params[:pos]}
+        - if params[:len]
+          %input{:type=>'hidden', :name=> 'len', :value=> params[:len]}
       %label{:for=>'edit-content'} Content
       %br
-      %textarea#edit-content{:name=>'content', :cols=>100, :rows=>22}&= @page.mime.text? ? @page.content : ''
+      %textarea#edit-content{:name=>'content', :cols=>100, :rows=>22}&= edit_content
       %br
       %label{:for=>'edit-message'} Message
       %input#edit-message{:type=>'text', :name=>'message', :size => 50, :value => params[:message]}
@@ -27,26 +28,6 @@
       %input{:type=>'submit', :value=> 'Save'}
       %input{:type=>'reset', :value=>'Reset'}
       %br
-  - if @page.mime.text?
-    %form{:action => @page.path.urlpath, :method=>'post'}
-      #tab-append.box
-        %h2 Append
-        = show_messages if action? :append
-        %input{:type=>'hidden', :name=> '_method', :value=>'put'}
-        %input{:type=>'hidden', :name=> 'action',  :value=>'append'}
-        %label{:for=>'append-excerpt'} Excerpt
-        %br
-        %textarea#append-excerpt{:readonly=>true, :cols=>100, :rows=>5}&= @page.saved_content.last_lines(5)
-        %br
-        %label{:for=>'append-appendix'} Appendix
-        %textarea#append-appendix{:name=>'appendix', :cols=>100, :rows=>18}&= params[:appendix]
-        %br
-        %label{:for=>'append-message'} Message
-        %input#append-message{:type=>'text', :name=>'message', :size => 50, :value => params[:message]}
-        %input{:type=>'submit', :name=>'preview', :value=> 'Preview'}
-        %input{:type=>'submit', :value=> 'Save'}
-        %input{:type=>'reset', :value=>'Reset'}
-        %br
   %form{:action => @page.path.urlpath, :method=>'post', :enctype=> 'multipart/form-data'}
     #tab-upload.box
       %input{:type=>'hidden', :name=> '_method', :value=>'put'}

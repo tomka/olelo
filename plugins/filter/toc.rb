@@ -3,7 +3,7 @@ depends_on 'engine/filter'
 
 class Toc < Filter
   def filter(content)
-    content.gsub!('<toc/>', 'WIKI_TOC')
+    content.gsub!('<toc/>', ' WIKI_TOC ')
     content = subfilter(content)
     content.include?('WIKI_TOC') ? process(content) : content
   end
