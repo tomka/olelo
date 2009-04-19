@@ -68,7 +68,7 @@ class Wiki::Tag < Filter
                      "#{name}: #{escape_html ex.message}"
                    end
             if opts[:immediate]
-              if text.blank?
+              if !(String === text) || text.blank?
                 parent.children.delete(elem)
               else
                 elem.swap text

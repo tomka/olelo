@@ -1,14 +1,10 @@
 require 'hpricot'
 depends_on 'engine/filter'
+depends_on 'filter/tag'
 
 class Toc < Filter
   def filter(content)
-    content.gsub!('<toc/>', ' WIKI_TOC ')
-    content = subfilter(content)
-    content.include?('WIKI_TOC') ? process(content) : content
-  end
-
-  def process(content)
+    return content if !context['__TOC__']
     @toc = []
     @level = 0
     @doc = Hpricot(content)
@@ -23,7 +19,7 @@ class Toc < Filter
       @level -= 1
     end
 
-    @doc.to_html.sub('WIKI_TOC', "<p class=\"toc\">\n#{@toc.join("\n")}\n</p>")
+    "<p class=\"toc\">\n#{@toc.join("\n")}\n</p>" + @doc.to_html
   end
 
   private
@@ -43,22 +39,24 @@ class Toc < Filter
           @toc << indent + '</ul>'
         end
         @count[@level-1] += 1
-        @toc << indent + "<li class=\"toc#{@level-@offset+1}\"><a href=\"#section#{section}\">" +
-          "<span class=\"counter\">#{@count[@level-1]}</span> #{child.inner_text}</a></li>"
-        child.inner_html = "<span class=\"counter\" id=\"section#{section}\">#{@count[0..@level-1].join('.')}</span> " + child.inner_html
+        headline = child.children.first ? child.children.first.inner_text : ''
+        section = @count[0..@level-1].join('_') + '_' + headline.strip.gsub(/[^\w]/, '_')
+        @toc << indent + "<li class=\"toc#{@level-@offset+1}\"><a href=\"##{section}\">" +
+          "<span class=\"counter\">#{@count[@level-1]}</span> #{headline}</a></li>"
+        child.inner_html = "<span class=\"counter\" id=\"#{section}\">#{@count[0..@level-1].join('.')}</span> " + child.inner_html
       else
         walk(child)
       end
     end
   end
 
-  def section
-    @count[0..@level-1].join('_')
-  end
-
   def indent
     ('  ' * @level)
   end
+end
+
+Tag.define(:toc, :immediate => true) do |context, attrs, content|
+  context['__TOC__'] = true
 end
 
 Filter.register Toc.new(:toc)
