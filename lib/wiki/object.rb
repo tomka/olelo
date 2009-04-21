@@ -181,7 +181,7 @@ module Wiki
 
     # Write page (commit)
     def write(content, message, author = nil)
-      return if content == @object.contents
+      return if @object && content == @object.contents
 
       forbid('No content'   => content.blank?,
              'Object already exists' => new? && Object.find(@repo, @path),
