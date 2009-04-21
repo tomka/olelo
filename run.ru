@@ -10,6 +10,7 @@ Dir[::File.join(path, 'deps', '*', 'lib')].each {|x| $: << x }
 require 'wiki/app'
 require 'rack/path_info'
 require 'rack/esi'
+require 'rack/session/pstore'
 require 'fileutils'
 require 'logger'
 
@@ -59,7 +60,7 @@ if Wiki::Config.rack.profiling
   use Rack::Profiler, :printer => :graph
 end
 
-use Rack::Session::Pool
+use Rack::Session::PStore
 use Rack::PathInfo
 use Rack::MethodOverride
 
