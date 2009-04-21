@@ -60,7 +60,7 @@ if Wiki::Config.rack.profiling
   use Rack::Profiler, :printer => :graph
 end
 
-use Rack::Session::PStore
+use Rack::Session::PStore, :file => ::File.join(Wiki::Config.cache, 'pstore')
 use Rack::PathInfo
 use Rack::MethodOverride
 
