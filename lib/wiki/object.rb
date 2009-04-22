@@ -171,7 +171,7 @@ module Wiki
 
     # Page content
     def content
-      @content || @object.contents
+      @content || (@object && @object.contents)
     end
 
     # Check if there is no unsaved content

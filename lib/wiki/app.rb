@@ -22,7 +22,6 @@ module Wiki
       super(app)
 
       @logger = opts[:logger] || Logger.new(nil)
-      @logger.info self.class.dump_routes
 
       if File.exists?(Config.git.repository) && File.exists?(Config.git.workspace)
         @logger.info 'Opening repository'
@@ -41,6 +40,8 @@ module Wiki
       Plugin.dir = File.join(App.root, 'plugins')
       Plugin.load('*')
       Plugin.start
+
+      @logger.info self.class.dump_routes
     end
 
     # Executed before each request

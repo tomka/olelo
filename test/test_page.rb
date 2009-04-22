@@ -12,11 +12,9 @@ class TC_Page < Test::Unit::TestCase
     assert page.new?
     assert !page.saved?
     assert_nil page.content
-    assert_nil page.saved_content
     page.write('old content', "message1\ntext", 'Author1 <author1@localhorst>')
 
     assert_equal 'old content', page.content
-    assert_equal 'old content', page.saved_content
     assert !page.new?
     assert page.saved?
 
@@ -24,12 +22,11 @@ class TC_Page < Test::Unit::TestCase
     assert_equal 'Author1', page.commit.author.name
     assert_equal 'author1@localhorst', page.commit.author.email
 
-    page.content = 'new content'
+    page.preview_content = 'new content'
     assert !page.new?
     assert !page.saved?
     assert_equal 'new content', page.content
-    assert_equal 'old content', page.saved_content
-    page.save('message2', 'Author2 <author2@localhorst>')
+    page.write('new content', 'message2', 'Author2 <author2@localhorst>')
 
     assert_equal 'message2', page.commit.message
     assert_equal 'Author2', page.commit.author.name

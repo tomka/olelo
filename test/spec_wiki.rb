@@ -88,9 +88,6 @@ describe 'wiki' do
     get '/Testfolder/Testpage/edit'
     should.be.ok
 
-    get '/Testfolder/Testpage/append'
-    should.be.ok
-
     get '/Testfolder/Testpage/upload'
     should.be.ok
   end
