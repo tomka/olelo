@@ -41,7 +41,9 @@ class Wiki::Tag < Filter
     @elements = []
     @prefix = "TAG_#{Thread.current.object_id.abs.to_s(36)}_"
     content = subfilter(nested_tags(context, content))
-    content.gsub!(/#{@prefix}(\d+)/) { |match| @elements[$1.to_i] }
+    10.times do
+      break if !content.gsub!(/#{@prefix}(\d+)/) { |match| @elements[$1.to_i] }
+    end
     content
   end
 
