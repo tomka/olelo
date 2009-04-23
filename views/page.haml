@@ -1,9 +1,9 @@
-- title @page.pretty_name
+- title @resource.pretty_name
 - menu :version, :edit, :history, :new
 - footer do
   |
-  %a{:href=> object_path(@page, :sha => @page.latest_commit) } Permalink
+  %a{:href=> resource_path(@resource, :sha => @resource.latest_commit) } Permalink
   | Version
-  %a.sha{:href => object_path(@page, :sha => @page.latest_commit), :title => @page.latest_commit.sha }= @page.latest_commit.sha.truncate(8, '&#8230;')
-  = "by #{@page.latest_commit.committer.name}, #{date @page.latest_commit.committer_date}"
+  %a.sha{:href => resource_path(@resource, :sha => @resource.latest_commit), :title => @resource.latest_commit.sha }= @resource.latest_commit.sha.truncate(8, '&#8230;')
+  = "by #{@resource.latest_commit.committer.name}, #{date @resource.latest_commit.committer_date}"
 ~ @content

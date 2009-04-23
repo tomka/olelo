@@ -1,18 +1,12 @@
 require 'wiki/mime'
 require 'wiki/extensions'
 require 'wiki/utils'
+require 'wiki/cache'
 
 module Wiki
   # An Engine renders pages
   class Engine
     include Helper
-
-    # Error which is raised if no appropiate engine is found
-    class NotAvailable < ArgumentError
-      def initialize(name)
-        super("Output engine #{name} is not available")
-      end
-    end
 
     class Context < Hash
       attr_reader :page, :engine
@@ -82,7 +76,7 @@ module Wiki
     end
 
     def self.find!(page, name = nil)
-      find(page, name) || raise(NotAvailable, name)
+      find(page, name) || raise(RuntimeError, "Engine #{name} is not available")
     end
 
     # Acceptor should return true if page would be accepted by this engine

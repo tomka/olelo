@@ -59,7 +59,7 @@ module Wiki
       def service
         @service ||= begin
                        serv = @services[Config.auth.service]
-                       raise(ArgumentError, "Authentication service #{Config.auth.service} not found") if !serv
+                       raise(RuntimeError, "Authentication service #{Config.auth.service} not found") if !serv
                        serv.new
                      end
       end

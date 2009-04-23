@@ -1,4 +1,4 @@
-- title "New page #{@page.pretty_name}"
+- title "New page #{@resource.pretty_name}"
 - menu :new
 - if @preview
   .preview= @preview
@@ -13,7 +13,7 @@
       %h2 Write text
       = show_messages if action? :new
       %label{:for=>'text-path'} Path
-      %input#text-path{:name=>'path',:type=>'text', :value=> @page.path}
+      %input#text-path{:name=>'path',:type=>'text', :value=> @resource.path}
       %br
       %input{:type=>'hidden', :name=> 'action',:value=>'new'}
       %label{:for=>'text-content'} Content
@@ -31,7 +31,7 @@
       %h2 Upload a file
       = show_messages if action? :upload
       %label{:for=>'upload-path'} Path
-      %input#upload-path{:name=>'path',:type=>'text',:value => @page.path}
+      %input#upload-path{:name=>'path',:type=>'text',:value => @resource.path}
       %br
       %label{:for=>'upload-file'} File
       %input#upload-file{:name=>'file', :type=>'file'}

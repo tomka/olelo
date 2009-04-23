@@ -7,6 +7,7 @@ path = ::File.expand_path(::File.dirname(__FILE__))
 $LOAD_PATH << ::File.join(path, 'lib')
 Dir[::File.join(path, 'deps', '*', 'lib')].each {|x| $: << x }
 
+require 'rubygems'
 require 'wiki/app'
 require 'rack/path_info'
 require 'rack/esi'

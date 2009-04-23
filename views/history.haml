@@ -1,6 +1,6 @@
 - menu :view, :edit, :new
-- title "History of #{@object.pretty_name}"
-%form{:action=> action_path(@object, :diff) }
+- title "History of #{@resource.pretty_name}"
+%form{:action=> action_path(@resource, :diff) }
   %div
     = show_messages
     %input{:type=>'submit', :value=>'Show Diff'}
@@ -16,14 +16,14 @@
         %th Message
         %th Commit
     %tbody
-      - @object.history.each do |commit|
+      - @resource.history.each do |commit|
         %tr
           %td
             %input{:type=>'radio', :name=>'from', :value=> commit.sha}
           %td
             %input{:type=>'radio', :name=>'to', :value=> commit.sha}
           %td.link
-            %a.sha{:href=>object_path(@object, :sha => commit)}=commit.sha
+            %a.sha{:href=>resource_path(@resource, :sha => commit)}=commit.sha
           %td&= commit.author.name
           %td= date commit.date
           %td&= commit.message.truncate(50)

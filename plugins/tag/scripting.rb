@@ -41,7 +41,7 @@ end
 Tag.define(:include, :requires => :page, :limit => 5) do |context, attrs, content|
   if page = Page.find(context.page.repo, attrs['page'])
     engine = Engine.find(page, attrs['output'])
-    raise(ArgumentError, "No engine found for #{attrs['page']}") if !engine || !engine.layout?
+    raise(RuntimeError, "No engine found for #{attrs['page']}") if !engine || !engine.layout?
     engine.output(context.subcontext(attrs.merge(:engine => engine, :page => page)))
   else
     "<a href=\"/#{attrs['page']}/new\">Create #{attrs['page']}</a>"
@@ -51,7 +51,7 @@ end
 Tag.define(:for, :requires => [:from, :to], :immediate => true, :limit => 50) do |context, attrs, content|
   to = attrs['to'].to_i
   from = attrs['from'].to_i
-  raise(ArgumentError, "Limits exceeded") if to - from > 10
+  raise(RuntimeError, "Limits exceeded") if to - from > 10
   (from..to).map do |i|
     params = attrs['counter'] ? {attrs['counter'] => i} : {}
     nested_tags(context.subcontext(params), content)
@@ -60,7 +60,7 @@ end
 
 Tag.define(:repeat, :requires => :times, :immediate => true, :limit => 50) do |context, attrs, content|
   n = attrs['times'].to_i
-  raise(ArgumentError, "Limits exceeded") if n > 10
+  raise(RuntimeError, "Limits exceeded") if n > 10
   (1..n).map do |i|
     params = attrs['counter'] ? {attrs['counter'] => i} : {}
     nested_tags(context.subcontext(params), content)

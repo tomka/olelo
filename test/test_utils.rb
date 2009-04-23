@@ -66,10 +66,10 @@ class TC_Utils < Test::Unit::TestCase
   end
 
   def test_forbid
-    assert_raise Wiki::MessageError do
+    assert_raise Wiki::MultiError do
       forbid('Forbidden' => true)
     end
-    assert_raise Wiki::MessageError do
+    assert_raise Wiki::MultiError do
       forbid('Allowed'   => false,
              'Forbidden' => true)
     end

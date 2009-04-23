@@ -1,11 +1,11 @@
 - menu :version, :history, :archive, :new
-- title @tree.pretty_name
+- title @resource.pretty_name
 - footer do
   |
-  %a{:href=> object_path(@tree, :sha => @tree.latest_commit) } Permalink
+  %a{:href=> resource_path(@resource, :sha => @resource.latest_commit) } Permalink
   | Version
-  %a.sha{:href => object_path(@tree, :sha => @tree.latest_commit), :title => @tree.latest_commit.sha}= @tree.latest_commit.sha.truncate(8, '&#8230;')
-  = "by #{@tree.latest_commit.committer.name}, #{date @tree.latest_commit.committer_date}"
+  %a.sha{:href => resource_path(@resource, :sha => @resource.latest_commit), :title => @resource.latest_commit.sha}= @resource.latest_commit.sha.truncate(8, '&#8230;')
+  = "by #{@resource.latest_commit.committer.name}, #{date @resource.latest_commit.committer_date}"
 %table.tree.zebra
   %thead
     %tr

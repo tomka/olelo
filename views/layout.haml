@@ -12,7 +12,7 @@
     %script{:src=> script_path('jquery/tablesorter.js'), :type=>'text/javascript'}
     %script{:src=> script_path('app.js'), :type=>'text/javascript'}
     = include_block :head
-  - timemachine = object && !object.current?
+  - timemachine = @resource && !@resource.current?
   %body{timemachine ? {:class => 'timemachine'} : {}}
     #header
       %h1&= Wiki::Config.title

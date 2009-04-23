@@ -30,14 +30,14 @@ module Wiki
     def method_missing(mid, *args)
       name = mid.to_s
       if name.ends_with?('=')
-        raise(ArgumentError, "wrong number of arguments (#{len} for 1)", caller(1)) if args.length != 1
-        raise(TypeError, "can't modify frozen #{self.class}", caller(1)) if frozen?
+        raise(ArgumentError, "Wrong number of arguments (#{len} for 1)", caller(1)) if args.length != 1
+        raise(TypeError, "Can't modify frozen #{self.class}", caller(1)) if frozen?
         name.chop!
         set(name, args[0])
       elsif args.length == 0
         @config[mid] || raise(RuntimeError, "configuration key #{mid} is missing for #{self}")
       else
-        raise(NoMethodError, "undefined method #{mid} for #{self}", caller(1))
+        raise(NoMethodError, "Undefined method #{mid} for #{self}", caller(1))
       end
     end
 

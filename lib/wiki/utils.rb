@@ -1,9 +1,17 @@
 require 'wiki/extensions'
 
 module Wiki
-  class WikiError < StandardError; end
+  class MultiError < StandardError
+    attr_accessor :messages
 
-  class MessageError < WikiError; end
+    def initialize(*messages)
+      @messages = messages
+    end
+
+    def message
+      @messages.join("\n")
+    end
+  end
 
   module Utils
     def self.included(base)
@@ -16,8 +24,8 @@ module Wiki
     end
 
     def forbid(conds)
-      failed = conds.keys.select {|key| conds[key]}
-      raise(MessageError, failed) if !failed.empty?
+      failed = conds.keys.select {|key| conds[key] }
+      raise(MultiError, failed) if !failed.empty?
     end
   end
 end

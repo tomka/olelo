@@ -2,17 +2,17 @@
   %tbody
     %tr
       %td Name
-      %td&= @page.name
+      %td&= @resource.name
     %tr
       %td Last modified
-      %td= date @page.latest_commit.date
+      %td= date @resource.latest_commit.date
     %tr
       %td Version
-      %td= @page.latest_commit.sha
+      %td= @resource.latest_commit.sha
     %tr
       %td Mime-Type
-      %td= @page.mime
+      %td= @resource.mime
     %tr
       %td Download
       %td
-        %a{:href=> object_path(@page, :output => 'raw')} Download File
+        %a{:href=> resource_path(@resource, :output => 'raw')} Download File

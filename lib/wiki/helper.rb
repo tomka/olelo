@@ -16,10 +16,6 @@ module Wiki
       ((Time.now - @start_time) * 1000).to_i
     end
 
-    def object
-      @object || @page || @tree
-    end
-
     def define_block(name, content = nil, &block)
       name = name.to_sym
       @blocks ||= {}
@@ -40,7 +36,7 @@ module Wiki
       define_block :menu, haml(:menu, :layout => false, :locals => { :menu => menu })
     end
 
-    # Cache control for object
+    # Cache control for resource
     def cache_control(opts)
       return if !App.production?
       etag(opts[:etag]) if opts[:etag]
@@ -98,17 +94,17 @@ module Wiki
               [/.*/, 'page', 'Page']
              ]
 
-    def tree_link(level, object, open)
-      level += 1 if object.page?
-      html = "<a style=\"padding-left: #{level * 16}px\" href=\"#{open ? object_path(object, :path => object.path/'..') : object_path(object)}\" title=\"#{open ? 'Close' : 'Open'}\">"
-      if object.page?
-        mime = object.mime.to_s
+    def tree_link(level, resource, open)
+      level += 1 if resource.page?
+      html = "<a style=\"padding-left: #{level * 16}px\" href=\"#{open ? resource_path(resource, :path => resource.path/'..') : resource_path(resource)}\" title=\"#{open ? 'Close' : 'Open'}\">"
+      if resource.page?
+        mime = resource.mime.to_s
         img = TREE_IMAGES.find { |img| mime =~ img[0] }
         html << image(img[1], :alt => img[2])
       else
         html << image(open ? :tree_open : :tree_closed, :alt => '') + image(:tree, :alt => 'Tree')
       end
-      html << " #{object.name}</a>"
+      html << " #{resource.name}</a>"
       html
     end
 
@@ -116,32 +112,32 @@ module Wiki
       "<span class=\"date seconds_#{t.to_i}\">#{t.strftime('%d %h %Y %H:%M')}</span>"
     end
 
-    def breadcrumbs(object)
-      path = object.respond_to?(:path) ? object.path : ''
-      links = ["<a href=\"#{object_path(object, :path => '/root')}\">&#8730;&#175; Root</a>"]
-      path.split('/').inject('') {|parent,elem|
-        links << "<a href=\"#{object_path(object, :path => parent/elem)}\">#{elem}</a>"
+    def breadcrumbs(resource)
+      path = resource.respond_to?(:path) ? resource.path : ''
+      links = ["<a href=\"#{resource_path(resource, :path => '/root')}\">&#8730;&#175; Root</a>"]
+      path.split('/').inject('') do |parent,elem|
+        links << "<a href=\"#{resource_path(resource, :path => parent/elem)}\">#{elem}</a>"
         parent/elem
-      }
+      end
 
       result = []
-      links.each_with_index {|link,i|
+      links.each_with_index do |link,i|
         result << "<li class=\"breadcrumb#{i==0 ? ' first' : ''}#{i==links.size-1 ? ' last' : ''}\">#{link}</li>\n"
-      }
+      end
       result.join("<li class=\"breadcrumb\">/</li>\n")
     end
 
-    def object_path(object, opts = {})
-      sha = opts.delete(:sha) || (object && !object.current? ? object.commit : nil) || ''
+    def resource_path(resource, opts = {})
+      sha = opts.delete(:sha) || (resource && !resource.current? ? resource.commit : nil) || ''
       sha = sha.sha if sha.respond_to?(:sha)
-      path = opts.delete(:path) || object.path
+      path = opts.delete(:path) || resource.path
       path = (path/sha).urlpath
       path << '?' << opts.map {|k,v| "#{k}=#{CGI.escape(v.to_s)}" }.join('&') if !opts.empty?
       path
     end
 
-    def action_path(object, action)
-      (object.path/action.to_s).urlpath
+    def action_path(resource, action)
+      (resource.path/action.to_s).urlpath
     end
 
     def static_path(name)
@@ -182,7 +178,13 @@ module Wiki
     def message(level, *messages)
       @messages ||= []
       messages.flatten.each do |msg|
-        @messages << [level, msg]
+        if msg.respond_to? :messages
+          @messages += msg.messages.map { |m| [level, m] }
+        elsif msg.respond_to? :message
+          @messages << [level, msg.message]
+        else
+          @messages << [level, msg]
+        end
       end
     end
 
@@ -194,15 +196,15 @@ module Wiki
       end
     end
 
-    def edit_content
+    def edit_content(page)
       return params[:content] if params[:content]
-      return '' if !@page.mime.text?
+      return '' if !page.mime.text?
       if params[:pos] && params[:len]
-        pos = [[0, params[:pos].to_i].max, @page.content.size].min
+        pos = [[0, params[:pos].to_i].max, page.content.size].min
         len = [0, params[:len].to_i].max
-        @page.content[pos, len]
+        page.content[pos, len]
       else
-        @page.content
+        page.content
       end
     end
 

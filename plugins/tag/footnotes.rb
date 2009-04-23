@@ -6,7 +6,7 @@ Tag.define :ref do |context, attrs, content|
   name = attrs['name']
   if content.blank?
     raise(ArgumentError, 'Attribute name missing') if name.blank?
-    raise(ArgumentError, "Footnote #{name} not found") if !hash.include?(name)
+    raise(NameError, "Footnote #{name} not found") if !hash.include?(name)
     note_id = hash[name]
     ref_id = "#{note_id}_#{footnotes[note_id-1][2].size + 1}"
     footnotes[note_id-1][2] << ref_id

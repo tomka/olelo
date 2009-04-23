@@ -9,20 +9,20 @@ module Wiki
   SHA_PATTERN = '[A-Fa-f0-9]{5,40}'
   STRICT_SHA_PATTERN = '[A-Fa-f0-9]{40}'
 
-  # Wiki repository object
-  class Object
+  # Wiki repository resource
+  class Resource
     include Utils
 
-    # Raised if object is not found in the repository
+    # Raised if resource is not found in the repository
     class NotFound < Sinatra::NotFound
       def initialize(path)
         super("#{path} not found", path)
       end
     end
 
-    attr_reader :repo, :path, :commit, :object
+    attr_reader :repo, :path, :commit
 
-    # Find object in repo by path and commit sha
+    # Find resource in repo by path and commit sha
     def self.find(repo, path, sha = nil)
       path = path.to_s.cleanpath
       forbid_invalid_path(path)
@@ -35,7 +35,7 @@ module Wiki
       nil
     end
 
-    # Find object but raise not found exceptions
+    # Find resource but raise not found exceptions
     def self.find!(repo, path, sha = nil)
       find(repo, path, sha) || raise(NotFound, path)
     end
@@ -52,14 +52,14 @@ module Wiki
       @prev_commit = @latest_commit = @history = nil
     end
 
-    # Newly created object, not yet in repository
+    # Newly created resource, not yet in repository
     def new?
       !@object
     end
 
-    # Object sha
+    # Resource sha
     def sha
-      new? ? '' : object.sha
+      new? ? '' : @object.sha
     end
 
     # Browsing current tree?
@@ -67,19 +67,19 @@ module Wiki
       @current || new?
     end
 
-    # Latest commit of this object
+    # Latest commit of this resource
     def latest_commit
       update_prev_latest_commit
       @latest_commit
     end
 
-    # History of this object. It is truncated
+    # History of this resource. It is truncated
     # to 30 entries.
     def history
       @history ||= @repo.log.path(path).to_a
     end
 
-    # Previous commit this object was changed
+    # Previous commit this resource was changed
     def prev_commit
       update_prev_latest_commit
       @prev_commit
@@ -96,13 +96,13 @@ module Wiki
     def page?; self.class == Page; end
     def tree?; self.class == Tree; end
 
-    # Object name
+    # Resource name
     def name
       return $1 if path =~ /\/([^\/]+)$/
       path
     end
 
-    # Pretty formatted object name
+    # Pretty formatted resource name
     def pretty_name
       name.gsub(/\.([^.]+)$/, '')
     end
@@ -114,7 +114,7 @@ module Wiki
       n.gsub(/[^\w.\-_]/, '_')
     end
 
-    # Diff of this object
+    # Diff of this resource
     def diff(from, to)
       @repo.diff(from, to).path(path)
     end
@@ -150,8 +150,8 @@ module Wiki
 
   end
 
-  # Page object in repository
-  class Page < Object
+  # Page resource in repository
+  class Page < Resource
     def initialize(repo, path, object = nil, commit = nil, current = nil)
       super
       @content = nil
@@ -159,8 +159,8 @@ module Wiki
 
     # Find page by path and commit sha
     def self.find(repo, path, sha = nil)
-      object = super
-      object && object.page? ? object : nil
+      resource = super
+      resource && resource.page? ? resource : nil
     end
 
     # Set page content for preview
@@ -187,7 +187,7 @@ module Wiki
       end
 
       forbid('No content'   => content.blank?,
-             'Object already exists' => new? && Object.find(@repo, @path),
+             'Resource already exists' => new? && Resource.find(@repo, @path),
              'Commit message is empty' => message.blank?)
 
       repo.chdir do
@@ -220,8 +220,8 @@ module Wiki
     end
   end
 
-  # Tree object in repository
-  class Tree < Object
+  # Tree resource in repository
+  class Tree < Resource
     def initialize(repo, path, object = nil, commit = nil, current = false)
       super
       @trees = nil
@@ -230,8 +230,8 @@ module Wiki
 
     # Find tree by path and optional commit sha
     def self.find(repo, path, sha = nil)
-      object = super
-      object && object.tree? ? object : nil
+      resource = super
+      resource && resource.tree? ? resource : nil
     end
 
     # Get child pages

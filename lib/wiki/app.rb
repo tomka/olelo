@@ -1,6 +1,7 @@
-%w(rubygems sinatra/base sinatra/extensions git haml
+%w(sinatra/base sinatra/extensions git haml
 sass logger wiki/extensions wiki/utils
-wiki/object wiki/helper wiki/user wiki/engine wiki/cache wiki/mime wiki/plugin).each { |dep| require dep }
+wiki/resource wiki/helper wiki/user wiki/engine
+wiki/plugin).each { |dep| require dep }
 
 module Wiki
   # Main class of the application
@@ -105,8 +106,8 @@ module Wiki
       begin
         session[:user] = User.authenticate(params[:user], params[:password])
         redirect '/'
-      rescue MessageError => error
-        message :error, error.message
+      rescue StandardError => error
+        message :error, error
         haml :login
       end
     end
@@ -116,8 +117,8 @@ module Wiki
         session[:user] = User.create(params[:user], params[:password],
                                      params[:confirm], params[:email])
         redirect '/'
-      rescue MessageError => error
-        message :error, error.message
+      rescue StandardError => error
+        message :error, error
         haml :login
       end
     end
@@ -140,8 +141,8 @@ module Wiki
           end
           message :info, 'Changes saved'
           session[:user] = @user
-        rescue MessageError => error
-          message :error, error.message
+        rescue StandardError => error
+          message :error, error
         end
       end
       haml :profile
@@ -153,7 +154,7 @@ module Wiki
         params[:output] = 'css'
         params[:path] = params[:style] + '.sass'
         show
-      rescue Object::NotFound
+      rescue Resource::NotFound
         raise if !%w(screen print reset).include?(params[:style])
         # Fallback to default style
         cache_control :max_age => 120
@@ -171,12 +172,12 @@ module Wiki
     end
 
     get '/?:path?/archive' do
-      @tree = Tree.find!(@repo, params[:path])
-      cache_control :etag => @tree.sha, :last_modified => @tree.commit.date
-      content_type 'application/x-tar-gz'
-      attachment "#{@tree.safe_name}.tar.gz"
-      archive = @tree.archive
       begin
+        tree = Tree.find!(@repo, params[:path])
+        cache_control :etag => tree.sha, :last_modified => tree.commit.date
+        content_type 'application/x-tar-gz'
+        attachment "#{tree.safe_name}.tar.gz"
+        archive = tree.archive
         # See send_file
         response['Content-Length'] ||= File.stat(archive).size.to_s
         halt StaticFile.open(archive, 'rb')
@@ -186,29 +187,29 @@ module Wiki
     end
 
     get '/?:path?/history' do
-      @object = Object.find!(@repo, params[:path])
-      cache_control :etag => @object.sha, :last_modified => @object.commit.date
+      @resource = Resource.find!(@repo, params[:path])
+      cache_control :etag => @resource.sha, :last_modified => @resource.commit.date
       haml :history
     end
 
     get '/?:path?/diff' do
+      @resource = Resource.find!(@repo, params[:path])
       begin
-        @object = Object.find!(@repo, params[:path])
         forbid('From not selected' => params[:from].blank?, 'To not selected' => params[:to].blank?)
         cache_control :static => true
-        @diff = @object.diff(params[:from], params[:to])
+        @diff = @resource.diff(params[:from], params[:to])
         haml :diff
-      rescue MessageError => error
-        message :error, error.message
+      rescue StandardError => error
+        message :error, error
         haml :history
       end
     end
 
     get '/:path/edit', '/:path/upload' do
       begin
-        @page = Page.find!(@repo, params[:path])
+        @resource = Page.find!(@repo, params[:path])
         haml :edit
-      rescue Object::NotFound
+      rescue Resource::NotFound
         pass if action? :upload # Pass to next handler because /upload is used twice
         raise
       end
@@ -217,14 +218,14 @@ module Wiki
     get '/new', '/upload', '/:path/new', '/:path/upload' do
       begin
         # Redirect to edit for existing pages
-        if !params[:path].blank? && Object.find(@repo, params[:path])
+        if !params[:path].blank? && Resource.find(@repo, params[:path])
           redirect (params[:path]/'edit').urlpath
         end
-        @page = Page.new(@repo, params[:path])
-        boilerplate @page
+        @resource = Resource.new(@repo, params[:path])
+        boilerplate @resource
         forbid('Path is not allowed' => name_clash?(params[:path]))
-      rescue MessageError => error
-        message :error, error.message
+      rescue StandardError => error
+        message :error, error
       end
       haml :new
     end
@@ -233,7 +234,7 @@ module Wiki
       begin
         pass if name_clash?(params[:path])
         show
-      rescue Object::NotFound
+      rescue Resource::NotFound
         request.env['wiki.redirect_to_new'] = true
         pass
       end
@@ -241,26 +242,26 @@ module Wiki
 
     # Edit form sends put requests
     put '/:path' do
-      @page = Page.find!(@repo, params[:path])
+      @resource = Page.find!(@repo, params[:path])
       begin
         if action?(:upload) && params[:file]
-          @page.write(params[:file][:tempfile], 'File uploaded', @user.author)
+          @resource.write(params[:file][:tempfile], 'File uploaded', @user.author)
         elsif action?(:edit) && params[:content]
           preview(:edit, params[:content])
           content = if params[:pos]
-                      pos = [[0, params[:pos].to_i].max, @page.content.size].min
-                      len = params[:len] ? [0, params[:len].to_i].max : @page.content.size - params[:len]
-                      @page.content[0,pos].to_s + params[:content] + @page.content[pos+len..-1].to_s
+                      pos = [[0, params[:pos].to_i].max, @resource.content.size].min
+                      len = params[:len] ? [0, params[:len].to_i].max : @resource.content.size - params[:len]
+                      @resource.content[0,pos].to_s + params[:content] + @resource.content[pos+len..-1].to_s
                     else
                       params[:content]
                     end
-          @page.write(content, params[:message], @user.author)
+          @resource.write(content, params[:message], @user.author)
         else
-          redirect((@page.path/'edit').urlpath)
+          redirect((@resource.path/'edit').urlpath)
         end
-        redirect @page.path.urlpath
-      rescue MessageError => error
-        message :error, error.message
+        redirect @resource.path.urlpath
+      rescue StandardError => error
+        message :error, error
         haml :edit
       end
     end
@@ -268,20 +269,20 @@ module Wiki
     # New form sends post request
     post '/', '/:path' do
       begin
-        @page = Page.new(@repo, params[:path])
+        @resource = Page.new(@repo, params[:path])
         if action?(:upload) && params[:file]
-          forbid('Path is not allowed' => name_clash?(@page.path))
-          @page.write(params[:file][:tempfile], "File #{@page.path} uploaded", @user.author)
+          forbid('Path is not allowed' => name_clash?(@resource.path))
+          @resource.write(params[:file][:tempfile], "File #{@resource.path} uploaded", @user.author)
         elsif action?(:new)
           preview(:new, params[:content])
-          forbid('Path is not allowed' => name_clash?(@page.path))
-          @page.write(params[:content], params[:message], @user.author)
+          forbid('Path is not allowed' => name_clash?(@resource.path))
+          @resource.write(params[:content], params[:message], @user.author)
         else
           redirect '/new'
         end
-        redirect @page.path.urlpath
-      rescue MessageError => error
-        message :error, error.message
+        redirect @resource.path.urlpath
+      rescue StandardError => error
+        message :error, error
         haml :new
       end
     end
@@ -291,11 +292,11 @@ module Wiki
     def preview(template, content)
       if params[:preview]
         message(:error, 'Commit message is empty') if params[:message].empty?
-        message(:error, 'Path is not allowed') if name_clash?(@page.path)
-        @page.preview_content = content
-        if @page.mime.text?
-          engine = Engine.find!(@page)
-          @preview = engine.render(@page) if engine.layout?
+        message(:error, 'Path is not allowed') if name_clash?(@resource.path)
+        @resource.preview_content = content
+        if @resource.mime.text?
+          engine = Engine.find!(@resource)
+          @preview = engine.render(@resource) if engine.layout?
         end
         halt haml(template)
       end
@@ -322,25 +323,23 @@ module Wiki
     # Show page or tree
     def show
       cache_control :etag => params[:sha], :validate_only => true
-      object = Object.find!(@repo, params[:path], params[:sha])
+      @resource = Resource.find!(@repo, params[:path], params[:sha])
 
-      if object.tree?
+      if @resource.tree?
         root = Tree.find!(@repo, '/', params[:sha])
         cache_control :etag => root.commit.sha, :last_modified => root.commit.date
 
-        @tree = object
         @children = walk_tree(root, params[:path].to_s.cleanpath.split('/'), 0)
         haml :tree
       else
-        cache_control :etag => object.latest_commit.sha, :last_modified => object.latest_commit.date
+        cache_control :etag => @resource.latest_commit.sha, :last_modified => @resource.latest_commit.date
 
-        @page = object
-        engine = Engine.find!(@page, params[:output])
-        @content = engine.render(@page, params)
+        engine = Engine.find!(@resource, params[:output])
+        @content = engine.render(@resource, params)
         if engine.layout?
           haml :page
         else
-          content_type engine.mime(@page).to_s
+          content_type engine.mime(@resource).to_s
           @content
         end
       end

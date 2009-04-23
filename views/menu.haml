@@ -1,46 +1,46 @@
 %ul
   %li
-    %a{:href=>object_path(object, :path => Wiki::Config.main_page.urlpath), :accesskey=>'z'}
+    %a{:href=>resource_path(@resource, :path => Wiki::Config.main_page.urlpath), :accesskey=>'z'}
       = image(:home)
       Home
-  = breadcrumbs(object)
-  - if object && !object.current?
+  = breadcrumbs(@resource)
+  - if @resource && !@resource.current?
     %li.noborder
       Tree version
-      %span.sha{:title => object.commit.sha}
-        = object.commit.sha.truncate(8, '&#8230;')
+      %span.sha{:title => @resource.commit.sha}
+        = @resource.commit.sha.truncate(8, '&#8230;')
 %ul.wiki
   %li.title Wiki Menu
   - if menu.include?(:version)
-    - if object.prev_commit
+    - if @resource.prev_commit
       %li
-        %a{:href=>object_path(object, :sha => object.prev_commit), :accesskey=>'o'} &laquo; Older
-    - if object.next_commit
+        %a{:href=>resource_path(@resource, :sha => @resource.prev_commit), :accesskey=>'o'} &laquo; Older
+    - if @resource.next_commit
       %li
-        %a{:href=>object_path(object, :sha => object.next_commit), :accesskey=>'n'} Newer &raquo;
-    - if !object.current?
+        %a{:href=>resource_path(@resource, :sha => @resource.next_commit), :accesskey=>'n'} Newer &raquo;
+    - if !@resource.current?
       %li
-        %a{:href=> object.path.urlpath, :accesskey=>'c'} Current
+        %a{:href=> @resource.path.urlpath, :accesskey=>'c'} Current
   - if menu.include?(:view)
     %li
-      %a{:href=> object.path.urlpath, :accesskey=>'c'} View
+      %a{:href=> @resource.path.urlpath, :accesskey=>'c'} View
   - if menu.include?(:new)
     %li
-      %a{:href=> object && object.tree? ? (object.path/'new page/new').urlpath : '/new page/new'  }
+      %a{:href=> @resource && @resource.tree? ? (@resource.path/'new page/new').urlpath : '/new page/new'  }
         = image(:new)
         New Page
-  - if menu.include?(:edit) && object.page?
+  - if menu.include?(:edit) && @resource.page?
     %li
-      %a{:href=>action_path(object, :edit), :accesskey=>'e'}
+      %a{:href=>action_path(@resource, :edit), :accesskey=>'e'}
         = image(:edit)
         Edit
   - if menu.include?(:history)
     %li
-      %a{:href=>action_path(object, :history), :accesskey=>'h'}
+      %a{:href=>action_path(@resource, :history), :accesskey=>'h'}
         = image(:history)
         History
   - if menu.include?(:archive)
     %li
-      %a{:href=>action_path(object, :archive)}
+      %a{:href=>action_path(@resource, :archive)}
         = image(:archive)
         Archive

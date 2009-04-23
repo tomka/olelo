@@ -3,12 +3,6 @@ class Wiki::Filter
 
   @filters = {}
 
-  class NotFound < ArgumentError
-    def initialize(name)
-      super("Filter #{name} not found")
-    end
-  end
-
   attr_reader :name
   attr_accessor :context, :sub, :post
 
@@ -35,7 +29,7 @@ class Wiki::Filter
   end
 
   def self.register(filter)
-    raise ArgumentError, "Filter #{filter.name} already exists" if @filters.key?(filter.name)
+    raise(ArgumentError, "Filter #{filter.name} already exists") if @filters.key?(filter.name)
     @filters[filter.name] = filter
   end
 
@@ -48,7 +42,7 @@ class Wiki::Filter
   def self.find(name)
     Plugin.load("filter/#{name}")
     name = name.to_s
-    raise NotFound, name if !@filters.include?(name)
+    raise(NameError, "Filter #{name} not found") if !@filters.include?(name)
     @filters[name].dup
   end
 end

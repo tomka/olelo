@@ -1,5 +1,5 @@
 require 'test/unit'
-require 'wiki/object'
+require 'wiki/resource'
 
 module GitSupport
   def setup

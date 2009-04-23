@@ -10,7 +10,7 @@ class CreoleParser < Creole::CreoleParser
   end
 
   def make_local_link(path)
-    object_path(@page, :path => path)
+    resource_path(@page, :path => path)
   end
 
   def make_image(path, title)
@@ -23,8 +23,8 @@ class CreoleParser < Creole::CreoleParser
         args.delete(geometry)
         opts[:geometry] = geometry
       end
-      image_path = object_path(@page, opts)
-      page_path = object_path(@page, :path => path)
+      image_path = resource_path(@page, opts)
+      page_path = resource_path(@page, :path => path)
     end
     image_path = escape_html(image_path)
     page_path = escape_html(page_path)

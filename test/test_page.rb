@@ -46,7 +46,7 @@ class TC_Page < Test::Unit::TestCase
     page.write('content', 'message', 'Author <author@localhorst>')
 
     page = Wiki::Page.new(@repo, 'test')
-    assert_raise Wiki::MessageError do
+    assert_raise Wiki::MultiError do
       page.write('content', 'message', 'Author <author@localhorst>')
     end
   end

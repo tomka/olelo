@@ -27,7 +27,7 @@ end
 
 def define_tag(type)
   Tag.define type do |context, attrs, content|
-    raise(ArgumentError, "Limits exceeded") if content.size > 10240
+    raise(RuntimeError, "Limits exceeded") if content.size > 10240
     name = Imaginator.get.enqueue(type, content)
     alt = escape_html content.truncate(30).gsub(/\s+/, ' ')
     "<img src=\"/sys/imaginator/#{name}\" alt=\"#{alt}\"/>"
