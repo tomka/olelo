@@ -19,7 +19,7 @@ Filter.create :editsection do |content|
     p = pos[i][0]
     l = pos[i+1] ? pos[i+1][0] - pos[i][0] - 1 : len - pos[i][0]
     m = escape_html "#{pos[i][2]} edited"
-    "<span class=\"editlink\">[<a href=\"#{action_path(context.page, :edit)}?pos=#{p}&amp;len=#{l};message=#{m}\">Edit</a>]</span>"
+    "<span class=\"editlink\">[<a href=\"#{action_path(context.page, :edit)}?pos=#{p}&amp;len=#{l}&amp;message=#{m}\">Edit</a>]</span>"
   end
   content
 end
