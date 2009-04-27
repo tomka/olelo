@@ -15,7 +15,7 @@ end
 class Wiki::App
   get '/changelog.rss', '/:path/changelog.rss' do
     resource = Resource.find!(@repo, params[:path])
-    cache_control :etag => resource.latest_commit.sha, :last_modified => resource.latest_commit.committer_date
+    cache_control :etag => resource.latest_commit.sha, :last_modified => resource.latest_commit.date
 
     content_type 'application/rss+xml', :charset => 'utf-8'
     content = RSS::Maker.make('2.0') do |rss|
@@ -27,7 +27,7 @@ class Wiki::App
         i = rss.items.new_item
         i.title = commit.message
         i.link = request.scheme + '://' + (request.host + ':' + request.port.to_s)/resource.path/commit.sha
-        i.date = commit.committer.date
+        i.date = commit.date
       end
     end
     content.to_s

@@ -23,8 +23,8 @@
       %label{:for=>'text-message'} Message
       %input#text-message{:type=>'text', :name=>'message', :value => params[:message], :size => 50}
       %input{:type=>'submit', :name => 'preview', :value=>'Preview'}
-      %input{:type=>'submit', :value=>'Save'}
-      %input{:type=>'reset', :value=>'Reset'}
+      %input{:type=>'submit', :value=>'Save', :accesskey => 's'}
+      %input{:type=>'reset', :value=>'Reset', :accesskey => 'r'}
       %br
   %form{:action => '/', :method=>'post', :enctype=> 'multipart/form-data'}
     #tab-upload.box
@@ -35,5 +35,5 @@
       %br
       %label{:for=>'upload-file'} File
       %input#upload-file{:name=>'file', :type=>'file'}
-      %input{:type=>'submit', :name => 'action', :value=>'Upload'}
+      %input{:type=>'submit', :name => 'action', :value=>'Upload', :accesskey => 'u'}
       %br

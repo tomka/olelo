@@ -25,8 +25,8 @@
       %label{:for=>'edit-message'} Message
       %input#edit-message{:type=>'text', :name=>'message', :size => 50, :value => params[:message]}
       %input{:type=>'submit', :name=>'preview', :value=> 'Preview'}
-      %input{:type=>'submit', :value=> 'Save'}
-      %input{:type=>'reset', :value=>'Reset'}
+      %input{:type=>'submit', :value=> 'Save', :accesskey => 's'}
+      %input{:type=>'reset', :value=>'Reset', :accesskey => 'r'}
       %br
   %form{:action => @resource.path.urlpath, :method=>'post', :enctype=> 'multipart/form-data'}
     #tab-upload.box
@@ -35,5 +35,5 @@
       = show_messages if action? :upload
       %label{:for=>'upload-file'} File
       %input#upload-file{:name=>'file',:type=>'file'}
-      %input{:type=>'submit', :name=>'action', :value=>'Upload'}
+      %input{:type=>'submit', :name=>'action', :value=>'Upload', :accesskey => 'u'}
       %br

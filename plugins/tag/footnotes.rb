@@ -25,7 +25,7 @@ Tag.define :references do |context, attrs, content|
   list += footnotes.map do |id, note, refs|
     links = ''
     refs.each_with_index do |ref, i|
-      links << "<a href=\"#ref#{ref}\">&#8593;#{i+1}</a> "
+      links << "<a href=\"#ref#{ref}\" class=\"backref\">#{i+1}</a> "
     end
     "<li id=\"note#{id}\">#{links} #{note}</li>"
   end.join("\n")

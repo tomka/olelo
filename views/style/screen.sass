@@ -132,7 +132,7 @@ a
   &, &:visited
     :color #0B3E71
     :text-decoration none
-  &:hover, &:active
+  &:hover, &:active, &:focus
     :color #FFF
     :background #0B3E71
     :text-decoration none
@@ -248,7 +248,7 @@ hr
         :white-space nowrap
         :padding 0 1em
         :color #333
-        &:hover
+        &:hover, &:focus
           :color #FFF
           :background #0B3E71
         &:active
@@ -344,6 +344,9 @@ pre
   :vertical-align super
   :font-size 80%
 
+.backref:before
+  :content '↑'
+
 form
   button, label, input, select, textarea, .flash, .block, pre
     :display	 	block
@@ -426,7 +429,7 @@ table input
         :white-space nowrap
         :padding 0 1em
         :color #333
-        &:hover
+        &:hover, &:focus
           :color #FFF
           :background #0B3E71
         &:active
@@ -437,6 +440,9 @@ table input
 
 .date
   :cursor pointer
+
+a[accesskey]:focus:after, a[accesskey]:hover:after
+  :content " [" attr(accesskey) "] "
 
 p.toc
   :background #FFF

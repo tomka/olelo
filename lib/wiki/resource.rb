@@ -88,7 +88,7 @@ module Wiki
     # Next commit was changed
     def next_commit
       h = history
-      h.each_index { |i| return (i == 0 ? nil : h[i - 1]) if h[i].committer_date <= @commit.committer_date }
+      h.each_index { |i| return (i == 0 ? nil : h[i - 1]) if h[i].date <= @commit.date }
       h.last # FIXME. Does not work correctly if history is too short
     end
 
