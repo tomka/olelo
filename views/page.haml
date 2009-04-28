@@ -2,8 +2,10 @@
 - menu :version, :edit, :history, :new
 - footer do
   |
-  %a{:href=> resource_path(@resource, :sha => @resource.latest_commit) } Permalink
-  | Version
+  %span.noprint
+    %a{:href=> resource_path(@resource, :sha => @resource.latest_commit) } Permalink
+    |
+  Version
   %a.sha{:href => resource_path(@resource, :sha => @resource.latest_commit), :title => @resource.latest_commit.sha }= @resource.latest_commit.sha.truncate(8, '&#8230;')
   = "by #{@resource.latest_commit.author.name}, #{date @resource.latest_commit.date}"
 ~ @content

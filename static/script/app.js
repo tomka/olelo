@@ -19,16 +19,18 @@ function timeDistance(to, from) {
     return 'over ' + Math.round(n / 525960) + ' years';
 }
 
-function toggleTime() {
+function toggleDate() {
     elem = $(this);
     match = elem.attr('class').match(/seconds_(\d+)/);
-    if (elem.attr('oldtext')) {
-	elem.text(elem.attr('oldtext'));
-	elem.removeAttr('oldtext');
-    } else {
-	elem.attr('oldtext', elem.text());
-	elem.text(timeAgo(match[1]));
-    }
+    elem.children('.ago').text(timeAgo(match[1]));
+    elem.children('.full, .ago').toggle();
+}
+
+function initDate() {
+    elem = $(this);
+    elem.html('<span class="full">' + elem.text() + '</span><span class="ago"></span>')
+    elem.children('.ago').hide();
+    toggleDate.apply(this);
 }
 
 function confirmSubmit() {
@@ -73,8 +75,8 @@ $(document).ready(function(){
 	    this.value = this.defaultValue;
     });
 
-    $('.date').click(toggleTime);
-    $('.date').each(toggleTime);
+    $('.date').click(toggleDate);
+    $('.date').each(initDate);
     $('.confirm').click(confirmSubmit);
     $('#upload-file').change(updateUploadPath);
 });

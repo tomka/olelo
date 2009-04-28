@@ -93,8 +93,8 @@ hr
   :border none
   :height 1px
 
-#header, #sidebar, #menu, .editlink, .backref
-  :display none
+#header, #sidebar, #menu, .editlink, .backref, .hidden, .noprint
+  :display none !important
 
 #footer
   :display block
@@ -104,3 +104,9 @@ hr
   :vertical-align super
   :font-size 80%
   :color #000
+
+.date
+  .ago
+    :display none !important
+  .full
+    :display inline !important

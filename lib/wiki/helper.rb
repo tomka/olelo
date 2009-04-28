@@ -96,7 +96,7 @@ module Wiki
 
     def tree_link(level, resource, open)
       level += 1 if resource.page?
-      html = "<a style=\"padding-left: #{level * 16}px\" href=\"#{open ? resource_path(resource, :path => resource.path/'..') : resource_path(resource)}\" title=\"#{open ? 'Close' : 'Open'}\">"
+      html = "<a style=\"padding-left: #{level * 16}px\" href=\"#{open ? resource_path(resource, :path => '..') : resource_path(resource)}\" title=\"#{open ? 'Close' : 'Open'}\">"
       if resource.page?
         mime = resource.mime.to_s
         img = TREE_IMAGES.find { |img| mime =~ img[0] }
@@ -116,7 +116,7 @@ module Wiki
       path = resource.respond_to?(:path) ? resource.path : ''
       links = ["<a href=\"#{resource_path(resource, :path => '/root')}\">&#8730;&#175; Root</a>"]
       path.split('/').inject('') do |parent,elem|
-        links << "<a href=\"#{resource_path(resource, :path => parent/elem)}\">#{elem}</a>"
+        links << "<a href=\"#{resource_path(resource, :path => (parent/elem).urlpath)}\">#{elem}</a>"
         parent/elem
       end
 
@@ -130,7 +130,13 @@ module Wiki
     def resource_path(resource, opts = {})
       sha = opts.delete(:sha) || (resource && !resource.current? ? resource.commit : nil) || ''
       sha = sha.sha if sha.respond_to?(:sha)
-      path = opts.delete(:path) || resource.path
+      if path = opts.delete(:path)
+        if !path.begins_with? '/'
+          path = resource.page? ? resource.path/'..'/path : resource.path/path
+        end
+      else
+        path = resource.path
+      end
       path = (path/sha).urlpath
       path << '?' << opts.map {|k,v| "#{k}=#{CGI.escape(v.to_s)}" }.join('&') if !opts.empty?
       path

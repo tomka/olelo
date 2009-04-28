@@ -1,6 +1,7 @@
 TODO
 ====
 
+- Get rid of alias method chains
 - Documentation
 - Code comments and rdoc generation
 - More specs and more unit tests, or throw away
