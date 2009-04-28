@@ -16,17 +16,17 @@ Filter.create :editsection do |content|
   content = subfilter(content)
   content.gsub!(/#{prefix}(\d+)/) do |match|
     i = $1.to_i
-    if pos[i+1]
-      n = i + 1
-      while pos[n + 1] && pos[n][0] > pos[i][0]
-        n += 1
-      end
-      len = pos[n][1] - pos[i][1] - 1
+    n = i + 1
+    while pos[n + 1] && pos[n][0] > pos[i][0]
+      n += 1
+    end
+    l = if pos[n]
+      pos[n][1] - pos[i][1] - 1
     else
-      len -= pos[i][1]
+      len - pos[i][1]
     end
     msg = escape_html "#{pos[i][3]} edited"
-    "<span class=\"editlink\">[<a href=\"#{action_path(context.page, :edit)}?pos=#{pos[i][1]}&amp;len=#{len}&amp;message=#{msg}\">Edit</a>]</span>"
+    "<span class=\"editlink\">[<a href=\"#{action_path(context.page, :edit)}?pos=#{pos[i][1]}&amp;len=#{l}&amp;message=#{msg}\">Edit</a>]</span>"
   end
   content
 end
