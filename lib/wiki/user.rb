@@ -16,7 +16,7 @@ module Wiki
     end
 
     def change_password(oldpassword, password, confirm)
-      validate_password(password, confirm)
+      User.validate_password(password, confirm)
       User.service.change_password(self, oldpassword, password)
     end
 
@@ -40,16 +40,14 @@ module Wiki
              'Anonymous'         => anonymous?)
     end
 
-    static do
+    @services = {}
+
+    class<< self
       def validate_password(password, confirm)
         forbid('Passwords do not match' => password != confirm,
                'Password is empty' => password.blank?)
       end
-    end
 
-    @services = {}
-
-    class<< self
       def define_service(name, &block)
         service = Class.new
         service.class_eval(&block)

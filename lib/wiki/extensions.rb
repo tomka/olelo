@@ -1,15 +1,4 @@
 class Module
-  # Define a static function helper block
-  # Methods will be available in both
-  # contexts.
-  # Methods which are declared in a static
-  # block work like C++/Java static methods hence
-  # the name :D
-  def static(&block)
-    block.call
-    instance_eval(&block)
-  end
-
   # Generate accessor method with question mark
   def question_accessor(*names)
     names.each do |a|

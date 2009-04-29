@@ -8,6 +8,7 @@ module Wiki
   class App < Sinatra::Application
     include Helper
     include Utils
+    include Wiki
 
     # Sinatra options
     set :patterns, :path => PATH_PATTERN, :sha => SHA_PATTERN

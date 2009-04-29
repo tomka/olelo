@@ -28,7 +28,7 @@ module Wiki
       forbid_invalid_path(path)
       commit = sha ? repo.gcommit(sha) : repo.log(1).path(path).first rescue nil
       return nil if !commit
-      object = git_find(repo, path, commit)
+      object = git_find(path, commit)
       return nil if !object
       return Page.new(repo, path, object, commit, !sha) if object.blob?
       return Tree.new(repo, path, object, commit, !sha) if object.tree?
@@ -43,7 +43,7 @@ module Wiki
     # Constructor
     def initialize(repo, path, object = nil, commit = nil, current = false)
       path = path.to_s.cleanpath
-      forbid_invalid_path(path)
+      Resource.forbid_invalid_path(path)
       @repo = repo
       @path = path.cleanpath
       @object = object
@@ -129,25 +129,20 @@ module Wiki
       end
     end
 
-    static do
-      protected
-
-      def forbid_invalid_path(path)
-	forbid('Invalid path' => (!path.blank? && path !~ /^#{PATH_PATTERN}$/))
-      end
-
-      def git_find(repo, path, commit)
-        return nil if !commit
-        if path.blank?
-          return commit.gtree rescue nil
-        elsif path =~ /\//
-          return path.split('/').inject(commit.gtree) { |t, x| t.children[x] } rescue nil
-        else
-          return commit.gtree.children[path] rescue nil
-        end
-      end
+    def self.forbid_invalid_path(path)
+      forbid('Invalid path' => (!path.blank? && path !~ /^#{PATH_PATTERN}$/))
     end
 
+    def self.git_find(path, commit)
+      return nil if !commit
+      if path.blank?
+        return commit.gtree rescue nil
+      elsif path =~ /\//
+        return path.split('/').inject(commit.gtree) { |t, x| t.children[x] } rescue nil
+      else
+        return commit.gtree.children[path] rescue nil
+      end
+    end
   end
 
   # Page resource in repository
@@ -204,7 +199,7 @@ module Wiki
 
       @content = @prev_commit = @latest_commit = @history = nil
       @commit = history.first
-      @object = git_find(@repo, @path, @commit) || raise(NotFound, path)
+      @object = Resource.git_find(@path, @commit) || raise(NotFound, path)
       @current = true
     end
 
