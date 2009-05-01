@@ -31,8 +31,10 @@
         #sidebar
           %esi:include{:src=>'/sys/fragments/sidebar'}/
         #content
+          = content_hook :before_content
           %h1= include_block :title
           = yield
+          = content_hook :after_content
       #footer
         Powered by
         %a{:href=>'http://github.com/minad/git-wiki/tree/master'} Git-Wiki

@@ -16,8 +16,6 @@ class Wiki::Engine::Context
 end
 
 class Wiki::Tag < Filter
-  include Utils
-
   MAXIMUM_RECURSION = 100
 
   def self.tags
@@ -65,7 +63,7 @@ class Wiki::Tag < Filter
           else
             text = elem.children ? elem.children.map { |x| x.to_original_html }.join : ''
             text = begin
-                     instance_exec(context, elem.attributes, text, &block)
+                     instance_exec(context, elem.attributes.indifferent, text, &block)
                    rescue Exception => ex
                      "#{name}: #{escape_html ex.message}"
                    end

@@ -15,8 +15,6 @@ TODO
 - Switch to grit maybe (grit does not support some things yet, but has native implementation of some git features)
 - Implement revert operation
 - Syntax highlighting abstraction which use ultraviolet, coderay or pygments
-- Consider removing sinatra dependency
-- Consider event system for plugins
 - (DONE) Wiki installation under subpath (path_info translation could be done
   via rack middleware, generated links must be adapted)
 - (DONE) Cache-control and etag support

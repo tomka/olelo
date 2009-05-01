@@ -23,7 +23,7 @@ namespace :test do
 
   Rake::TestTask.new(:spec) do |t|
     t.libs << 'test'
-    t.warning = false # Sinatra warnings
+    t.warning = false
     t.test_files = FileList['test/spec_*.rb']
   end
 end

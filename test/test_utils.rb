@@ -2,8 +2,6 @@ require 'wiki/extensions'
 require 'wiki/utils'
 
 class TC_Utils < Test::Unit::TestCase
-  include Wiki::Utils
-
   def test_blank?
     assert ''.blank?
     assert({}.blank?)

@@ -30,16 +30,38 @@ module Rack
         [sid, session]
       end
 
-      def set_session(env, sid)
-        options = env['rack.session.options']
-        expiry = options[:expire_after] && options[:at]+options[:expire_after]
+      def set_session(env, session_id, new_session, options)
         @store.transaction do
-          old_session = @store[sid]
-          old_session[:expire_at] = expiry if expiry
-          session = old_session.merge(env['rack.session'])
-          @store[sid] = session
+          session = @store[session_id]
+          if options[:renew] or options[:drop]
+            @store.delete session_id
+            return false if options[:drop]
+            session_id = generate_sid
+            @store[session_id] = 0
+          end
+          old_session = new_session.instance_variable_get('@old') || {}
+          session = merge_sessions(session_id, old_session, new_session, session)
+          @store[session_id] = session
+          return session_id
         end
-        true
+      end
+
+      private
+
+      def merge_sessions(sid, old, new, cur=nil)
+        cur ||= {}
+        unless Hash === old and Hash === new
+          warn 'Bad old or new sessions provided.'
+          return cur
+        end
+
+        delete = old.keys - new.keys
+        delete.each{|k| cur.delete k }
+
+        update = new.keys.select{|k| new[k] != old[k] }
+        update.each{|k| cur[k] = new[k] }
+
+        cur
       end
     end
   end

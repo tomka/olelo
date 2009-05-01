@@ -1,4 +1,4 @@
-require 'wiki/cache'
+require 'wiki/utils'
 
 module Wiki
 
@@ -73,15 +73,6 @@ module Wiki
       end
 
       protected
-
-      class BlockFile < ::File #:nodoc:
-        def each
-          rewind
-          while part = read(8192)
-            yield part
-          end
-        end
-      end
 
       def cache_path(bucket, key)
         File.join(root, bucket, key)

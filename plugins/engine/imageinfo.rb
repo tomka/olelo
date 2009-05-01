@@ -5,6 +5,6 @@ Engine.create(:imageinfo, :priority => 1, :layout => true, :cacheable => true) d
   def output(context)
     @resource = context.page
     @image = Magick::Image.from_blob(@resource.content).first
-    haml :imageinfo
+    haml :imageinfo, :layout => false
   end
 end

@@ -1,11 +1,24 @@
 require 'wiki/app'
 require 'test/spec'
-require 'sinatra/test'
+require 'rack/test'
 
 Rack::MockRequest::DEFAULT_ENV['REMOTE_ADDR'] = 'localhorst'
 
 describe 'wiki' do
-  include Sinatra::Test
+  include Rack::Test::Methods
+  attr_reader :app
+
+  def should
+    last_response.should
+  end
+
+  def method_missing(name, *args, &block)
+    if last_response && last_response.respond_to?(name)
+      last_response.send(name, *args, &block)
+    else
+      super
+    end
+  end
 
   before(:each) do
     @test_path = File.expand_path(File.join(File.dirname(__FILE__), '.test'))
@@ -18,6 +31,7 @@ describe 'wiki' do
       :default_mime => 'text/x-creole',
       :main_page    => 'Home',
       :disabled_plugins => ['misc/private_wiki'],
+      :production => false,
       :rack => {
         :rewrite_base => nil,
         :profiling    => false,

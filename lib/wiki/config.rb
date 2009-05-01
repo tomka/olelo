@@ -67,6 +67,7 @@ module Wiki
     def create_accessor(key)
       if !respond_to?(key)
         metaclass.class_eval do
+          define_method("#{key}?") { !!@config[key] }
           define_method(key) { @config[key] }
           define_method("#{key}=") { |x| @config[key] = x }
         end

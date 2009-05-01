@@ -5,20 +5,33 @@ class Module
       module_eval %{ def #{a}?; !!@#{a}; end }
     end
   end
-end
 
-class Hash
-  # Return a new hash with all keys converted to symbols.
-  def symbolize_keys
-    inject({}) do |hash, (key, val)|
-      hash[(key.to_sym rescue key) || key] = val
-      hash
+  def attr_reader_with_default(attrs)
+    attrs.each_pair do |key, val|
+      define_method(key) do
+        metaclass.class_eval { attr_reader(key) }
+        instance_variable_get("@#{key}") || instance_variable_set("@#{key}", Proc === val ? val.call : val)
+      end
     end
   end
 
-  # Destructively convert all keys to symbols.
-  def symbolize_keys!
-    replace(symbolize_keys)
+  def attr_accessor_with_default(attrs)
+    attr_reader_with_default(attrs)
+    attr_writer *attrs.keys
+  end
+end
+
+class Hash
+  def self.indifferent
+    Hash.new {|hash,key| hash[key.to_s] if Symbol === key }
+  end
+
+  def indifferent
+    hash = Hash.indifferent.merge(self)
+    hash.each do |key, value|
+      hash[key] = value.indifferent if value.is_a?(Hash)
+    end
+    hash
   end
 end
 

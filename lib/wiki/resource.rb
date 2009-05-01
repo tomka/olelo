@@ -1,5 +1,5 @@
-require 'sinatra/base'
 require 'git'
+require 'wiki/routing'
 require 'wiki/utils'
 require 'wiki/extensions'
 require 'wiki/config'
@@ -11,10 +11,8 @@ module Wiki
 
   # Wiki repository resource
   class Resource
-    include Utils
-
     # Raised if resource is not found in the repository
-    class NotFound < Sinatra::NotFound
+    class NotFound < Routing::NotFound
       def initialize(path)
         super("#{path} not found", path)
       end

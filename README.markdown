@@ -33,11 +33,6 @@ At first you have to install the gem dependencies via "gem".
     gem install thin
     gem install rack
 
-Sinatra can be installed either as submodule or as gem (gem install sinatra-sinatra). You might need to run
-
-    git submodule init
-    git submodule update
-
 Optional:
     gem install hpricot
     gem install rdiscount
@@ -52,7 +47,6 @@ It automatically creates a repository in the directory '.wiki'.
 Dependencies
 ------------
 
-- [Sinatra][]
 - [ruby-git][]
 - [HAML][]
 - [RubyPants][]
@@ -75,7 +69,6 @@ Dependencies for page rendering
 
 At least one of the renderers should be installed.
 
-  [Sinatra]: http://www.sinatrarb.com
   [ruby-git]: http://github.com/schacon/ruby-git
   [HAML]: http://haml.hamptoncatlin.com
   [RDiscount]: http://github.com/rtomayko/rdiscount

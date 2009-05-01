@@ -54,7 +54,7 @@ module Wiki
 
     # Add setup method
     def setup(&block)
-      @setup << proc(&block)
+      @setup << block
     end
 
     # Start the plugin

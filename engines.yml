@@ -3,7 +3,7 @@ creole:
   cacheable: true
   priority: 1
   accepts: text/x-creole
-  filter: [ editsection, [ shebang, tag, [ creole, rubypants ] ], toc ]
+  filter: [ editsection, [ shebang, math, tag, [ creole, rubypants ] ], toc ]
 
 textile:
   layout: true

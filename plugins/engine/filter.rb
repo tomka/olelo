@@ -49,7 +49,8 @@ end
 
 class FilterEngine <  Engine
   def initialize(name, config)
-    super(name, config.symbolize_keys!)
+    config = config.indifferent
+    super(name, config)
     @accepts = config[:accepts]
     @mime = config[:mime]
     @filter = build(config[:filter])

@@ -41,7 +41,8 @@ module Wiki
 
     # Lookup mime type by file extension
     def self.by_extension(ext)
-      mime = EXTENSIONS[ext.downcase]
+      ext = ext.downcase
+      mime = EXTENSIONS[ext] || (ext[0..0] == '.' && EXTENSIONS[ext[1..-1]])
       mime ? new(mime) : nil
     end
 

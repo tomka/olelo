@@ -3,8 +3,6 @@ require 'wiki/extensions'
 
 module Wiki
   class User
-    include Utils
-
     attr_reader :name
     attr_accessor :email
     question_accessor :anonymous

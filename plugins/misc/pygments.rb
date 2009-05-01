@@ -1,8 +1,6 @@
 require 'open3'
 
 module ::Pygments
-  include Utils
-
   PROGRAM = 'pygmentize'
   RUN_OPTIONS = '-O encoding=utf8 -O linenos=table -f html -l'
   LOOKUP_OPTIONS = '-L lexer'

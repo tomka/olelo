@@ -1,28 +1,21 @@
-%w(sinatra/base sinatra/extensions git haml
-sass logger wiki/extensions wiki/utils
-wiki/resource wiki/helper wiki/user wiki/engine
-wiki/plugin).each { |dep| require dep }
+require 'logger'
+require 'wiki/routing'
+require 'wiki/resource'
+require 'wiki/helper'
+require 'wiki/user'
+require 'wiki/engine'
+require 'wiki/plugin'
 
 module Wiki
   # Main class of the application
-  class App < Sinatra::Application
+  class App
+    include Routing
     include Helper
-    include Utils
-    include Wiki
-
-    # Sinatra options
-    set :patterns, :path => PATH_PATTERN, :sha => SHA_PATTERN
-    set :haml, :format => :xhtml, :attr_wrapper  => '"', :ugly => true
-    set :root, lambda { Config.root }
-    set :static, false
-    set :raise_errors, false
-    set :dump_errors, true
-    set :logging, false
-    set :methodoverride, false
+    include Templates
+    patterns :path => PATH_PATTERN, :sha => SHA_PATTERN
 
     def initialize(app = nil, opts = {})
-      super(app)
-
+      @app = app
       @logger = opts[:logger] || Logger.new(nil)
 
       if File.exists?(Config.git.repository) && File.exists?(Config.git.workspace)
@@ -39,7 +32,7 @@ module Wiki
       end
 
       Plugin.logger = @logger
-      Plugin.dir = File.join(App.root, 'plugins')
+      Plugin.dir = File.join(Config.root, 'plugins')
       Plugin.load('*')
       Plugin.start
 
@@ -47,7 +40,7 @@ module Wiki
     end
 
     # Executed before each request
-    before do
+    add_hook(:before_routing) do
       start_timer
       @logger.debug request.env
 
@@ -58,25 +51,25 @@ module Wiki
     end
 
     # Handle 404s
-    not_found do
+    add_hook(NotFound) do |ex|
       if request.env['wiki.redirect_to_new']
         # Redirect to create new page if flag is set
         redirect(params[:sha] ? params[:path].urlpath : (params[:path]/'new').urlpath)
       else
-        @error = request.env['sinatra.error'] || Sinatra::NotFound.new
+        @error = ex
         haml :error
       end
     end
 
     # Show wiki error page
-    error do
-      @error = request.env['sinatra.error']
+    add_hook(Exception) do |ex|
+      @error = ex
       @logger.error @error
       haml :error
     end
 
     get '/sys/fragments/user' do
-      haml :'fragments/user', :layout => false
+      haml 'fragments/user', :layout => false
     end
 
     get '/sys/fragments/sidebar' do
@@ -160,7 +153,7 @@ module Wiki
         # Fallback to default style
         cache_control :max_age => 120
         content_type 'text/css', :charset => 'utf-8'
-        sass :"style/#{params[:style]}", :sass => {:style => :compact}
+        sass :"style/#{params[:style]}"
       end
     end
 
@@ -173,18 +166,10 @@ module Wiki
     end
 
     get '/?:path?/archive' do
-      begin
-        tree = Tree.find!(@repo, params[:path])
-        cache_control :etag => tree.sha, :last_modified => tree.commit.date
-        content_type 'application/x-tar-gz'
-        attachment "#{tree.safe_name}.tar.gz"
-        archive = tree.archive
-        # See send_file
-        response['Content-Length'] ||= File.stat(archive).size.to_s
-        halt StaticFile.open(archive, 'rb')
-      rescue Errno::ENOENT
-        not_found
-      end
+      tree = Tree.find!(@repo, params[:path])
+      cache_control :etag => tree.sha, :last_modified => tree.commit.date
+      archive = tree.archive
+      send_file(archive, :content_type => 'application/x-tar-gz', :filename => "#{tree.safe_name}.tar.gz")
     end
 
     get '/?:path?/history' do
@@ -305,10 +290,9 @@ module Wiki
 
     def name_clash?(path)
       path = path.to_s.urlpath
-      patterns = self.class.routes.values.inject([], &:+).map {|x| x[0] }.uniq
+      patterns = self.class.routes.values.inject([], &:+).map {|x| x[1] }.uniq
 
       # Remove overly general patterns
-      patterns.delete(%r{.*[^\/]$}) # Sinatra static files
       patterns.delete(%r{^/(#{PATH_PATTERN})$}) # Path
       patterns.delete(%r{^/(#{PATH_PATTERN})/(#{SHA_PATTERN})$}) # Path with unstrict sha
       patterns.delete(%r{^/(#{SHA_PATTERN})$}) # Root with unstrict sha

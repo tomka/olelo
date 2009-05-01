@@ -7,6 +7,7 @@ module Wiki
   # An Engine renders pages
   class Engine
     include Helper
+    include Templates
 
     class Context < Hash
       attr_reader :page, :engine
@@ -26,12 +27,6 @@ module Wiki
       def id
         Digest::MD5.hexdigest(@engine.name + page.sha + inspect)
       end
-    end
-
-    # FIXME: Double implementation
-    def haml(name, options = {})
-      engine = ::Haml::Engine.new(File.read(File.join(Config.root, 'views', "#{name}.haml")), options[:options] || {})
-      engine.render(self, options[:locals] || {})
     end
 
     @engines = {}

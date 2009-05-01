@@ -1,4 +1,4 @@
 - menu :new
 - title escape_html(@error.message)
-- if !Wiki::App.production?
+- if !Wiki::Config.production?
   %pre&= @error.backtrace.to_a.join("\n")

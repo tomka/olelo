@@ -1,18 +1,11 @@
 require 'rss/maker'
 
-module Wiki::Helper
-  alias include_block_without_changelog include_block
-
-  def include_block(name)
-    content = include_block_without_changelog(name)
-    if name.to_sym == :head && @resource
-      content << "<link rel=\"alternate\" href=\"#{(@resource.path/'changelog.rss').urlpath}\" type=\"application/rss+xml\" title=\"RSS\"/>"
-    end
-    content
-  end
-end
-
 class Wiki::App
+  add_hook(:after_head) do
+    return nil if !@resource
+    "<link rel=\"alternate\" href=\"#{(@resource.path/'changelog.rss').urlpath}\" type=\"application/rss+xml\" title=\"Changelog\"/>"
+  end
+
   get '/changelog.rss', '/:path/changelog.rss' do
     resource = Resource.find!(@repo, params[:path])
     cache_control :etag => resource.latest_commit.sha, :last_modified => resource.latest_commit.date

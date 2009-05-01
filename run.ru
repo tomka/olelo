@@ -30,6 +30,7 @@ end
 default_config = {
   :title        => 'Git-Wiki',
   :root         => path,
+  :production   => false,
   :auth => {
     :service => 'yamlfile',
     :store   => ::File.join(path, '.wiki', 'users.yml'),
@@ -56,7 +57,7 @@ default_config = {
 Wiki::Config.update(default_config)
 Wiki::Config.load(config_file)
 
-if Wiki::Config.rack.profiling
+if Wiki::Config.rack.profiling?
   require 'rack/contrib'
   use Rack::Profiler, :printer => :graph
 end
@@ -91,9 +92,7 @@ if env == 'deployment' || env == 'production'
     :verbose     => false,
     :metastore   => "file:#{::File.join(Wiki::Config.cache, 'rack', 'meta')}",
     :entitystore => "file:#{::File.join(Wiki::Config.cache, 'rack', 'entity')}"
-
-  # FIXME: This is a sinatra problem
-  Wiki::App.set :environment, :production
+  Wiki::Config.production = true
 end
 
 use Rack::Static, :urls => ['/static'], :root => path

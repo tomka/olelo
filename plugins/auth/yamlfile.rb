@@ -2,8 +2,6 @@ require 'yaml/store'
 require 'digest'
 
 User.define_service(:yamlfile) do
-  include Utils
-
   def initialize
     @store ||= begin
                  FileUtils.mkdir_p File.dirname(Config.auth.store), :mode => 0755

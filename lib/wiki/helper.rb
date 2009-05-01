@@ -6,7 +6,7 @@ module Wiki
   # TODO: Restructure this a little bit. Separate view
   # from controller helpers maybe.
   module Helper
-    include Utils
+    attr_reader_with_default :blocks => Hash.new('')
 
     def start_timer
       @start_time = Time.now
@@ -17,15 +17,13 @@ module Wiki
     end
 
     def define_block(name, content = nil, &block)
-      name = name.to_sym
-      @blocks ||= {}
-      @blocks[name] = block_given? ? capture_haml(&block) : content
+      blocks[name.to_sym] = block ? capture_haml(&block) : content
     end
 
     def include_block(name)
-      name = name.to_sym
-      @blocks ||= {}
-      @blocks[name].to_s
+      content_hook(:"before_#{name}") +
+        blocks[name.to_sym] +
+        content_hook(:"after_#{name}")
     end
 
     def footer(content = nil, &block); define_block(:footer, content, &block); end
@@ -36,16 +34,55 @@ module Wiki
       define_block :menu, haml(:menu, :layout => false, :locals => { :menu => menu })
     end
 
+    # Access the underlying Rack session.
+    def session
+      env['rack.session'] ||= {}
+    end
+
+    def content_type(type, params={})
+      type = type.to_s
+      if params.any?
+        params = params.collect { |kv| "%s=%s" % kv }.join(', ')
+        response['Content-Type'] = [type, params].join(";")
+      else
+        response['Content-Type'] = type
+      end
+    end
+
+    def send_file(file, opts = {})
+      content_type(opts[:content_type] || Mime.by_extension(File.extname(file)) || 'application/octet-stream')
+      if opts[:disposition] == 'attachment' || opts[:filename]
+        response['Content-Disposition'] = 'attachment; filename="%s"' % (opts[:filename] || File.basename(file))
+      elsif opts[:disposition] == 'inline'
+        response['Content-Disposition'] = 'inline'
+      end
+      response['Content-Length'] ||= File.stat(file).size.to_s
+      halt BlockFile.open(file, 'rb')
+    rescue Errno::ENOENT
+      raise NotFound
+    end
+
     # Cache control for resource
     def cache_control(opts)
-      return if !App.production?
-      etag(opts[:etag]) if opts[:etag]
-      last_modified(opts[:last_modified]) if opts[:last_modified]
-      if opts[:validate_only]
-        response.headers.delete 'ETag'
-        response.headers.delete 'Last-Modified'
-        return
+      return if !Config.production?
+
+      if opts[:etag]
+        value = '"%s"' % value
+        response['ETag'] = value if !opts[:validate_only]
+        if etags = env['HTTP_IF_NONE_MATCH']
+          etags = etags.split(/\s*,\s*/)
+          halt(304) if etags.include?(value) || etags.include?('*')
+        end
       end
+
+      if opts[:last_modified]
+        time = opts[:last_modified]
+        time = time.to_time if time.respond_to?(:to_time)
+        time = time.httpdate if time.respond_to?(:httpdate)
+        response['Last-Modified'] = time if !opts[:validate_only]
+        halt(304) if time == request.env['HTTP_IF_MODIFIED_SINCE']
+      end
+
       mode = opts[:private] ? 'private' : 'public'
       max_age = opts[:max_age] || (opts[:static] ? 86400 : 0)
       response['Cache-Control'] = "#{mode}, max-age=#{max_age}, must-revalidate"
@@ -142,8 +179,9 @@ module Wiki
       path
     end
 
-    def action_path(resource, action)
-      (resource.path/action.to_s).urlpath
+    def action_path(path, action)
+      path = path.path if path.respond_to? :path
+      (path.to_s/action.to_s).urlpath
     end
 
     def static_path(name)
