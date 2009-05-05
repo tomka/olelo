@@ -2,8 +2,9 @@ require 'rss/maker'
 
 class Wiki::App
   add_hook(:after_head) do
-    return nil if !@resource
-    "<link rel=\"alternate\" href=\"#{(@resource.path/'changelog.rss').urlpath}\" type=\"application/rss+xml\" title=\"Changelog\"/>"
+    if @resource
+      "<link rel=\"alternate\" href=\"#{(@resource.path/'changelog.rss').urlpath}\" type=\"application/rss+xml\" title=\"Changelog\"/>"
+    end
   end
 
   get '/changelog.rss', '/:path/changelog.rss' do

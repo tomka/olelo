@@ -99,7 +99,7 @@ module Wiki
     post '/login' do
       begin
         session[:user] = User.authenticate(params[:user], params[:password])
-        redirect '/'
+	redirect '/'
       rescue StandardError => error
         message :error, error
         haml :login

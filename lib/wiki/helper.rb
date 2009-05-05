@@ -67,7 +67,7 @@ module Wiki
       return if !Config.production?
 
       if opts[:etag]
-        value = '"%s"' % value
+        value = '"%s"' % opts[:etag]
         response['ETag'] = value if !opts[:validate_only]
         if etags = env['HTTP_IF_NONE_MATCH']
           etags = etags.split(/\s*,\s*/)

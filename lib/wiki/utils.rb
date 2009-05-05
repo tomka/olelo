@@ -98,6 +98,6 @@ module Kernel
 
   def forbid(conds)
     failed = conds.keys.select {|key| conds[key] }
-    raise(Wiki::MultiError, failed) if !failed.empty?
+    raise(Wiki::MultiError, *failed) if !failed.empty?
   end
 end

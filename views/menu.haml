@@ -14,10 +14,10 @@
   - if menu.include?(:version)
     - if @resource.prev_commit
       %li
-        %a{:href=>resource_path(@resource, :sha => @resource.prev_commit), :accesskey=>'o'} &laquo; Older
+        %a{:href=>resource_path(@resource, :sha => @resource.prev_commit), :accesskey=>'o'} &#171; Older
     - if @resource.next_commit
       %li
-        %a{:href=>resource_path(@resource, :sha => @resource.next_commit), :accesskey=>'n'} Newer &raquo;
+        %a{:href=>resource_path(@resource, :sha => @resource.next_commit), :accesskey=>'n'} Newer &#187;
     - if !@resource.current?
       %li
         %a{:href=> @resource.path.urlpath, :accesskey=>'c'} Current

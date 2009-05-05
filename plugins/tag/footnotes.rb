@@ -21,14 +21,15 @@ end
 
 Tag.define :references do |context, attrs, content|
   footnotes = context['__FOOTNOTES__']
-  return nil if !footnotes
-  list = '<ol>'
-  list += footnotes.map do |id, note, refs|
-    links = ''
-    refs.each_with_index do |ref, i|
-      links << "<a href=\"#ref#{ref}\" class=\"backref\">#{i+1}</a> "
-    end
-    "<li id=\"note#{id}\">#{links} #{note}</li>"
-  end.join("\n")
-  list + '</ol>'
+  if footnotes
+    list = '<ol>'
+    list += footnotes.map do |id, note, refs|
+      links = ''
+      refs.each_with_index do |ref, i|
+        links << "<a href=\"#ref#{ref}\" class=\"backref\">#{i+1}</a> "
+      end
+      "<li id=\"note#{id}\">#{links} #{note}</li>"
+    end.join("\n")
+    list + '</ol>'
+  end
 end

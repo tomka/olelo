@@ -7,9 +7,10 @@ setup do
 
     def resource_path(resource, opts = {})
       if opts[:path] =~ INTERWIKI_REGEX
-        return opts[:path].urlpath
+        opts[:path].urlpath
+      else
+        resource_path_without_interwiki(resource, opts)
       end
-      resource_path_without_interwiki(resource, opts)
     end
   end
 
