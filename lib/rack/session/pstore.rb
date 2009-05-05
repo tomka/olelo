@@ -1,4 +1,6 @@
 require 'rack/session/abstract/id'
+require 'pstore'
+require 'fileutils'
 
 module Rack
   module Session
@@ -9,6 +11,7 @@ module Rack
 
       def initialize(app, options={})
         super
+        FileUtils.mkdir_p ::File.dirname(@default_options[:file]), :mode => 0755
         @store = ::PStore.new(@default_options[:file])
       end
 
