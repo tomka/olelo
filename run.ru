@@ -12,6 +12,7 @@ require 'wiki/app'
 require 'rack/path_info'
 require 'rack/esi'
 require 'rack/session/pstore'
+require 'rack/reverseip'
 require 'fileutils'
 require 'logger'
 
@@ -63,6 +64,7 @@ if Wiki::Config.rack.profiling?
 end
 
 use Rack::Session::PStore, :file => ::File.join(Wiki::Config.cache, 'pstore')
+use Rack::ReverseIP
 use Rack::PathInfo
 use Rack::MethodOverride
 
@@ -97,4 +99,3 @@ end
 
 use Rack::Static, :urls => ['/static'], :root => path
 run Wiki::App.new(nil, :logger => logger)
-

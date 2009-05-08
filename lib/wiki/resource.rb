@@ -134,11 +134,11 @@ module Wiki
     def self.git_find(path, commit)
       return nil if !commit
       if path.blank?
-        return commit.gtree rescue nil
+        commit.gtree rescue nil
       elsif path =~ /\//
-        return path.split('/').inject(commit.gtree) { |t, x| t.children[x] } rescue nil
+        path.split('/').inject(commit.gtree) { |t, x| t.children[x] } rescue nil
       else
-        return commit.gtree.children[path] rescue nil
+        commit.gtree.children[path] rescue nil
       end
     end
   end

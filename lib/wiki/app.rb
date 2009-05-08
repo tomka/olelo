@@ -46,8 +46,7 @@ module Wiki
 
       content_type 'application/xhtml+xml', :charset => 'utf-8'
 
-      forbid('No ip given' => !request.ip)
-      @user = session[:user] || User.anonymous(request.ip)
+      @user = session[:user] || User.anonymous(request)
     end
 
     # Handle 404s

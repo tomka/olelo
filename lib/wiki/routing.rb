@@ -34,7 +34,7 @@ module Wiki
         @env      = env
         @request  = Request.new(env)
         @response = Rack::Response.new
-        @original_params = @request.params.indifferent
+        @params = @original_params = @request.params.indifferent
         catch(:forward) do
           perform!
           status, header, body = @response.finish
@@ -129,7 +129,7 @@ module Wiki
           end
         end
 
-        raise NotFound, path
+        raise NotFound, "Path #{path} not found"
       end
 
     end

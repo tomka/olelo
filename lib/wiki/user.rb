@@ -60,8 +60,10 @@ module Wiki
                      end
       end
 
-      def anonymous(ip)
-        new(ip, "anonymous@#{ip}", true)
+      def anonymous(request)
+        ip = request.ip || 'unknown-ip'
+        name = request.env['rack.hostbyip'] ? "#{request.env['rack.hostbyip']} (#{ip})" : ip
+        new(name, "anonymous@#{ip}", true)
       end
 
       def authenticate(name, password)
