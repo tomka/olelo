@@ -7,6 +7,6 @@ class Wiki::App
         @matches << [$1,lines.map {|x| x[1] }.join("\n").truncate(100)]
       end
     end
-    haml :search
+    haml :grep
   end
 end

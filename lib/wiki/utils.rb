@@ -30,28 +30,37 @@ module Wiki
 
     def sass(name, opts = {})
       sass_opts = SASS_OPTIONS.merge(opts[:options] || {})
-      engine = ::Sass::Engine.new(opts[:direct] ? name : lookup_template(:sass, name), sass_opts)
+      engine = ::Sass::Engine.new(opts[:direct] ? name : lookup_template(:sass, name, caller_path), sass_opts)
       engine.render
     end
 
     def haml(name, opts = {})
-      output = render_haml(name, opts)
-      output = render_haml('layout', opts) { output } if opts[:layout] != false
+      output = render_haml(opts[:direct] ? name : lookup_template(:haml, name, caller_path), opts)
+      output = render_haml(lookup_template(:haml, 'layout'), opts) { output } if opts[:layout] != false
       output
     end
 
     private
 
-    def render_haml(name, opts = {}, &block)
+    def render_haml(template, opts = {}, &block)
       haml_opts = HAML_OPTIONS.merge(opts[:options] || {})
-      engine = ::Haml::Engine.new(opts[:direct] ? name : lookup_template(:haml, name), haml_opts)
+      engine = ::Haml::Engine.new(template, haml_opts)
       engine.render(self, opts[:locals] || {}, &block)
     end
 
-    def lookup_template(type, name)
+    def lookup_template(type, name, *paths)
       @template_cache ||= {}
-      @template_cache[type] ||= {}
-      @template_cache[type][name.to_s] ||= File.read(File.join(Config.root, 'views', "#{name}.#{type}"))
+      @template_cache["#{type}-#{name}-#{paths.join('-')}"] ||= load_template(type, name, paths)
+    end
+
+    def load_template(type, name, paths)
+      paths.unshift File.join(Config.root, 'views')
+      paths.map! {|path| File.join(path, "#{name}.#{type}") }
+      File.read(paths.find {|path| File.exists?(path) })
+    end
+
+    def caller_path
+      File.dirname(caller[1].split(':')[0])
     end
   end
 

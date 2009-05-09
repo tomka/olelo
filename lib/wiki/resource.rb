@@ -3,6 +3,7 @@ require 'wiki/routing'
 require 'wiki/utils'
 require 'wiki/extensions'
 require 'wiki/config'
+require 'mimemagic'
 
 module Wiki
   PATH_PATTERN = '[\w:.+\-_\/](?:[\w:.+\-_\/ ]*[\w.+\-_\/])?'
@@ -209,7 +210,7 @@ module Wiki
 
     # Detect mime type by extension, by content or use default mime type
     def mime
-      @mime ||= Mime.by_extension(extension) || Mime.by_magic(content) || Mime.new(Config.default_mime)
+      @mime ||= MimeMagic.by_extension(extension) || MimeMagic.by_magic(content) || MimeMagic.new(Config.default_mime)
     end
   end
 

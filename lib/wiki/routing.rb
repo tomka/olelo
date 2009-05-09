@@ -135,7 +135,7 @@ module Wiki
     end
 
     module ClassMethods
-      attr_reader_with_default :routes => {}, :patterns => {}
+      attr_reader_with_default :routes => {}
 
       def patterns(patterns = nil)
         return (@patterns || {}) if !patterns

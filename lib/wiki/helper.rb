@@ -1,5 +1,6 @@
 require 'wiki/extensions'
 require 'wiki/utils'
+require 'mimemagic'
 
 module Wiki
   # Wiki helper methods which are mainly used in the views
@@ -50,7 +51,7 @@ module Wiki
     end
 
     def send_file(file, opts = {})
-      content_type(opts[:content_type] || Mime.by_extension(File.extname(file)) || 'application/octet-stream')
+      content_type(opts[:content_type] || MimeMagic.by_extension(File.extname(file)) || 'application/octet-stream')
       if opts[:disposition] == 'attachment' || opts[:filename]
         response['Content-Disposition'] = 'attachment; filename="%s"' % (opts[:filename] || File.basename(file))
       elsif opts[:disposition] == 'inline'

@@ -68,7 +68,7 @@ module Wiki
     end
 
     get '/sys/fragments/user' do
-      haml 'fragments/user', :layout => false
+      haml :user, :layout => false
     end
 
     get '/sys/fragments/sidebar' do
@@ -244,6 +244,7 @@ module Wiki
         else
           redirect((@resource.path/'edit').urlpath)
         end
+        invoke_hook :page_saved, @resource
         redirect @resource.path.urlpath
       rescue StandardError => error
         message :error, error
@@ -265,6 +266,7 @@ module Wiki
         else
           redirect '/new'
         end
+        invoke_hook :page_saved, @resource
         redirect @resource.path.urlpath
       rescue StandardError => error
         message :error, error

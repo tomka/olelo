@@ -1,4 +1,3 @@
-require 'wiki/mime'
 require 'wiki/extensions'
 require 'wiki/utils'
 require 'wiki/cache'
