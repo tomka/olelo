@@ -211,7 +211,7 @@ module Wiki
       if @messages
         out = "<ul>\n"
         @messages.each do |msg|
-          out += "  <li class=\"#{msg[0]}\">#{msg[1]}</li>\n"
+          out += "  <li class=\"#{msg[0]}\">#{escape_html msg[1]}</li>\n"
         end
         out += "</ul>\n"
         return out

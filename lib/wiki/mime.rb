@@ -1,5 +1,6 @@
 require 'wiki/mime_tables'
 require 'wiki/extensions'
+require 'stringio'
 
 module Wiki
   # Mime type detection
@@ -17,11 +18,12 @@ module Wiki
     # specify the type, a string list of file extensions,
     # a string list of parent mime types and an optional
     # detector block for magic detection.
-    def self.add(type, extensions, parents, &block)
+    def self.add(type, extensions, parents, *magics)
       TYPES[type] = [extensions, parents, block_given? ? proc(&block) : nil]
       extensions.each do |ext|
         EXTENSIONS[ext] = type
       end
+      MAGIC.unshift [type, magics] if magics
     end
 
     # Returns true if type is a text format
@@ -49,12 +51,9 @@ module Wiki
     # Lookup mime type by magic content analysis
     # That could be slow
     def self.by_magic(content)
-      io = content.respond_to?(:rewind) ? content : StringIO.new(content.to_s, 'rb')
-      mime = TYPES.keys.find do |type|
-        io.rewind
-        TYPES[type][2] && TYPES[type][2].call(io)
-      end
-      mime ? new(mime) : nil
+      io = content.respond_to?(:seek) ? content : StringIO.new(content.to_s, 'rb')
+      mime = MAGIC.find {|type, matches| magic_match(io, matches) }
+      mime ? new(mime[0]) : nil
     end
 
     # Return type as string
@@ -72,6 +71,21 @@ module Wiki
     def child?(child, parent)
       return true if child == parent
       TYPES.key?(child) ? TYPES[child][1].any? {|p| child?(p, parent) } : false
+    end
+
+    def self.magic_match(io, matches)
+      matches.any? do |offset, value, children|
+        if Range === offset
+          io.seek(offset.begin)
+          match = io.read(offset.end - offset.begin + value.length).include?(value)
+        else
+          io.seek(offset)
+          match = value == io.read(value.length)
+        end
+        match && (!children || magic_match(io, children))
+      end
+    rescue
+      false
     end
   end
 end

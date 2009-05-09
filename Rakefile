@@ -8,21 +8,21 @@ task :default => ['test:unit','test:spec','test:coverage']
 
 namespace :test do
   Rake::TestTask.new(:unit) do |t|
-    t.libs << 'test'
+    t.libs << 'test' << 'lib'
     t.warning = true
     t.test_files = FileList['test/test_*.rb']
   end
 
   Rcov::RcovTask.new(:coverage) do |t|
     t.rcov_opts << '--exclude' << '/gems/,/ruby-git\/lib/'
-    t.libs << 'test'
+    t.libs << 'test' << 'lib'
     t.warning = false
     t.verbose = true
     t.test_files = FileList['test/test_*.rb','test/spec_*.rb']
   end
 
   Rake::TestTask.new(:spec) do |t|
-    t.libs << 'test'
+    t.libs << 'test' << 'lib'
     t.warning = false
     t.test_files = FileList['test/spec_*.rb']
   end

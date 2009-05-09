@@ -17,7 +17,7 @@ class Module
 
   def attr_accessor_with_default(attrs)
     attr_reader_with_default(attrs)
-    attr_writer *attrs.keys
+    attr_writer(*attrs.keys)
   end
 end
 

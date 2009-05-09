@@ -23,4 +23,9 @@ class TC_Mime < Test::Unit::TestCase
     assert_nil Wiki::Mime.by_extension('crazy')
     assert_nil Wiki::Mime.by_extension('')
   end
+
+  def test_by_magic
+    assert_equal 'application/x-executable', Wiki::Mime.by_magic(File.open('/bin/ls')).to_s
+    assert_equal 'application/x-sharedlib', Wiki::Mime.by_magic(File.open('/lib/libc.so.6')).to_s
+  end
 end
