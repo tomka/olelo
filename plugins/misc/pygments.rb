@@ -15,7 +15,7 @@ module ::Pygments
     end
 
     format = options[:filename] ? find_lexer(options[:filename]) : options[:format]
-    return escape_html(content) if !format
+    return "<pre>#{escape_html(content.strip)}</pre>" if !format
     run(text, format)
   end
 
@@ -29,7 +29,7 @@ module ::Pygments
       stdin.close
       stdout.read
     }
-    content.blank? ? escape_html(text) : content
+    content.blank? ? "<pre>#{escape_html(text.strip)}</pre>" : content
   end
 
   @mapping = nil
