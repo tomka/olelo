@@ -7,7 +7,7 @@ module Wiki
   # TODO: Restructure this a little bit. Separate view
   # from controller helpers maybe.
   module Helper
-    attr_reader_with_default :blocks => Hash.new('')
+    attr_reader_with_default :blocks => lambda { Hash.new('') }
 
     def start_timer
       @start_time = Time.now
