@@ -49,7 +49,7 @@ module Wiki
     end
 
     def self.register(engine)
-      raise(ArgumentError, "Engine #{engine.name} already exists") if @engines.key?(engine.name)
+      raise(ArgumentError, "Engine '#{engine.name}' already exists") if @engines.key?(engine.name)
       @engines[engine.name] = engine
     end
 
@@ -70,7 +70,7 @@ module Wiki
     end
 
     def self.find!(page, name = nil)
-      find(page, name) || raise(RuntimeError, "Engine #{name} is not available")
+      find(page, name) || raise(RuntimeError, "Engine '#{name}' is not available for page '#{page.path}' with mime-type '#{page.mime}'")
     end
 
     # Acceptor should return true if page would be accepted by this engine

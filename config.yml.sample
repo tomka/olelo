@@ -3,7 +3,9 @@ auth:
   service: yamlfile
   store:   '/home/user/wiki/users.yml'
 cache:        '/home/user/wiki/cache'
-default_mime: 'text/x-creole'
+mime:
+  magic:   true
+  default: 'text/x-creole'
 main_page:    'Home'
 disabled_plugins:
   - misc/private_wiki

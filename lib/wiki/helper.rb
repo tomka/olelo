@@ -243,7 +243,7 @@ module Wiki
 
     def edit_content(page)
       return params[:content] if params[:content]
-      return '' if !page.mime.text?
+      return "WARNING: '#{page.path}' is not a text file (mime-type #{page.mime})" if !page.mime.text?
       if params[:pos] && params[:len]
         pos = [[0, params[:pos].to_i].max, page.content.size].min
         len = [0, params[:len].to_i].max

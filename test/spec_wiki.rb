@@ -28,7 +28,10 @@ describe 'wiki' do
       :root         => File.expand_path(File.join(File.dirname(__FILE__), '..')),
       :store        => File.join(@test_path, 'store.yml'),
       :cache        => File.join(@test_path, 'cache'),
-      :default_mime => 'text/x-creole',
+      :mime => {
+        :default => 'text/x-creole',
+        :magic => true,
+      },
       :main_page    => 'Home',
       :disabled_plugins => ['misc/private_wiki'],
       :production => false,

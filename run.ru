@@ -37,7 +37,10 @@ default_config = {
     :store   => ::File.join(path, '.wiki', 'users.yml'),
   },
   :cache        => ::File.join(path, '.wiki', 'cache'),
-  :default_mime => 'text/x-creole',
+  :mime => {
+    :default => 'text/x-creole',
+    :magic   => true,
+  },
   :main_page    => 'Home',
   :disabled_plugins => ['misc/private_wiki'],
   :rack => {

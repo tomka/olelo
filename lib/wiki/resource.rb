@@ -210,7 +210,9 @@ module Wiki
 
     # Detect mime type by extension, by content or use default mime type
     def mime
-      @mime ||= MimeMagic.by_extension(extension) || MimeMagic.by_magic(content) || MimeMagic.new(Config.default_mime)
+      @mime ||= MimeMagic.by_extension(extension) ||
+        (Config.mime.magic && MimeMagic.by_magic(content)) ||
+        MimeMagic.new(Config.mime.default)
     end
   end
 
