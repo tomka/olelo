@@ -30,6 +30,11 @@
         = image(:new)
         New Page
   - if menu.include?(:edit) && @resource.page?
+    - if @resource.mime.text?
+      %li
+        %a{:href=> resource_path(@resource, :output => 'source')}
+          = image(:source)
+          Source
     %li
       %a{:href=>action_path(@resource, :edit), :accesskey=>'e'}
         = image(:edit)
