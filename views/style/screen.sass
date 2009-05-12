@@ -350,24 +350,32 @@ pre
   :content '↑'
 
 form
-  button, label, input, select, textarea, .flash, .block, pre
+  :display inline
+  button, label, input, select, textarea, pre
     :display	 	block
     :float		left
     :margin		0.3em 0.5em 0.3em 0
     :padding		2px
-    :border		none
-    :background		none
-  label, strong
-    :width		8em
-    :float		left
-    :display		block
-    :white-space        nowrap
-  input, select, textarea, pre
     :border		1px solid #999
     :background		#FFF
     :color              #333
     &:focus
       :border-style	dotted
+  &.inline *
+    :float   none
+    :display inline
+    :margin  0
+  &.inline button
+    :border none
+    :background none
+  label, strong
+    :border             none
+    :background         none
+    :width		8em
+    :float		left
+    :display		block
+    :white-space        nowrap
+  input, select, textarea, pre
   input[type=text], textarea
     :font-family "Bitstream Vera Mono", monospace
     :font-size 100%

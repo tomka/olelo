@@ -1,0 +1,18 @@
+- menu
+- title "Tag #{@tag}"
+%ul
+  = list_of @paths do |path|
+    %a{:href => path.urlpath}= path
+    %form{:class=>'inline', :method=>'post', :action=> "/tags/#{@tag}"}
+      %div
+        %input{:type=>'hidden', :name=>'_method', :value => 'delete'}
+        %input{:type=>'hidden', :name=>'path', :value => path}
+        %button{:type=>'submit'}
+          = image :delete
+  %li
+    %form{:class=>'inline', :method=>'post', :action=> '/tags/new'}
+      %div
+        %input{:type=>'hidden', :name=>'tag', :value => @tag}
+        %input{:type=>'text', :name=>'path'}
+        %button{:type=>'submit'}
+          = image :add

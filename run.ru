@@ -42,7 +42,7 @@ default_config = {
     :magic   => true,
   },
   :main_page    => 'Home',
-  :disabled_plugins => ['misc/private_wiki'],
+  :disabled_plugins => ['misc/private_wiki', 'tagging/tagging'],
   :rack => {
     :rewrite_base => nil,
     :profiling    => false,
@@ -92,7 +92,11 @@ use Rack::ESI, :no_cache => true
 use Rack::CommonLogger, logger
 
 if env == 'deployment' || env == 'production'
+  require 'rack/capabilities'
   require 'rack/cache'
+  require 'rack/cache/purge'
+  use Rack::Capabilities
+  use Rack::Cache::Purge
   use Rack::Cache,
     :verbose     => false,
     :metastore   => "file:#{::File.join(Wiki::Config.cache, 'rack', 'meta')}",

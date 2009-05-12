@@ -44,7 +44,8 @@ module Wiki
       start_timer
       @logger.debug request.env
 
-      content_type 'application/xhtml+xml', :charset => 'utf-8'
+      content_type(accepts?('application/xhtml+xml') ? 'application/xhtml+xml' : 'text/html',
+                   :charset => 'utf-8')
 
       @user = session[:user] || User.anonymous(request)
     end
@@ -255,13 +256,12 @@ module Wiki
     # New form sends post request
     post '/', '/:path' do
       begin
+        pass if name_clash?(params[:path])
         @resource = Page.new(@repo, params[:path])
         if action?(:upload) && params[:file]
-          forbid('Path is not allowed' => name_clash?(@resource.path))
           @resource.write(params[:file][:tempfile], "File #{@resource.path} uploaded", @user.author)
         elsif action?(:new)
           preview(:new, params[:content])
-          forbid('Path is not allowed' => name_clash?(@resource.path))
           @resource.write(params[:content], params[:message], @user.author)
         else
           redirect '/new'
@@ -279,7 +279,6 @@ module Wiki
     def preview(template, content)
       if params[:preview]
         message(:error, 'Commit message is empty') if params[:message].empty?
-        message(:error, 'Path is not allowed') if name_clash?(@resource.path)
         @resource.preview_content = content
         if @resource.mime.text?
           engine = Engine.find!(@resource)
