@@ -365,6 +365,7 @@ form
     :float   none
     :display inline
     :margin  0
+    :padding 0
   &.inline button
     :border none
     :background none
@@ -403,8 +404,8 @@ table input
   :display block
   :border 1px solid #999
   :background #FFF
-  :padding 1em
-  :margin-bottom 1em
+  :padding 0.5em 1em
+  :margin 1em 0
   :overflow hidden
   h1, h2, h3, h4, h5, h6
     :margin 0.2em 0
@@ -454,10 +455,11 @@ table input
 a[accesskey]:focus:after, a[accesskey]:hover:after
   :content " [" attr(accesskey) "] "
 
-p.toc
+.toc
   :background #FFF
   :border 1px solid #999
-  :padding 1em
+  :padding 0.5em 1em
+  :margin 1em 0
   > ul
     :padding 0
   ul

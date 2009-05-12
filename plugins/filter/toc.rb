@@ -20,7 +20,7 @@ class Toc < Filter
     end
 
     content = @doc.to_html
-    content.gsub!(context['__TOC__'], "<p class=\"toc\">\n#{@toc.join("\n")}\n</p>")
+    content.gsub!(context['__TOC__'], "<div class=\"toc\">\n#{@toc.join("\n")}\n</div>")
     content
   end
 
