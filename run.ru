@@ -13,6 +13,7 @@ require 'rack/path_info'
 require 'rack/esi'
 require 'rack/session/pstore'
 require 'rack/reverseip'
+require 'rack/ban_ip'
 require 'fileutils'
 require 'logger'
 
@@ -66,6 +67,7 @@ if Wiki::Config.rack.profiling?
   use Rack::Profiler, :printer => :graph
 end
 
+use Rack::BanIP, :file => ::File.join(Wiki::Config.root, 'banned.list')
 use Rack::Session::PStore, :file => ::File.join(Wiki::Config.cache, 'pstore')
 use Rack::ReverseIP
 use Rack::PathInfo
