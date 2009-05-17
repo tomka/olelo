@@ -11,6 +11,19 @@ Tag.define(:value, :requires => :of, :immediate => true) do |context, attrs, con
   escape_html(Evaluator(attrs['of'], context))
 end
 
+Tag.define(:calc) do |context, attrs, content|
+  code = content.strip.split("\n").map do |line|
+    line.strip!
+    val = if line =~ /^(\w+)\s*:=?\s*(.*)$/
+      context[$1] = Evaluator($2, context)
+    else
+      Evaluator(line, context)
+    end
+    "> #{line}\n#{val}\n"
+  end.join
+  "<pre>#{escape_html code}</pre>"
+end
+
 Tag.define(:def, :requires => :name, :immediate => true) do |context, attrs, content|
   name = attrs['name'].downcase
   if attrs['value']
