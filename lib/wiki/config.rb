@@ -35,7 +35,7 @@ module Wiki
         name.chop!
         set(name, args[0])
       elsif args.length == 0
-        @config[mid] || raise(RuntimeError, "configuration key #{mid} is missing for #{self}")
+        @config[mid] || raise(RuntimeError, "Configuration key #{mid} is missing")
       else
         raise(NoMethodError, "Undefined method #{mid} for #{self}", caller(1))
       end

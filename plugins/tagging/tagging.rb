@@ -55,19 +55,7 @@ class Wiki::App
   end
 
   add_hook(:after_content) do
-    if @resource
-      tags = tagging.get(@resource.path)
-      result = '<div class="box"><strong>Tags:</strong> '
-      tags.each do |tag|
-        result << "<a href=\"/tags/#{tag}\">#{tag}</a><form class=\"inline noprint\" method=\"post\" action=\"/tags/#{tag}\">" +
-                  "<div><input type=\"hidden\" name=\"path\" value=\"#{@resource.path}\"/>" +
-                  "<input type=\"hidden\" name=\"_method\" value=\"delete\"/>" +
-                  "<button type=\"submit\">#{image :delete}</button></div></form> &#183;\n"
-      end
-      result +
-        "<form class=\"inline noprint\" method=\"post\" action=\"/tags/new\"><div><input type=\"hidden\" name=\"path\" value=\"#{@resource.path}\"/>" +
-        "<input type=\"text\" name=\"tag\"/><button type=\"submit\">#{image :add}</button></div></form></div>"
-    end
+    haml(:tagbox, :layout => false) if @resource
   end
 
   get '/tags/:tag' do

@@ -30,12 +30,12 @@ module Wiki
 
     def sass(name, opts = {})
       sass_opts = SASS_OPTIONS.merge(opts[:options] || {})
-      engine = ::Sass::Engine.new(opts[:direct] ? name : lookup_template(:sass, name, caller_path), sass_opts)
+      engine = ::Sass::Engine.new(Symbol === name ? lookup_template(:sass, name, caller_path) : name, sass_opts)
       engine.render
     end
 
     def haml(name, opts = {})
-      output = render_haml(opts[:direct] ? name : lookup_template(:haml, name, caller_path), opts)
+      output = render_haml(Symbol === name ? lookup_template(:haml, name, caller_path) : name, opts)
       output = render_haml(lookup_template(:haml, 'layout'), opts) { output } if opts[:layout] != false
       output
     end
@@ -77,6 +77,8 @@ module Wiki
 
       def content_hook(type, *args)
         invoke_hook(type, *args).map(&:to_s).join
+      rescue => ex
+        "<span class=\"error\">#{escape_html ex.message}</span>"
       end
     end
 

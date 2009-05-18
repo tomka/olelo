@@ -1,5 +1,6 @@
 class Wiki::Filter
   include Helper
+  include Templates
 
   @filters = {}
 

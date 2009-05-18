@@ -5,7 +5,7 @@ depends_on 'filter/tag'
 class Toc < Filter
   def filter(content)
     return content if !context['__TOC__']
-    @toc = []
+    @toc = '<div class="toc">'
     @level = 0
     @doc = Hpricot(content)
     @count = [0]
@@ -20,7 +20,7 @@ class Toc < Filter
     end
 
     content = @doc.to_html
-    content.gsub!(context['__TOC__'], "<div class=\"toc\">\n#{@toc.join("\n")}\n</div>")
+    content.gsub!(context['__TOC__'], @toc + '</div>')
     content
   end
 

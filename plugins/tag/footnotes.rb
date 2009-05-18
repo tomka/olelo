@@ -20,16 +20,14 @@ Tag.define :ref do |context, attrs, content|
 end
 
 Tag.define :references do |context, attrs, content|
-  footnotes = context['__FOOTNOTES__']
-  if footnotes
-    list = '<ol>'
-    list += footnotes.map do |id, note, refs|
-      links = ''
-      refs.each_with_index do |ref, i|
-        links << "<a href=\"#ref#{ref}\" class=\"backref\">#{i+1}</a> "
-      end
-      "<li id=\"note#{id}\">#{links} #{note}</li>"
-    end.join("\n")
-    list + '</ol>'
-  end
+TEMPLATE = %q{
+%ol
+  - @footnotes.map do |id, note, refs|
+    %li{:id=>"note#{id}"}
+      - refs.each_with_index do |ref, i|
+        %a.backref{:href=>"#ref#{ref}"}= i+1
+      = note
+}
+  @footnotes = context['__FOOTNOTES__']
+  haml TEMPLATE, :layout => false if @footnotes
 end
