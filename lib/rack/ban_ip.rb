@@ -22,7 +22,7 @@ module Rack
     private
 
     def banned?(ip)
-      return [] if !::File.exists?(@file)
+      return false if !::File.exists?(@file)
       if !@list || @time < ::File.mtime(@file)
         @time = ::File.mtime(@file)
         @list = ::File.read(@file).split("\n").

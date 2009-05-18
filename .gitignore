@@ -7,3 +7,4 @@ env.sh
 config.yml
 doc
 coverage
+banned.list
