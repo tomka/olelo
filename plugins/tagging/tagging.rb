@@ -1,57 +1,67 @@
-require 'fileutils'
+require 'yaml'
 
 class Tagging
-  def initialize
-    @store ||= begin
-                 FileUtils.mkdir_p File.dirname(Config.tagging.store), :mode => 0755
-                 YAML::Store.new(Config.tagging.store)
-               end
-    @store.transaction do |store|
-      store['resources'] ||= {}
-      store['tags'] ||= {}
-    end
+  TAGGING_STORE = 'tags.yml'
+
+  def initialize(repo)
+    @store = Page.find(repo, TAGGING_STORE)
+    @store ||= Page.new(repo, TAGGING_STORE)
   end
 
   def add(id, tag)
-    @store.transaction do |store|
+    write("'#{id}' tagged as '#{tag}'") do |store|
       (store['resources'][id] ||= []) << tag
       (store['tags'][tag] ||= []) << id
       store['resources'][id].uniq!
       store['tags'][tag].uniq!
+      store
     end
   end
 
   def delete(id, tag)
-    @store.transaction do |store|
+    write("Tag '#{tag}' deleted from '#{id}'") do |store|
       (store['resources'][id] || []).delete(tag)
       (store['tags'][tag] || []).delete(id)
       store['resources'].delete(id) if store['resources'][id].blank?
       store['tags'].delete(tag) if store['tags'][tag].blank?
+      store
     end
   end
 
   def get(id)
-    @store.transaction(true) do |store|
-      store['resources'][id].to_a
-    end
+    read['resources'][id].to_a
   end
 
   def get_all
-    @store.transaction(true) do |store|
-      store['tags'].keys.sort
-    end
+    read['tags'].keys.sort
   end
 
   def find_by_tag(tag)
-    @store.transaction(true) do |store|
-      store['tags'][tag].to_a.sort
-    end
+    read['tags'][tag].to_a.sort
+  end
+
+  private
+
+  def read
+    store = YAML.load(@store.content)
+    store['resources'] ||= {}
+    store['tags'] ||= {}
+    store
+  rescue
+    {'resources' => {}, 'tags' => {}}
+  end
+
+  def write(msg, &block)
+    store = read
+    old = store.to_yaml
+    new = block[store].to_yaml
+    @store.write(new, msg) if (new != old)
   end
 end
 
 class Wiki::App
   def tagging
-    @tagging ||= Tagging.new
+    @tagging ||= Tagging.new(@repo)
   end
 
   add_hook(:after_content) do

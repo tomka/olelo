@@ -2,7 +2,7 @@
 - title "Tag #{@tag}"
 %ul
   = list_of @paths do |path|
-    %a{:href => path.urlpath}= path
+    %a{:href => path.urlpath}= path.urlpath
     %form{:class=>'inline', :method=>'post', :action=> "/tags/#{@tag}"}
       %div
         %input{:type=>'hidden', :name=>'_method', :value => 'delete'}

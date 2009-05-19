@@ -177,7 +177,7 @@ module Wiki
     def write(content, message, author = nil)
       if !content.respond_to? :path
         content.gsub!("\r\n", "\n")
-        return if @object && content == @object.contents
+        return if content == self.content
       end
 
       forbid('No content'   => content.blank?,
