@@ -8,8 +8,8 @@ class Tagging
     @store ||= Page.new(repo, TAGGING_STORE)
   end
 
-  def add(id, tag)
-    write("'#{id}' tagged as '#{tag}'") do |store|
+  def add(id, tag, author)
+    write("'#{id}' tagged as '#{tag}'", author) do |store|
       (store['resources'][id] ||= []) << tag
       (store['tags'][tag] ||= []) << id
       store['resources'][id].uniq!
@@ -18,8 +18,8 @@ class Tagging
     end
   end
 
-  def delete(id, tag)
-    write("Tag '#{tag}' deleted from '#{id}'") do |store|
+  def delete(id, tag, author)
+    write("Tag '#{tag}' deleted from '#{id}'", author) do |store|
       (store['resources'][id] || []).delete(tag)
       (store['tags'][tag] || []).delete(id)
       store['resources'].delete(id) if store['resources'][id].blank?
@@ -51,11 +51,11 @@ class Tagging
     {'resources' => {}, 'tags' => {}}
   end
 
-  def write(msg, &block)
+  def write(msg, author, &block)
     store = read
     old = store.to_yaml
     new = block[store].to_yaml
-    @store.write(new, msg) if (new != old)
+    @store.write(new, msg, author) if (new != old)
   end
 end
 
@@ -83,7 +83,7 @@ class Wiki::App
     tag = params[:tag].to_s.strip
     if !tag.blank?
       resource = Resource.find!(@repo, params[:path])
-      tagging.add(resource.path, tag)
+      tagging.add(resource.path, tag, @user.author)
     end
     redirect resource_path(resource, :purge => 1)
   end
@@ -91,7 +91,7 @@ class Wiki::App
   delete '/tags/:tag' do
     tag = params[:tag].to_s.strip
     resource = Resource.find!(@repo, params[:path])
-    tagging.delete(resource.path, tag)
+    tagging.delete(resource.path, tag, @user.author)
     redirect resource_path(resource, :purge => 1)
   end
 end
