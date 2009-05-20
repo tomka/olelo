@@ -35,7 +35,12 @@ module Wiki
         name.chop!
         set(name, args[0])
       elsif args.length == 0
-        @config[mid] || raise(RuntimeError, "Configuration key #{mid} is missing")
+        if name.ends_with? '?'
+          mid = name[0..-2].to_sym
+	  !!@config[mid]
+	else
+	  @config[mid] || raise(RuntimeError, "Configuration key #{mid} is missing")
+        end
       else
         raise(NoMethodError, "Undefined method #{mid} for #{self}", caller(1))
       end

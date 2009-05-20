@@ -8,7 +8,7 @@ module Rack
 
     def call(env)
       if %w(POST PUT DELETE).include? env['REQUEST_METHOD']
-        request  = Request.new(env)
+        request = Request.new(env)
         if banned?(request.ip)
           response = Response.new
           response.status = 403
