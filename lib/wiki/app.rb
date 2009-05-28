@@ -56,6 +56,7 @@ module Wiki
         # Redirect to create new page if flag is set
         redirect(params[:sha] ? params[:path].urlpath : (params[:path]/'new').urlpath)
       else
+        no_caching
         @error = ex
         haml :error
       end
@@ -63,6 +64,7 @@ module Wiki
 
     # Show wiki error page
     add_hook(Exception) do |ex|
+      no_caching
       @error = ex
       @logger.error @error
       haml :error

@@ -93,6 +93,12 @@ module Wiki
       response['Cache-Control'] = "#{mode}, max-age=#{max_age}, must-revalidate"
     end
 
+    def no_caching
+      response.headers.delete('ETag')
+      response.headers.delete('Last-Modified')
+      response.headers.delete('Cache-Control')
+    end
+
     def format_patch(diff)
       lines = diff.patch.split(/[\n\r]+/)
       html, plus, minus = '', -1, -1

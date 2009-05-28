@@ -28,7 +28,7 @@ module Wiki
         files.inject(true) do |result,file|
           begin
             name = file[(dir.size+1)..-4]
-            if !@plugins.include?(name) && !Config.disabled_plugins.to_a.include?(name)
+            if !@plugins.include?(name) && enabled?(name)
               plugin = new(name, @logger)
               plugin.instance_eval(File.read(file), file)
               @plugins[name] = plugin
@@ -40,6 +40,17 @@ module Wiki
             false
           end
         end
+      end
+
+      # Check if plugin is enabled
+      def enabled?(name)
+        paths = name.split(File::SEPARATOR)
+        paths.inject(nil) do |path, x|
+          path = path ? File.join(path, x) : x
+          return false if Config.disabled_plugins.to_a.include?(path)
+          path
+        end
+        true
       end
     end
 

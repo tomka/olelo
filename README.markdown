@@ -8,9 +8,12 @@ Demo installation at <http://git-wiki.kicks-ass.org/>
 Features
 --------
 
+A lot of the features are implemented as plugins.
+
 - History
 - Show diffs
-- Edit page, append to page, upload files
+- Edit page, upload files
+- Section editing
 - Plugin system
 - Multiple renderers
 - LaTeX/Graphviz
@@ -18,6 +21,7 @@ Features
 - Image support, SVG support
 - Auto-generated table of contents
 - Templates
+- XML tags can be used to extend Wiki syntax
 
 Installation
 ------------
@@ -37,6 +41,7 @@ Optional:
     gem install hpricot
     gem install rdiscount
     gem install RedCloth
+    gem install maruku
     gem install rubypants
     gem install RMagick
     gem install minad-imaginator

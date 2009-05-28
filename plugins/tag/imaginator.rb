@@ -1,4 +1,3 @@
-require 'drb'
 depends_on 'filter/tag'
 require 'imaginator'
 
