@@ -232,6 +232,7 @@ module Wiki
     put '/:path' do
       @resource = Page.find!(@repo, params[:path])
       begin
+        forbid('Version conflict detected' => @resource.commit.sha != params[:sha]) # TODO: Implement conflict diffs
         if action?(:upload) && params[:file]
           @resource.write(params[:file][:tempfile], 'File uploaded', @user.author)
         elsif action?(:edit) && params[:content]
