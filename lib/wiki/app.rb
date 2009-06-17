@@ -209,8 +209,8 @@ module Wiki
         if !params[:path].blank? && Resource.find(@repo, params[:path])
           redirect (params[:path]/'edit').urlpath
         end
-        @resource = Resource.new(@repo, params[:path])
-        boilerplate @resource
+        @resource = Page.new(@repo, params[:path])
+        boilerplate
         forbid('Path is not allowed' => name_clash?(params[:path]))
       rescue StandardError => error
         message :error, error
@@ -345,10 +345,10 @@ module Wiki
     end
 
     # Boilerplate for new pages
-    def boilerplate(page)
-      if page.path =~ /^\w+\.sass$/
-        name = File.join(Config.root, 'views', 'style', $&)
-        page.content = File.read(name) if File.file?(name)
+    def boilerplate
+      if @resource.path =~ /^\w+\.sass$/
+	name = File.join(Config.root, 'views', 'style', @resource.path)
+	params[:content] = File.read(name) if File.file?(name)
       end
     end
 
