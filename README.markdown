@@ -53,15 +53,15 @@ that you set the environment variable LANG to a UTF-8 locale. Otherwise you migh
 
 For production purposes I recommend to deploy the wiki with thin and apache/nginx balancing.
 
-   # Create thin config
-   thin config -C thin.yml -s 3 -p 5000 -R run.ru -e deployment -d
+    # Create thin config
+    thin config -C thin.yml -s 3 -p 5000 -R run.ru -e deployment -d
 
-   # Useful if you have multiple installations
-   # export WIKI_CONFIG=/srv/wiki/config.yml
+    # Useful if you have multiple installations
+    # export WIKI_CONFIG=/srv/wiki/config.yml
 
-   # Start thin servers
-   export LANG=en_US.UTF-8
-   thin start -C thin.yml
+    # Start thin servers
+    export LANG=en_US.UTF-8
+    thin start -C thin.yml
 
 Dependencies
 ------------
