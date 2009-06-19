@@ -157,6 +157,9 @@ a
   :float right
   :margin-top -1.5em
   :font-variant normal
+  :display block
+  :width 100%
+  :text-align right
 
 img
   :vertical-align middle
@@ -202,6 +205,11 @@ hr
       :background-position 0.2em 0.2em
       :background-repeat no-repeat
       :background-image url(static/images/search.png)
+
+=menu-icon
+  :float left
+  :padding-left 16px
+  :content "\00a0"
 
 #menu
   :background #FFF
@@ -253,10 +261,24 @@ hr
           :background #0B3E71
         &:active
           :background #022763
-        img
-          :display block
-          :float left
-          :margin 0.2em 0.5em 0.2em 0
+        &.home:before
+          +menu-icon
+          :background url(static/images/home.png) no-repeat center center
+        &.new:before
+          +menu-icon
+          :background url(static/images/new.png) no-repeat center center
+        &.source:before
+          +menu-icon
+          :background url(static/images/source.png) no-repeat center center
+        &.edit:before
+          +menu-icon
+          :background url(static/images/edit.png) no-repeat center center
+        &.history:before
+          +menu-icon
+          :background url(static/images/history.png) no-repeat center center
+        &.archive:before
+          +menu-icon
+          :background url(static/images/archive.png) no-repeat center center
 
 #container
   :background-color #FFFFCD

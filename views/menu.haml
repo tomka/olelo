@@ -1,7 +1,6 @@
 %ul
   %li
-    %a{:href=>resource_path(@resource, :path => Wiki::Config.main_page.urlpath), :accesskey=>'z'}
-      = image(:home)
+    %a.home{:href=>resource_path(@resource, :path => Wiki::Config.main_page.urlpath), :accesskey=>'z'}
       Home
   = breadcrumbs(@resource)
   - if @resource && !@resource.current?
@@ -26,26 +25,21 @@
       %a{:href=> @resource.path.urlpath, :accesskey=>'c'} View
   - if menu.include?(:new)
     %li
-      %a{:href=> @resource && @resource.tree? ? (@resource.path/'new page/new').urlpath : '/new page/new'  }
-        = image(:new)
+      %a.new{:href=> @resource && @resource.tree? ? (@resource.path/'new page/new').urlpath : '/new page/new'  }
         New Page
   - if menu.include?(:edit) && @resource.page?
     - if @resource.mime.text?
       %li
-        %a{:href=> resource_path(@resource, :output => 'source')}
-          = image(:source)
+        %a.source{:href=> resource_path(@resource, :output => 'source')}
           Source
     %li
-      %a{:href=>action_path(@resource, :edit), :accesskey=>'e'}
-        = image(:edit)
+      %a.edit{:href=>action_path(@resource, :edit), :accesskey=>'e'}
         Edit
   - if menu.include?(:history)
     %li
-      %a{:href=>action_path(@resource, :history), :accesskey=>'h'}
-        = image(:history)
+      %a.history{:href=>action_path(@resource, :history), :accesskey=>'h'}
         History
   - if menu.include?(:archive)
     %li
-      %a{:href=>action_path(@resource, :archive)}
-        = image(:archive)
+      %a.archive{:href=>action_path(@resource, :archive)}
         Archive
