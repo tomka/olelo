@@ -1,10 +1,7 @@
 depends_on 'filter/tag'
 require 'imaginator'
 
-Imaginator.uri = "drbunix://#{Config.cache}/imaginator.sock"
-Imaginator.dir = File.join(Config.cache, 'imaginator')
-
-Imaginator.run do |server|
+$imaginator = Imaginator.new("drbunix://#{Config.cache}/imaginator.sock", File.join(Config.cache, 'imaginator')) do |server|
   server.add_renderer(:math,  Imaginator::LaTeX.new)
   server.add_renderer(:dot,   Imaginator::Graphviz.new(:cmd => 'dot'))
   server.add_renderer(:neato, Imaginator::Graphviz.new(:cmd => 'neato'))
@@ -16,7 +13,7 @@ end
 App.class_eval do
   get '/sys/imaginator/:name', :patterns => {:name => '[\w\.]+'} do
     begin
-      send_file Imaginator.get.result(params[:name])
+      send_file $imaginator.result(params[:name])
     rescue Exception => ex
       @logger.error ex
       redirect image_path('image_failed')
@@ -27,7 +24,7 @@ end
 def define_tag(type)
   Tag.define type do |context, attrs, content|
     raise(RuntimeError, "Limits exceeded") if content.size > 10240
-    name = Imaginator.get.enqueue(type, content)
+    name = $imaginator.enqueue(type, content)
     alt = escape_html content.truncate(30).gsub(/\s+/, ' ')
     "<img src=\"/sys/imaginator/#{name}\" alt=\"#{alt}\"/>"
   end

@@ -1,6 +1,6 @@
 #!/usr/bin/env rackup
 
-ENV['RACK_ENV'] = env
+env ||= ENV['RACK_ENV'] || 'development'
 
 path = ::File.expand_path(::File.dirname(__FILE__))
 
@@ -22,12 +22,6 @@ config_file = if ENV['WIKI_CONFIG']
   ENV['WIKI_CONFIG']
 else
   ::File.join(path, 'config.yml')
-end
-
-# FIXME: Problem with fastcgi handler
-if server == 'fastcgi'
-  options.delete :File
-  options.delete :Port
 end
 
 default_config = {

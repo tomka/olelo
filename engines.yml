@@ -1,3 +1,4 @@
+# Full-blown engines
 creole:
   layout: true
   cacheable: true
@@ -25,3 +26,33 @@ maruku:
   priority: 1
   accepts: text/x-maruku|text/x-markdown
   filter: [ shebang, tag, [ maruku, rubypants, toc ] ]
+
+# Basic engines have less dependencies (No rubypants, No LaTeX).
+# They are used if the full-blown engines are not available (Lower priority).
+creole_basic:
+  layout: true
+  cacheable: true
+  priority: 2
+  accepts: text/x-creole
+  filter: [ editsection, [ shebang, tag, [ creole ] ], toc ]
+
+textile_basic:
+  layout: true
+  cacheable: true
+  priority: 2
+  accepts: text/x-textile
+  filter: [ shebang, tag, [ textile, toc ] ]
+
+markdown_basic:
+  layout: true
+  cacheable: true
+  priority: 2
+  accepts: text/x-markdown
+  filter: [ shebang, tag, [ markdown, toc ] ]
+
+maruku_basic:
+  layout: true
+  cacheable: true
+  priority: 2
+  accepts: text/x-maruku|text/x-markdown
+  filter: [ shebang, tag, [ maruku, toc ] ]

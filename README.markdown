@@ -43,11 +43,25 @@ Optional:
     gem install RedCloth
     gem install maruku
     gem install rubypants
-    gem install RMagick
+    gem install rmagick
     gem install minad-imaginator
+    gem install minad-evaluator
 
 Then run with `./run.ru -sthin -p4567` and. point your browser at <http://localhost:4567>.
-It automatically creates a repository in the directory '.wiki'.
+It automatically creates a repository in the directory '.wiki'. If you use ruby 1.9 it is very important
+that you set the environment variable LANG to a UTF-8 locale. Otherwise you might get encoding exceptions.
+
+For production purposes I recommend to deploy the wiki with thin and apache/nginx balancing.
+
+   # Create thin config
+   thin config -C thin.yml -s 3 -p 5000 -R run.ru -e deployment -d
+
+   # Useful if you have multiple installations
+   # export WIKI_CONFIG=/srv/wiki/config.yml
+
+   # Start thin servers
+   export LANG=en_US.UTF-8
+   thin start -C thin.yml
 
 Dependencies
 ------------
