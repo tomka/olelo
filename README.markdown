@@ -32,6 +32,7 @@ At first you have to install the gem dependencies via "gem".
     gem install minad-creole
     gem install minad-git
     gem install minad-rack-esi
+    gem install minad-mimemagic
     gem install rack-cache
     gem install haml
     gem install thin
