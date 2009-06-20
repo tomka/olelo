@@ -25,21 +25,16 @@
       %a{:href=> @resource.path.urlpath, :accesskey=>'c'} View
   - if menu.include?(:new)
     %li
-      %a.new{:href=> @resource && @resource.tree? ? (@resource.path/'new page/new').urlpath : '/new page/new'  }
-        New Page
+      %a.new{:href=> @resource && @resource.tree? ? (@resource.path/'new page/new').urlpath : '/new page/new'  } New Page
   - if menu.include?(:edit) && @resource.page?
     - if @resource.mime.text?
       %li
-        %a.source{:href=> resource_path(@resource, :output => 'source')}
-          Source
+        %a.source{:href=> resource_path(@resource, :output => 'source')} Source
     %li
-      %a.edit{:href=>action_path(@resource, :edit), :accesskey=>'e'}
-        Edit
+      %a.edit{:href=>action_path(@resource, :edit), :accesskey=>'e'} Edit
   - if menu.include?(:history)
     %li
-      %a.history{:href=>action_path(@resource, :history), :accesskey=>'h'}
-        History
+      %a.history{:href=>action_path(@resource, :history), :accesskey=>'h'} History
   - if menu.include?(:archive)
     %li
-      %a.archive{:href=>action_path(@resource, :archive)}
-        Archive
+      %a.archive{:href=>action_path(@resource, :archive)} Archive
