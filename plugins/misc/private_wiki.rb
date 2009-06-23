@@ -2,7 +2,7 @@ module Wiki::Helper
   alias cache_control_without_auth cache_control
 
   def cache_control(opts)
-    cache_control_without_auth(opts.merge(:mode => :private))
+    cache_control_without_auth(opts.merge(:private => true))
   end
 end
 
