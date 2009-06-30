@@ -1,5 +1,5 @@
 - menu
-- title "Tag #{@tag}"
+- title :tag_title.t(:tag => @tag)
 %ul
   = list_of @paths do |path|
     %a{:href => path.urlpath}= path.urlpath

@@ -15,7 +15,7 @@ module Wiki
     # Raised if resource is not found in the repository
     class NotFound < Routing::NotFound
       def initialize(path)
-        super("#{path} not found", path)
+        super(:not_found.t(:path => path), path)
       end
     end
 
@@ -129,7 +129,7 @@ module Wiki
     end
 
     def self.forbid_invalid_path(path)
-      forbid('Invalid path' => (!path.blank? && path !~ /^#{PATH_PATTERN}$/))
+      forbid(:invalid_path.t => (!path.blank? && path !~ /^#{PATH_PATTERN}$/))
     end
 
     def self.git_find(path, commit)
@@ -180,9 +180,9 @@ module Wiki
 	return if @object && @object.contents == content
       end
 
-      forbid('No content'   => content.blank?,
-             'Resource already exists' => new? && Resource.find(@repo, @path),
-             'Commit message is empty' => message.blank?)
+      forbid(:no_content.t => content.blank?,
+             :already_exists.t => new? && Resource.find(@repo, @path),
+             :empty_commit_message.t => message.blank?)
 
       repo.chdir do
         FileUtils.makedirs File.dirname(@path)
@@ -247,7 +247,7 @@ module Wiki
 
     # Pretty name
     def pretty_name
-      '&#8730;&#175; Root'/path
+      :root_path.t/path
     end
 
     # Get archive of current tree

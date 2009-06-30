@@ -1,24 +1,24 @@
 - menu :new
-- title "Profile of #{@user.name}"
+- title :profile_of.t(:user => @user.name)
 - if @user.anonymous?
-  Anonymous users don't have a profile.
+  = :anonymous_profile.t
 - else
   %form{:action => '/profile', :method=>'post'}
     .box
       = show_messages
-      %h2 Change password
-      %label{:for=>'oldpassword'} Old password
+      %h2= :change_password.t
+      %label{:for=>'oldpassword'}= :old_password.t
       %input{:type=>'password',:name=>'oldpassword',:id=>'oldpassword'}
       %br
-      %label{:for=>'password'} Password
+      %label{:for=>'password'}= :password.t
       %input{:type=>'password',:name=>'password',:id=>'password'}
       %br
-      %label{:for=>'confirm'} Confirmation
+      %label{:for=>'confirm'}= :confirmation.t
       %input{:type=>'password',:name=>'confirm',:id=>'confirm'}
       %br
-      %h2 Settings
-      %label{:for=>'email'} E-Mail
+      %h2= :settings.t
+      %label{:for=>'email'}= :email.t
       %input{:type=>'email',:name=>'email',:id=>'email',:value=>@user.email}
       %br
-      %input{:type=>'submit', :value=>'Save'}
+      %input{:type=>'submit', :value=>:save.t}
       %br

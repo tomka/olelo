@@ -7,7 +7,7 @@ module Wiki
   # TODO: Restructure this a little bit. Separate view
   # from controller helpers maybe.
   module Helper
-    attr_reader_with_default :blocks => lambda { Hash.new('') }
+    attr_reader_with_default :blocks => lambda { Hash.with_indifferent_access('') }
 
     def start_timer
       @start_time = Time.now
@@ -18,12 +18,12 @@ module Wiki
     end
 
     def define_block(name, content = nil, &block)
-      blocks[name.to_sym] = block ? capture_haml(&block) : content
+      blocks[name] = block ? capture_haml(&block) : content
     end
 
     def include_block(name)
       content_hook(:"before_#{name}") +
-        blocks[name.to_sym] +
+        blocks[name] +
         content_hook(:"after_#{name}")
     end
 
@@ -110,9 +110,9 @@ module Wiki
                << "<span class=\"right\"><a href=\"#{(path/diff.from).urlpath}\">#{diff.from.truncate(8, '&#8230;')}</a> to "\
                << "<a href=\"#{(path/diff.to).urlpath}\">#{diff.to.truncate(8, '&#8230;')}</a></span></th></tr></thead><tbody>"
           plus, minus = -1, -1
-        elsif line =~ /^@@ -(\d+),\d+ \+(\d+)/
+        elsif line =~ /^@@ -(\d+)(,\d+)? \+(\d+)(,\d+)? @@$/
           minus = $1.to_i
-          plus = $2.to_i
+          plus = $3.to_i
           html << "<tr><td>&#160;</td><td>&#160;</td><td class=\"marker\">#{escape_html line}</td></tr>"
         elsif plus >= 0
           if line[0..0] == '\\'
@@ -144,7 +144,8 @@ module Wiki
 
     def tree_link(level, resource, open)
       level += 1 if resource.page?
-      html = "<a style=\"padding-left: #{level * 16}px\" href=\"#{open ? resource_path(resource, :path => '..') : resource_path(resource)}\" title=\"#{open ? 'Close' : 'Open'}\">"
+      path = open ? resource_path(resource, :path => '..') : resource_path(resource)
+      html = "<a style=\"padding-left: #{level * 16}px\" href=\"#{path}\" title=\"#{open ? :close.t : :open.t}\">"
       if resource.page?
         mime = resource.mime.to_s
         img = TREE_IMAGES.find { |img| mime =~ img[0] }
@@ -245,7 +246,7 @@ module Wiki
 
     def action?(name)
       if params[:action]
-        params[:action].downcase == name.to_s
+        params[:action] == name.to_s
       else
         request.path_info.ends_with? '/' + name.to_s
       end
@@ -253,7 +254,7 @@ module Wiki
 
     def edit_content(page)
       return params[:content] if params[:content]
-      return "WARNING: '#{page.path}' is not a text file (mime-type #{page.mime})" if !page.mime.text?
+      return :no_text_file.t(:page => page.path, :mime => page.mime) if !page.mime.text?
       if params[:pos] && params[:len]
         pos = [[0, params[:pos].to_i].max, page.content.size].min
         len = [0, params[:len].to_i].max

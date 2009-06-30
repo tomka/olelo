@@ -18,6 +18,8 @@ module Wiki
       @app = app
       @logger = opts[:logger] || Logger.new(nil)
 
+      I18n.load_locale(File.join(Config.root, 'locale'))
+
       if File.exists?(Config.git.repository) && File.exists?(Config.git.workspace)
         @logger.info 'Opening repository'
         @repo = Git.open(Config.git.workspace, :repository => Config.git.repository,
@@ -27,7 +29,7 @@ module Wiki
         @repo = Git.init(Config.git.workspace, :repository => Config.git.repository,
                          :index => File.join(Config.git.repository, 'index'), :log => @logger)
         page = Page.new(@repo, Config.main_page)
-        page.write('This is the main page of the wiki.', 'Initialize Repository')
+        page.write(:main_page_text.t, :initialize_repository.t)
         @logger.info 'Repository initialized'
       end
 
@@ -70,22 +72,22 @@ module Wiki
       haml :error
     end
 
-    get '/sys/fragments/user' do
+    get '/sys/user' do
       haml :user, :layout => false
     end
 
-    get '/sys/fragments/sidebar' do
-      if page = Page.find(@repo, 'Sidebar')
+    get '/sys/sidebar' do
+      if page = Page.find(@repo, :sidebar.t)
         engine = Engine.find!(page)
         if engine.layout?
           #cache_control :etag => page.commit.sha, :last_modified => page.latest_commit.date
           cache_control :max_age => 120
           engine.render(page)
         else
-          '<span class="error">No engine found for Sidebar</span>'
+          "<span class=\"error\">#{:no_engine_found.t(page.name)}</span>"
         end
       else
-        '<a href="/Sidebar/new">Create Sidebar</a>'
+        "<a href=\"/#{page.name}/new\">#{:create_sidebar.t}</a>"
       end
     end
 
@@ -135,7 +137,7 @@ module Wiki
             user.change_password(params[:oldpassword], params[:password], params[:confirm]) if !params[:password].blank?
             user.email = params[:email]
           end
-          message :info, 'Changes saved'
+          message :info, :changes_saved.t
           session[:user] = @user
         rescue StandardError => error
           message :error, error
@@ -211,7 +213,7 @@ module Wiki
         end
         @resource = Page.new(@repo, params[:path])
         boilerplate
-        forbid('Path is not allowed' => name_clash?(params[:path]))
+        forbid(:path_not_allowed.t => name_clash?(params[:path]))
       rescue StandardError => error
         message :error, error
       end
@@ -232,9 +234,9 @@ module Wiki
     put '/:path' do
       @resource = Page.find!(@repo, params[:path])
       begin
-        forbid('Version conflict detected' => @resource.commit.sha != params[:sha]) # TODO: Implement conflict diffs
+        forbid(:version_conflict.t => @resource.commit.sha != params[:sha]) # TODO: Implement conflict diffs
         if action?(:upload) && params[:file]
-          @resource.write(params[:file][:tempfile], 'File uploaded', @user.author)
+          @resource.write(params[:file][:tempfile], :file_uploaded.t, @user.author)
         elsif action?(:edit) && params[:content]
           preview(:edit, params[:content])
           content = if params[:pos]
@@ -281,7 +283,7 @@ module Wiki
 
     def preview(template, content)
       if params[:preview]
-        message(:error, 'Commit message is empty') if params[:message].empty?
+        message(:error, :empty_commit_message.t) if params[:message].empty?
         @resource.preview_content = content
         if @resource.mime.text?
           engine = Engine.find!(@resource)

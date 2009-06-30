@@ -1,6 +1,7 @@
 require 'wiki/extensions'
 require 'haml'
 require 'sass'
+require 'yaml'
 
 module Wiki
   class MultiError < StandardError
@@ -24,18 +25,55 @@ module Wiki
     end
   end
 
+  module I18n
+    @locale = Hash.with_indifferent_access
+    @loaded = []
+
+    class << self
+      def load_locale(path)
+        if !@loaded.include?(path)
+          lang = Config.locale
+          locale = load(path, lang)
+          locale.merge!(load(path, $1)) if lang =~ /^(\w+)-\w+$/
+          @locale.merge!(locale)
+          @loaded << path
+        end
+      end
+
+      def translate(key, args = {})
+        args = args.with_indifferent_access
+        if @locale[key]
+          @locale[key].gsub(/\{\{(\w+)\}\}/) {|x| args[$1] || x }
+        else
+          "##{key}"
+        end
+      end
+
+      private
+
+      def load(path, lang)
+        YAML.load_file(File.join(path, "#{lang}.yml")) rescue {}
+      end
+    end
+  end
+
   module Templates
     HAML_OPTIONS = { :format => :xhtml, :attr_wrapper  => '"', :ugly => true }
     SASS_OPTIONS = { :style => :compat }
 
+    class << self
+      attr_reader_with_default :paths => lambda { [File.join(Config.root, 'views')] }
+      attr_reader_with_default :template_cache => {}
+    end
+
     def sass(name, opts = {})
       sass_opts = SASS_OPTIONS.merge(opts[:options] || {})
-      engine = ::Sass::Engine.new(Symbol === name ? lookup_template(:sass, name, caller_path) : name, sass_opts)
+      engine = ::Sass::Engine.new(Symbol === name ? lookup_template(:sass, name) : name, sass_opts)
       engine.render
     end
 
     def haml(name, opts = {})
-      output = render_haml(Symbol === name ? lookup_template(:haml, name, caller_path) : name, opts)
+      output = render_haml(Symbol === name ? lookup_template(:haml, name) : name, opts)
       output = render_haml(lookup_template(:haml, 'layout'), opts) { output } if opts[:layout] != false
       output
     end
@@ -48,19 +86,13 @@ module Wiki
       engine.render(self, opts[:locals] || {}, &block)
     end
 
-    def lookup_template(type, name, *paths)
-      @template_cache ||= {}
-      @template_cache["#{type}-#{name}-#{paths.join('-')}"] ||= load_template(type, name, paths)
+    def lookup_template(type, name)
+      Templates.template_cache["#{type}-#{name}}"] ||= load_template(type, name)
     end
 
-    def load_template(type, name, paths)
-      paths.unshift File.join(Config.root, 'views')
-      paths.map! {|path| File.join(path, "#{name}.#{type}") }
+    def load_template(type, name)
+      paths = Templates.paths.map {|path| File.join(path, "#{name}.#{type}") }
       File.read(paths.find {|path| File.exists?(path) })
-    end
-
-    def caller_path
-      File.dirname(caller[1].split(':')[0])
     end
   end
 
@@ -110,5 +142,11 @@ module Kernel
   def forbid(conds)
     failed = conds.keys.select {|key| conds[key] }
     raise(Wiki::MultiError, *failed) if !failed.empty?
+  end
+end
+
+class Symbol
+  def t(args = {})
+    Wiki::I18n.translate(self, args)
   end
 end

@@ -31,6 +31,8 @@ module Wiki
             if !@plugins.include?(name) && enabled?(name)
               plugin = new(name, @logger)
               plugin.instance_eval(File.read(file), file)
+              I18n.load_locale(File.join(File.dirname(file), 'locale'))
+              Templates.paths << File.dirname(file)
               @plugins[name] = plugin
               @logger.debug("Plugin #{name} successfully loaded")
             end

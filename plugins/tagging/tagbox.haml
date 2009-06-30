@@ -1,5 +1,5 @@
 .box
-  %strong Tags:
+  %strong= #{:tags.t} +  ':'
   - tagging.get(@resource.path).each do |tag|
     %a{:href=>"/tags/#{tag}"}&= tag
     %form.inline.noprint{:method=>'post', :action=>"/tags/#{tag}"}

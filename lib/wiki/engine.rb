@@ -70,7 +70,7 @@ module Wiki
     end
 
     def self.find!(page, name = nil)
-      find(page, name) || raise(RuntimeError, "Engine '#{name}' is not available for page '#{page.path}' with mime-type '#{page.mime}'")
+      find(page, name) || raise(RuntimeError, :engine_not_available.t(name, page.path, page.mime))
     end
 
     # Acceptor should return true if page would be accepted by this engine

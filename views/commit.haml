@@ -1,23 +1,23 @@
 - menu :new
-- title "Commit <span class=\"sha\">#{@commit.sha}</span>"
+- title "#{:commit.t} <span class=\"sha\">#{@commit.sha}</span>"
 %table.zebra
   %tbody
     %tr
-      %td Message
+      %td= :message.t
       %td&= @commit.message
     %tr
-      %td Author
+      %td= :author.t
       %td= @commit.author.name
     %tr
-      %td Date
+      %td= :date.t
       %td= date @commit.date
     %tr
-      %td Deletions
+      %td= :deletions.t
       %td= @diff.deletions
     %tr
-      %td Insertions
+      %td= :insertions.t
       %td= @diff.insertions
     %tr
-      %td Files
+      %td= :files.t
       %td= @diff.size
 %p~ format_patch(@diff)

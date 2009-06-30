@@ -34,7 +34,7 @@ module Wiki
         @env      = env
         @request  = Request.new(env)
         @response = Rack::Response.new
-        @params = @original_params = @request.params.indifferent
+        @params = @original_params = @request.params.with_indifferent_access
         catch(:forward) do
           perform!
           status, header, body = @response.finish
@@ -129,7 +129,7 @@ module Wiki
           end
         end
 
-        raise NotFound, "Path #{path} not found"
+        raise NotFound, :not_found.t(:path => path)
       end
 
       private
@@ -147,8 +147,9 @@ module Wiki
       attr_reader_with_default :routes => {}
 
       def patterns(patterns = nil)
-        return (@patterns || {}) if !patterns
-        (@patterns ||= {}).merge!(patterns)
+        @patterns ||= Hash.with_indifferent_access
+        return @patterns if !patterns
+        @patterns.merge!(patterns)
       end
 
       def get(*paths, &block)
@@ -182,7 +183,7 @@ module Wiki
               '?'
             else
               keys << $1
-              patterns.key?($1.to_sym) ? "(#{patterns[$1.to_sym]})" : "([^/?&#\.]+)"
+              patterns.key?($1) ? "(#{patterns[$1]})" : "([^/?&#\.]+)"
             end
           end
           [path, /^#{pattern}$/, keys]

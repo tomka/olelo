@@ -17,19 +17,19 @@
     #header
       %h1&= Wiki::Config.title
       - if timemachine
-        %h1.timemachine Time Machine
+        %h1.timemachine= :time_machine.t
       #info
-        %esi:include{:src=>'/sys/fragments/user'}/
+        %esi:include{:src=>'/sys/user'}/
       #search
         %form{:action=>'/search',:method=>'get'}
           %div
-            %label.hidden{:for=>'pattern'} Search
-            %input.clear{:type=>'text',:id=>'pattern',:name=>'pattern', :value=> params[:pattern] || 'Search'}
+            %label.hidden{:for=>'pattern'}= :search.t
+            %input.clear{:type=>'text',:id=>'pattern',:name=>'pattern', :value=> params[:pattern] || :search.t}
     #menu= include_block :menu
     #container
       #body
         #sidebar
-          %esi:include{:src=>'/sys/fragments/sidebar'}/
+          %esi:include{:src=>'/sys/sidebar'}/
         #content
           = content_hook :before_content
           %h1= include_block :title
@@ -39,4 +39,4 @@
         Powered by
         %a{:href=>'http://github.com/minad/git-wiki/tree/master'} Git-Wiki
         = include_block :footer
-        %span.noprint= "| Generated in #{elapsed_time}ms"
+        %span.noprint= "| #{:generated_in.t(:ms => elapsed_time)}"

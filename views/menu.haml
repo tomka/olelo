@@ -1,7 +1,6 @@
 %ul
   %li
-    %a.home{:href=>resource_path(@resource, :path => Wiki::Config.main_page.urlpath), :accesskey=>'z'}
-      Home
+    %a.home{:href=>resource_path(@resource, :path => Wiki::Config.main_page.urlpath), :accesskey=>'z'}= :home.t
   = breadcrumbs(@resource)
   - if @resource && !@resource.current?
     %li.noborder
@@ -9,32 +8,32 @@
       %span.sha{:title => @resource.commit.sha}
         = @resource.commit.sha.truncate(8, '&#8230;')
 %ul.wiki
-  %li.title Wiki Menu
+  %li.title= :wiki_menu.t
   - if menu.include?(:version)
     - if @resource.prev_commit
       %li
-        %a{:href=>resource_path(@resource, :sha => @resource.prev_commit), :accesskey=>'o'} &#171; Older
+        %a{:href=>resource_path(@resource, :sha => @resource.prev_commit), :accesskey=>'o'}= :older.t
     - if @resource.next_commit
       %li
-        %a{:href=>resource_path(@resource, :sha => @resource.next_commit), :accesskey=>'n'} Newer &#187;
+        %a{:href=>resource_path(@resource, :sha => @resource.next_commit), :accesskey=>'n'}= :newer.t
     - if !@resource.current?
       %li
-        %a{:href=> @resource.path.urlpath, :accesskey=>'c'} Current
+        %a{:href=> @resource.path.urlpath, :accesskey=>'c'}= :current.t
   - if menu.include?(:view)
     %li
-      %a{:href=> @resource.path.urlpath, :accesskey=>'c'} View
+      %a{:href=> @resource.path.urlpath, :accesskey=>'c'}= :view.t
   - if menu.include?(:new)
     %li
-      %a.new{:href=> @resource && @resource.tree? ? (@resource.path/'new page/new').urlpath : '/new page/new'  } New Page
+      %a.new{:href=> @resource && @resource.tree? ? (@resource.path/'new page/new').urlpath : '/new page/new'  }= :new_page.t
   - if menu.include?(:edit) && @resource.page?
     - if @resource.mime.text?
       %li
-        %a.source{:href=> resource_path(@resource, :output => 'source')} Source
+        %a.source{:href=> resource_path(@resource, :output => 'source')}= :source.t
     %li
-      %a.edit{:href=>action_path(@resource, :edit), :accesskey=>'e'} Edit
+      %a.edit{:href=>action_path(@resource, :edit), :accesskey=>'e'}= :edit.t
   - if menu.include?(:history)
     %li
-      %a.history{:href=>action_path(@resource, :history), :accesskey=>'h'} History
+      %a.history{:href=>action_path(@resource, :history), :accesskey=>'h'}= :history.t
   - if menu.include?(:archive)
     %li
-      %a.archive{:href=>action_path(@resource, :archive)} Archive
+      %a.archive{:href=>action_path(@resource, :archive)}= :archive.t

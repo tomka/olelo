@@ -3,7 +3,7 @@
 - footer do
   |
   %span.noprint
-    %a.permalink{:href=> resource_path(@resource, :sha => @resource.latest_commit) } Permalink
+    %a.permalink{:href=> resource_path(@resource, :sha => @resource.latest_commit) }= :permalink.t
     |
   Version
   %a.sha{:href => resource_path(@resource, :sha => @resource.latest_commit), :title => @resource.latest_commit.sha}= @resource.latest_commit.sha.truncate(8, '&#8230;')
@@ -11,11 +11,11 @@
 %table.tree.zebra
   %thead
     %tr
-      %th Name
-      %th Last modified
-      %th Author
-      %th Message
-      %th Actions
+      %th= :name.t
+      %th= :last_modified.t
+      %th= :author.t
+      %th= :message.t
+      %th= :actions.t
   %tbody
     - @children.each do |level, child, open|
       %tr

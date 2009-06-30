@@ -4,19 +4,17 @@ require 'yaml'
 module Wiki
   class Config
     def initialize(hash = nil)
-      @config = {}
+      @config = Hash.with_indifferent_access
       update(hash) if hash
     end
 
     def set(key, value)
-      key = key.to_sym
       create_accessor(key)
       @config[key] = value.is_a?(Hash) ? Config.new(value) : value
     end
 
     def update(hash)
       hash.each_pair do |key, value|
-        key = key.to_sym
         create_accessor(key)
         if value.is_a?(Hash)
           @config[key] ||= Config.new
@@ -36,18 +34,17 @@ module Wiki
         set(name, args[0])
       elsif args.length == 0
         if name.ends_with? '?'
-          mid = name[0..-2].to_sym
-	  !!@config[mid]
+	  !!@config[name[0..-2]]
 	else
-	  @config[mid] || raise(RuntimeError, "Configuration key #{mid} is missing")
+	  @config[name] || raise(RuntimeError, "Configuration key #{name} is missing")
         end
       else
-        raise(NoMethodError, "Undefined method #{mid} for #{self}", caller(1))
+        raise(NoMethodError, "Undefined method #{name} for #{self}", caller(1))
       end
     end
 
     def delete(name)
-      @config.delete name.to_sym
+      @config.delete(name)
     end
 
     def reset

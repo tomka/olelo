@@ -1,38 +1,38 @@
 - menu :new
-- title action?(:login) ? 'Login' : 'Sign up'
+- title action?(:login) ? :login.t : :sign_up.t
 .ui-tabs
   %ul
     %li{tab_selected(:login)}
-      %a{:href=>'#tab-login'} Login
+      %a{:href=>'#tab-login'}= :login.t
     %li{tab_selected(:signup)}
-      %a{:href=>'#tab-signup'} Sign up
+      %a{:href=>'#tab-signup'}= :sign_up.t
   %form{:action => '/login', :method=>'post'}
     #tab-login.box
       %h2 Login
       = show_messages if action? :login
-      %label{:for=>'login-user'} User
+      %label{:for=>'login-user'}= :user.t
       %input#login-user{:type=>'text', :name=>'user'}
       %br
-      %label{:for=>'login-password'} Password
+      %label{:for=>'login-password'}= :password.t
       %input#login-password{:type=>'password', :name=>'password'}
       %br
-      %input{:type=>'submit', :value=>'Login'}
+      %input{:type=>'submit', :value=>:login.t}
       %br
   %form{:action => '/signup', :method=>'post'}
     #tab-signup.box
-      %h2 Sign up
-      = show_messages if action? :signup
-      %label{:for=>'signup-user'} User
+      %h2 :sign_up.t
+      = show_messages if action? :sign_up
+      %label{:for=>'signup-user'}= :user.t
       %input#signup-user{:type=>'text', :name=>'user'}
       %br
-      %label{:for=>'signup-password'} Password
+      %label{:for=>'signup-password'}= :password.t
       %input#signup-password{:type=>'password', :name=>'password'}
       %br
-      %label{:for=>'signup-confirm'} Confirmation
+      %label{:for=>'signup-confirm'}= :confirmation.t
       %input#signup-confirm{:type=>'password', :name=>'confirm'}
       %br
-      %label{:for=>'signup-email'} E-Mail
+      %label{:for=>'signup-email'}= :email.t
       %input#signup-email{:type=>'text', :name=>'email'}
       %br
-      %input{:type=>'submit', :value=>'Sign up'}
+      %input{:type=>'submit', :value=>:sign_up.t}
       %br

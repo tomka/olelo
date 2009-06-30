@@ -1,5 +1,5 @@
 - menu :view, :edit, :new
-- title "History of #{@resource.pretty_name}"
+- title :history_of.t(:path => @resource.pretty_name)
 %form{:action=> action_path(@resource, :diff) }
   %div
     = show_messages
@@ -8,13 +8,13 @@
   %table.history
     %thead
       %tr
-        %th Fr
-        %th To
-        %th SHA (Version identifier)
-        %th Author
-        %th Date
-        %th Message
-        %th Commit
+        %th= :from_short.t
+        %th= :to_short.t
+        %th= :sha.t
+        %th= :author.t
+        %th= :date.t
+        %th= :message.t
+        %th= :commit.t
     %tbody
       - @resource.history.each do |commit|
         %tr
@@ -28,4 +28,4 @@
           %td= date commit.date
           %td&= commit.message.truncate(50)
           %td.link
-            %a{:href=> ('commit'/commit.sha).urlpath } Commit
+            %a{:href=> ('commit'/commit.sha).urlpath }= :commit.t

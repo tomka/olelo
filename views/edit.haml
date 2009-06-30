@@ -1,16 +1,16 @@
 - menu :new, :view, :history, :edit
-- title "Editing #{@resource.pretty_name}" + (params[:pos] ? ' (Section)' : '')
+- title params[:pos] ? :edit_page_section.t(:page => @resource.pretty_name) : :edit_page.t(:page => @resource.pretty_name)
 - if @preview
   .preview~ @preview
 .ui-tabs
   %ul
     %li{tab_selected(:edit)}
-      %a{:href=>'#tab-edit'} Edit
+      %a{:href=>'#tab-edit'}= :edit.t
     %li{tab_selected(:upload)}
-      %a{:href=>'#tab-upload'} Upload
+      %a{:href=>'#tab-upload'}= :upload.t
   %form{:action => @resource.path.urlpath, :method=>'post'}
     #tab-edit.box
-      %h2 Edit
+      %h2= :edit.t
       = show_messages if action? :edit
       %input{:type=>'hidden', :name=> '_method', :value=>'put'}
       %input{:type=>'hidden', :name=> 'action',  :value=>'edit'}
@@ -19,23 +19,25 @@
         %input{:type=>'hidden', :name=> 'pos', :value=> params[:pos]}
         - if params[:len]
           %input{:type=>'hidden', :name=> 'len', :value=> params[:len]}
-      %label{:for=>'edit-content'} Content
+      %label{:for=>'edit-content'}= :content.t
       %br
       %textarea#edit-content{:name=>'content', :cols=>100, :rows=>22}&= edit_content(@resource)
       %br
-      %label{:for=>'edit-message'} Message
+      %label{:for=>'edit-message'}= :message.t
       %input#edit-message{:type=>'text', :name=>'message', :size => 50, :value => params[:message]}
-      %input{:type=>'submit', :name=>'preview', :value=> 'Preview'}
-      %input{:type=>'submit', :value=> 'Save', :accesskey => 's'}
-      %input{:type=>'reset', :value=>'Reset', :accesskey => 'r'}
+      %input{:type=>'submit', :name=>'preview', :value=> :preview.t}
+      %input{:type=>'submit', :value=>:save.t, :accesskey => 's'}
+      %input{:type=>'reset', :value=>:reset.t, :accesskey => 'r'}
       %br
   %form{:action => @resource.path.urlpath, :method=>'post', :enctype=> 'multipart/form-data'}
     #tab-upload.box
       %input{:type=>'hidden', :name=> '_method', :value=>'put'}
+      %input{:type=>'hidden', :name=> 'action',  :value=>'upload'}
       %input{:type=>'hidden', :name=> 'sha', :value => @resource.commit.sha}
-      %h2 Upload a file
+      %h2= :upload_file.t
       = show_messages if action? :upload
-      %label{:for=>'upload-file'} File
+      %label{:for=>'upload-file'}= :file.t
       %input#upload-file{:name=>'file',:type=>'file'}
-      %input{:type=>'submit', :name=>'action', :value=>'Upload', :accesskey => 'u'}
+      %br
+      %input{:type=>'submit', :value=>:upload.t, :accesskey => 'u'}
       %br

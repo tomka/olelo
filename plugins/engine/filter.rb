@@ -50,7 +50,7 @@ end
 
 class FilterEngine <  Engine
   def initialize(name, config)
-    config = config.indifferent
+    config = config.with_indifferent_access
     super(name, config)
     @accepts = config[:accepts]
     @mime = config[:mime]

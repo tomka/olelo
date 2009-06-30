@@ -28,6 +28,7 @@ default_config = {
   :title        => 'Git-Wiki',
   :root         => path,
   :production   => false,
+  :locale	=> 'en-US',
   :auth => {
     :service => 'yamlfile',
     :store   => ::File.join(path, '.wiki', 'users.yml'),

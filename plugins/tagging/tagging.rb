@@ -9,7 +9,7 @@ class Tagging
   end
 
   def add(id, tag, author)
-    write("'#{id}' tagged as '#{tag}'", author) do |store|
+    write(:id_tagged_as.t(:id => id, :tag => tag), author) do |store|
       (store['resources'][id] ||= []) << tag
       (store['tags'][tag] ||= []) << id
       store['resources'][id].uniq!
@@ -19,7 +19,7 @@ class Tagging
   end
 
   def delete(id, tag, author)
-    write("Tag '#{tag}' deleted from '#{id}'", author) do |store|
+    write(:tag_deleted.t(:tag => tag, :id => id), author) do |store|
       (store['resources'][id] || []).delete(tag)
       (store['tags'][tag] || []).delete(id)
       store['resources'].delete(id) if store['resources'][id].blank?

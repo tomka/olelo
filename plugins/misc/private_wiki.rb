@@ -13,12 +13,12 @@ class Wiki::App
      '/screen\.css',
      '/print\.css',
      '/reset\.css',
-     '/sys/fragments/user'
+     '/sys/user'
     ]
 
   add_hook(:before_routing) do
     if @user.anonymous?
-      halt if request.path_info == '/sys/fragments/sidebar'
+      halt if request.path_info == '/sys/sidebar'
       redirect '/login' if !WHITE_LIST.any? {|pattern| request.path_info =~ /^#{pattern}$/ }
     end
   end

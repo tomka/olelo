@@ -28,6 +28,7 @@ describe 'wiki' do
       :root         => File.expand_path(File.join(File.dirname(__FILE__), '..')),
       :store        => File.join(@test_path, 'store.yml'),
       :cache        => File.join(@test_path, 'cache'),
+      :locale       => 'en',
       :mime => {
         :default => 'text/x-creole',
         :magic => true,

@@ -1,0 +1,4 @@
+tags:         'Tags'
+tag_title:    'Tag {{tag}}'
+id_tagged_as: '{{id}} tagged as {{tag}}'
+tag_deleted:  'Tag {{tag}} deleted from {{id}}'

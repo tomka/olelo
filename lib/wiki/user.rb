@@ -33,17 +33,17 @@ module Wiki
     end
 
     def validate
-      forbid('E-Mail is invalid' => email !~ /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\Z/i,
-             'Name is invalid'   => name !~ /[\w.\-+_]+/,
-             'Anonymous'         => anonymous?)
+      forbid(:invalid_email.t => email !~ /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\Z/i,
+             :invalid_name.t  => name !~ /[\w.\-+_]+/,
+             :anonymous.t     => anonymous?)
     end
 
     @services = {}
 
     class<< self
       def validate_password(password, confirm)
-        forbid('Passwords do not match' => password != confirm,
-               'Password is empty' => password.blank?)
+        forbid(:passwords_do_not_match.t => password != confirm,
+               :empty_password.t => password.blank?)
       end
 
       def define_service(name, &block)
