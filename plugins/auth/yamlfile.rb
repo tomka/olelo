@@ -9,11 +9,18 @@ User.define_service(:yamlfile) do
                end
   end
 
+  def find(name)
+    @store.transaction(true) do |store|
+      user = store[name]
+      user ? User.new(name, user['email'], false) : nil
+    end
+  end
+
   def authenticate(name, password)
     @store.transaction(true) do |store|
       user = store[name]
       forbid('Wrong username or password' => !user || user['password'] != crypt(password))
-      return User.new(name, user['email'], false)
+      User.new(name, user['email'], false)
     end
   end
 

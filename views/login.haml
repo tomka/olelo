@@ -20,7 +20,7 @@
       %br
   %form{:action => '/signup', :method=>'post'}
     #tab-signup.box
-      %h2 :sign_up.t
+      %h2= :sign_up.t
       = show_messages if action? :sign_up
       %label{:for=>'signup-user'}= :user.t
       %input#signup-user{:type=>'text', :name=>'user'}

@@ -46,10 +46,14 @@ module Wiki
       start_timer
       @logger.debug request.env
 
+      @user = session[:user]
+      if !@user
+        invoke_hook(:auto_login)
+        @user ||= User.anonymous(request)
+      end
+
       content_type(accepts?('application/xhtml+xml') ? 'application/xhtml+xml' : 'text/html',
                    :charset => 'utf-8')
-
-      @user = session[:user] || User.anonymous(request)
     end
 
     # Handle 404s
@@ -102,7 +106,7 @@ module Wiki
 
     post '/login' do
       begin
-        session[:user] = User.authenticate(params[:user], params[:password])
+        session[:user] = @user = User.authenticate(params[:user], params[:password])
 	redirect '/'
       rescue StandardError => error
         message :error, error
@@ -112,8 +116,8 @@ module Wiki
 
     post '/signup' do
       begin
-        session[:user] = User.create(params[:user], params[:password],
-                                     params[:confirm], params[:email])
+        session[:user] = @user = User.create(params[:user], params[:password],
+                                             params[:confirm], params[:email])
         redirect '/'
       rescue StandardError => error
         message :error, error

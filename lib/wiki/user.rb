@@ -66,6 +66,10 @@ module Wiki
         new(name, "anonymous@#{ip}", true)
       end
 
+      def find(name)
+        service.find(name)
+      end
+
       def authenticate(name, password)
         service.authenticate(name, password)
       end

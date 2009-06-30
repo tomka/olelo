@@ -123,8 +123,13 @@ module Wiki
               end
             @params = @original_params.merge(params)
             catch(:pass) do
-              result = method.arity == 0 ? method.bind(self).call : method.bind(self).call(*values)
-              halt(result)
+              begin
+                invoke_hook(:before_action, name)
+                result = method.arity == 0 ? method.bind(self).call : method.bind(self).call(*values)
+                halt(result)
+              ensure
+                invoke_hook(:after_action, name)
+              end
             end
           end
         end
