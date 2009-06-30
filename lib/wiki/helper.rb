@@ -110,7 +110,7 @@ module Wiki
                << "<span class=\"right\"><a href=\"#{(path/diff.from).urlpath}\">#{diff.from.truncate(8, '&#8230;')}</a> to "\
                << "<a href=\"#{(path/diff.to).urlpath}\">#{diff.to.truncate(8, '&#8230;')}</a></span></th></tr></thead><tbody>"
           plus, minus = -1, -1
-        elsif line =~ /^@@ -(\d+)(,\d+)? \+(\d+)(,\d+)? @@$/
+        elsif line =~ /^@@ -(\d+)(,\d+)? \+(\d+)/
           minus = $1.to_i
           plus = $3.to_i
           html << "<tr><td>&#160;</td><td>&#160;</td><td class=\"marker\">#{escape_html line}</td></tr>"
