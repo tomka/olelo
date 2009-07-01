@@ -12,16 +12,16 @@
   - if menu.include?(:version)
     - if @resource.prev_commit
       %li
-        %a{:href=>resource_path(@resource, :sha => @resource.prev_commit), :accesskey=>'o'}= :older.t
+        %a.older{:href=>resource_path(@resource, :sha => @resource.prev_commit), :accesskey=>'o'}= :older.t
     - if @resource.next_commit
       %li
-        %a{:href=>resource_path(@resource, :sha => @resource.next_commit), :accesskey=>'n'}= :newer.t
+        %a.newer{:href=>resource_path(@resource, :sha => @resource.next_commit), :accesskey=>'n'}= :newer.t
     - if !@resource.current?
       %li
-        %a{:href=> @resource.path.urlpath, :accesskey=>'c'}= :current.t
+        %a.current{:href=> @resource.path.urlpath, :accesskey=>'c'}= :current.t
   - if menu.include?(:view)
     %li
-      %a{:href=> @resource.path.urlpath, :accesskey=>'c'}= :view.t
+      %a.view{:href=> @resource.path.urlpath, :accesskey=>'c'}= :view.t
   - if menu.include?(:new)
     %li
       %a.new{:href=> @resource && @resource.tree? ? (@resource.path/'new page/new').urlpath : '/new page/new'  }= :new_page.t

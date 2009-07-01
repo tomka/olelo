@@ -87,7 +87,11 @@ module Wiki
     end
 
     def lookup_template(type, name)
-      Templates.template_cache["#{type}-#{name}}"] ||= load_template(type, name)
+      if Config.production?
+        Templates.template_cache["#{type}-#{name}}"] ||= load_template(type, name)
+      else
+        load_template(type, name)
+      end
     end
 
     def load_template(type, name)

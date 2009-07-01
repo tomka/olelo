@@ -227,6 +227,7 @@ hr
     :float left
     &.wiki
       :float right
+      :overflow hidden
     li
       :float left
       :padding 0
@@ -261,6 +262,10 @@ hr
           :background #0B3E71
         &:active
           :background #022763
+        &.older:before
+          content: "\00ab\00a0"
+        &.newer:after
+          content: "\00a0\00bb"
         &.home:before
           +menu-icon
           :background url(static/images/home.png) no-repeat center center
@@ -475,7 +480,8 @@ table input
   :cursor pointer
 
 a[accesskey]:focus:after, a[accesskey]:hover:after
-  :content " [" attr(accesskey) "] "
+  :content " [" attr(accesskey) "] " !important
+  :font-size 80%
 
 .toc
   :background #FFF
