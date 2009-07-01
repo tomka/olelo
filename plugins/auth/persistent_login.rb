@@ -36,7 +36,7 @@ class Wiki::App
   end
 
   add_hook(:auto_login) do
-    token = @request.cookies[TOKEN_NAME]
+    token = request.cookies[TOKEN_NAME]
     if token
       user = get_login_token(token)
       session[:user] = @user = User.find(user) if user
@@ -49,13 +49,13 @@ class Wiki::App
         ch = ('a'..'z').to_a + ('A'..'Z').to_a + ('0'..'9').to_a
         token = ''
         1.upto(TOKEN_LENGTH) { |i| token << ch[rand(ch.size-1)] }
-        @response.set_cookie(TOKEN_NAME, :value => token, :expires => Time.now + TOKEN_LIFETIME)
+        response.set_cookie(TOKEN_NAME, :value => token, :expires => Time.now + TOKEN_LIFETIME)
         set_login_token(token, @user.name)
       end
     elsif action == '/logout'
-      token = @request.cookies[TOKEN_NAME]
+      token = request.cookies[TOKEN_NAME]
       delete_login_token(token)
-      @response.delete_cookie(TOKEN_NAME)
+      response.delete_cookie(TOKEN_NAME)
     end
   end
 end
