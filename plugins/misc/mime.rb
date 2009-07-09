@@ -6,3 +6,4 @@ MimeMagic.add('text/x-markdown', %w(markdown md mdown mkdn mdown), %w(text/plain
 MimeMagic.add('text/x-maruku', %w(maruku), %w(text/plain), [0, '#!maruku'])
 MimeMagic.add('text/x-textile', %w(textile), %w(text/plain), [0, '#!textile'])
 MimeMagic.add('text/x-yaml', %w(yaml yml), %w(text/plain))
+MimeMagic.add('text/x-org-mode', %w(org), %w(text/plain))
