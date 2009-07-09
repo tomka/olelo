@@ -27,6 +27,13 @@ maruku:
   accepts: text/x-maruku|text/x-markdown
   filter: [ shebang, tag, [ maruku, rubypants, toc ] ]
 
+orgmode:
+  layout: true
+  cacheable: true
+  priority: 1
+  accepts: text/x-org-mode
+  filter: [ shebang, tag, [ orgmode, rubypants, toc ] ]
+
 # Basic engines have less dependencies (No rubypants, No LaTeX).
 # They are used if the full-blown engines are not available (Lower priority).
 creole_basic:
