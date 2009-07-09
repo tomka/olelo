@@ -27,6 +27,11 @@ module Wiki
         content_hook(:"after_#{name}")
     end
 
+    def render_block(name, &block)
+      define_block(name, nil, &block)
+      include_block(name)
+    end
+
     def footer(content = nil, &block); define_block(:footer, content, &block); end
     def head(content = nil, &block);   define_block(:head, content, &block);   end
     def title(content = nil, &block);  define_block(:title, content, &block);  end
@@ -99,16 +104,21 @@ module Wiki
       response.headers.delete('Cache-Control')
     end
 
-    def format_patch(diff)
-      lines = diff.patch.split(/[\n\r]+/)
-      html, plus, minus = '', -1, -1
+    def format_patch(patch, from = nil, to = nil)
+      lines = patch.split(/[\n\r]+/)
+      html, plus, minus, path = '', -1, -1, nil
       lines.each do |line|
         if line =~ %r{^diff --git a/(.+) b/(.+)$}
           path = $1
+        elsif line =~ /^\+\+\+ (.*)$/
           html << '</tbody></table>' if !html.empty?
-          html << "<table class=\"patch\"><thead><tr><th>-</th><th>+</th><th class=\"title\"><a class=\"left\" href=\"#{path.urlpath}\">#{path}</a>"\
-               << "<span class=\"right\"><a href=\"#{(path/diff.from).urlpath}\">#{diff.from.truncate(8, '&#8230;')}</a> to "\
-               << "<a href=\"#{(path/diff.to).urlpath}\">#{diff.to.truncate(8, '&#8230;')}</a></span></th></tr></thead><tbody>"
+          if path && from && to
+            html << "<table class=\"patch\"><thead><tr><th>-</th><th>+</th><th class=\"title\"><a class=\"left\" href=\"#{path.urlpath}\">#{path}</a>"\
+            << "<span class=\"right\"><a href=\"#{(path/from).urlpath}\">#{from.truncate(8, '&#8230;')}</a> to "\
+            << "<a href=\"#{(path/to).urlpath}\">#{to.truncate(8, '&#8230;')}</a></span></th></tr></thead><tbody>"
+          else
+            html << "<table class=\"patch\"><thead><tr><th>-</th><th>+</th><th class=\"title\">#{$1}</th></tr></thead><tbody>"
+          end
           plus, minus = -1, -1
         elsif line =~ /^@@ -(\d+)(,\d+)? \+(\d+)/
           minus = $1.to_i

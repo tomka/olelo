@@ -67,21 +67,25 @@ module Wiki
     end
 
     def sass(name, opts = {})
-      sass_opts = SASS_OPTIONS.merge(opts[:options] || {})
-      engine = ::Sass::Engine.new(Symbol === name ? lookup_template(:sass, name) : name, sass_opts)
+      template = Symbol === name ? lookup_template(:sass, name) : name
+      name = Symbol === name ? "#{name}.sass" : 'inline sass'
+      sass_opts = SASS_OPTIONS.merge(opts[:options] || {}).merge(:filename => name)
+      engine = ::Sass::Engine.new(template, sass_opts)
       engine.render
     end
 
     def haml(name, opts = {})
-      output = render_haml(Symbol === name ? lookup_template(:haml, name) : name, opts)
-      output = render_haml(lookup_template(:haml, 'layout'), opts) { output } if opts[:layout] != false
+      output = render_haml(name, opts)
+      output = render_haml(:layout, opts) { output } if opts[:layout] != false
       output
     end
 
     private
 
-    def render_haml(template, opts = {}, &block)
-      haml_opts = HAML_OPTIONS.merge(opts[:options] || {})
+    def render_haml(name, opts = {}, &block)
+      template = Symbol === name ? lookup_template(:haml, name) : name
+      name = Symbol === name ? "#{name}.haml" : 'inline haml'
+      haml_opts = HAML_OPTIONS.merge(opts[:options] || {}).merge(:filename => name)
       engine = ::Haml::Engine.new(template, haml_opts)
       engine.render(self, opts[:locals] || {}, &block)
     end

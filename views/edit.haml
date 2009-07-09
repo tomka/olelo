@@ -1,43 +1,43 @@
 - menu :new, :view, :history, :edit
 - title params[:pos] ? :edit_page_section.t(:page => @resource.pretty_name) : :edit_page.t(:page => @resource.pretty_name)
-- if @preview
-  .preview~ @preview
-.ui-tabs
-  %ul
-    %li{tab_selected(:edit)}
-      %a{:href=>'#tab-edit'}= :edit.t
-    %li{tab_selected(:upload)}
-      %a{:href=>'#tab-upload'}= :upload.t
-  %form{:action => @resource.path.urlpath, :method=>'post'}
-    #tab-edit.box
-      %h2= :edit.t
-      = show_messages if action? :edit
-      %input{:type=>'hidden', :name=> '_method', :value=>'put'}
-      %input{:type=>'hidden', :name=> 'action',  :value=>'edit'}
-      %input{:type=>'hidden', :name=> 'sha', :value => @resource.commit.sha}
-      - if params[:pos]
-        %input{:type=>'hidden', :name=> 'pos', :value=> params[:pos]}
-        - if params[:len]
-          %input{:type=>'hidden', :name=> 'len', :value=> params[:len]}
-      %label{:for=>'edit-content'}= :content.t
-      %br
-      %textarea#edit-content{:name=>'content', :cols=>100, :rows=>22}&= edit_content(@resource)
-      %br
-      %label{:for=>'edit-message'}= :message.t
-      %input#edit-message{:type=>'text', :name=>'message', :size => 50, :value => params[:message]}
-      %input{:type=>'submit', :name=>'preview', :value=> :preview.t}
-      %input{:type=>'submit', :value=>:save.t, :accesskey => 's'}
-      %input{:type=>'reset', :value=>:reset.t, :accesskey => 'r'}
-      %br
-  %form{:action => @resource.path.urlpath, :method=>'post', :enctype=> 'multipart/form-data'}
-    #tab-upload.box
-      %input{:type=>'hidden', :name=> '_method', :value=>'put'}
-      %input{:type=>'hidden', :name=> 'action',  :value=>'upload'}
-      %input{:type=>'hidden', :name=> 'sha', :value => @resource.commit.sha}
-      %h2= :upload_file.t
-      = show_messages if action? :upload
-      %label{:for=>'upload-file'}= :file.t
-      %input#upload-file{:name=>'file',:type=>'file'}
-      %br
-      %input{:type=>'submit', :value=>:upload.t, :accesskey => 'u'}
-      %br
+= render_block(:edit_form) do
+  .ui-tabs
+    %ul
+      %li{tab_selected(:edit)}
+        %a{:href=>'#tab-edit'}= :edit.t
+      %li{tab_selected(:upload)}
+        %a{:href=>'#tab-upload'}= :upload.t
+    %form{:action => @resource.path.urlpath, :method=>'post'}
+      #tab-edit.box
+        %h2= :edit.t
+        = show_messages if action? :edit
+        %input{:type=>'hidden', :name=> '_method', :value=>'put'}
+        %input{:type=>'hidden', :name=> 'action',  :value=>'edit'}
+        %input{:type=>'hidden', :name=> 'sha', :value => @resource.commit.sha}
+        - if params[:pos]
+          %input{:type=>'hidden', :name=> 'pos', :value=> params[:pos]}
+          - if params[:len]
+            %input{:type=>'hidden', :name=> 'len', :value=> params[:len]}
+        %label{:for=>'edit-content'}= :content.t
+        %br
+        %textarea#edit-content{:name=>'content', :cols=>100, :rows=>22}&= edit_content(@resource)
+        %br
+        %label{:for=>'edit-message'}= :message.t
+        %input#edit-message{:type=>'text', :name=>'message', :size => 50, :value => params[:message]}
+        = render_block(:edit_form_buttons) do
+          %input{:type=>'submit', :value=>:save.t, :accesskey => 's'}
+          %input{:type=>'reset', :value=>:reset.t, :accesskey => 'r'}
+        %br
+    %form{:action => @resource.path.urlpath, :method=>'post', :enctype=> 'multipart/form-data'}
+      #tab-upload.box
+        %input{:type=>'hidden', :name=> '_method', :value=>'put'}
+        %input{:type=>'hidden', :name=> 'action',  :value=>'upload'}
+        %input{:type=>'hidden', :name=> 'sha', :value => @resource.commit.sha}
+        %h2= :upload_file.t
+        = show_messages if action? :upload
+        %label{:for=>'upload-file'}= :file.t
+        %input#upload-file{:name=>'file',:type=>'file'}
+        %br
+        = render_block(:upload_form_buttons) do
+          %input{:type=>'submit', :value=>:upload.t, :accesskey => 'u'}
+        %br

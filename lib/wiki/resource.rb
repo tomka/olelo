@@ -158,7 +158,7 @@ module Wiki
     end
 
     # Set page content for preview
-    def preview_content=(content)
+    def content=(content)
       @mime = nil
       @content = content
     end
@@ -173,7 +173,7 @@ module Wiki
       !new? && !@content
     end
 
-    # Write page (commit)
+    # Write page and commit
     def write(content, message, author = nil)
       if !content.respond_to? :path
         content.gsub!("\r\n", "\n")

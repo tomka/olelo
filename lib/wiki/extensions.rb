@@ -211,6 +211,6 @@ class String
 
   # Concatenate path components
   def /(name)
-    (self + '/' + name).cleanpath
+    "#{self}/#{name}".cleanpath
   end
 end

@@ -20,4 +20,4 @@
     %tr
       %td= :files.t
       %td= @diff.size
-%p~ format_patch(@diff)
+%p~ format_patch(@diff.patch, @diff.from, @diff.to)

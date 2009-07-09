@@ -22,7 +22,7 @@ class TC_Page < Test::Unit::TestCase
     assert_equal 'Author1', page.commit.author.name
     assert_equal 'author1@localhorst', page.commit.author.email
 
-    page.preview_content = 'new content'
+    page.content = 'new content'
     assert !page.new?
     assert !page.saved?
     assert_equal 'new content', page.content

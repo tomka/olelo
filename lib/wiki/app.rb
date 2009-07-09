@@ -242,7 +242,7 @@ module Wiki
         if action?(:upload) && params[:file]
           @resource.write(params[:file][:tempfile], :file_uploaded.t, @user.author)
         elsif action?(:edit) && params[:content]
-          preview(:edit, params[:content])
+          invoke_hook(:page_text_edited, params[:content])
           content = if params[:pos]
                       pos = [[0, params[:pos].to_i].max, @resource.content.size].min
                       len = params[:len] ? [0, params[:len].to_i].max : @resource.content.size - params[:len]
@@ -270,7 +270,7 @@ module Wiki
         if action?(:upload) && params[:file]
           @resource.write(params[:file][:tempfile], "File #{@resource.path} uploaded", @user.author)
         elsif action?(:new)
-          preview(:new, params[:content])
+          invoke_hook(:page_text_edited, params[:content])
           @resource.write(params[:content], params[:message], @user.author)
         else
           redirect '/new'
@@ -284,18 +284,6 @@ module Wiki
     end
 
     private
-
-    def preview(template, content)
-      if params[:preview]
-        message(:error, :empty_commit_message.t) if params[:message].empty?
-        @resource.preview_content = content
-        if @resource.mime.text?
-          engine = Engine.find!(@resource)
-          @preview = engine.render(@resource) if engine.layout?
-        end
-        halt haml(template)
-      end
-    end
 
     def name_clash?(path)
       path = path.to_s.urlpath
