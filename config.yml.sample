@@ -9,6 +9,8 @@ mime:
 main_page:    'Home'
 disabled_plugins:
   - misc/private_wiki
+  - filter/orgmode
+  - tagging
 rack:
   rewrite_base: ''
   profiling:    false

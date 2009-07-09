@@ -39,7 +39,7 @@ default_config = {
     :magic   => true,
   },
   :main_page    => 'Home',
-  :disabled_plugins => ['misc/private_wiki', 'tagging/tagging'],
+  :disabled_plugins => ['misc/private_wiki', 'tagging', 'filter/orgmode'],
   :rack => {
     :rewrite_base => nil,
     :profiling    => false,
