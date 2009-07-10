@@ -18,7 +18,7 @@ module Wiki
       @app = app
       @logger = opts[:logger] || Logger.new(nil)
 
-      I18n.load_locale(File.join(Config.root, 'locale'))
+      I18n.load_locale(File.join(Config.root, 'locale', 'LANG.yml'))
 
       if File.exists?(Config.git.repository) && File.exists?(Config.git.workspace)
         @logger.info 'Opening repository'

@@ -31,13 +31,8 @@ module Wiki
 
     class << self
       def load_locale(path)
-        if !@loaded.include?(path)
-          lang = Config.locale
-          locale = load(path, lang)
-          locale.merge!(load(path, $1)) if lang =~ /^(\w+)-\w+$/
-          @locale.merge!(locale)
-          @loaded << path
-        end
+        load(path.sub('LANG', $1)) if Config.locale =~ /^(\w+)(_|-)/
+        load(path.sub('LANG', Config.locale))
       end
 
       def translate(key, args = {})
@@ -51,8 +46,13 @@ module Wiki
 
       private
 
-      def load(path, lang)
-        YAML.load_file(File.join(path, "#{lang}.yml")) rescue {}
+      def load(path)
+        if !@loaded.include?(path)
+          @locale.merge!(YAML.load_file(path))
+          @loaded << path
+        end
+      rescue
+        nil
       end
     end
   end
