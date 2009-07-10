@@ -49,8 +49,10 @@ module Wiki
       def write(bucket, key, content)
         temp_file = File.join(root, ['tmp', $$, Thread.current.object_id.abs.to_s(36)].join('-'))
         File.open(temp_file, 'wb') do |dest|
-          content.each do |part|
-            dest.write(part)
+          if content.respond_to? :to_str
+	    dest.write(content.to_str)
+	  else
+	    content.each {|s| dest.write(s) }
           end
         end
 
