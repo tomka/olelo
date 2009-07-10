@@ -240,13 +240,14 @@ module Wiki
       begin
         forbid(:version_conflict.t => @resource.commit.sha != params[:sha]) # TODO: Implement conflict diffs
         if action?(:upload) && params[:file]
+          invoke_hook :before_page_save, @resource
           @resource.write(params[:file][:tempfile], :file_uploaded.t, @user.author)
         elsif action?(:edit) && params[:content]
-          invoke_hook(:page_text_edited, params[:content])
+          invoke_hook :before_page_save, @resource
           content = if params[:pos]
                       pos = [[0, params[:pos].to_i].max, @resource.content.size].min
-                      len = params[:len] ? [0, params[:len].to_i].max : @resource.content.size - params[:len]
-                      @resource.content[0,pos].to_s + params[:content] + @resource.content[pos+len..-1].to_s
+                      len = [0, params[:len].to_i].max
+                      @resource.content(0, pos) + params[:content] + @resource.content(pos + len, @resource.content.size)
                     else
                       params[:content]
                     end
@@ -268,9 +269,10 @@ module Wiki
         pass if name_clash?(params[:path])
         @resource = Page.new(@repo, params[:path])
         if action?(:upload) && params[:file]
+          invoke_hook :before_page_save, @resource
           @resource.write(params[:file][:tempfile], "File #{@resource.path} uploaded", @user.author)
         elsif action?(:new)
-          invoke_hook(:page_text_edited, params[:content])
+          invoke_hook :before_page_save, @resource
           @resource.write(params[:content], params[:message], @user.author)
         else
           redirect '/new'

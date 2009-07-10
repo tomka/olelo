@@ -265,13 +265,7 @@ module Wiki
     def edit_content(page)
       return params[:content] if params[:content]
       return :no_text_file.t(:page => page.path, :mime => page.mime) if !page.mime.text?
-      if params[:pos] && params[:len]
-        pos = [[0, params[:pos].to_i].max, page.content.size].min
-        len = [0, params[:len].to_i].max
-        page.content[pos, len]
-      else
-        page.content
-      end
+      page.content(params[:pos], params[:len])
     end
 
   end

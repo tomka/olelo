@@ -164,8 +164,9 @@ module Wiki
     end
 
     # Page content
-    def content
-      @content || (@object && @object.contents)
+    def content(pos = nil, len = nil)
+      c = @content || (@object && @object.contents)
+      pos ? c[[[0, pos.to_i].max, c.size].min, [0, len.to_i].max] : c
     end
 
     # Check if there is no unsaved content
