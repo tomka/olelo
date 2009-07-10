@@ -31,12 +31,12 @@
         #sidebar
           %esi:include{:src=>'/sys/sidebar'}/
         #content
-          = content_hook :before_content
-          %h1= include_block :title
-          = yield
-          = content_hook :after_content
+          = render_block :content do
+            %h1= include_block :title
+            = yield
       #footer
-        Powered by
-        %a{:href=>'http://github.com/minad/git-wiki/tree/master'} Git-Wiki
-        = include_block :footer
-        %span.noprint= "| #{:generated_in.t(:ms => elapsed_time)}"
+        = render_block :footer do
+          Powered by
+          %a{:href=>'http://github.com/minad/git-wiki/tree/master'} Git-Wiki
+          = include_block :footnote
+          %span.noprint= "| #{:generated_in.t(:ms => elapsed_time)}"

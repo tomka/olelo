@@ -32,7 +32,7 @@ module Wiki
       include_block(name)
     end
 
-    def footer(content = nil, &block); define_block(:footer, content, &block); end
+    def footnote(content = nil, &block); define_block(:footnote, content, &block); end
     def head(content = nil, &block);   define_block(:head, content, &block);   end
     def title(content = nil, &block);  define_block(:title, content, &block);  end
 

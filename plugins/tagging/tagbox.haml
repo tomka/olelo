@@ -1,5 +1,5 @@
-.box
-  %strong= #{:tags.t} +  ':'
+.tags
+  %strong= :tags.t + ':'
   - tagging.get(@resource.path).each do |tag|
     %a{:href=>"/tags/#{tag}"}&= tag
     %form.inline.noprint{:method=>'post', :action=>"/tags/#{tag}"}
@@ -7,7 +7,7 @@
         %input{:type=>'hidden', :name=>'path', :value=>@resource.path}
         %input{:type=>'hidden', :name=>'_method', :value=>'delete'}
         %button{:type=>'submit'}= image :delete
-    &#183;
+    |
   %form.inline.noprint{:method=>'post', :action=>'/tags/new'}
     %div
       %input{:type=>'hidden', :name=>'path', :value=>@resource.path}

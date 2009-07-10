@@ -38,7 +38,7 @@ module Wiki
       def translate(key, args = {})
         args = args.with_indifferent_access
         if @locale[key]
-          @locale[key].gsub(/\{\{(\w+)\}\}/) {|x| args[$1] || x }
+          @locale[key].gsub(/#\{(\w+)\}/) {|x| args[$1] || x }
         else
           "##{key}"
         end

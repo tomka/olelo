@@ -64,7 +64,7 @@ class Wiki::App
     @tagging ||= Tagging.new(@repo)
   end
 
-  add_hook(:after_content) do
+  add_hook(:after_footer) do
     haml(:tagbox, :layout => false) if @resource
   end
 

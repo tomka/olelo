@@ -1,6 +1,6 @@
 - title @resource.pretty_name
 - menu :version, :edit, :history, :new
-- footer do
+- footnote do
   |
   %span.noprint
     %a{:href=> resource_path(@resource, :sha => @resource.latest_commit) }= :permalink.t
