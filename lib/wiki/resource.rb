@@ -56,6 +56,11 @@ module Wiki
       !@object
     end
 
+    # Modified resource, not yet saved
+    def modified?
+      new?
+    end
+
     # Resource sha
     def sha
       new? ? '' : @object.sha
@@ -170,8 +175,8 @@ module Wiki
     end
 
     # Check if there is no unsaved content
-    def saved?
-      !new? && !@content
+    def modified?
+      new? || @content
     end
 
     # Write page and commit
@@ -219,6 +224,8 @@ module Wiki
 
   # Tree resource in repository
   class Tree < Resource
+    DIRECTORY_MIME = MimeMagic.new('inode/directory')
+
     def initialize(repo, path, object = nil, commit = nil, current = false)
       super
       @trees = nil
@@ -248,12 +255,16 @@ module Wiki
 
     # Pretty name
     def pretty_name
-      :root_path.t/path
+      path.blank? ? :root_path.t : name
     end
 
     # Get archive of current tree
     def archive
       @repo.archive(sha, nil, :format => 'tgz', :prefix => "#{safe_name}/")
+    end
+
+    def mime
+      DIRECTORY_MIME
     end
   end
 end

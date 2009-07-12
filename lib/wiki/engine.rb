@@ -3,28 +3,30 @@ require 'wiki/utils'
 require 'wiki/cache'
 
 module Wiki
-  # An Engine renders pages
+  # An Engine renders resources
   class Engine
     include Helper
     include Templates
 
     class Context < Hash
-      attr_reader :page, :engine
+      attr_reader :resource, :engine
+      alias :page :resource
+      alias :tree :resource
 
-      def initialize(engine, page, params)
+      def initialize(engine, resource, params)
         merge!(params)
         @engine = engine
-        @page = page
+        @resource = resource
       end
 
       def subcontext(params = {})
-        sub = Context.new(params.delete(:engine) || @engine, params.delete(:page) || @page, self)
+        sub = Context.new(params.delete(:engine) || @engine, params.delete(:resource) || @resource, self)
         sub.merge!(params)
         sub
       end
 
       def id
-        Digest::MD5.hexdigest(@engine.name + page.sha + inspect)
+        Digest::MD5.hexdigest(@engine.name + resource.sha + inspect)
       end
     end
 
@@ -53,40 +55,44 @@ module Wiki
       @engines[engine.name] = engine
     end
 
-    # Find appropiate engine for page. An optional
+    # Find appropiate engine for resource. An optional
     # name can be given to claim a specific engine.
-    def self.find(page, name = nil)
+    def self.find(resource, name = nil)
       name = name.to_s
 
       engine = if name.blank?
-        @engines.values.sort {|a,b| a.priority <=> b.priority }.find { |e| e.accepts? page }
+        @engines.values.sort {|a,b| a.priority <=> b.priority }.find { |e| e.accepts? resource }
       else
         e = @engines[name]
-        e && e.accepts?(page) ? e : nil
+        e && e.accepts?(resource) ? e : nil
       end
 
       return engine.dup if engine
       nil
     end
 
-    def self.find!(page, name = nil)
-      find(page, name) || raise(RuntimeError, :engine_not_available.t(name, page.path, page.mime))
+    def self.find!(resource, name = nil)
+      find(resource, name) || raise(RuntimeError, :engine_not_available.t(name, resource.path, resource.mime))
     end
 
-    # Acceptor should return true if page would be accepted by this engine
-    def accepts?(page); true; end
+    # Acceptor should return true if resource would be accepted by this engine
+    def accepts?(resource); resource.respond_to? :content; end
 
-    # Render page content
-    def output(context); context.page.content; end
+    # Render resource content
+    def output(context); context.resource.content; end
 
     # Get output mime type
-    def mime(page); page.mime; end
+    def mime(resource); resource.mime; end
 
-    # Render page with caching. This is
+    # Render resource with caching. This is
     # the primary engine interface
-    def render(page, params = {})
-      context = Context.new(self, page, params)
-      Cache.cache('engine', context.id, :disable => !page.saved? || !cacheable?) { output(context) }
+    def render(resource, params = {})
+      context = Context.new(self, resource, params)
+      if Config.production?
+        Cache.cache('engine', context.id, :disable => resource.modified? || !cacheable?) { output(context) }
+      else
+        output(context)
+      end
     end
   end
 

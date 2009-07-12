@@ -1,5 +1,24 @@
 @import reset.css
 
+=reset-box-model
+  :margin 0
+  :padding 0
+  :border 0
+  :outline 0
+
+=list-bar
+  +reset-box-model
+  :display block
+  :list-style none
+  :float left
+
+=headline(!size)
+  :font-family Georgia, serif
+  :color #0b3e71
+  :margin 1em 0 0.5em 0
+  :border-bottom 1px solid #999
+  :font-size = !size
+
 body
   :color #000
   :background #FFF
@@ -7,28 +26,22 @@ body
   :font-size 10pt
 
 h1
-  :font-size 180%
+  +headline(180%)
 
 h2
-  :font-size 170%
+  +headline(170%)
 
 h3
-  :font-size 150%
+  +headline(150%)
 
 h4
-  :font-size 120%
+  +headline(120%)
 
 h5
-  :font-size 120%
+  +headline(120%)
 
 h6
-  :font-size 120%
-
-h1,h2,h3,h4,h5,h6
-  :font-family Georgia, serif
-  :color #0b3e71
-  :margin 1em 0 0.5em 0
-  :border-bottom 1px solid #999
+  +headline(120%)
 
 ul,ol,p
   :margin 0.8em 0 0.8em 0
@@ -67,9 +80,7 @@ table
     &.even
       :background #EEF
     .header
-      :background-image url(static/images/table_bg.png)
-      :background-repeat no-repeat
-      :background-position center right
+      :background #CCC url(static/images/table_bg.png) no-repeat center right
       :cursor pointer
       :padding-right 1.5em
     .headerSortUp
@@ -157,7 +168,6 @@ a
   :float right
   :margin-top -1.5em
   :font-variant normal
-  :display block
   :width 100%
   :text-align right
 
@@ -171,21 +181,18 @@ hr
 
 #header
   :background #0B3E71
-  :background-image url(static/images/header_bg1.png)
-  :background-repeat repeat-x
-  :background-position top left
+  :background url(static/images/header_bg1.png) repeat-x top left
   :padding 5px
   :clear both
   :height 2.5em
   h1
+    +reset-box-model
     :border none
     :color #FFFFC2
     :font-family Georgia, serif
     :font-size 200%
     :font-variant small-caps
     :font-weight bold
-    :margin 0
-    :padding 0
     :float left
   #info
     :float right
@@ -202,11 +209,10 @@ hr
       :width 10em
       :padding 0.2em
       :padding-left 20px
-      :background-position 0.2em 0.2em
-      :background-repeat no-repeat
-      :background-image url(static/images/search.png)
+      :background #FFF url(static/images/search.png) no-repeat 0.2em 0.2em
 
-=menu-icon
+=menu-icon(!icon)
+  :background url(static/images/#{!icon}.png) no-repeat center center
   :float left
   :padding-left 16px
   :content "\00a0"
@@ -218,20 +224,14 @@ hr
   :border-bottom 1px solid #999
   :font-variant small-caps
   ul
-    :display block
-    :padding 0
-    :margin 0
+    +list-bar
     :height 1.7em
-    :list-style-type none
-    :list-style-image none
-    :float left
     &.wiki
       :float right
       :overflow hidden
     li
+      +reset-box-model
       :float left
-      :padding 0
-      :margin 0
       :height 1.7em
       :line-height 1.7em
       :border-right 1px solid #999
@@ -267,50 +267,32 @@ hr
         &.newer:after
           content: "\00a0\00bb"
         &.home:before
-          +menu-icon
-          :background url(static/images/home.png) no-repeat center center
+          +menu-icon("home")
         &.new:before
-          +menu-icon
-          :background url(static/images/new.png) no-repeat center center
+          +menu-icon("new")
         &.source:before
-          +menu-icon
-          :background url(static/images/source.png) no-repeat center center
+          +menu-icon("source")
         &.edit:before
-          +menu-icon
-          :background url(static/images/edit.png) no-repeat center center
+          +menu-icon("edit")
         &.history:before
-          +menu-icon
-          :background url(static/images/history.png) no-repeat center center
+          +menu-icon("history")
         &.archive:before
-          +menu-icon
-          :background url(static/images/archive.png) no-repeat center center
+          +menu-icon("archive")
 
 #container
-  :background-color #FFFFCD
-  :background-image url(static/images/container_bg.png)
-  :background-repeat repeat-y
-  :background-position top left
+  :background #FFFFCD url(static/images/container_bg.png) repeat-y top left
   #body
     :display block
     :overflow hidden
-    :margin 0
-    :padding 0
-    :background-image url(static/images/body_bg.png)
-    :background-repeat repeat-x
-    :background-position top left
+    :background url(static/images/body_bg.png) repeat-x top left
     #content
       :min-height 600px
       :padding 1em 3.5em
-      :display block
       :float left
       :width 70%
     #sidebar
-      :margin 0
-      :padding 0
       :width 155px
-      :display block
       :float left
-      :height 20em
       :font-variant small-caps
       h1, h2, h3, h4, h5, h6
         :font-size 140%
@@ -322,9 +304,8 @@ hr
         :border-bottom 1px solid #85AAFF
         :display block
       ul
-        :margin 0
-        :padding 0
-        :list-style-type none
+        +reset-box-model
+        :list-style none
         li
           :margin 0
           :border-bottom 1px solid #85AAFF
@@ -341,9 +322,7 @@ hr
 
   #footer
     :color #555
-    :background-image url(static/images/footer_bg.png)
-    :background-repeat repeat-x
-    :background-position top left
+    :background url(static/images/footer_bg.png) repeat-x top left
     :padding 2em 3em 0 3em
     :text-align right
     :line-height 2em
@@ -437,16 +416,13 @@ table input
   h1, h2, h3, h4, h5, h6
     :margin 0.2em 0
 
-.ui-tabs
-  .ui-tabs-hide
+.tabs
+  .tabs-hide
     :display none
   > ul
-    :display block
-    :padding 0
+    +list-bar
     :margin 0 0 1px 0
     :height 1.7em
-    :list-style-type none
-    :float left
     :width 100%
     > li
       :font-variant small-caps
@@ -458,7 +434,7 @@ table input
       :line-height 1.7em
       :border 1px solid #999
       :color #333
-      &.ui-tabs-selected > a
+      &.tabs-selected > a
         :background #FFF
         :border-bottom 1px solid #FFF
       > a
@@ -492,15 +468,13 @@ a[accesskey]:focus:after, a[accesskey]:hover:after
     :padding 0
   ul
     :margin 0
-    :list-style-type none
+    :list-style none
   .toc1 a, .toc1 .counter
     :font-weight bold
 
 body.timemachine
   #header
-    :background-image url(static/images/header_bg2.png)
-    :background-repeat repeat-x
-    :background-position top left
+    :background url(static/images/header_bg2.png) repeat-x top left
     h1.timemachine
       :font-style italic
       :margin-left 1em

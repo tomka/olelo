@@ -12,6 +12,13 @@ module Wiki
       attr_reader :plugins
       attr_accessor :dir, :logger
 
+      # Current loading plugin
+      def current
+        stack = Thread.current[:plugin]
+        raise RuntimeError, 'No plugin context' if !stack || !stack.last
+        stack.last
+      end
+
       # Start plugins
       def start
         @plugins.each_value {|plugin| plugin.start }
@@ -29,8 +36,8 @@ module Wiki
           begin
             name = file[(dir.size+1)..-4]
             if !@plugins.include?(name) && enabled?(name)
-              plugin = new(name, @logger)
-              plugin.instance_eval(File.read(file), file)
+              plugin = new(name, file, @logger)
+              plugin.context { plugin.instance_eval(File.read(file), file) }
               I18n.load_locale(file.sub(/\.rb$/, '_LANG.yml'))
               I18n.load_locale(File.join(File.dirname(file), 'locale', 'LANG.yml'))
               Templates.paths << File.dirname(file)
@@ -57,39 +64,31 @@ module Wiki
       end
     end
 
-    attr_reader :name, :logger, :started
+    attr_reader :name, :file, :logger, :started
 
-    def initialize(name, logger)
+    def initialize(name, file, logger)
       @name = name
+      @file = file
       @logger = logger
-      @setup = []
+      @setup = nil
       @started = false
     end
 
     # Add setup method
     def setup(&block)
-      @setup << block
+      @setup = block
     end
 
     # Start the plugin
     def start
       return true if @started
-      success = @setup.all? do |setup|
-        begin
-          self.instance_eval(&setup)
-          true
-        rescue Exception => ex
-          Plugin.logger.error ex
-          false
-        end
-      end
+      context { instance_eval(&@setup) } if @setup
+      Plugin.logger.info("Plugin #{name} successfully started")
       @started = true
-      if success
-        Plugin.logger.info("Plugin #{name} successfully started")
-      else
-        Plugin.logger.error("Plugin #{name} failed to start")
-      end
-      success
+    rescue Exception => ex
+      Plugin.logger.error ex
+      Plugin.logger.error("Plugin #{name} failed to start")
+      false
     end
 
     # Load specified plugins.
@@ -105,6 +104,13 @@ module Wiki
       list.each do |dep|
         raise(RuntimeError, "Could not load dependency #{dep} for #{name}") if !Plugin.load(dep)
       end
+    end
+
+    def context
+      Thread.current[:plugin] ||= []
+      Thread.current[:plugin] << self
+      yield
+      Thread.current[:plugin].pop
     end
 
     private_class_method :new

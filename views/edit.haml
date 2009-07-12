@@ -1,7 +1,7 @@
 - menu :new, :view, :history, :edit
 - title params[:pos] ? :edit_page_section.t(:page => @resource.pretty_name) : :edit_page.t(:page => @resource.pretty_name)
 = render_block(:edit_form) do
-  .ui-tabs
+  .tabs
     %ul
       %li{tab_selected(:edit)}
         %a{:href=>'#tab-edit'}= :edit.t

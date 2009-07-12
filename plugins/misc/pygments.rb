@@ -1,6 +1,6 @@
 require 'open3'
 
-module ::Pygments
+module Pygments
   PROGRAM = 'pygmentize'
   RUN_OPTIONS = '-O encoding=utf8 -O linenos=table -f html -l'
   LOOKUP_OPTIONS = '-L lexer'
@@ -58,4 +58,14 @@ module ::Pygments
   private_class_method :lexer_mapping, :find_lexer, :run
 end
 
-raise(RuntimeError, 'pygments is not installed') if !Pygments.installed?
+setup do
+  raise(RuntimeError, 'pygments is not installed') if !Pygments.installed?
+
+  class Wiki::App
+    add_hook(:after_head) do
+      '<link rel="stylesheet" href="/sys/misc/pygments.css" type="text/css"/>'
+    end
+
+    static_files 'pygments.css'
+  end
+end

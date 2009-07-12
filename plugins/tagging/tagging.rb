@@ -10,45 +10,45 @@ class Tagging
 
   def add(id, tag, author)
     write(:id_tagged_as.t(:id => id, :tag => tag), author) do |store|
-      (store['resources'][id] ||= []) << tag
-      (store['tags'][tag] ||= []) << id
-      store['resources'][id].uniq!
-      store['tags'][tag].uniq!
+      (store[id] ||= []) << tag
+      store[id].uniq!
       store
     end
   end
 
   def delete(id, tag, author)
     write(:tag_deleted.t(:tag => tag, :id => id), author) do |store|
-      (store['resources'][id] || []).delete(tag)
-      (store['tags'][tag] || []).delete(id)
-      store['resources'].delete(id) if store['resources'][id].blank?
-      store['tags'].delete(tag) if store['tags'][tag].blank?
+      store[id].delete(tag) if store[id]
+      store.delete(id) if store[id].blank?
       store
     end
   end
 
   def get(id)
-    read['resources'][id].to_a
+    read[id].to_a
   end
 
   def get_all
-    read['tags'].keys.sort
+    read.inject([]) do |result, (id, tags)|
+      result + tags
+    end.uniq.sort
   end
 
   def find_by_tag(tag)
-    read['tags'][tag].to_a.sort
+    result = []
+    read.each do |id, tags|
+      result << id if tags.include?(tag)
+    end.sort
+    result
   end
 
   private
 
   def read
     store = YAML.load(@store.content)
-    store['resources'] ||= {}
-    store['tags'] ||= {}
     store
   rescue
-    {'resources' => {}, 'tags' => {}}
+    {}
   end
 
   def write(msg, author, &block)

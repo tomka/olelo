@@ -10,13 +10,13 @@ class TC_Page < Test::Unit::TestCase
   def test_write
     page = Wiki::Page.new(@repo, 'test')
     assert page.new?
-    assert !page.saved?
+    assert page.modified?
     assert_nil page.content
     page.write('old content', "message1\ntext", 'Author1 <author1@localhorst>')
 
     assert_equal 'old content', page.content
     assert !page.new?
-    assert page.saved?
+    assert !page.modified?
 
     assert_equal "message1\ntext", page.commit.message
     assert_equal 'Author1', page.commit.author.name
@@ -24,7 +24,7 @@ class TC_Page < Test::Unit::TestCase
 
     page.content = 'new content'
     assert !page.new?
-    assert !page.saved?
+    assert page.modified?
     assert_equal 'new content', page.content
     page.write('new content', 'message2', 'Author2 <author2@localhorst>')
 

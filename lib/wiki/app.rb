@@ -38,7 +38,28 @@ module Wiki
       Plugin.load('*')
       Plugin.start
 
-      @logger.info self.class.dump_routes
+      @logger.debug self.class.dump_routes
+    end
+
+    class<< self
+      attr_reader :plugin_files
+
+      def static_files(*files)
+        if !@plugin_files
+          @plugin_files = {}
+          get "/sys/:file", :patterns => {:file => /.*/} do
+            if self.class.plugin_files[params[:file]]
+              content_type MimeMagic.by_extension(params[:file])
+              File.read(self.class.plugin_files[params[:file]])
+            else
+              pass
+            end
+          end
+        end
+        name = File.dirname(Plugin.current.name)
+        dir = File.dirname(Plugin.current.file)
+        files.each { |file| @plugin_files[name/file] = File.join(dir, file) }
+      end
     end
 
     # Executed before each request
@@ -157,7 +178,7 @@ module Wiki
         params[:path] = params[:style] + '.sass'
         show
       rescue Resource::NotFound
-        raise if !%w(screen print reset).include?(params[:style])
+        pass if !%w(screen print reset).include?(params[:style])
         # Fallback to default style
         cache_control :max_age => 120
         content_type 'text/css', :charset => 'utf-8'
@@ -304,40 +325,20 @@ module Wiki
       patterns.any? {|pattern| pattern =~ path }
     end
 
-    # Show page or tree
+    # Show resource
     def show
       cache_control :etag => params[:sha], :validate_only => true
       @resource = Resource.find!(@repo, params[:path], params[:sha])
+      cache_control :etag => @resource.latest_commit.sha, :last_modified => @resource.latest_commit.date
 
-      if @resource.tree?
-        root = Tree.find!(@repo, '/', params[:sha])
-        cache_control :etag => root.commit.sha, :last_modified => root.commit.date
-
-        @children = walk_tree(root, params[:path].to_s.cleanpath.split('/'), 0)
-        haml :tree
+      engine = Engine.find!(@resource, params[:output])
+      @content = engine.render(@resource, params)
+      if engine.layout?
+        haml :resource
       else
-        cache_control :etag => @resource.latest_commit.sha, :last_modified => @resource.latest_commit.date
-
-        engine = Engine.find!(@resource, params[:output])
-        @content = engine.render(@resource, params)
-        if engine.layout?
-          haml :page
-        else
-          content_type engine.mime(@resource).to_s
-          @content
-        end
+        content_type engine.mime(@resource).to_s
+        @content
       end
-    end
-
-    # Walk tree and return array with level counter
-    def walk_tree(tree, path, level)
-      result = []
-      tree.children.each do |child|
-        open = child.tree? && (child.path == path[0..level].join('/'))
-        result << [level, child, open]
-        result += walk_tree(child, path, level + 1) if open
-      end
-      result
     end
 
     # Boilerplate for new pages

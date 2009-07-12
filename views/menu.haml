@@ -34,6 +34,6 @@
   - if menu.include?(:history)
     %li
       %a.history{:href=>action_path(@resource, :history), :accesskey=>'h'}= :history.t
-  - if menu.include?(:archive)
+  - if menu.include?(:archive) && @resource.tree?
     %li
       %a.archive{:href=>action_path(@resource, :archive)}= :archive.t

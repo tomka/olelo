@@ -1,5 +1,4 @@
 // From http://nullstyle.com/2007/06/02/caching-time_ago_in_words/
-
 function timeAgo(from) {
     return timeDistance(new Date().getTime(), new Date(from * 1000)) + ' ago';
 }
@@ -48,8 +47,31 @@ function updateUploadPath() {
     }
 }
 
+(function($) {
+    $.extend($.fn, {
+	tabs: function() {
+	    links = $('ul:first > li > a', this);
+	    links.each(function() {
+		hash = this.href.match(/(#.*)$/);
+		this.tab = $(hash[1]);
+		this.tabLinks = links;
+		if ($(this).parent('li.tabs-selected').length == 0)
+		    this.tab.hide();
+	    });
+	    links.click(function() {
+		this.tabLinks.each(function() { this.tab.hide(); });
+		this.tabLinks.parent('li').removeClass('tabs-selected');
+		this.tab.show();
+		$(this).parent('li').addClass('tabs-selected');
+		return false;
+	    });
+	}
+    });
+})(jQuery);
+
 $(document).ready(function(){
-    $('.ui-tabs').tabs();
+    $('.tabs').tabs();
+
     $('table.sortable').tablesorter({widgets: ['zebra']});
     $('table.history').tablesorter({
         widgets: ['zebra'],

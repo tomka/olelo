@@ -152,19 +152,18 @@ module Wiki
               [/.*/, 'page', 'Page']
              ]
 
-    def tree_link(level, resource, open)
-      level += 1 if resource.page?
-      path = open ? resource_path(resource, :path => '..') : resource_path(resource)
-      html = %Q{<a style="padding-left: #{level * 16}px" href="#{path}" title="#{open ? :close.t : :open.t}">}
+    def tree_image(resource)
       if resource.page?
         mime = resource.mime.to_s
         img = TREE_IMAGES.find { |img| mime =~ img[0] }
-        html << image(img[1], :alt => img[2])
+        image(img[1], :alt => img[2])
       else
-        html << image(open ? :tree_open : :tree_closed, :alt => '') + image(:tree, :alt => 'Tree')
+        image(:tree, :alt => 'Tree')
       end
-      html << " #{resource.name}</a>"
-      html
+    end
+
+    def tree_link(resource)
+      %Q{<a href="#{resource_path resource}">#{tree_image resource} #{resource.pretty_name}</a>}
     end
 
     def date(t)
@@ -226,7 +225,7 @@ module Wiki
     end
 
     def tab_selected(action)
-      action?(action) ? {:class=>'ui-tabs-selected'} : {}
+      action?(action) ? {:class=>'tabs-selected'} : {}
     end
 
     def show_messages
