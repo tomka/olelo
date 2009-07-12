@@ -8,10 +8,12 @@
       %div
         %input{:type=>'hidden', :name=>'path', :value=>@resource.path}
         %input{:type=>'hidden', :name=>'_method', :value=>'delete'}
-        %button{:type=>'submit'}= image :delete
+        %button{:type=>'submit'}
+          %img{:src=>'/sys/tagging/delete.png', :alt=>:delete.t}
     |
   %form.inline.noprint{:method=>'post', :action=>'/tags/new'}
     %div
       %input{:type=>'hidden', :name=>'path', :value=>@resource.path}
       %input{:type=>'text', :name=>'tag'}
-      %button{:type=>'submit'}= image :add
+      %button{:type=>'submit'}
+        %img{:src=>'/sys/tagging/add.png', :alt=>:add.t}

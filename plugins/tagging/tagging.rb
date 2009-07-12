@@ -60,6 +60,8 @@ class Tagging
 end
 
 class Wiki::App
+  public_files 'add.png', 'delete.png'
+
   def tagging
     @tagging ||= Tagging.new(@repo)
   end

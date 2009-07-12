@@ -44,7 +44,7 @@ module Wiki
     class<< self
       attr_reader :plugin_files
 
-      def static_files(*files)
+      def public_files(*files)
         if !@plugin_files
           @plugin_files = {}
           get "/sys/:file", :patterns => {:file => /.*/} do

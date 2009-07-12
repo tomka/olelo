@@ -1,4 +1,4 @@
-%table.tree.zebra
+%table.zebra
   %thead
     %tr
       %th= :name.t
@@ -8,7 +8,10 @@
       %th= :actions.t
   %tbody
     %tr
-      %td.link{:colspan => 5}= %Q{<a href="#{resource_path(@tree, :path => '..')}">#{image(:tree, :alt => 'Tree')} ..</a>}
+      %td.link{:colspan => 5}
+        %a{:href=>resource_path(@tree, :path => '..')}
+          %img{:src=>'/static/images/tree.png', :alt=>:tree.t}
+          \..
     - @tree.children.each do |child|
       %tr
         %td.link= tree_link(child)
@@ -17,7 +20,10 @@
         %td= child.latest_commit.message.truncate(50)
         %td
           - if child.tree?
-            %a{:href=>action_path(child, :archive), :title => 'Archive'}= image(:archive, :alt => 'Archive')
+            %a{:href=>action_path(child, :archive)}
+              %img{:src=>'/static/images/archive.png', :alt=>:archive.t}
           - else
-            %a{:href=>action_path(child, :edit), :title => 'Edit'}= image(:edit, :alt => 'Edit')
-          %a{:href=>action_path(child, :history), :title => 'History'}= image(:history, :alt => 'History')
+            %a{:href=>action_path(child, :edit)}
+              %img{:src=>'/static/images/edit.png', :alt=>:edit.t}
+          %a{:href=>action_path(child, :history)}
+            %img{:src=>'/static/images/history.png', :alt=>:history.t}

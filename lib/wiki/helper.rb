@@ -156,9 +156,9 @@ module Wiki
       if resource.page?
         mime = resource.mime.to_s
         img = TREE_IMAGES.find { |img| mime =~ img[0] }
-        image(img[1], :alt => img[2])
+        %Q{<img src="/static/images/#{img[1]}.png" alt="#{img[2]}"/>}
       else
-        image(:tree, :alt => 'Tree')
+        %Q{<img src="/static/images/tree.png" alt="#{:tree.t}"/>}
       end
     end
 
@@ -203,25 +203,6 @@ module Wiki
     def action_path(path, action)
       path = path.path if path.respond_to? :path
       (path.to_s/action.to_s).urlpath
-    end
-
-    def static_path(name)
-      "/static/#{name}"
-    end
-
-    def script_path(name)
-      static_path "script/#{name}"
-    end
-
-    def image_path(name)
-      static_path "images/#{name}.png"
-    end
-
-    def image(name, opts = {})
-      opts[:alt] ||= ''
-      attrs = []
-      opts.each_pair {|key,value| attrs << %Q{#{key}="#{escape_html value}"} }
-      %Q{<img src="#{image_path name}" #{attrs.join(' ')}/>}
     end
 
     def tab_selected(action)

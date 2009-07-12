@@ -5,9 +5,9 @@
     %title= Wiki::Config.title + ' - ' + include_block(:title)
     %link{:rel => 'stylesheet', :href => '/screen.css', :type => 'text/css', :media => 'screen'}
     %link{:rel => 'stylesheet', :href => '/print.css',  :type => 'text/css', :media => 'print'}
-    %script{:src=> script_path('jquery.js'), :type=>'text/javascript'}
-    %script{:src=> script_path('jquery.tablesorter.js'), :type=>'text/javascript'}
-    %script{:src=> script_path('app.js'), :type=>'text/javascript'}
+    %script{:src=>'/static/script/jquery.js', :type=>'text/javascript'}
+    %script{:src=>'/static/script/jquery.tablesorter.js', :type=>'text/javascript'}
+    %script{:src=>'/static/script/app.js', :type=>'text/javascript'}
     = include_block :head
   - timemachine = @resource && !@resource.current?
   %body{timemachine ? {:class => 'timemachine'} : {}}

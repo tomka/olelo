@@ -2,11 +2,12 @@ class Wiki::App
 
 TREEVIEW_HEAD = %q{
 %link{:rel=>'stylesheet', :href=>'/sys/treeview.css', :type=>'text/css'}
+%script{:src=>'/sys/treeview/jquery.cookie.js', :type=>'text/javascript'}
 %script{:src=>'/sys/treeview/jquery.treeview.js', :type=>'text/javascript'}
 %script{:src=>'/sys/treeview/jquery.treeview.async.js', :type=>'text/javascript'}
 :javascript
   $(document).ready(function() {
-    $('#sidebar-treeview > ul').treeview({ url: '/sys/treeview.json' });
+    $('#treeview').treeview({ url: '/sys/treeview.json', persist: 'cookie' });
     $('#treeview-tabs').tabs();
   });
 }
@@ -20,7 +21,7 @@ TREEVIEW_SIDEBAR = %q{
       %a{:href=>'#sidebar-treeview'}= :tree.t
 #sidebar-treeview
   %h1 Tree
-  %ul
+  %ul#treeview
 }
 
   add_hook(:after_head) do
@@ -31,10 +32,11 @@ TREEVIEW_SIDEBAR = %q{
     haml TREEVIEW_SIDEBAR, :layout => false
   end
 
-  static_files 'jquery.treeview.js',
+  public_files 'jquery.cookie.js',
+               'jquery.treeview.js',
                'jquery.treeview.async.js',
-               'images/tree_open.png',
-               'images/tree_closed.png'
+               'tree_open.png',
+               'tree_closed.png'
 
   get '/sys/treeview.css' do
     content_type 'text/css', :charset => 'utf-8'
@@ -42,6 +44,7 @@ TREEVIEW_SIDEBAR = %q{
   end
 
   get '/sys/treeview.json' do
+    sleep 1
     params[:root] ||= 'source'
     content_type 'application/json', :charset => 'utf-8'
 

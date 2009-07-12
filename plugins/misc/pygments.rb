@@ -1,6 +1,6 @@
 require 'open3'
 
-module Pygments
+module ::Pygments
   PROGRAM = 'pygmentize'
   RUN_OPTIONS = '-O encoding=utf8 -O linenos=table -f html -l'
   LOOKUP_OPTIONS = '-L lexer'
@@ -66,6 +66,6 @@ setup do
       '<link rel="stylesheet" href="/sys/misc/pygments.css" type="text/css"/>'
     end
 
-    static_files 'pygments.css'
+    public_files 'pygments.css'
   end
 end

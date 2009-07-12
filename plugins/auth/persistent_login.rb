@@ -2,7 +2,7 @@ require 'pstore'
 
 class Wiki::App
   TOKEN_LENGTH = 64
-  TOKEN_LIFETIME = 24*60*60*30
+  TOKEN_LIFETIME = 24*60*60*365
   TOKEN_NAME = 'git_wiki_token'
 
   def login_tokens

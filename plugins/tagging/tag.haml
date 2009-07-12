@@ -8,11 +8,11 @@
         %input{:type=>'hidden', :name=>'_method', :value => 'delete'}
         %input{:type=>'hidden', :name=>'path', :value => path}
         %button{:type=>'submit'}
-          = image :delete
+          %img{:src=>'/sys/tagging/delete.png', :alt=>:delete.t}
   %li
     %form{:class=>'inline', :method=>'post', :action=> '/tags/new'}
       %div
         %input{:type=>'hidden', :name=>'tag', :value => @tag}
         %input{:type=>'text', :name=>'path'}
         %button{:type=>'submit'}
-          = image :add
+          %img{:src=>'/sys/tagging/add.png', :alt=>:add.t}

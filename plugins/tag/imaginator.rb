@@ -11,12 +11,14 @@ $imaginator = Imaginator.new("drbunix://#{Config.cache}/imaginator.sock", File.j
 end
 
 App.class_eval do
-  get '/sys/imaginator/:name', :patterns => {:name => '[\w\.]+'} do
+  public_files 'imaginator_failed.png'
+
+  get '/sys/tag/imaginator/:name', :patterns => {:name => '[\w\.]+'} do
     begin
       send_file $imaginator.result(params[:name])
     rescue Exception => ex
       @logger.error ex
-      redirect image_path('image_failed')
+      redirect '/sys/tag/imaginator_failed.png'
     end
   end
 end
@@ -26,7 +28,7 @@ def define_tag(type)
     raise(RuntimeError, "Limits exceeded") if content.size > 10240
     name = $imaginator.enqueue(type, content)
     alt = escape_html content.truncate(30).gsub(/\s+/, ' ')
-    "<img src=\"/sys/imaginator/#{name}\" alt=\"#{alt}\"/>"
+    "<img src=\"/sys/tag/imaginator/#{name}\" alt=\"#{alt}\"/>"
   end
 end
 
