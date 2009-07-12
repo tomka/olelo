@@ -20,7 +20,8 @@ module Wiki
       end
 
       def subcontext(params = {})
-        sub = Context.new(params.delete(:engine) || @engine, params.delete(:resource) || @resource, self)
+        sub = Context.new(params.delete(:engine) || @engine,
+                          params.delete(:resource) || params.delete(:page) || params.delete(:tree) || @resource, self)
         sub.merge!(params)
         sub
       end

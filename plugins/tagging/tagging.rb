@@ -46,7 +46,7 @@ class Tagging
 
   def read
     store = YAML.load(@store.content)
-    store
+    Hash === store ? store : {}
   rescue
     {}
   end
