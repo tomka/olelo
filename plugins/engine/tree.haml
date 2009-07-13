@@ -1,4 +1,4 @@
-%table.zebra
+%table.tree.zebra
   %thead
     %tr
       %th= :name.t
@@ -9,21 +9,24 @@
   %tbody
     %tr
       %td.link{:colspan => 5}
-        %a{:href=>resource_path(@tree, :path => '..')}
-          %img{:src=>'/static/images/tree.png', :alt=>:tree.t}
+        %a.tree{:href=>resource_path(@tree, :path => '..')}
           \..
     - @tree.children.each do |child|
+      - classes = child.tree? ? 'tree' : 'page'
+      - ext = child.mime.extensions.first
+      - classes << (ext ? " ext_#{ext}" : '')
       %tr
-        %td.link= tree_link(child)
+        %td.link
+          %a{:href=>resource_path(child), :class => classes}= child.pretty_name
         %td= date(child.latest_commit.date)
         %td= child.latest_commit.author.name
         %td= child.latest_commit.message.truncate(50)
         %td
           - if child.tree?
-            %a{:href=>action_path(child, :archive)}
-              %img{:src=>'/static/images/archive.png', :alt=>:archive.t}
+            %a.action-archive{:href=>action_path(child, :archive), :title => :archive.t}
+              %span= :archive.t
           - else
-            %a{:href=>action_path(child, :edit)}
-              %img{:src=>'/static/images/edit.png', :alt=>:edit.t}
-          %a{:href=>action_path(child, :history)}
-            %img{:src=>'/static/images/history.png', :alt=>:history.t}
+            %a.action-edit{:href=>action_path(child, :edit), :title => :edit.t}
+              %span= :edit.t
+          %a.action-history{:href=>action_path(child, :history), :title => :history.t}
+            %span= :history.t

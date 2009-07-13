@@ -2,15 +2,7 @@ class Wiki::App
 
 TREEVIEW_HEAD = %q{
 %link{:rel=>'stylesheet', :href=>'/sys/treeview.css', :type=>'text/css'}
-%script{:src=>'/sys/treeview/jquery.cookie.js', :type=>'text/javascript'}
-%script{:src=>'/sys/treeview/jquery.treeview.js', :type=>'text/javascript'}
-%script{:src=>'/sys/treeview/jquery.treeview.async.js', :type=>'text/javascript'}
-:javascript
-  $(document).ready(function() {
-    $('#treeview').treeview({ url: '/sys/treeview.json', persist: 'cookie' });
-    $('#treeview-tabs').tabs();
-  });
-}
+%script{:src=>'/sys/treeview/jquery.treeview.js', :type=>'text/javascript'}}
 
 TREEVIEW_SIDEBAR = %q{
 #treeview-tabs
@@ -21,7 +13,7 @@ TREEVIEW_SIDEBAR = %q{
       %a{:href=>'#sidebar-treeview'}= :tree.t
 #sidebar-treeview
   %h1 Tree
-  %ul#treeview
+  #treeview
 }
 
   add_hook(:after_head) do
@@ -32,11 +24,11 @@ TREEVIEW_SIDEBAR = %q{
     haml TREEVIEW_SIDEBAR, :layout => false
   end
 
-  public_files 'jquery.cookie.js',
-               'jquery.treeview.js',
-               'jquery.treeview.async.js',
+  public_files 'jquery.treeview.js',
                'tree_open.png',
-               'tree_closed.png'
+               'expanded.png',
+               'collapsed.png',
+               'spinner.gif'
 
   get '/sys/treeview.css' do
     content_type 'text/css', :charset => 'utf-8'
@@ -44,16 +36,17 @@ TREEVIEW_SIDEBAR = %q{
   end
 
   get '/sys/treeview.json' do
-    sleep 1
-    params[:root] ||= 'source'
     content_type 'application/json', :charset => 'utf-8'
 
-    params[:root] = '/' if params[:root] == 'source'
-    resource = Resource.find!(@repo, params[:root])
+    resource = Resource.find!(@repo, params[:dir])
     cache_control :etag => resource.latest_commit.sha, :last_modified => resource.latest_commit.date
-    '[' + resource.children.map do |child|
-      %Q{{'text':'#{tree_image child}<a href="#{resource_path child}">#{child.pretty_name}</a>',
-'id':'#{child.path.urlpath}','hasChildren':#{child.tree? && !child.children.empty?},'classes':'#{child.tree? ? 'tree' : 'page'}'}}
-    end.join(',') + ']'
+
+    result = '[';
+    result << resource.children.map do |child|
+      ext = child.mime.extensions.first
+      ext = ext ? " ext_#{ext}" : ''
+      "[#{child.tree? && !child.children.empty?},'#{child.tree? ? 'tree' : 'page' + ext}','#{resource_path child}','#{child.pretty_name}']"
+    end.join(',')
+    result << ']'
   end
 end

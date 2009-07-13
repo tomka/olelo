@@ -262,21 +262,21 @@ hr
           :background #0B3E71
         &:active
           :background #022763
-        &.older:before
+        &.action-older:before
           content: "\00ab\00a0"
-        &.newer:after
+        &.action-newer:after
           content: "\00a0\00bb"
-        &.home:before
+        &.action-home:before
           +menu-icon("home")
-        &.new:before
+        &.action-new:before
           +menu-icon("new")
-        &.source:before
+        &.action-source:before
           +menu-icon("source")
-        &.edit:before
+        &.action-edit:before
           +menu-icon("edit")
-        &.history:before
+        &.action-history:before
           +menu-icon("history")
-        &.archive:before
+        &.action-archive:before
           +menu-icon("archive")
 
 #container
@@ -339,11 +339,60 @@ pre
   :white-space pre
   :display block
 
-.history .sha
+table.history .sha
   :font-size 8pt
 
-.tree, .history
+table.tree, table.history
   :width 100%
+
+=action-icon(!icon)
+  :background url(static/images/#{!icon}.png) no-repeat center center
+  :width 16px
+  :height 16px
+  :display block
+  :float left
+  span
+    :display none
+
+=ext(!ext)
+  .ext_#{!ext}:before
+    :content url(static/images/ext/#{!ext}.png) "\00a0"
+
+table.tree
+  .action-archive
+    +action-icon("archive")
+  .action-edit
+    +action-icon("edit")
+  .action-history
+    +action-icon("history")
+  .page:before
+    :content url(static/images/page.png) "\00a0"
+  .tree:before
+    :content url(static/images/tree.png) "\00a0"
+  +ext("7z")
+  +ext("bz2")
+  +ext("doc")
+  +ext("flac")
+  +ext("gz")
+  +ext("html")
+  +ext("java")
+  +ext("jpg")
+  +ext("midi")
+  +ext("mp3")
+  +ext("ogg")
+  +ext("pdf")
+  +ext("php")
+  +ext("png")
+  +ext("ppt")
+  +ext("psd")
+  +ext("rar")
+  +ext("rb")
+  +ext("sh")
+  +ext("tar")
+  +ext("txt")
+  +ext("wma")
+  +ext("xls")
+  +ext("zip")
 
 .error
   :color #A00

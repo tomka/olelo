@@ -5,33 +5,75 @@
     &.tabs-selected
       :display none !important
 
+=ext(!ext)
+  .ext_#{!ext}
+    :background url(/static/images/ext/#{!ext}.png) no-repeat center center !important
+
 #treeview
+  +ext("7z")
+  +ext("bz2")
+  +ext("doc")
+  +ext("flac")
+  +ext("gz")
+  +ext("html")
+  +ext("java")
+  +ext("jpg")
+  +ext("midi")
+  +ext("mp3")
+  +ext("ogg")
+  +ext("pdf")
+  +ext("php")
+  +ext("png")
+  +ext("ppt")
+  +ext("psd")
+  +ext("rar")
+  +ext("rb")
+  +ext("sh")
+  +ext("tar")
+  +ext("txt")
+  +ext("wma")
+  +ext("xls")
+  +ext("zip")
   :padding 0
   :margin 0
   :width 200px
   :font-size 9pt
-  :list-style none
-  li
-    :border none !important
-  a, a:active, li
-    :font-variant normal
-    :text-indent 0 !important
-    :margin 0 !important
-    :padding 0 !important
-  a
-    :display inline !important
-  li li
-    :margin 0
-    :padding 0 1em !important
-  .page
-    :margin-left 16px
-  .collapsable-hitarea
-    :width 16px
-    :height 16px
-    :float left
-    :background url(treeview/tree_open.png) no-repeat center left
-  .expandable-hitarea
-    :width 16px
-    :height 16px
-    :float left
-    :background url(treeview/tree_closed.png) no-repeat center left
+  ul
+    :list-style none
+    :display block
+    :clear both
+    li
+      :border none !important
+      :text-indent 0 !important
+      :clear both
+      li
+        :margin 0
+        :padding 0 1em !important
+      a, a:active
+        :float left
+        :font-variant normal
+        :text-indent 0 !important
+        :margin 0 !important
+        :padding 0 !important
+      .hitarea, .placeholder
+        :width 32px
+        :height 16px
+        :float left
+        :cursor pointer
+        div
+          :width 16px
+          :height 16px
+          :float left
+    .wait .arrow
+      :background url(treeview/spinner.gif) no-repeat center center !important
+    .collapsed .arrow
+      :background url(treeview/collapsed.png) no-repeat center center
+    .expanded .arrow
+      :background url(treeview/expanded.png) no-repeat center center
+    .page
+      :background url(/static/images/page.png) no-repeat center center
+    .expanded .tree
+      :background url(treeview/tree_open.png) no-repeat center center
+    .collapsed .tree
+      :background url(/static/images/tree.png) no-repeat center center
+

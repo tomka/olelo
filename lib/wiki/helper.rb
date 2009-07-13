@@ -144,28 +144,6 @@ module Wiki
       html
     end
 
-    TREE_IMAGES = [
-              [/image\/.*/, 'image', 'Image'],
-              [/video\/.*/, 'video', 'Video'],
-              [/application\/pdf/, 'pdf', 'PDF'],
-              [/zip|compressed/, 'archive', 'Compressed File'],
-              [/.*/, 'page', 'Page']
-             ]
-
-    def tree_image(resource)
-      if resource.page?
-        mime = resource.mime.to_s
-        img = TREE_IMAGES.find { |img| mime =~ img[0] }
-        %Q{<img src="/static/images/#{img[1]}.png" alt="#{img[2]}"/>}
-      else
-        %Q{<img src="/static/images/tree.png" alt="#{:tree.t}"/>}
-      end
-    end
-
-    def tree_link(resource)
-      %Q{<a href="#{resource_path resource}">#{tree_image resource} #{resource.pretty_name}</a>}
-    end
-
     def date(t)
       %Q{<span class="date seconds_#{t.to_i}">#{t.strftime('%d %h %Y %H:%M')}</span>}
     end
