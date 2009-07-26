@@ -73,7 +73,8 @@ module Wiki
     end
 
     def self.find!(resource, name = nil)
-      find(resource, name) || raise(RuntimeError, :engine_not_available.t(name, resource.path, resource.mime))
+      find(resource, name) ||
+        raise(RuntimeError, :engine_not_available.t(:engine => name, :page => resource.path, :mime => resource.mime))
     end
 
     # Acceptor should return true if resource would be accepted by this engine

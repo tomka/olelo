@@ -2,6 +2,7 @@ require 'wiki/extensions'
 require 'haml'
 require 'sass'
 require 'yaml'
+require 'cgi'
 
 module Wiki
   class MultiError < StandardError
@@ -38,7 +39,7 @@ module Wiki
       def translate(key, args = {})
         args = args.with_indifferent_access
         if @locale[key]
-          @locale[key].gsub(/#\{(\w+)\}/) {|x| args[$1] || x }
+          @locale[key].gsub(/#\{(\w+)\}/) {|x| args.include?($1) ? args[$1].to_s : x }
         else
           "##{key}"
         end

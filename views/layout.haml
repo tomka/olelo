@@ -28,7 +28,7 @@
         #sidebar
           = render_block :sidebar do
             #sidebar-menu
-              %esi:include{:src=>'/sys/sidebar'}/
+              %esi:include{:src=>'/sys/sidebar', :onerror => 'continue'}/
         #content
           = render_block :content do
             %h1= include_block :title

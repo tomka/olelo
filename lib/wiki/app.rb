@@ -109,7 +109,7 @@ module Wiki
           cache_control :max_age => 120
           engine.render(page)
         else
-          "<span class=\"error\">#{:no_engine_found.t(page.name)}</span>"
+          "<span class=\"error\">#{:no_engine_found.t(:page => page.name)}</span>"
         end
       else
         "<a href=\"/#{:sidebar.t}/new\">#{:create_sidebar.t}</a>"

@@ -1,6 +1,7 @@
 require 'wiki/extensions'
 require 'wiki/utils'
 require 'mimemagic'
+require 'cgi'
 
 module Wiki
   # Wiki helper methods which are mainly used in the views
