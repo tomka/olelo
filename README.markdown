@@ -78,7 +78,7 @@ Optional Dependencies
 - [Pygments][] for syntax highlighting
 - [imaginator][] for LaTeX/graphviz output (minad-imaginator gem from github)
 - [hpricot][] for tags in the wikitext
-- [RMagick][] for image scaling and svg rendering
+- [RMagick][] for image scaling and svg rendering. RMagick is a ruby binding to the ImageMagick library. ImageMagick has to be installed.
 
 Dependencies for page rendering
 -------------------------------
