@@ -112,13 +112,23 @@ module Wiki
 
     module InstanceMethods
       def invoke_hook(type, *args)
-        self.class.invoke_hook(self, type, *args)
+        if block_given?
+          result = []
+          begin
+            result += self.class.invoke_hook(self, :"before_#{type}", *args) << yield
+          ensure
+            result += self.class.invoke_hook(self, :"after_#{type}", *args)
+          end
+          result
+        else
+          self.class.invoke_hook(self, type, *args)
+        end
       end
 
-      def content_hook(type, *args)
-        invoke_hook(type, *args).map(&:to_s).join
+      def content_hook(type, *args, &block)
+        invoke_hook(type, *args, &block).map(&:to_s).join
       rescue => ex
-        "<span class=\"error\">#{escape_html ex.message}</span>"
+        "<span class=\"error\">#{ex.message}</span>"
       end
     end
 

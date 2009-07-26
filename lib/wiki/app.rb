@@ -261,22 +261,23 @@ module Wiki
       begin
         forbid(:version_conflict.t => @resource.commit.sha != params[:sha]) # TODO: Implement conflict diffs
         if action?(:upload) && params[:file]
-          invoke_hook :before_page_save, @resource
-          @resource.write(params[:file][:tempfile], :file_uploaded.t, @user.author)
+          invoke_hook :page_save, @resource do
+            @resource.write(params[:file][:tempfile], :file_uploaded.t, @user.author)
+          end
         elsif action?(:edit) && params[:content]
-          invoke_hook :before_page_save, @resource
-          content = if params[:pos]
-                      pos = [[0, params[:pos].to_i].max, @resource.content.size].min
-                      len = [0, params[:len].to_i].max
-                      @resource.content(0, pos) + params[:content] + @resource.content(pos + len, @resource.content.size)
-                    else
-                      params[:content]
-                    end
-          @resource.write(content, params[:message], @user.author)
+          invoke_hook :page_save, @resource do
+            content = if params[:pos]
+                        pos = [[0, params[:pos].to_i].max, @resource.content.size].min
+                        len = [0, params[:len].to_i].max
+                        @resource.content(0, pos) + params[:content] + @resource.content(pos + len, @resource.content.size)
+                      else
+                        params[:content]
+                      end
+            @resource.write(content, params[:message], @user.author)
+          end
         else
           redirect((@resource.path/'edit').urlpath)
         end
-        invoke_hook :page_saved, @resource
         redirect @resource.path.urlpath
       rescue StandardError => error
         message :error, error
@@ -290,15 +291,16 @@ module Wiki
         pass if name_clash?(params[:path])
         @resource = Page.new(@repo, params[:path])
         if action?(:upload) && params[:file]
-          invoke_hook :before_page_save, @resource
-          @resource.write(params[:file][:tempfile], "File #{@resource.path} uploaded", @user.author)
+          invoke_hook :page_save, @resource do
+            @resource.write(params[:file][:tempfile], "File #{@resource.path} uploaded", @user.author)
+          end
         elsif action?(:new)
-          invoke_hook :before_page_save, @resource
-          @resource.write(params[:content], params[:message], @user.author)
+          invoke_hook :page_save, @resource do
+            @resource.write(params[:content], params[:message], @user.author)
+          end
         else
           redirect '/new'
         end
-        invoke_hook :page_saved, @resource
         redirect @resource.path.urlpath
       rescue StandardError => error
         message :error, error

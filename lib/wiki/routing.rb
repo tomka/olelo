@@ -123,12 +123,8 @@ module Wiki
               end
             @params = @original_params.merge(params)
             catch(:pass) do
-              begin
-                invoke_hook(:before_action, name)
-                result = method.arity == 0 ? method.bind(self).call : method.bind(self).call(*values)
-                halt(result)
-              ensure
-                invoke_hook(:after_action, name)
+              invoke_hook(:action, name) do
+                halt(method.arity == 0 ? method.bind(self).call : method.bind(self).call(*values))
               end
             end
           end
@@ -157,15 +153,11 @@ module Wiki
         @patterns.merge!(patterns)
       end
 
-      def get(*paths, &block)
-        add_route 'GET', paths, &block
-        add_route 'HEAD', paths, &block
-      end
-
-      def put(*paths, &block);    add_route 'PUT',    paths, &block end
-      def post(*paths, &block);   add_route 'POST',   paths, &block end
-      def delete(*paths, &block); add_route 'DELETE', paths, &block end
-      def head(*paths, &block);   add_route 'HEAD',   paths, &block end
+      def get(*paths, &block);    add_route(['GET', 'HEAD'], paths, &block) end
+      def put(*paths, &block);    add_route('PUT',    paths, &block) end
+      def post(*paths, &block);   add_route('POST',   paths, &block) end
+      def delete(*paths, &block); add_route('DELETE', paths, &block) end
+      def head(*paths, &block);   add_route('HEAD',   paths, &block) end
 
       def dump_routes
         s = "=== ROUTES ===\n"
@@ -199,14 +191,18 @@ module Wiki
         end
       end
 
-      def add_route(method, paths, opts={}, &block)
+      def add_route(methods, paths, opts={}, &block)
         opts = paths.last.is_a?(Hash) ? paths.pop : {}
         paths.each do |path|
           patterns = opts[:patterns] ? self.patterns.merge(opts[:patterns]) : self.patterns
           path, pattern, keys = compile_route(path, patterns)
-          define_method "#{method} #{path}", &block
-          routes[method] ||= []
-          (routes[method] << [path, pattern, keys, instance_method("#{method} #{path}")]).last
+          define_method("route #{path}", &block)
+          method = instance_method("route #{path}")
+          [methods].flatten.each do |m|
+            routes[m] ||= []
+            (routes[m] << [path, pattern, keys, method]).last
+            routes[m].uniq!
+          end
         end
       end
 

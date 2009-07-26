@@ -22,19 +22,16 @@ module Wiki
     end
 
     def include_block(name)
-      content_hook(:"before_#{name}") +
-        blocks[name] +
-        content_hook(:"after_#{name}")
+      content_hook(name) { blocks[name] }
     end
 
     def render_block(name, &block)
-      define_block(name, nil, &block)
-      include_block(name)
+      content_hook(name) { capture_haml(&block) }
     end
 
     def footnote(content = nil, &block); define_block(:footnote, content, &block); end
-    def head(content = nil, &block);   define_block(:head, content, &block);   end
-    def title(content = nil, &block);  define_block(:title, content, &block);  end
+    def head(content = nil, &block);     define_block(:head, content, &block);     end
+    def title(content = nil, &block);    define_block(:title, content, &block);    end
 
     def menu(*menu)
       define_block :menu, haml(:menu, :layout => false, :locals => { :menu => menu })
