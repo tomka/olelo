@@ -112,7 +112,7 @@ module Wiki
           "<span class=\"error\">#{:no_engine_found.t(page.name)}</span>"
         end
       else
-        "<a href=\"/#{page.name}/new\">#{:create_sidebar.t}</a>"
+        "<a href=\"/#{:sidebar.t}/new\">#{:create_sidebar.t}</a>"
       end
     end
 
