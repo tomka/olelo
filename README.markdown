@@ -1,9 +1,9 @@
 README
 ======
 
-Git-Wiki is a a wiki that stores pages in a git repository.
+Git-Wiki is a wiki that stores pages in a [Git][] repository.
 
-Demo installation at <http://git-wiki.kicks-ass.org/>
+See the demo installation at <http://git-wiki.kicks-ass.org/>.
 
 Features
 --------
@@ -26,7 +26,7 @@ A lot of the features are implemented as plugins.
 Installation
 ------------
 
-At first you have to install the gem dependencies via "gem".
+First, you have to install the [Gem][] dependencies via `gem`:
 
     gem sources -a http://gems.github.org/
     gem install minad-creole
@@ -38,7 +38,12 @@ At first you have to install the gem dependencies via "gem".
     gem install thin
     gem install rack
 
-Optional:
+### Optional:
+
+__Note:__
+The (large!) ImageMagick package must be installed first,
+in order for the `rmagick` Gem to build.
+
     gem install hpricot
     gem install rdiscount
     gem install RedCloth
@@ -48,54 +53,69 @@ Optional:
     gem install minad-imaginator
     gem install minad-evaluator
 
-Then run with `./run.ru -sthin -p4567` and. point your browser at <http://localhost:4567>.
-It automatically creates a repository in the directory '.wiki'. If you use ruby 1.9 it is very important
-that you set the environment variable LANG to a UTF-8 locale. Otherwise you might get encoding exceptions.
+Then, run the program using the command:
 
-For production purposes I recommend to deploy the wiki with thin and apache/nginx balancing.
+    ./run.ru -sthin -p4567
 
-    # Create thin config
+Point your web browser at <http://localhost:4567>.
+
+### Notes:
+
+Git-Wiki automatically creates a repository in the directory `./.wiki`.
+
+If you use Ruby 1.9, it is very important that you set the environment
+variable LANG to a UTF-8 locale. Otherwise, you might get encoding exceptions.
+
+For production purposes, I recommend that you deploy the wiki
+with Thin and Apache/nginx load balancing.
+
+    # Create Thin config
     thin config -C thin.yml -s 3 -p 5000 -R run.ru -e deployment -d
 
     # Useful if you have multiple installations
     # export WIKI_CONFIG=/srv/wiki/config.yml
 
-    # Start thin servers
+    # Start Thin servers
     export LANG=en_US.UTF-8
     thin start -C thin.yml
 
 Dependencies
 ------------
 
-- [ruby-git][]
 - [HAML][]
+- [ruby-git][]
 - [RubyPants][]
 
-Optional Dependencies
----------------------
+### Optional Dependencies
 
-- [RubyPants][] to fix puncation
-- [Pygments][] for syntax highlighting
-- [imaginator][] for LaTeX/graphviz output (minad-imaginator gem from github)
 - [hpricot][] for tags in the wikitext
-- [RMagick][] for image scaling and svg rendering. RMagick is a ruby binding to the ImageMagick library. ImageMagick has to be installed.
+- [imaginator][] for [LaTeX][]/[GraphViz][] output
+  (`minad-imaginator` Gem from [GitHub][])
+- [Pygments][] for syntax highlighting
+- [RMagick][] for image scaling and svg rendering
+- [RubyPants][] to fix punctuation
 
-Dependencies for page rendering
--------------------------------
+### Dependencies for page rendering
 
-- [creole][] for creole wikitext rendering (minad-creole gem from github)
-- [RDiscount][] for markdown rendering
-- [RedCloth][] for textile rendering
+At least one of these renderers should be installed:
 
-At least one of the renderers should be installed.
+- [creole][] for creole wikitext rendering
+  (`minad-creole` Gem from [GitHub][])
+- [RDiscount][] for Markdown rendering
+- [RedCloth][] for Textile rendering
 
-  [ruby-git]: http://github.com/schacon/ruby-git
-  [HAML]: http://haml.hamptoncatlin.com
-  [RDiscount]: http://github.com/rtomayko/rdiscount
-  [RedCloth]: http://whytheluckystiff.net/ruby/redcloth/
-  [RubyPants]: http://chneukirchen.org/blog/static/projects/rubypants.html
-  [creole]: http://github.com/minad/creole
-  [imaginator]: http://github.com/minad/imaginator
-  [pygments]: http://pygments.org/
-  [hpricot]: http://wiki.github.com/why/hpricot
-  [RMagick]: http://rmagick.rubyforge.org/
+[creole]:http://github.com/minad/creole
+[Gem]:http://rubygems.org
+[Git]:http://www.git-scm.org
+[GitHub]:http://github.com
+[GraphViz]:http://www.graphviz.org
+[HAML]:http://haml.hamptoncatlin.com
+[hpricot]:http://wiki.github.com/why/hpricot
+[imaginator]:http://github.com/minad/imaginator
+[LaTeX]:www.latex-project.org
+[pygments]:http://pygments.org/
+[RDiscount]:http://github.com/rtomayko/rdiscount
+[RedCloth]:http://whytheluckystiff.net/ruby/redcloth/
+[RMagick]:http://rmagick.rubyforge.org/
+[ruby-git]:http://github.com/schacon/ruby-git
+[RubyPants]:http://chneukirchen.org/blog/static/projects/rubypants.html
