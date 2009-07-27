@@ -1,16 +1,8 @@
-require 'rack'
+require 'rack/patched_request'
 require 'wiki/utils'
 
 module Wiki
   module Routing
-    class Request < Rack::Request
-      def params
-        self.GET.update(self.POST)
-      rescue EOFError => ex
-        self.GET
-      end
-    end
-
     class NotFound < NameError
       def status; 404 end
     end
@@ -32,7 +24,7 @@ module Wiki
 
       def call!(env)
         @env      = env
-        @request  = Request.new(env)
+        @request  = Rack::Request.new(env)
         @response = Rack::Response.new
         @params = @original_params = @request.params.with_indifferent_access
         catch(:forward) do

@@ -18,6 +18,8 @@ module Wiki
   end
 
   class BlockFile < ::File
+    alias to_path path
+
     def each
       rewind
       while part = read(8192)

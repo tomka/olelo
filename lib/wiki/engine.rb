@@ -91,7 +91,9 @@ module Wiki
     def render(resource, params = {})
       context = Context.new(self, resource, params)
       if Config.production?
-        Cache.cache('engine', context.id, :disable => resource.modified? || !cacheable?) { output(context) }
+        Cache.cache('engine', context.id,
+                    :disable => resource.modified? || !cacheable?,
+                    :update => params.key?('purge')) { output(context) }
       else
         output(context)
       end

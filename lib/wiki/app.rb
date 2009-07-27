@@ -48,9 +48,9 @@ module Wiki
         if !@plugin_files
           @plugin_files = {}
           get "/sys/:file", :patterns => {:file => /.*/} do
-            if self.class.plugin_files[params[:file]]
-              content_type MimeMagic.by_extension(params[:file])
-              File.read(self.class.plugin_files[params[:file]])
+            if path = self.class.plugin_files[params[:file]]
+              cache_control :last_modified => File.mtime(path), :static => true
+              send_file path
             else
               pass
             end
