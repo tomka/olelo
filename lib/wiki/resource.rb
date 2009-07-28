@@ -224,7 +224,7 @@ module Wiki
 
     # Get metadata
     def metadata
-      if content =~ /^---\r?\n/
+      if mime.text? && content =~ /^---\r?\n/
         YAML.load(content + "\n").with_indifferent_access rescue nil
       end ||
       if path !~ /metadata$/
