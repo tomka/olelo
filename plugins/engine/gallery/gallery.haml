@@ -5,7 +5,7 @@
       :float right
       #slideshow
         :width 510px
-        :display block
+        :clear both
         img
           :background #FFF
           :border 1px solid #999
@@ -46,13 +46,16 @@
         :margin 0
         :padding 0
         li
-          :float left
+          a.first
+            :clear left
           a
+            :float left
             :display block
             :margin 5px 10px 5px 0
             :padding 3px
             :background #FFF
             :border 1px solid #999
+            :width 100px
     .pagination
       :clear both
       :float left
@@ -70,12 +73,14 @@
         :color #FFF
 #thumbs
   %ul.thumbs
-    = list_of(@images) do |image|
-      - thumb_path = resource_path(image, :output => 'image', :geometry => '100x')
-      - image_path = resource_path(image, :output => 'image', :geometry => '500x')
-      %a.thumb{:href=>image_path}
-        %img{:src=>thumb_path, :alt=>image.pretty_name, :width=>100}
-      .caption= image.pretty_name
+    - @images.each_with_index do |image, i|
+      %li
+        - thumb_path = resource_path(image, :output => 'image', :geometry => '100x>')
+        - image_path = resource_path(image, :output => 'image', :geometry => '500x>')
+        %a.thumb{:href=>image_path, :class=> i % 3 == 0 ? 'first' : nil}
+          %img{:src=>thumb_path, :alt=>image.pretty_name}
+        .caption
+          %a{:href=>resource_path(image)}= image.pretty_name
 #gallery
   #controls
   #loading
