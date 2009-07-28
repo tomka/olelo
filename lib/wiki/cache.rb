@@ -1,4 +1,5 @@
 require 'wiki/utils'
+require 'wiki/config'
 
 module Wiki
 
@@ -15,7 +16,7 @@ module Wiki
 
     # Simple string caching
     def cache(bucket, key, opts = {}, &block)
-      return yield if opts[:disable]
+      return yield if opts[:disable] || !Config.production?
       return read(bucket, key) if exist?(bucket, key) && !opts[:update]
       content = yield
       write(bucket, key, content)

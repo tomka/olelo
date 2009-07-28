@@ -70,6 +70,10 @@ module Wiki
       raise NotFound
     end
 
+    def no_cache?
+      env['HTTP_PRAGMA'] == 'no-cache' || env['HTTP_CACHE_CONTROL'].to_s.include?('no-cache')
+    end
+
     # Cache control for resource
     def cache_control(opts)
       return if !Config.production?

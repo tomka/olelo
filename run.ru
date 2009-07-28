@@ -96,13 +96,11 @@ use Rack::ESI, :no_cache => true
 use Rack::CommonLogger, logger
 
 if env == 'deployment' || env == 'production'
-  require 'rack/capabilities'
   require 'rack/cache'
-  require 'rack/cache/purge'
-  use Rack::Capabilities
-  use Rack::Cache::Purge
+  require 'rack/purge'
+  use Rack::Purge
   use Rack::Cache,
-    :verbose     => false,
+    :verbose     => true,
     :metastore   => "file:#{::File.join(Wiki::Config.cache, 'rack', 'meta')}",
     :entitystore => "file:#{::File.join(Wiki::Config.cache, 'rack', 'entity')}"
   Wiki::Config.production = true

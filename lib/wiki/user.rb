@@ -5,7 +5,7 @@ module Wiki
   class User
     attr_reader :name
     attr_accessor :email
-    question_accessor :anonymous
+    question_reader :anonymous
 
     def initialize(name, email, anonymous)
       @name = name

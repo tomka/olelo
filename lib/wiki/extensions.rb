@@ -1,6 +1,6 @@
 class Module
   # Generate accessor method with question mark
-  def question_accessor(*names)
+  def question_reader(*names)
     names.each do |a|
       module_eval %{ def #{a}?; !!@#{a}; end }
     end

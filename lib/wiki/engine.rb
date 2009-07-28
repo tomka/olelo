@@ -41,7 +41,7 @@ module Wiki
     end
 
     attr_reader :name, :priority
-    question_accessor :layout, :cacheable
+    question_reader :layout, :cacheable
 
     # Create engine class. This is sugar to create and
     # register an engine class in one step.
@@ -87,15 +87,11 @@ module Wiki
 
     # Render resource with caching. This is
     # the primary engine interface
-    def render(resource, params = {})
+    def render(resource, params = {}, update = false)
       context = Context.new(self, resource, params)
-      if Config.production?
-        Cache.cache('engine', context.id,
-                    :disable => resource.modified? || !cacheable?,
-                    :update => params.key?('purge')) { output(context) }
-      else
-        output(context)
-      end
+      Cache.cache('engine', context.id,
+                  :disable => resource.modified? || !cacheable?,
+                  :update => update) { output(context) }
     end
   end
 

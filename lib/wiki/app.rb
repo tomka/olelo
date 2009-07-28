@@ -107,7 +107,7 @@ module Wiki
         if engine.layout?
           #cache_control :etag => page.commit.sha, :last_modified => page.latest_commit.date
           cache_control :max_age => 120
-          engine.render(page)
+          engine.render(page, {}, no_cache?)
         else
           "<span class=\"error\">#{:no_engine_found.t(:page => page.name)}</span>"
         end
@@ -334,7 +334,7 @@ module Wiki
       cache_control :etag => @resource.latest_commit.sha, :last_modified => @resource.latest_commit.date
 
       engine = Engine.find!(@resource, params[:output])
-      @content = engine.render(@resource, params)
+      @content = engine.render(@resource, params, no_cache?)
       if engine.layout?
         haml :resource
       else
