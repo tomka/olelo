@@ -1,0 +1,83 @@
+%script{:src=>'/sys/engine/gallery/jquery.galleriffic.js', :type=>'text/javascript'}
+%style{:type=>'text/css'}
+  :sass
+    #gallery
+      :float right
+      #slideshow
+        :width 510px
+        :display block
+        img
+          :background #FFF
+          :border 1px solid #999
+          :padding 3px
+          :margin 5px 0
+      #caption
+        :display block
+        :border 1px solid #999
+        :padding 3px
+        :width 500px
+        :background #CCC
+      #controls
+        :display block
+        :clear both
+        a
+          :float left
+          :border 1px solid #999
+          :background #FFF
+          :padding 3px 5px
+          :margin-right 3px
+          :color #333
+        a:hover
+          :background #333
+          :color #FFF
+        .ss-controls
+          :float left
+        .nav-controls
+          :float right
+    #thumbs
+      :float left
+      :clear both
+      ul.thumbs
+        :display block
+        :clear both
+        :float left
+        :list-style-type none
+        :width 360px
+        :margin 0
+        :padding 0
+        li
+          :float left
+          a
+            :display block
+            :margin 5px 10px 5px 0
+            :padding 3px
+            :background #FFF
+            :border 1px solid #999
+    .pagination
+      :clear both
+      :float left
+      :margin 0
+      span, a
+        :float left
+        :display block
+        :border 1px solid #999
+        :background #FFF
+        :padding 3px 5px
+        :margin-right 3px
+        :color #333
+      span, a:hover
+        :background #333
+        :color #FFF
+#thumbs
+  %ul.thumbs
+    = list_of(@images) do |image|
+      - thumb_path = resource_path(image, :output => 'image', :geometry => '100x')
+      - image_path = resource_path(image, :output => 'image', :geometry => '500x')
+      %a.thumb{:href=>image_path}
+        %img{:src=>thumb_path, :alt=>image.pretty_name, :width=>100}
+      .caption= image.pretty_name
+#gallery
+  #controls
+  #loading
+  #slideshow
+  #caption
