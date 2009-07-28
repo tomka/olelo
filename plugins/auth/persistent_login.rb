@@ -11,7 +11,7 @@ class Wiki::App
 
   def get_login_token(token)
     login_tokens.transaction(true) do |store|
-      store[token] ? store[token][0] : nil
+      store[token][0] if store[token]
     end
   end
 

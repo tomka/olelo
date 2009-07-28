@@ -2,7 +2,7 @@ depends_on 'filter/tag'
 
 class Wiki::App
   add_hook(:before_content) do
-    @resource && params[:redirect] ? "<em>&#8594; Redirected from <a href=\"#{action_path(params[:redirect], :edit)}\">#{params[:redirect].cleanpath}</a></em>" : nil
+    "<em>&#8594; Redirected from <a href=\"#{action_path(params[:redirect], :edit)}\">#{params[:redirect].cleanpath}</a></em>" if @resource && params[:redirect]
   end
 end
 

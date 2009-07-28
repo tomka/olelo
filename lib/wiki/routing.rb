@@ -167,8 +167,7 @@ module Wiki
         if path.respond_to? :to_str
           pattern =
             Regexp.escape(path).gsub(/:(\w+)|\\\?/) do |match|
-            case match
-            when '\?'
+            if match == '\?'
               '?'
             else
               keys << $1
@@ -191,8 +190,7 @@ module Wiki
           define_method("route #{path}", &block)
           method = instance_method("route #{path}")
           [methods].flatten.each do |m|
-            routes[m] ||= []
-            (routes[m] << [path, pattern, keys, method]).last
+            ((routes[m] ||= []) << [path, pattern, keys, method]).last
             routes[m].uniq!
           end
         end

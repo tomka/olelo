@@ -44,7 +44,7 @@ module Rack
 
     def relative(mw, pos)
       index = list.index(mw)
-      index ? list[index + pos] : nil
+      list[index + pos] if index
     end
 
   end

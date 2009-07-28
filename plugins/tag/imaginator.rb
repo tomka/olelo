@@ -40,6 +40,7 @@ define_tag :circo
 define_tag :fdp
 
 Filter.create :math do |content|
-  content.gsub!(/\$\$(.*?)\$\$/, '<math>\1</math>')
+  content.gsub!(/\$\$(.*?)\$\$/m, '<math>\1</math>')
+  content.gsub!(/\\\((.*?)\\\)/m, '<math>\1</math>')
   content
 end

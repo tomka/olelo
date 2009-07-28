@@ -162,7 +162,7 @@ module Wiki
     end
 
     def resource_path(resource, opts = {})
-      sha = opts.delete(:sha) || (resource && !resource.current? ? resource.commit : nil) || ''
+      sha = opts.delete(:sha) || (resource.commit if resource && !resource.current?) || ''
       sha = sha.sha if sha.respond_to?(:sha)
       if path = opts.delete(:path)
         if !path.begins_with? '/'

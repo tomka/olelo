@@ -59,17 +59,16 @@ module Wiki
     # Find appropiate engine for resource. An optional
     # name can be given to claim a specific engine.
     def self.find(resource, name = nil)
-      name = name.to_s
+      name ||= resource.metadata[:engine]
 
-      engine = if name.blank?
+      engine = if !name
         @engines.values.sort {|a,b| a.priority <=> b.priority }.find { |e| e.accepts? resource }
       else
-        e = @engines[name]
-        e && e.accepts?(resource) ? e : nil
+        e = @engines[name.to_s]
+        e if e && e.accepts?(resource)
       end
 
-      return engine.dup if engine
-      nil
+      engine.dup if engine
     end
 
     def self.find!(resource, name = nil)

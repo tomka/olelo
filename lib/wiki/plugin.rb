@@ -107,8 +107,7 @@ module Wiki
     end
 
     def context
-      Thread.current[:plugin] ||= []
-      Thread.current[:plugin] << self
+      (Thread.current[:plugin] ||= []) << self
       yield
       Thread.current[:plugin].pop
     end

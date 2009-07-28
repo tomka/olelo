@@ -12,7 +12,7 @@ User.define_service(:yamlfile) do
   def find(name)
     @store.transaction(true) do |store|
       user = store[name]
-      user ? User.new(name, user['email'], false) : nil
+      User.new(name, user['email'], false) if user
     end
   end
 

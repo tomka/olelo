@@ -4,6 +4,7 @@ require 'wiki/utils'
 require 'wiki/extensions'
 require 'wiki/config'
 require 'mimemagic'
+require 'yaml'
 
 module Wiki
   PATH_PATTERN = '[\w:.+\-_\/](?:[\w:.+\-_\/ ]*[\w.+\-_\/])?'
@@ -92,7 +93,7 @@ module Wiki
     # Next commit was changed
     def next_commit
       h = history
-      h.each_index { |i| return (i == 0 ? nil : h[i - 1]) if h[i].date <= @commit.date }
+      h.each_index { |i| return (h[i - 1] if i != 0) if h[i].date <= @commit.date }
       h.last # FIXME. Does not work correctly if history is too short
     end
 
@@ -102,8 +103,8 @@ module Wiki
 
     # Resource name
     def name
-      return $1 if path =~ /\/([^\/]+)$/
-      path
+      path =~ %r{/?([^/]+)$}
+      $1
     end
 
     # Pretty formatted resource name
@@ -159,7 +160,7 @@ module Wiki
     # Find page by path and commit sha
     def self.find(repo, path, sha = nil)
       resource = super
-      resource && resource.page? ? resource : nil
+      resource if resource && resource.page?
     end
 
     # Set page content for preview
@@ -220,6 +221,18 @@ module Wiki
         (Config.mime.magic && MimeMagic.by_magic(content)) ||
         MimeMagic.new(Config.mime.default)
     end
+
+    # Get metadata
+    def metadata
+      if content =~ /^---\r?\n/
+        YAML.load(content + "\n").with_indifferent_access rescue nil
+      end ||
+      if path !~ /metadata$/
+        page = Page.find(@repo, path + '.metadata')
+        page ? page.metadata : {}
+      end ||
+      {}
+    end
   end
 
   # Tree resource in repository
@@ -235,7 +248,7 @@ module Wiki
     # Find tree by path and optional commit sha
     def self.find(repo, path, sha = nil)
       resource = super
-      resource && resource.tree? ? resource : nil
+      resource if resource && resource.tree?
     end
 
     # Get child pages
@@ -263,8 +276,15 @@ module Wiki
       @repo.archive(sha, nil, :format => 'tgz', :prefix => "#{safe_name}/")
     end
 
+    # Directory mime type
     def mime
       DIRECTORY_MIME
+    end
+
+    # Get metadata
+    def metadata
+      page = Page.find(@repo, path/'metadata')
+      page ? page.metadata : {}
     end
   end
 end
