@@ -103,8 +103,7 @@ module Wiki
 
     # Resource name
     def name
-      path =~ %r{/?([^/]+)$}
-      $1
+      path =~ %r{/?([^/]+)$} ? $1 : path
     end
 
     # Pretty formatted resource name
