@@ -24,7 +24,7 @@ module Rack
 
       # More than 30% URLS
       size = 0
-      data.scan(/((https?|ftps?):\/\/\S+?)(?=([,.?!:;"'\)])?(\s|$))/) { puts $1; size += $1.size }
+      data.scan(/((https?|ftps?):\/\/\S+?)(?=([,.?!:;"'\)])?(\s|$))/) { size += $1.size }
       return true if size.to_f / data.size > 0.3
 
       # Add more tests if necessary

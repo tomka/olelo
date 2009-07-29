@@ -17,7 +17,7 @@
       - classes << (ext ? " ext_#{ext}" : '')
       %tr
         %td.link
-          %a{:href=>resource_path(child), :class => classes}= child.pretty_name
+          %a{:href=>resource_path(child), :class => classes}= child.name
         %td= date(child.latest_commit.date)
         %td= child.latest_commit.author.name
         %td= child.latest_commit.message.truncate(50)

@@ -1,23 +1,31 @@
 class Module
   # Generate accessor method with question mark
-  def question_reader(*names)
-    names.each do |a|
+  def question_reader(*attrs)
+    attrs.each do |a|
       module_eval %{ def #{a}?; !!@#{a}; end }
     end
   end
 
-  def attr_reader_with_default(attrs)
-    attrs.each_pair do |key, val|
-      define_method(key) do
-        metaclass.class_eval { attr_reader(key) }
-        instance_variable_get("@#{key}") || instance_variable_set("@#{key}", Proc === val ? val.call : val)
-      end
+  def lazy_reader(name, value = nil, &block)
+    method = block && block.to_method(self)
+    define_method(name) do
+      instance_variable_set("@#{name}", method ? method.bind(self).call : value) if !instance_variable_defined?("@#{name}")
+      metaclass.class_eval { attr_reader(name) }
+      instance_variable_get("@#{name}")
     end
   end
+end
 
-  def attr_accessor_with_default(attrs)
-    attr_reader_with_default(attrs)
-    attr_writer(*attrs.keys)
+class Proc
+  def to_method(clazz)
+    name = "__to_method_#{Thread.current.object_id.abs.to_s(36)}"
+    proc = self
+    clazz.module_eval do
+      define_method(name, proc)
+      return instance_method(name)
+    end
+  ensure
+    clazz.module_eval { remove_method(name) rescue nil }
   end
 end
 
@@ -124,20 +132,6 @@ class Object
   # Nice blank? helper from rails activesupport
   def blank?
     respond_to?(:empty?) ? empty? : !self
-  end
-
-  # instance_exec implementation for ruby1.8
-  if !new.respond_to?(:instance_exec)
-    def instance_exec(*args, &block)
-      name = "__instance_exec_#{Thread.current.object_id.abs.to_s(36)}"
-      metaclass.class_eval { define_method(name, &block) }
-      begin
-        ret = send(name, *args)
-      ensure
-        metaclass.class_eval { remove_method(name) } rescue nil
-      end
-      ret
-    end
   end
 end
 

@@ -45,7 +45,7 @@ TREEVIEW_SIDEBAR = %q{
     result << resource.children.map do |child|
       ext = child.mime.extensions.first
       ext = ext ? " ext_#{ext}" : ''
-      "[#{child.tree? && !child.children.empty?},'#{child.tree? ? 'tree' : 'page' + ext}','#{resource_path child}','#{child.pretty_name}']"
+      "[#{child.tree? && !child.children.empty?},'#{child.tree? ? 'tree' : 'page' + ext}','#{resource_path child}','#{child.name}']"
     end.join(',')
     result << ']'
   end

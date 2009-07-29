@@ -8,7 +8,7 @@ module Wiki
   # TODO: Restructure this a little bit. Separate view
   # from controller helpers maybe.
   module Helper
-    attr_reader_with_default :blocks => lambda { Hash.with_indifferent_access('') }
+    lazy_reader :blocks, Hash.with_indifferent_access('')
 
     def start_timer
       @start_time = Time.now
@@ -166,7 +166,7 @@ module Wiki
     end
 
     def resource_path(resource, opts = {})
-      sha = opts.delete(:sha) || (resource.commit if resource && !resource.current?) || ''
+      sha = opts.delete(:sha) || (resource && !resource.current? && resource.commit) || ''
       sha = sha.sha if sha.respond_to?(:sha)
       if path = opts.delete(:path)
         if !path.begins_with? '/'

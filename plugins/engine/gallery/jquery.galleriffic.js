@@ -674,7 +674,6 @@
 })(jQuery);
 
 $(document).ready(function() {
-
     // Initially set opacity on thumbs and add
     // additional styling for hover effect on thumbs
     var onMouseOutOpacity = 0.7;
@@ -693,7 +692,7 @@ $(document).ready(function() {
 	imageContainerSel:      '#slideshow',
 	controlsContainerSel:   '#controls',
 	captionContainerSel:    '#caption',
-	loadingContainerSel:    '#loading',
+	loadingContainerSel:    '',
 	renderSSControls:       true,
 	renderNavControls:      true,
 	playLinkText:           'Play Slideshow',

@@ -5,9 +5,7 @@ module Wiki
 
   class Cache
     class<< self
-      def instance
-        @instance ||= Disk.new(Config.cache)
-      end
+      lazy_reader(:instance) { Disk.new(Config.cache) }
 
       def cache(bucket, key, opts = {}, &block)
         instance.cache(bucket, key, opts, &block)

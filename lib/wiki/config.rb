@@ -17,8 +17,7 @@ module Wiki
       hash.each_pair do |key, value|
         create_accessor(key)
         if value.is_a?(Hash)
-          @config[key] ||= Config.new
-          @config[key].update(value)
+          (@config[key] ||= Config.new).update(value)
         else
           @config[key] = value
         end
@@ -32,14 +31,8 @@ module Wiki
         raise(TypeError, "Can't modify frozen #{self.class}", caller(1)) if frozen?
         name.chop!
         set(name, args[0])
-      elsif args.length == 0
-        if name.ends_with? '?'
-	  !!@config[name[0..-2]]
-	else
-	  @config[name] || raise(RuntimeError, "Configuration key #{name} is missing")
-        end
       else
-        raise(NoMethodError, "Undefined method #{name} for #{self}", caller(1))
+        super
       end
     end
 
@@ -60,8 +53,7 @@ module Wiki
     end
 
     def self.method_missing(name, *args)
-      @instance ||= Config.new
-      @instance.__send__(name, *args)
+      (@instance ||= Config.new).send(name, *args)
     end
 
     private

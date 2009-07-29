@@ -1,5 +1,5 @@
 - menu :view, :edit, :new
-- title :history_of.t(:path => @resource.pretty_name)
+- title :history_of.t(:path => @resource.title)
 %form{:action=> action_path(@resource, :diff) }
   %div
     = show_messages

@@ -7,7 +7,7 @@ class Wiki::App
 end
 
 Tag.define(:redirect, :requires => :href) do |context, attrs, content|
-  path = resource_path(context.page, :path => attrs['href'], :redirect => context.page.path)
+  path = resource_path(context.page, :path => attrs['href'], :redirect => context['redirect'] || context.page.path)
   if path == resource_path(context.page)
     "Invalid redirect to #{path}"
   elsif context.page.modified?

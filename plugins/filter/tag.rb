@@ -18,13 +18,12 @@ end
 class Wiki::Tag < Filter
   MAXIMUM_RECURSION = 100
 
-  def self.tags
-    @tags || {}
-  end
+  class << self
+    lazy_reader :tags, {}
 
-  def self.define(tag, opts = {}, &block)
-    @tags ||= {}
-    @tags[tag.to_s] = [opts, block]
+    def define(tag, opts = {}, &block)
+      tags[tag.to_s] = [opts, block.to_method(self)]
+    end
   end
 
   def nested_tags(context, content)
@@ -55,7 +54,7 @@ class Wiki::Tag < Filter
         if tag
           context.tag_counter[name] ||= 0
           context.tag_counter[name] += 1
-          opts, block = tag
+          opts, method = tag
           if opts[:limit] && context.tag_counter[name] > opts[:limit]
             elem.swap "#{name}: Tag limit exceeded"
           elsif opts[:requires] && attr = [opts[:requires]].flatten.find {|a| elem[a.to_s].blank? }
@@ -63,7 +62,7 @@ class Wiki::Tag < Filter
           else
             text = elem.children ? elem.children.map { |x| x.to_original_html }.join : ''
             text = begin
-                     instance_exec(context, elem.attributes.with_indifferent_access, text, &block)
+                     method.bind(self).call(context, elem.attributes.with_indifferent_access, text)
                    rescue Exception => ex
                      "#{name}: #{escape_html ex.message}"
                    end

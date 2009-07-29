@@ -1,8 +1,8 @@
 require 'rack'
 
 class Rack::Request
-  undef_method :params
-  undef_method :ip
+  remove_method :params
+  remove_method :ip
 
   # FIXME: Rack ignores post data for put requests
   def params

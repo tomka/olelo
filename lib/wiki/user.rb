@@ -52,12 +52,10 @@ module Wiki
         @services[name.to_s] = service
       end
 
-      def service
-        @service ||= begin
-                       serv = @services[Config.auth.service]
-                       raise(RuntimeError, "Authentication service #{Config.auth.service} not found") if !serv
-                       serv.new
-                     end
+      lazy_reader :service do
+        serv = @services[Config.auth.service]
+        raise(RuntimeError, "Authentication service #{Config.auth.service} not found") if !serv
+        serv.new
       end
 
       def anonymous(request)

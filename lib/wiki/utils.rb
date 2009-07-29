@@ -65,8 +65,8 @@ module Wiki
     SASS_OPTIONS = { :style => :compat }
 
     class << self
-      attr_reader_with_default :paths => lambda { [File.join(Config.root, 'views')] }
-      attr_reader_with_default :template_cache => {}
+      lazy_reader(:paths) { [File.join(Config.root, 'views')] }
+      lazy_reader :template_cache, {}
     end
 
     def sass(name, opts = {})
@@ -136,17 +136,17 @@ module Wiki
     end
 
     module ClassMethods
+      lazy_reader :hooks, {}
+
       def add_hook(type, &block)
-        @hooks ||= {}
-        (@hooks[type] ||= []) << block
+        (hooks[type] ||= []) << block.to_method(self)
       end
 
       def invoke_hook(source, type, *args)
-        @hooks ||= {}
         result = []
         while type
-          result += @hooks[type].to_a.map {|block| source.instance_exec(*args, &block) }
-          break if type == Object || @hooks[type]
+          result += hooks[type].to_a.map {|method| method.bind(source).call(*args) }
+          break if type == Object || hooks[type]
           type = type.superclass rescue nil
         end
         result

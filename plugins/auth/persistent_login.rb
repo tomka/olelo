@@ -5,13 +5,11 @@ class Wiki::App
   TOKEN_LIFETIME = 24*60*60*365
   TOKEN_NAME = 'git_wiki_token'
 
-  def login_tokens
-    @login_tokens ||= PStore.new(File.join(Wiki::Config.cache, 'tokens.pstore'))
-  end
+  lazy_reader(:login_tokens) { PStore.new(File.join(Wiki::Config.cache, 'tokens.pstore')) }
 
   def get_login_token(token)
     login_tokens.transaction(true) do |store|
-      store[token][0] if store[token]
+      store[token] && store[token][0]
     end
   end
 

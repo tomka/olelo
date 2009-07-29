@@ -137,7 +137,7 @@ module Wiki
     end
 
     module ClassMethods
-      attr_reader_with_default :routes => {}
+      lazy_reader :routes, {}
 
       def patterns(patterns = nil)
         @patterns ||= Hash.with_indifferent_access
@@ -187,10 +187,8 @@ module Wiki
         paths.each do |path|
           patterns = opts[:patterns] ? self.patterns.merge(opts[:patterns]) : self.patterns
           path, pattern, keys = compile_route(path, patterns)
-          define_method("route #{path}", &block)
-          method = instance_method("route #{path}")
           [methods].flatten.each do |m|
-            ((routes[m] ||= []) << [path, pattern, keys, method]).last
+            ((routes[m] ||= []) << [path, pattern, keys, block.to_method(self)]).last
             routes[m].uniq!
           end
         end

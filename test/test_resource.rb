@@ -75,8 +75,8 @@ class TC_Resource < Test::Unit::TestCase
     assert_equal 'name.ext', Wiki::Resource.new(@repo, '/path/name.ext').name
   end
 
-  def test_pretty_name
-    assert_equal 'name', Wiki::Resource.new(@repo, '/path/name.ext').pretty_name
+  def test_title
+    assert_equal 'name', Wiki::Resource.new(@repo, '/path/name.ext').title
   end
 
   def test_path

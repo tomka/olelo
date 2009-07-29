@@ -3,16 +3,14 @@ require 'digest'
 
 User.define_service(:yamlfile) do
   def initialize
-    @store ||= begin
-                 FileUtils.mkdir_p File.dirname(Config.auth.store), :mode => 0755
-                 YAML::Store.new(Config.auth.store)
-               end
+    FileUtils.mkdir_p File.dirname(Config.auth.store), :mode => 0755
+    @store = YAML::Store.new(Config.auth.store)
   end
 
   def find(name)
     @store.transaction(true) do |store|
       user = store[name]
-      User.new(name, user['email'], false) if user
+      user && User.new(name, user['email'], false)
     end
   end
 

@@ -1,5 +1,5 @@
 - menu :new, :view, :history, :edit
-- title params[:pos] ? :edit_page_section.t(:page => @resource.pretty_name) : :edit_page.t(:page => @resource.pretty_name)
+- title params[:pos] ? :edit_page_section.t(:page => @resource.title) : :edit_page.t(:page => @resource.title)
 = render_block(:edit_form) do
   .tabs
     %ul

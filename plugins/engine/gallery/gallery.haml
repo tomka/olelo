@@ -1,24 +1,24 @@
 %script{:src=>'/sys/engine/gallery/jquery.galleriffic.js', :type=>'text/javascript'}
+%img{:src=>'/sys/engine/gallery/loading.gif',:style=>'display:none'}
 %style{:type=>'text/css'}
   :sass
     #gallery
       :float right
       #slideshow
-        :width 510px
+        :float left
         :clear both
-        img
-          :background #FFF
-          :border 1px solid #999
-          :padding 3px
-          :margin 5px 0
+        :border 1px solid #999
+        :padding 3px
+        :margin 5px 0
       #caption
-        :display block
+        :float left
+        :clear both
         :border 1px solid #999
         :padding 3px
         :width 500px
         :background #CCC
       #controls
-        :display block
+        :float left
         :clear both
         a
           :float left
@@ -53,9 +53,10 @@
             :display block
             :margin 5px 10px 5px 0
             :padding 3px
-            :background #FFF
+            :background #FFF url(/sys/engine/gallery/loading.gif) no-repeat center center
             :border 1px solid #999
             :width 100px
+            :min-height 50px
     .pagination
       :clear both
       :float left
@@ -78,11 +79,10 @@
         - thumb_path = resource_path(image, :output => 'image', :geometry => '100x>')
         - image_path = resource_path(image, :output => 'image', :geometry => '500x>')
         %a.thumb{:href=>image_path, :class=> i % 3 == 0 ? 'first' : nil}
-          %img{:src=>thumb_path, :alt=>image.pretty_name}
+          %img{:src=>thumb_path, :alt=>''}
         .caption
-          %a{:href=>resource_path(image)}= image.pretty_name
+          %a{:href=>resource_path(image)}= image.title
 #gallery
   #controls
-  #loading
   #slideshow
   #caption
