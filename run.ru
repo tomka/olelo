@@ -100,7 +100,7 @@ if env == 'deployment' || env == 'production'
   require 'rack/purge'
   use Rack::Purge
   use Rack::Cache,
-    :verbose     => true,
+    :verbose     => false,
     :metastore   => "file:#{::File.join(Wiki::Config.cache, 'rack', 'meta')}",
     :entitystore => "file:#{::File.join(Wiki::Config.cache, 'rack', 'entity')}"
   Wiki::Config.production = true
