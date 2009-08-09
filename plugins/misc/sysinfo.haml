@@ -13,9 +13,12 @@
     %td #{@memory} MiB
 %h2 Plugins
 Disabled Plugins:
-%ul
-  = list_of(Wiki::Config.disabled_plugins) do |plugin|
-    = plugin
+- if @disabled_plugins.empty?
+  None
+- else
+  %ul
+    = list_of(Wiki::Config.disabled_plugins) do |plugin|
+      = plugin
 %br
 Installed Plugins:
 %table.sortable
