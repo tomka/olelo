@@ -39,7 +39,7 @@ module Wiki
     end
 
     def include_menu
-      blocks[:menu] || menu
+      blocks.include?(:menu) || menu
       include_block(:menu)
     end
 
