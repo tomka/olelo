@@ -22,9 +22,8 @@
   - if menu.include?(:view)
     %li
       %a.action-view{:href=> @resource.path.urlpath, :accesskey=>'c'}= :view.t
-  - if menu.include?(:new)
-    %li
-      %a.action-new{:href=> @resource && @resource.tree? ? (@resource.path/'new page/new').urlpath : '/new page/new'  }= :new_page.t
+  %li
+    %a.action-new{:href=> @resource && @resource.tree? ? (@resource.path/'new page/new').urlpath : '/new page/new'  }= :new_page.t
   - if menu.include?(:edit) && @resource.page?
     - if @resource.mime.text?
       %li

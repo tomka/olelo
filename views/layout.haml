@@ -22,13 +22,11 @@
           %div
             %label.hidden{:for=>'pattern'}= :search.t
             %input.clear{:type=>'text',:id=>'pattern',:name=>'pattern', :value=> params[:pattern] || :search.t}
-    #menu= include_block :menu
+    #menu= include_menu
     #container
       #body
         #sidebar
-          = render_block :sidebar do
-            #sidebar-menu
-              %esi:include{:src=>'/sys/sidebar', :onerror => 'continue'}/
+          %esi:include{:src=>'/sys/sidebar', :onerror => 'continue'}/
         #content
           = render_block :content do
             %h1= include_block :title

@@ -1,3 +1,6 @@
+author       'Daniel Mendler'
+description  'Interwiki support'
+
 setup do
   interwiki = YAML.load_file(File.join(Config.root, 'interwiki.yml'))
   INTERWIKI_REGEX = %r{^/?(#{interwiki.keys.join('|')}):(.+)$}

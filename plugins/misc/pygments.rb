@@ -1,4 +1,6 @@
-require 'open3'
+author      'Daniel Mendler'
+description 'Pygments syntax highlighter'
+require     'open3'
 
 module ::Pygments
   PROGRAM = 'pygmentize'

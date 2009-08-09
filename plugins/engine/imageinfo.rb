@@ -1,4 +1,6 @@
-require 'RMagick'
+author      'Daniel Mendler'
+description 'Image information engine'
+require     'RMagick'
 
 Engine.create(:imageinfo, :priority => 1, :layout => true, :cacheable => true) do
   def accepts?(page); page.mime.mediatype == 'image'; end

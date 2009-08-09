@@ -1,5 +1,7 @@
-depends_on 'engine/filter'
-require 'tempfile'
+author       'Daniel Mendler'
+description  'Emacs org-mode filter'
+dependencies 'engine/filter'
+require      'tempfile'
 
 Filter.create :orgmode do |content|
   begin

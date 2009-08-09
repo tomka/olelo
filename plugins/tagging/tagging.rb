@@ -1,4 +1,6 @@
-require 'yaml'
+require      'yaml'
+author       'Daniel Mendler'
+description  'Tagging support'
 
 class YamlPage < Page
   lazy_reader :data do

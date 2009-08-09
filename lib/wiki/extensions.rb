@@ -14,6 +14,17 @@ class Module
       instance_variable_get("@#{name}")
     end
   end
+
+  # From facets
+  def attr_setter(*args)
+    code, made = '', []
+    args.each do |a|
+      code << "def #{a}(*a); a.size > 0 ? (@#{a}=a[0]; self) : @#{a} end\n"
+      made << a.to_sym
+    end
+    module_eval(code)
+    made
+  end
 end
 
 class Proc

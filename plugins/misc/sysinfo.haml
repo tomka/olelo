@@ -1,0 +1,36 @@
+- title 'System Information'
+- menu :new
+%h2 General
+%table
+  %tr
+    %td Ruby version:
+    %td= RUBY_VERSION
+  %tr
+    %td Production mode:
+    %td= Wiki::Config.production?
+  %tr
+    %td Memory usage:
+    %td #{@memory} MiB
+%h2 Plugins
+Disabled Plugins:
+%ul
+  = list_of(Wiki::Config.disabled_plugins) do |plugin|
+    = plugin
+%br
+Installed Plugins:
+%table.sortable
+  %thead
+    %tr
+      %th Name
+      %th Author
+      %th Description
+      %th Dependencies
+      %th Required libraries
+  %tbody
+    - @plugins.each do |plugin|
+      %tr
+        %td&= plugin.name
+        %td&= plugin.author
+        %td&= plugin.description
+        %td&= plugin.dependencies.join(', ')
+        %td&= plugin.libraries.join(', ')

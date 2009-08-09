@@ -1,4 +1,6 @@
-depends_on 'filter/tag'
+dependencies 'filter/tag'
+author       'Daniel Mendler'
+description  'Support for page redirects'
 
 class Wiki::App
   add_hook(:before_content) do

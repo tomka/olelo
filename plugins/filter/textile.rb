@@ -1,5 +1,7 @@
-require 'redcloth'
-depends_on 'engine/filter'
+author       'Daniel Mendler'
+description  'Textile text filter'
+dependencies 'engine/filter'
+require      'redcloth'
 
 Filter.create :textile do |content|
   doc = RedCloth.new(content)

@@ -1,4 +1,6 @@
-require 'mimemagic'
+author      'Daniel Mendler'
+description 'Register some mime types'
+require     'mimemagic'
 
 MimeMagic.add('text/x-sass', %w(sass), %w(text/plain))
 MimeMagic.add('text/x-creole', %w(creole text), %w(text/plain), [0..64, 'creole'])

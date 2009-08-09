@@ -1,5 +1,7 @@
-require 'yaml/store'
-require 'digest'
+author      'Daniel Mendler'
+description 'YAML based user storage'
+require     'yaml/store'
+require     'digest'
 
 User.define_service(:yamlfile) do
   def initialize

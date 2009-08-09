@@ -10,8 +10,8 @@ module Wiki
 
     class Context < Hash
       attr_reader :resource, :engine
-      alias :page :resource
-      alias :tree :resource
+      alias page resource
+      alias tree resource
 
       def initialize(engine, resource, params)
         merge!(params)

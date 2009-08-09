@@ -1,6 +1,7 @@
-require 'hpricot'
-depends_on 'engine/filter'
-depends_on 'filter/tag'
+author       'Daniel Mendler'
+description  'Auto-generated table of contents'
+require      'hpricot'
+dependencies 'engine/filter', 'filter/tag'
 
 class Toc < Filter
   def filter(content)

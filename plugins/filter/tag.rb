@@ -1,5 +1,7 @@
-depends_on 'engine/filter'
-require 'hpricot'
+author       'Daniel Mendler'
+description  'Support for XML tags in wiki text'
+dependencies 'engine/filter'
+require      'hpricot'
 
 class Wiki::Engine::Context
   def tag_recursion=(x)

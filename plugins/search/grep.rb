@@ -1,3 +1,6 @@
+author       'Daniel Mendler'
+description  'Basic searching via grep'
+
 class Wiki::App
   get '/search' do
     matches = @repo.grep(params[:pattern], nil, :ignore_case => true)

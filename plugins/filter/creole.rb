@@ -1,5 +1,7 @@
-depends_on 'engine/filter'
-require 'creole'
+author       'Daniel Mendler'
+description  'Creole wiki text filter'
+dependencies 'engine/filter'
+require      'creole'
 
 class CreoleParser < Creole::CreoleParser
   include Helper

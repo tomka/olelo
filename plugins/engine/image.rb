@@ -1,4 +1,6 @@
-require 'RMagick'
+author      'Daniel Mendler'
+description 'Image rendering engine'
+require     'RMagick'
 
 Engine.create(:image, :priority => 2, :layout => false, :cacheable => true) do
   def svg?(page); page.mime.to_s =~ /svg/; end

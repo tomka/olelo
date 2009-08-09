@@ -1,3 +1,6 @@
+author      'Daniel Mendler'
+description 'Disallow anonymous access'
+
 module Wiki::Helper
   alias cache_control_without_auth cache_control
 
@@ -19,7 +22,10 @@ class Wiki::App
   add_hook(:before_routing) do
     if @user.anonymous?
       halt if request.path_info == '/sys/sidebar'
-      redirect '/login' if !WHITE_LIST.any? {|pattern| request.path_info =~ /^#{pattern}$/ }
+      if !WHITE_LIST.any? {|pattern| request.path_info =~ /^#{pattern}$/ }
+        session[:goto] = request.path_info if request.path_info !~ %r{^/sys/}
+	redirect '/login'
+      end
     end
   end
 end

@@ -34,8 +34,14 @@ module Wiki
 
     class << self
       def load_locale(path)
-        load(path.sub('LANG', $1)) if Config.locale =~ /^(\w+)(_|-)/
-        load(path.sub('LANG', Config.locale))
+        if !@loaded.include?(path)
+          locale = YAML.load_file(path)
+          @locale.update(locale[$1] || {}) if Config.locale =~ /^(\w+)(_|-)/
+          @locale.update(locale[Config.locale] || {})
+          @loaded << path
+        end
+      rescue
+        nil
       end
 
       def translate(key, args = {})
@@ -45,17 +51,6 @@ module Wiki
         else
           "##{key}"
         end
-      end
-
-      private
-
-      def load(path)
-        if !@loaded.include?(path)
-          @locale.merge!(YAML.load_file(path))
-          @loaded << path
-        end
-      rescue
-        nil
       end
     end
   end

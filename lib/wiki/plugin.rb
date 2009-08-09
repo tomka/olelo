@@ -38,8 +38,8 @@ module Wiki
             if !@plugins.include?(name) && enabled?(name)
               plugin = new(name, file, @logger)
               plugin.context { plugin.instance_eval(File.read(file), file) }
-              I18n.load_locale(file.sub(/\.rb$/, '_LANG.yml'))
-              I18n.load_locale(File.join(File.dirname(file), 'locale', 'LANG.yml'))
+              I18n.load_locale(file.sub(/\.rb$/, '_locale.yml'))
+              I18n.load_locale(File.join(File.dirname(file), 'locale.yml'))
               Templates.paths << File.dirname(file)
               @plugins[name] = plugin
               @logger.debug("Plugin #{name} successfully loaded")
@@ -65,6 +65,7 @@ module Wiki
     end
 
     attr_reader :name, :file, :logger, :started
+    attr_setter :author, :description
 
     def initialize(name, file, logger)
       @name = name
@@ -100,11 +101,25 @@ module Wiki
 
     # Load specified plugins and fail if
     # dependencies are missing.
-    def depends_on(*list)
+    def dependencies(*list)
+      @dependencies ||= []
+      @dependencies += list
       list.each do |dep|
         raise(RuntimeError, "Could not load dependency #{dep} for #{name}") if !Plugin.load(dep)
       end
+      @dependencies
     end
+
+    # Required libraries
+    def libraries(*list)
+      @libraries ||= []
+      @libraries += list
+      @libraries.each do |dep|
+        Kernel.require dep
+      end
+      @libraries
+    end
+    alias require libraries
 
     def context
       (Thread.current[:plugin] ||= []) << self

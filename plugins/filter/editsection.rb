@@ -1,3 +1,6 @@
+author       'Daniel Mendler'
+description  'Adds links for section editing for creole'
+
 Filter.create :editsection do |content|
   if context.page.modified? || !context.page.current?
     subfilter(content)

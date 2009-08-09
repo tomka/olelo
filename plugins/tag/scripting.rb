@@ -1,5 +1,7 @@
-depends_on 'filter/tag'
-require 'evaluator'
+dependencies 'filter/tag'
+require      'evaluator'
+author       'Daniel Mendler'
+description  'Scripting tags'
 
 class Wiki::Engine::Context
   def function_table

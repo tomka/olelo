@@ -8,7 +8,7 @@ module Wiki
   # TODO: Restructure this a little bit. Separate view
   # from controller helpers maybe.
   module Helper
-    lazy_reader :blocks, Hash.with_indifferent_access('')
+    lazy_reader(:blocks) { Hash.with_indifferent_access('') }
 
     def start_timer
       @start_time = Time.now
@@ -36,6 +36,11 @@ module Wiki
 
     def menu(*menu)
       define_block :menu, haml(:menu, :layout => false, :locals => { :menu => menu })
+    end
+
+    def include_menu
+      blocks[:menu] || menu
+      include_block(:menu)
     end
 
     # Access the underlying Rack session.
@@ -190,26 +195,27 @@ module Wiki
     end
 
     def show_messages
-      if @messages
+      if session[:messages]
         out = '<ul>'
-        @messages.each do |msg|
+        session[:messages].each do |msg|
           out += %Q{<li class="#{msg[0]}">#{escape_html msg[1]}</li>}
         end
-        out += '</ul>'
-        return out
+        session.delete(:messages)
+        out + '</ul>'
+      else
+        ''
       end
-      ''
     end
 
     def message(level, *messages)
-      @messages ||= []
+      session[:messages] ||= []
       messages.flatten.each do |msg|
         if msg.respond_to? :messages
-          @messages += msg.messages.map { |m| [level, m] }
+          session[:messages] += msg.messages.map { |m| [level, m] }
         elsif msg.respond_to? :message
-          @messages << [level, msg.message]
+          session[:messages] << [level, msg.message]
         else
-          @messages << [level, msg]
+          session[:messages] << [level, msg]
         end
       end
     end

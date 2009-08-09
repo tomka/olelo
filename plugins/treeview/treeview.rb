@@ -1,27 +1,32 @@
+dependencies 'misc/sidebar'
+author       'Daniel Mendler'
+description  'Tree Viewer'
+
 class Wiki::App
 
-TREEVIEW_HEAD = %q{
-%link{:rel=>'stylesheet', :href=>'/sys/treeview.css', :type=>'text/css'}
-%script{:src=>'/sys/treeview/jquery.treeview.js', :type=>'text/javascript'}}
-
-TREEVIEW_SIDEBAR = %q{
-#treeview-tabs
-  %ul
-    %li.tabs-selected
-      %a{:href=>'#sidebar-menu'}= :menu.t
-    %li
-      %a{:href=>'#sidebar-treeview'}= :tree.t
-#sidebar-treeview
-  %h1 Tree
-  #treeview
-}
-
   add_hook(:after_head) do
-    haml TREEVIEW_HEAD, :layout => false
+    '<link rel="stylesheet" href="/sys/treeview.css" type="text/css"/>' +
+      '<script src="/sys/treeview/jquery.treeview.js" type="text/javascript"></script>'
   end
 
   add_hook(:before_sidebar) do
-    haml TREEVIEW_SIDEBAR, :layout => false
+%Q{
+<div id="treeview-tabs">
+  <ul>
+    <li class="tabs-selected"><a href="#sidebar-menu">#{:menu.t}</a></li>
+    <li><a href="#sidebar-treeview">#{:tree.t}</a></li>
+  </ul>
+</div>
+<div id="sidebar-treeview">
+  <h1>#{:tree.t}</h1>
+  <div id="treeview"/>
+</div>
+<div id="sidebar-menu">
+}
+  end
+
+  add_hook(:after_sidebar) do
+    '</div>'
   end
 
   public_files 'jquery.treeview.js',

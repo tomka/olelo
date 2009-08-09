@@ -8,13 +8,13 @@
       %td&= @resource.name
     %tr
       %td Size
-      %td= "#{@filesize} bytes"
+      %td #{@filesize} bytes
     %tr
       %td Format
       %td= @format
     %tr
       %td Geometry
-      %td= @geometry 
+      %td= @geometry
     %tr
       %td Last modified
       %td= date @resource.latest_commit.date

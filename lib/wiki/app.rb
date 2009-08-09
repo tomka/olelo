@@ -18,7 +18,7 @@ module Wiki
       @app = app
       @logger = opts[:logger] || Logger.new(nil)
 
-      I18n.load_locale(File.join(Config.root, 'locale', 'LANG.yml'))
+      I18n.load_locale(File.join(File.dirname(__FILE__), 'locale.yml'))
 
       if File.exists?(Config.git.repository) && File.exists?(Config.git.workspace)
         @logger.info 'Opening repository'
@@ -101,21 +101,6 @@ module Wiki
       haml :user, :layout => false
     end
 
-    get '/sys/sidebar' do
-      if page = Page.find(@repo, :sidebar.t)
-        engine = Engine.find!(page)
-        if engine.layout?
-          #cache_control :etag => page.commit.sha, :last_modified => page.latest_commit.date
-          cache_control :max_age => 120
-          engine.render(page, {}, no_cache?)
-        else
-          "<span class=\"error\">#{:no_engine_found.t(:page => page.name)}</span>"
-        end
-      else
-        "<a href=\"/#{:sidebar.t}/new\">#{:create_sidebar.t}</a>"
-      end
-    end
-
     get '/' do
       redirect Config.main_page.urlpath
     end
@@ -128,7 +113,7 @@ module Wiki
     post '/login' do
       begin
         session[:user] = @user = User.authenticate(params[:user], params[:password])
-	redirect '/'
+	redirect session.delete(:goto) || '/'
       rescue StandardError => error
         message :error, error
         haml :login
