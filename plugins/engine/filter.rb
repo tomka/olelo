@@ -43,38 +43,55 @@ class Wiki::Filter
     register filter.new(name)
   end
 
-  def self.find(name)
-    Plugin.load("filter/#{name}")
+  def self.get(name)
     name = name.to_s
-    raise(NameError, "Filter #{name} not found") if !@filters.include?(name)
-    @filters[name].dup
+    Plugin.load("filter/#{name}")
+    @filters.include?(name) && @filters[name].dup
+  end
+
+  class Builder
+    def initialize(logger)
+      @logger = logger
+      @filter = @last_filter = nil
+    end
+
+    def filter(*filters, &block)
+      filters.each do |name|
+        filter = Filter.get(name)
+        if filter
+          if @last_filter
+            @last_filter.post = filter
+            @last_filter = @last_filter.post
+          else
+            @last_filter = @filter = filter
+          end
+        else
+          @logger.warn "Filter #{name} not available"
+        end
+      end
+      if block
+        filter = Filter::Builder.new(@logger).build(&block)
+        if @last_filter
+          @last_filter.sub = filter
+        else
+          @last_filter = @filter = filter
+        end
+      end
+    end
+
+    def build(&block)
+      instance_eval(&block)
+      @filter
+    end
   end
 end
 
-class FilterEngine <  Engine
-  def initialize(name, config)
-    config = config.with_indifferent_access
+class FilterEngine < Engine
+  def initialize(name, config, filter)
     super(name, config)
     @accepts = config[:accepts]
     @mime = config[:mime]
-    @filter = build(config[:filter])
-  end
-
-  def build(list)
-    if Array === list
-      filter = Filter.find(list.shift)
-      list.inject(filter) do |f,name|
-        if Array === name
-          f.sub = build(name)
-          f
-        else
-          f.post = Filter.find(name)
-        end
-      end
-      filter
-    else
-      Filter.find(list)
-    end
+    @filter = filter
   end
 
   def accepts?(page)
@@ -88,15 +105,43 @@ class FilterEngine <  Engine
   def output(context)
     @filter.call(context, context.page.content)
   end
-end
 
-setup do
-  engines = YAML.load_file(File.join(Config.root, 'engines.yml'))
-  engines.each_pair do |name, config|
-    begin
-      Engine.register(FilterEngine.new(name, config))
+  class Builder < Filter::Builder
+    def initialize(name, logger)
+      super(logger)
+      @name = name
+      @config = {}
+    end
+
+    def build(&block)
+      instance_eval(&block)
+      raise(RuntimeError, "No filters defined for engine #{name}") if !@filter
+      FilterEngine.new(@name, @config, @filter)
+    end
+
+    def mime(mime);         @config[:mime] = mime;       end
+    def accepts(accepts);   @config[:accepts] = accepts; end
+    def needs_layout;       @config[:layout] = true;     end
+    def has_priority(prio); @config[:priority] = prio;   end
+    def is_cacheable;       @config[:cacheable] = true;  end
+  end
+
+  class Registrator
+    def initialize(logger)
+      @logger = logger
+    end
+
+    def engine(name, &block)
+      Engine.register(Builder.new(name, @logger).build(&block))
+      @logger.info "Filter engine #{name} successfully created"
     rescue Exception => ex
-      logger.error ex
+      @logger.error ex
     end
   end
+end
+
+
+setup do
+  file = File.join(Config.root, 'engines.rb')
+  FilterEngine::Registrator.new(logger).instance_eval(File.read(file), file)
 end

@@ -1,6 +1,8 @@
 require 'wiki/utils'
 require 'pathname'
 
+alias wiki_original_require require
+
 module Wiki
   # Wiki plugin system
   class Plugin
@@ -64,8 +66,8 @@ module Wiki
       end
     end
 
-    attr_reader :name, :file, :logger, :started
-    attr_setter :author, :description
+    attr_reader :name, :file, :started
+    attr_setter :author, :description, :logger
 
     def initialize(name, file, logger)
       @name = name
@@ -115,7 +117,7 @@ module Wiki
       @libraries ||= []
       @libraries += list
       @libraries.each do |dep|
-        Kernel.require dep
+        wiki_original_require dep
       end
       @libraries
     end

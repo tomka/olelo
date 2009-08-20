@@ -1,5 +1,6 @@
 author       'Daniel Mendler'
 description  'Sort tag'
+dependencies 'filter/tag'
 
 Tag.define(:sort) do |context, attrs, content|
   type = attrs['ordered'].to_s.downcase == 'true' ? 'ol' : 'ul'
