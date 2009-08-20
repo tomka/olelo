@@ -2,7 +2,7 @@ engine :creole do
   needs_layout
   is_cacheable
   has_priority 1
-  accepts %r{text/x-creole}
+  accepts 'text/x-creole'
   filter :editsection do
     filter :remove_metadata, :math
     filter :tag do
@@ -16,7 +16,7 @@ engine :textile do
   needs_layout
   is_cacheable
   has_priority 1
-  accepts %r{text/x-textile}
+  accepts 'text/x-textile'
   filter :remove_metadata, :math
   filter :tag do
     filter :textile, :rubypants
@@ -28,7 +28,7 @@ engine :markdown do
   needs_layout
   is_cacheable
   has_priority 1
-  accepts %r{text/x-textile}
+  accepts 'text/x-markdown'
   filter :remove_metadata, :math
   filter :tag do
     filter :markdown, :rubypants
@@ -40,7 +40,7 @@ engine :maruku do
   needs_layout
   is_cacheable
   has_priority 1
-  accepts %r{text/x-maruku}
+  accepts 'text/x-maruku'
   filter :remove_metadata, :math
   filter :tag do
     filter :maruku, :rubypants
@@ -52,7 +52,7 @@ engine :orgmode do
   needs_layout
   is_cacheable
   has_priority 1
-  accepts %r{text/x-textile}
+  accepts 'text/x-org-mode'
   filter :remove_metadata, :math
   filter :tag do
     filter :orgmode, :rubypants
