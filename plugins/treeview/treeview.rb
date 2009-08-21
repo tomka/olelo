@@ -21,8 +21,7 @@ class Wiki::App
   <h1>#{:tree.t}</h1>
   <div id="treeview"/>
 </div>
-<div id="sidebar-menu">
-}
+<div id="sidebar-menu">}
   end
 
   add_hook(:after_sidebar) do
@@ -43,14 +42,14 @@ class Wiki::App
   get '/sys/treeview.json' do
     content_type 'application/json', :charset => 'utf-8'
 
-    resource = Resource.find!(@repo, params[:dir])
+    resource = Resource.find!(@repo, params[:dir], params[:sha])
     cache_control :etag => resource.latest_commit.sha, :last_modified => resource.latest_commit.date
 
     result = '[';
     result << resource.children.map do |child|
       ext = child.mime.extensions.first
       ext = ext ? " ext_#{ext}" : ''
-      "[#{child.tree? && !child.children.empty?},'#{child.tree? ? 'tree' : 'page' + ext}','#{resource_path child}','#{child.name}']"
+      "[#{child.tree? && !child.children.empty?},'#{child.tree? ? 'tree' : 'page' + ext}','#{resource_path(child)}','#{child.name}']"
     end.join(',')
     result << ']'
   end

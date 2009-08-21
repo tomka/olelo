@@ -407,8 +407,7 @@ table.tree
 
 form
   :display inline
-  button, label, input, select, textarea, pre
-    :display	 	block
+  button, input, select, textarea, pre
     :float		left
     :margin		0.3em 0.5em 0.3em 0
     :padding		2px
@@ -426,12 +425,15 @@ form
     :border none
     :background none
   label, strong
+    :float		left
+    :margin             0
+    :padding            0.4em 0.5em 0.4em 0
     :border             none
     :background         none
-    :width		8em
-    :float		left
-    :display		block
+    :color              #333
     :white-space        nowrap
+  .fieldset label
+    :width		8em
   input[type=text], textarea
     :font-family "Bitstream Vera Mono", monospace
     :font-size 100%
@@ -454,7 +456,7 @@ table input
   :margin 1em 0
   :padding 1em
 
-.box
+.box, .fieldset
   :clear both
   :display block
   :border 1px solid #999

@@ -8,7 +8,7 @@ class Wiki::App
         engine = Engine.find!(page)
         if engine.layout?
           #cache_control :etag => page.commit.sha, :last_modified => page.latest_commit.date
-          cache_control :max_age => 120
+          cache_control :max_age => 3600
           engine.render(page, {}, no_cache?)
         else
           "<span class=\"error\">#{:no_engine_found.t(:page => page.name)}</span>"

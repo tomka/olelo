@@ -3,7 +3,7 @@
   = :anonymous_profile.t
 - else
   %form{:action => '/profile', :method=>'post'}
-    .box
+    .fieldset
       = show_messages
       %h2= :change_password.t
       %label{:for=>'oldpassword'}= :old_password.t

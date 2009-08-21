@@ -165,7 +165,7 @@ module Wiki
       rescue Resource::NotFound
         pass if !%w(screen print reset).include?(params[:style])
         # Fallback to default style
-        cache_control :max_age => 120
+        cache_control :max_age => 3600
         content_type 'text/css', :charset => 'utf-8'
         sass :"style/#{params[:style]}"
       end
@@ -314,9 +314,12 @@ module Wiki
 
     # Show resource
     def show
-      cache_control :etag => params[:sha], :validate_only => true
       @resource = Resource.find!(@repo, params[:path], params[:sha])
-      cache_control :etag => @resource.latest_commit.sha, :last_modified => @resource.latest_commit.date
+      if @resource.current?
+        cache_control :etag => @resource.latest_commit.sha, :last_modified => @resource.latest_commit.date
+      else
+        cache_control :static => true
+      end
 
       engine = Engine.find!(@resource, params[:output])
       @content = engine.render(@resource, params, no_cache?)

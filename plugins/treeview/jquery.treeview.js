@@ -1,4 +1,4 @@
-(function($){
+(function($) {
     $.extend($.fn, {
 	treeView: function(options) {
 	    if(!options) options = {};
@@ -39,7 +39,7 @@
 		});
 	    }
 
-	    $(this).each(function() {
+	    this.each(function() {
 		openTree($(this), options.root);
 	    });
 	}
@@ -47,6 +47,6 @@
 })(jQuery);
 
 $(document).ready(function() {
-  $('#treeview').treeView();
   $('#treeview-tabs').tabs();
+  $('#treeview').treeView();
 });

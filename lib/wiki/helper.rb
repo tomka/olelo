@@ -101,7 +101,7 @@ module Wiki
       end
 
       mode = opts[:private] ? 'private' : 'public'
-      max_age = opts[:max_age] || (opts[:static] ? 86400 : 0)
+      max_age = opts[:max_age] || (opts[:static] ? 2592000 : 0)
       response['Cache-Control'] = "#{mode}, max-age=#{max_age}, must-revalidate"
     end
 

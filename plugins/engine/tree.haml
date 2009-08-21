@@ -7,10 +7,11 @@
       %th= :message.t
       %th= :actions.t
   %tbody
-    %tr
-      %td.link{:colspan => 5}
-        %a.tree{:href=>resource_path(@tree, :path => '..')}
-          \..
+    - if !@tree.path.blank?
+      %tr
+        %td.link{:colspan => 5}
+          %a.tree{:href=>resource_path(@tree, :path => '..')}
+            \..
     - @tree.children.each do |child|
       - classes = child.tree? ? 'tree' : 'page'
       - ext = child.mime.extensions.first

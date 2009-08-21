@@ -6,7 +6,7 @@
     %li{tab_selected(:signup)}
       %a{:href=>'#tab-signup'}= :sign_up.t
   %form{:action => '/login', :method=>'post'}
-    #tab-login.box
+    #tab-login.fieldset
       %h2 Login
       = show_messages if action? :login
       %label{:for=>'login-user'}= :user.t
@@ -18,7 +18,7 @@
       %input{:type=>'submit', :value=>:login.t}
       %br
   %form{:action => '/signup', :method=>'post'}
-    #tab-signup.box
+    #tab-signup.fieldset
       %h2= :sign_up.t
       = show_messages if action? :sign_up
       %label{:for=>'signup-user'}= :user.t
