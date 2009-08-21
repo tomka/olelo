@@ -56,6 +56,11 @@ module Wiki
       @engines[engine.name] = engine
     end
 
+    # Find all accepting engines
+    def self.find_all(resource)
+      @engines.values.find_all { |e| e.accepts? resource }.sort {|a,b| a.name <=> b.name }
+    end
+
     # Find appropiate engine for resource. An optional
     # name can be given to claim a specific engine.
     def self.find(resource, name = nil)

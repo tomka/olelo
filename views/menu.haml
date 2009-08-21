@@ -19,15 +19,15 @@
     - if !@resource.current?
       %li
         %a.action-current{:href=> @resource.path.urlpath, :accesskey=>'c'}= :current.t
-  - if menu.include?(:view)
+  - if @resource
     %li
       %a.action-view{:href=> @resource.path.urlpath, :accesskey=>'c'}= :view.t
+      %ul
+        = list_of(Wiki::Engine.find_all(@resource).reject {|engine| @engine && engine.name == @engine.name }) do |engine|
+          %a{:href => resource_path(@resource, :output => engine.name)}= engine.name
   %li
     %a.action-new{:href=> @resource && @resource.tree? ? (@resource.path/'new page/new').urlpath : '/new page/new'  }= :new_page.t
   - if menu.include?(:edit) && @resource.page?
-    - if @resource.mime.text?
-      %li
-        %a.action-source{:href=> resource_path(@resource, :output => 'source')}= :source.t
     %li
       %a.action-edit{:href=>action_path(@resource, :edit), :accesskey=>'e'}= :edit.t
   - if menu.include?(:history)

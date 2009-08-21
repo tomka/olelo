@@ -321,12 +321,12 @@ module Wiki
         cache_control :static => true
       end
 
-      engine = Engine.find!(@resource, params[:output])
-      @content = engine.render(@resource, params, no_cache?)
-      if engine.layout?
+      @engine = Engine.find!(@resource, params[:output])
+      @content = @engine.render(@resource, params, no_cache?)
+      if @engine.layout?
         haml :resource
       else
-        content_type engine.mime(@resource).to_s
+        content_type @engine.mime(@resource).to_s
         @content
       end
     end

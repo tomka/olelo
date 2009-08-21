@@ -228,7 +228,6 @@ hr
     :height 1.7em
     &.wiki
       :float right
-      :overflow hidden
     li
       +reset-box-model
       :float left
@@ -270,14 +269,25 @@ hr
           +menu-icon("home")
         &.action-new:before
           +menu-icon("new")
-        &.action-source:before
-          +menu-icon("source")
         &.action-edit:before
           +menu-icon("edit")
         &.action-history:before
           +menu-icon("history")
         &.action-archive:before
           +menu-icon("archive")
+      ul
+        :display none
+        :position absolute
+        :border-top 1px solid #999
+        :margin-left -1px
+        li
+          :background #FFF
+          :clear both
+          :border 1px solid #999
+          :border-top none
+          :width 6em
+      &:hover>ul
+        :display block
 
 #container
   :background #FFFFCD url(static/images/container_bg.png) repeat-y top left
@@ -508,7 +518,6 @@ table input
 
 a[accesskey]:focus:after, a[accesskey]:hover:after
   :content " [" attr(accesskey) "] " !important
-  :font-size 80%
 
 .toc
   :background #FFF
