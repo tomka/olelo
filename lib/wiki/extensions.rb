@@ -160,16 +160,6 @@ class String
     "#{count.to_i} " + (count.to_s == '1' ? self : plural)
   end
 
-  # Return the last n lines of the string
-  def last_lines(n)
-    lines = split("\n")
-    if lines.length <= n
-      self
-    else
-      lines[-n..-1].join("\n")
-    end
-  end
-
   # Check if string begins with s
   def begins_with?(s)
     index(s) == 0
