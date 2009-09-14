@@ -8,7 +8,7 @@ mime:
   default: 'text/x-creole'
 main_page:    'Home'
 disabled_plugins:
-  - misc/private_wiki
+  - authorization/private_wiki
   - filter/orgmode
   - tagging
 rack:

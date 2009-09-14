@@ -15,8 +15,6 @@ require 'rack/path_info'
 require 'rack/esi'
 require 'rack/session/pstore'
 require 'rack/reverseip'
-require 'rack/ban_ip'
-require 'rack/anti_spam'
 require 'wiki/app'
 
 config_file = if ENV['WIKI_CONFIG']
@@ -40,12 +38,11 @@ default_config = {
     :magic   => true,
   },
   :main_page    => 'Home',
-  :disabled_plugins => ['misc/private_wiki', 'tagging', 'filter/orgmode'],
+  :disabled_plugins => ['authorization/private_wiki', 'tagging', 'filter/orgmode'],
   :rack => {
     :rewrite_base => nil,
     :profiling    => false,
     :tidy         => nil,
-    :anti_spam    => false,
   },
   :git => {
     :repository => ::File.join(path, '.wiki', 'repository'),
@@ -63,11 +60,6 @@ Wiki::Config.load(config_file)
 if Wiki::Config.rack.profiling?
   require 'rack/contrib'
   use Rack::Profiler, :printer => :graph
-end
-
-if Wiki::Config.rack.anti_spam?
-  use Rack::BanIP, :file => ::File.join(Wiki::Config.root, 'banned.list')
-  use Rack::AntiSpam
 end
 
 use Rack::Session::PStore, :file => ::File.join(Wiki::Config.cache, 'session.pstore')

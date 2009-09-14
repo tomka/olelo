@@ -1,14 +1,6 @@
 author      'Daniel Mendler'
 description 'Disallow anonymous access'
 
-module Wiki::Helper
-  alias cache_control_without_auth cache_control
-
-  def cache_control(opts)
-    cache_control_without_auth(opts.merge(:private => true))
-  end
-end
-
 class Wiki::App
   WHITE_LIST =
     [
@@ -19,13 +11,23 @@ class Wiki::App
      '/sys/user'
     ]
 
+  def public_access?
+    WHITE_LIST.any? {|pattern| request.path_info =~ /^#{pattern}$/ }
+  end
+
   add_hook(:before_routing) do
     if @user.anonymous?
       halt if request.path_info == '/sys/sidebar'
-      if !WHITE_LIST.any? {|pattern| request.path_info =~ /^#{pattern}$/ }
+      if !public_access?
         session[:goto] = request.path_info if request.path_info !~ %r{^/sys/}
 	redirect '/login'
       end
+    end
+  end
+
+  add_hook(:after_action) do |method, action|
+    if !public_access? && response['Cache-Control']
+      response['Cache-Control'].sub!(/^public/, 'private')
     end
   end
 end

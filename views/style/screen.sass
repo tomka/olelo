@@ -290,7 +290,7 @@ hr
         :display block
 
 #container
-  :background #FFFFCD url(static/images/container_bg.png) repeat-y top left
+  :background #FFFFE0 url(static/images/container_bg.png) repeat-y top left
   #body
     :display block
     :overflow hidden
@@ -358,12 +358,12 @@ table.tree, table.history
 
 =action-icon(!icon)
   :background url(static/images/#{!icon}.png) no-repeat center center
-  :width 16px
-  :height 16px
-  :display block
   :float left
   span
-    :display none
+    :display block
+    :visibility hidden
+    :width 16px
+    :height 16px
 
 =ext(!ext)
   .ext_#{!ext}:before

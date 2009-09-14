@@ -36,8 +36,10 @@
   +ext("zip")
   :padding 0
   :margin 0
-  :width 200px
+  :width 155px
+  :max-height 600px
   :font-size 9pt
+  :overflow auto
   ul
     :list-style none
     :display block
@@ -49,17 +51,23 @@
       li
         :margin 0
         :padding 0 1em !important
-      a, a:active
-        :float left
+      a, a:active, a:hover
+        :font-size 90% !important
         :font-variant normal
         :text-indent 0 !important
         :margin 0 !important
         :padding 0 !important
+        :float left
+        :width 1px
+        :overflow visible
+        :white-space nowrap !important
+        :color #333
+        :background transparent
       .hitarea, .placeholder
         :width 32px
         :height 16px
-        :float left
         :cursor pointer
+        :float left
         div
           :width 16px
           :height 16px
