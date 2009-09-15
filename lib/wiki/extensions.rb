@@ -134,6 +134,17 @@ class Hash
   def self.with_indifferent_access(arg = {})
     HashWithIndifferentAccess.new(arg)
   end
+
+  def fix_encoding
+    each do |k, v|
+      if v.frozen? && String === v
+        self[k] = v.dup.fix_encoding
+      elsif v.respond_to? :fix_encoding
+	v.fix_encoding rescue nil
+      end
+    end
+    self
+  end
 end
 
 class Object

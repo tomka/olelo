@@ -24,11 +24,9 @@ module Wiki
       end
 
       def call!(env)
-        # FIXME: Rack uses ascii encoding
-        env.each do |key, value|
-          env[key] = env[key].dup.fix_encoding if String === env[key]
-        end
-        @env      = env
+        env.fix_encoding
+
+	@env      = env
         @request  = Rack::Request.new(env)
         @response = Rack::Response.new
         @params = @original_params = @request.params.with_indifferent_access

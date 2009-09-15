@@ -235,7 +235,7 @@ module Wiki
         hash = YAML.load(content + "\n") rescue nil
         Hash === hash && hash.with_indifferent_access
       end ||
-      if path !~ /metadata$/
+      if path !~ /metadata.yml$/
         page = Page.find(@repo, path + '.metadata.yml')
         page ? page.metadata : {}
       end ||
