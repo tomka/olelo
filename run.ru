@@ -39,7 +39,14 @@ default_config = {
     :magic   => true,
   },
   :main_page    => 'Home',
-  :disabled_plugins => ['authorization/private_wiki', 'tagging', 'filter/orgmode'],
+  :disabled_plugins => [
+    'authorization/private_wiki',
+    'tagging',
+    'filter/orgmode',
+    'tag/math-ritex',
+    'tag/math-itex2mml',
+#   'tag/math-imaginator',
+  ],
   :rack => {
     :rewrite_base => nil,
     :profiling    => false,

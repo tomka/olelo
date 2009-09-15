@@ -36,15 +36,8 @@ def define_tag(type)
   end
 end
 
-define_tag :math
 define_tag :dot
 define_tag :neato
 define_tag :twopi
 define_tag :circo
 define_tag :fdp
-
-Filter.create :math do |content|
-  content.gsub!(/\$\$(.*?)\$\$/m, '<math>\1</math>')
-  content.gsub!(/\\\((.*?)\\\)/m, '<math>\1</math>')
-  content
-end
