@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 require 'rack/session/abstract/id'
 require 'pstore'
 require 'fileutils'

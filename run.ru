@@ -1,4 +1,5 @@
 #!/usr/bin/env rackup
+# -*- coding: utf-8 -*-
 
 env ||= ENV['RACK_ENV'] || 'development'
 

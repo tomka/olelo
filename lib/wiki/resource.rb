@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 require 'git'
 require 'wiki/routing'
 require 'wiki/utils'

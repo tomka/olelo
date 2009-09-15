@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 require 'logger'
 require 'wiki/routing'
 require 'wiki/resource'

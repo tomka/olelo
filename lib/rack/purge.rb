@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 module Rack
   class Purge
     def initialize(app)
