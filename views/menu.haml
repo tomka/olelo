@@ -4,11 +4,10 @@
   = breadcrumbs(@resource)
   - if @resource && !@resource.current?
     %li.noborder
-      Tree version
+      = :version.t
       %span.sha{:title => @resource.commit.sha}
         = @resource.commit.sha.truncate(8, '&#8230;')
 %ul.wiki
-  %li.title= :wiki_menu.t
   - if menu.include?(:version)
     - if @resource.prev_commit
       %li
@@ -25,6 +24,12 @@
       %ul
         = list_of(Wiki::Engine.find_all(@resource).reject {|engine| @engine && engine.name == @engine.name }) do |engine|
           %a{:href => resource_path(@resource, :output => engine.name)}= engine.name
+    - if !@resource.path.blank?
+      %li
+        - if @resource.discussion?
+          %a.action-page{:href=> (@resource.path/'..'/@resource.name[1..-1]).urlpath }= :page.t
+        - else
+          %a.action-discuss{:href=> (@resource.path/'..'/"@#{@resource.name}").urlpath }= :discuss.t
   %li
     %a.action-new{:href=> @resource && @resource.tree? ? (@resource.path/'new page/new').urlpath : '/new page/new'  }= :new_page.t
   - if menu.include?(:edit) && @resource.page?

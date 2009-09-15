@@ -5,9 +5,6 @@ class TC_Resource < Test::Unit::TestCase
 
   def test_path_check
     assert_raise Wiki::MultiError do
-      Wiki::Resource.find(@repo, '#invalid#')
-    end
-    assert_raise Wiki::MultiError do
       Wiki::Resource.find(@repo, ' spaces ')
     end
     assert_nil Wiki::Resource.find(@repo, 'spaces in the path')

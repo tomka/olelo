@@ -33,7 +33,7 @@ class Wiki::Tag < Filter
     return 'Maximum tag nesting exceeded' if context.tag_recursion > MAXIMUM_RECURSION
     doc = Hpricot.XML(content)
     walk_elements(context, doc)
-    doc.to_original_html
+    doc.to_original_html.fix_encoding
   end
 
   def filter(content)

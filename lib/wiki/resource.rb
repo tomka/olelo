@@ -7,7 +7,7 @@ require 'mimemagic'
 require 'yaml'
 
 module Wiki
-  PATH_PATTERN = '[\w:.+\-_\/](?:[\w:.+\-_\/ ]*[\w.+\-_\/])?'
+  PATH_PATTERN = '[^\s](?:.*[^\s]+)?'
   SHA_PATTERN = '[A-Fa-f0-9]{5,40}'
   STRICT_SHA_PATTERN = '[A-Fa-f0-9]{40}'
 
@@ -112,7 +112,13 @@ module Wiki
 
     # Page title
     def title
-      name.gsub(/\.([^.]+)$/, '')
+      n = name.gsub(/\.([^.]+)$/, '')
+      discussion? ? :discussion_of.t(:name => n[1..-1]) : n
+    end
+
+    # Discussion page
+    def discussion?
+      name.begins_with?('@')
     end
 
     # Safe name
@@ -145,10 +151,8 @@ module Wiki
       return nil if !commit
       if path.blank?
         commit.gtree rescue nil
-      elsif path =~ /\//
-        path.split('/').inject(commit.gtree) { |t, x| t.children[x] } rescue nil
       else
-        commit.gtree.children[path] rescue nil
+        path.split('/').inject(commit.gtree) { |t, x| t.children[x] } rescue nil
       end
     end
   end
@@ -231,7 +235,7 @@ module Wiki
         Hash === hash && hash.with_indifferent_access
       end ||
       if path !~ /metadata$/
-        page = Page.find(@repo, path + '.metadata')
+        page = Page.find(@repo, path + '.metadata.yml')
         page ? page.metadata : {}
       end ||
       {}
@@ -269,7 +273,7 @@ module Wiki
 
     # Tree title
     def title
-      path.blank? ? :root_path.t : name
+      path.blank? ? :root_path.t : super
     end
 
     # Get archive of current tree
@@ -285,7 +289,7 @@ module Wiki
     # Get metadata
     def metadata
       @metadata ||= begin
-                      page = Page.find(@repo, path/'metadata')
+                      page = Page.find(@repo, path/'metadata.yml')
                       page ? page.metadata : {}
                     end
     end

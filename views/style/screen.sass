@@ -228,6 +228,9 @@ hr
     :height 1.7em
     &.wiki
       :float right
+      li
+        :border-left 1px solid #999
+        :border-right none
     li
       +reset-box-model
       :float left
@@ -235,11 +238,10 @@ hr
       :line-height 1.7em
       :border-right 1px solid #999
       :color #333
-      &.title, &.noborder
+      &.noborder
         :padding 0 1em
         :color #999
-        &.noborder
-          :border none
+        :border none
       &.breadcrumb
         :border none
         a
@@ -283,8 +285,8 @@ hr
         li
           :background #FFF
           :clear both
-          :border 1px solid #999
-          :border-top none
+          :border 1px solid #999 !important
+          :border-top none !important
           :width 6em
       &:hover>ul
         :display block

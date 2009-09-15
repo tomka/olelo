@@ -20,7 +20,7 @@ class Toc < Filter
       @level -= 1
     end
 
-    content = @doc.to_html
+    content = @doc.to_html.fix_encoding
     content.gsub!(context['__TOC__'], @toc + '</div>')
     content
   end
