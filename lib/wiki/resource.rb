@@ -27,7 +27,7 @@ module Wiki
     def self.find(repo, path, sha = nil)
       path = path.to_s.cleanpath
       forbid_invalid_path(path)
-      commit = sha ? repo.gcommit(sha) : repo.log(1).path(path).first rescue nil
+      commit = sha ? (String === sha ? repo.gcommit(sha) : sha) : repo.log(1).path(path).first rescue nil
       return nil if !commit
       object = find_object(path, commit)
       object && (self != Resource ? valid_object?(object) && new(repo, path, object, commit, !sha) :
@@ -231,15 +231,13 @@ module Wiki
 
     # Get metadata
     def metadata
-      @metadata ||= if mime.text? && content =~ /^---\r?\n/
+      @metadata ||= if path.ends_with?('meta') || (mime.text? && content =~ /^---\r?\n/)
         hash = YAML.load(content + "\n") rescue nil
-        Hash === hash && hash.with_indifferent_access
-      end ||
-      if path !~ /metadata.yml$/
-        page = Page.find(@repo, path + '.metadata.yml')
+        Hash === hash ? hash.with_indifferent_access : {}
+      else
+        page = Page.find(repo, path + '.meta', current? ? nil : commit)
         page ? page.metadata : {}
-      end ||
-      {}
+      end
     end
   end
 
@@ -290,7 +288,7 @@ module Wiki
     # Get metadata
     def metadata
       @metadata ||= begin
-                      page = Page.find(@repo, path/'metadata.yml')
+                      page = Page.find(@repo, path/'meta', commit)
                       page ? page.metadata : {}
                     end
     end
