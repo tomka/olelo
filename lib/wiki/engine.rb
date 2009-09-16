@@ -64,7 +64,7 @@ module Wiki
 
     # Find appropiate engine for resource. An optional
     # name can be given to claim a specific engine.
-    def self.find(resource, name = nil)
+    def self.find!(resource, name = nil)
       name ||= resource.metadata[:engine]
 
       engine = if !name
@@ -74,12 +74,12 @@ module Wiki
         e if e && e.accepts?(resource)
       end
 
-      engine.dup if engine
+      raise(RuntimeError, :engine_not_available.t(:engine => name, :page => resource.path, :mime => resource.mime)) if !engine
+      engine.dup
     end
 
-    def self.find!(resource, name = nil)
-      find(resource, name) ||
-        raise(RuntimeError, :engine_not_available.t(:engine => name, :page => resource.path, :mime => resource.mime))
+    def self.find(resource, name = nil)
+      find!(resource, name) rescue nil
     end
 
     # Acceptor should return true if resource would be accepted by this engine
