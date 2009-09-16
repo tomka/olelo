@@ -19,11 +19,12 @@
       %li
         %a.action-current{:href=> @resource.path.urlpath, :accesskey=>'c'}= :current.t
   - if @resource
-    %li
-      %a.action-view{:href=> @resource.path.urlpath, :accesskey=>'c'}= :view.t
-      %ul
-        = list_of(Wiki::Engine.find_all(@resource).reject {|engine| @engine && engine.name == @engine.name }) do |engine|
-          %a{:href => resource_path(@resource, :output => engine.name)}= engine.name
+    - if !@resource.new?
+      %li
+        %a.action-view{:href=> @resource.path.urlpath, :accesskey=>'c'}= :view.t
+        %ul
+          = list_of(Wiki::Engine.find_all(@resource).reject {|engine| @engine && engine.name == @engine.name }) do |engine|
+            %a{:href => resource_path(@resource, :output => engine.name)}= engine.name
     - if !@resource.path.blank?
       %li
         - if @resource.discussion?
