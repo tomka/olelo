@@ -5,8 +5,8 @@
   - if @resource && !@resource.current?
     %li.noborder
       = :version.t
-      %span.sha{:title => @resource.commit.sha}
-        = @resource.commit.sha.truncate(8, '&#8230;')
+      %span.sha{:title => @resource.commit}
+        = @resource.commit.sha[0..4]
 %ul.wiki
   - if menu.include?(:version)
     - if @resource.prev_commit

@@ -13,7 +13,7 @@
         = show_messages if action? :edit
         %input{:type=>'hidden', :name=> '_method', :value=>'put'}
         %input{:type=>'hidden', :name=> 'action',  :value=>'edit'}
-        %input{:type=>'hidden', :name=> 'sha', :value => @resource.commit.sha}
+        %input{:type=>'hidden', :name=> 'sha', :value => @resource.commit}
         - if params[:pos]
           %input{:type=>'hidden', :name=> 'pos', :value=> params[:pos]}
           - if params[:len]
@@ -32,7 +32,7 @@
       #tab-upload.box
         %input{:type=>'hidden', :name=> '_method', :value=>'put'}
         %input{:type=>'hidden', :name=> 'action',  :value=>'upload'}
-        %input{:type=>'hidden', :name=> 'sha', :value => @resource.commit.sha}
+        %input{:type=>'hidden', :name=> 'sha', :value => @resource.commit}
         %h2= :upload_file.t
         = show_messages if action? :upload
         %label{:for=>'upload-file'}= :file.t

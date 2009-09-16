@@ -21,7 +21,6 @@ Tag.define :ref do |context, attrs, content|
   %Q{<a class="ref" id="ref#{ref_id}" href="#note#{note_id}">[#{note_id}]</a>}
 end
 
-Tag.define :references do |context, attrs, content|
 TEMPLATE = %q{
 %ol
   - @footnotes.map do |id, note, refs|
@@ -30,6 +29,8 @@ TEMPLATE = %q{
         %a.backref{:href=>"#ref#{ref}"}= i+1
       = note
 }
+
+Tag.define :references do |context, attrs, content|
   @footnotes = context['__FOOTNOTES__']
   haml TEMPLATE, :layout => false if @footnotes
 end

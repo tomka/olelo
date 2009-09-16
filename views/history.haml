@@ -10,22 +10,20 @@
       %tr
         %th= :from_short.t
         %th= :to_short.t
-        %th= :sha.t
+        %th= :message.t
         %th= :author.t
         %th= :date.t
-        %th= :message.t
         %th= :commit.t
     %tbody
       - @resource.history.each do |commit|
         %tr
           %td
-            %input{:type=>'radio', :name=>'from', :value=> commit.sha}
+            %input{:type=>'radio', :name=>'from', :value=> commit}
           %td
-            %input{:type=>'radio', :name=>'to', :value=> commit.sha}
+            %input{:type=>'radio', :name=>'to', :value=> commit}
           %td.link
-            %a.sha{:href=>resource_path(@resource, :sha => commit)}=commit.sha
+            %a{:href=>resource_path(@resource, :sha => commit)}&=commit.message.truncate(50)
           %td&= commit.author.name
           %td= date commit.date
-          %td&= commit.message.truncate(50)
           %td.link
-            %a{:href=> ('commit'/commit.sha).urlpath }= :commit.t
+            %a{:href=> ('commit'/commit).urlpath }= :commit.t

@@ -122,8 +122,8 @@ module Wiki
           html << '</tbody></table>' if !html.empty?
           if path && from && to
             html << %Q{<table class="patch"><thead><tr><th>-</th><th>+</th><th class="title"><a class="left" href="#{path.urlpath}">#{path}</a>
-<span class="right"><a href="#{(path/from).urlpath}">#{from.truncate(8, '&#8230;')}</a> to
-<a href="#{(path/to).urlpath}">#{to.truncate(8, '&#8230;')}</a></span></th></tr></thead><tbody>}
+<span class="right"><a href="#{(path/from).urlpath}">#{from[0..4]}</a> to
+<a href="#{(path/to).urlpath}">#{to[0..4]}</a></span></th></tr></thead><tbody>}
           else
             html << %Q{<table class="patch"><thead><tr><th>-</th><th>+</th><th class="title">#{$1}</th></tr></thead><tbody>}
           end
