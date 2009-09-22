@@ -49,10 +49,6 @@ module Wiki
       env['rack.session'] ||= {}
     end
 
-    def accepts?(mime)
-      env['HTTP_ACCEPT'].to_s.split(',').map(&:strip).include?(mime)
-    end
-
     def content_type(type, params={})
       type = type.to_s
       if params.any?

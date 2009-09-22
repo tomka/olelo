@@ -19,7 +19,7 @@ class Wiki::App
 </div>
 <div id="sidebar-treeview">
   <h1>#{:tree.t}</h1>
-  <div id="treeview"/>
+  <div id="treeview">#{:loading.t}</div>
 </div>
 <div id="sidebar-menu">}
   end

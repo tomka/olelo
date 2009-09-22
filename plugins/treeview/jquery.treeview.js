@@ -18,6 +18,8 @@
 			    child[1]+'"/></div><a href="'+child[2]+'">'+child[3]+'</a></li>';
 		    });
 		    html += '</ul>';
+		    if (path == options.root)
+			element.empty();
 		    element.removeClass('wait').append(html);
 		    bindTree(element);
 		}});
@@ -47,6 +49,6 @@
 })(jQuery);
 
 $(document).ready(function() {
-  $('#treeview-tabs').tabs();
-  $('#treeview').treeView();
+    $('#treeview-tabs').tabs();
+    $('#treeview').treeView();
 });
