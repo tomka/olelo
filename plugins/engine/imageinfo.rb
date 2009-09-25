@@ -13,13 +13,11 @@ Engine.create(:imageinfo, :priority => 1, :layout => true, :cacheable => true) d
     }.split(' ')
     @format = identify[0]
     @geometry = "#{identify[1]}x#{identify[2]}"
-    @exif = Open3.popen3('exif /dev/stdin 2>&1') { |stdin, stdout, stderr|
+    @exif = Open3.popen3('exif -m /dev/stdin 2>&1') { |stdin, stdout, stderr|
       stdin << context.page.content rescue nil
       stdin.close
       stdout.read
-    }
-    @exif = @exif.split("\n").select {|line| line.include?('|') }.map {|line| line.split(/\s*\|\s*/) }
-    @exif.shift
+    }.split("\n").map {|line| line.split("\t") }
     haml :imageinfo, :layout => false
   end
 end

@@ -11,7 +11,7 @@ Engine.create(:image, :priority => 2, :layout => false, :cacheable => true) do
     page = context.page
     if svg?(page) || context['geometry']
       geometry = context['geometry']
-      cmd = 'convert'
+      cmd = 'convert -limit memory 1048576 -limit area 1048576 -limit map 1048576'
       cmd << " -resize '#{context['geometry']}'" if geometry =~ /^(\d+)?x(\d+)?[%!<>]*$/
       cmd << ' - PNG:-'
       Open3.popen3(cmd) { |stdin, stdout, stderr|
