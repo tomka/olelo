@@ -1,6 +1,6 @@
 author      'Daniel Mendler'
 description 'Image rendering engine'
-require     'RMagick'
+require     'open3'
 
 Engine.create(:image, :priority => 2, :layout => false, :cacheable => true) do
   def svg?(page); page.mime.to_s =~ /svg/; end
@@ -10,12 +10,15 @@ Engine.create(:image, :priority => 2, :layout => false, :cacheable => true) do
   def output(context)
     page = context.page
     if svg?(page) || context['geometry']
-      image = Magick::Image.from_blob(page.content).first
-      image.change_geometry(context['geometry']) { |w,h| image.resize!(w, h) } if context['geometry']
-      image.format = 'png' if svg?(page)
-      result = image.to_blob
-      image.destroy!
-      result
+      geometry = context['geometry']
+      cmd = 'convert'
+      cmd << " -resize '#{context['geometry']}'" if geometry =~ /^(\d+)?x(\d+)?[%!<>]*$/
+      cmd << ' - PNG:-'
+      Open3.popen3(cmd) { |stdin, stdout, stderr|
+        stdin << page.content
+        stdin.close
+        stdout.read
+      }
     else
       super
     end

@@ -1,14 +1,12 @@
 %p
   %a{:href => resource_path(@resource, :output => 'raw') }
     %img{:src=> resource_path(@resource, :output => 'image', :geometry => '640x480>')}
+%h3 General
 %table.zebra
   %tbody
     %tr
       %td Name
       %td&= @resource.name
-    %tr
-      %td Size
-      %td #{@filesize} bytes
     %tr
       %td Format
       %td= @format
@@ -21,3 +19,14 @@
     %tr
       %td Version
       %td.sha= @resource.latest_commit.sha
+%h3 Exif
+%table.zebra
+  %thead
+    %tr
+      %th Entry
+      %th Value
+  %tbody
+    - @exif.each do |key, value|
+      %tr
+        %td&= key
+        %td&= value

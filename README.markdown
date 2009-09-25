@@ -40,16 +40,11 @@ First, you have to install the [Gem][] dependencies via `gem`:
 
 ### Optional:
 
-__Note:__
-The (large!) ImageMagick package must be installed first,
-in order for the `rmagick` Gem to build.
-
     gem install hpricot
     gem install rdiscount
     gem install RedCloth
     gem install maruku
     gem install rubypants
-    gem install rmagick
     gem install minad-imaginator
     gem install minad-evaluator
 
@@ -92,7 +87,7 @@ Dependencies
 - [imaginator][] for [LaTeX][]/[GraphViz][] output
   (`minad-imaginator` Gem from [GitHub][])
 - [Pygments][] for syntax highlighting
-- [RMagick][] for image scaling and svg rendering
+- [ImageMagick][] for image scaling and svg rendering
 - [RubyPants][] to fix punctuation
 
 ### Dependencies for page rendering
@@ -116,6 +111,6 @@ At least one of these renderers should be installed:
 [pygments]:http://pygments.org/
 [RDiscount]:http://github.com/rtomayko/rdiscount
 [RedCloth]:http://whytheluckystiff.net/ruby/redcloth/
-[RMagick]:http://rmagick.rubyforge.org/
+[ImageMagick]:http://www.imagemagick.org/
 [ruby-git]:http://github.com/schacon/ruby-git
 [RubyPants]:http://chneukirchen.org/blog/static/projects/rubypants.html
