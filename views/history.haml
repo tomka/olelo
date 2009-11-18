@@ -18,12 +18,12 @@
       - @resource.history.each do |commit|
         %tr
           %td
-            %input{:type=>'radio', :name=>'from', :value=> commit}
+            %input{:type=>'radio', :name=>'from', :value=> commit.id}
           %td
-            %input{:type=>'radio', :name=>'to', :value=> commit}
+            %input{:type=>'radio', :name=>'to', :value=> commit.id}
           %td.link
-            %a{:href=>resource_path(@resource, :sha => commit)}&=commit.message.truncate(50)
+            %a{:href=>resource_path(@resource, :sha => commit.id)}&=commit.message.truncate(50)
           %td&= commit.author.name
           %td= date commit.date
           %td.link
-            %a{:href=> ('commit'/commit).urlpath }= :commit.t
+            %a{:href=> ('commit'/commit.id).urlpath }= :commit.t

@@ -3,7 +3,7 @@ description  'Basic searching via grep'
 
 class Wiki::App
   get '/search' do
-    matches = @repo.grep(params[:pattern], nil, :ignore_case => true)
+    matches = repository.grep(params[:pattern], nil, :ignore_case => true)
     @matches = []
     matches.each_pair do |id,lines|
       if id =~ /^.+?:(.+)$/

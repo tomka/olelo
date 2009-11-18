@@ -51,7 +51,7 @@ class Wiki::App
   public_files 'add.png', 'delete.png'
 
   lazy_reader :tag_store do
-    TagStore.find(@repo, TAG_STORE) || TagStore.new(@repo, TAG_STORE)
+    TagStore.find(repository, TAG_STORE) || TagStore.new(repository, TAG_STORE)
   end
 
   add_hook(:after_footer) do
@@ -72,16 +72,16 @@ class Wiki::App
   post '/tags/new' do
     tag = params[:tag].to_s.strip
     if !tag.blank?
-      resource = Resource.find!(@repo, params[:path])
-      tag_store.add(resource.path, tag, @user.author)
+      resource = Resource.find!(repository, params[:path])
+      tag_store.add(resource.path, tag, @user)
     end
     redirect resource_path(resource, :purge => 1)
   end
 
   delete '/tags/:tag' do
     tag = params[:tag].to_s.strip
-    resource = Resource.find!(@repo, params[:path])
-    tag_store.delete(resource.path, tag, @user.author)
+    resource = Resource.find!(repository, params[:path])
+    tag_store.delete(resource.path, tag, @user)
     redirect resource_path(resource, :purge => 1)
   end
 end

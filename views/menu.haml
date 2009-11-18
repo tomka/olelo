@@ -5,16 +5,16 @@
   - if @resource && !@resource.current?
     %li.noborder
       = :version.t
-      %span.sha{:title => @resource.commit}
-        = @resource.commit.sha[0..4]
+      %span.sha{:title => @resource.commit.id}
+        = @resource.commit.id[0..4]
 %ul.wiki
   - if menu.include?(:version)
     - if @resource.prev_commit
       %li
-        %a.action-older{:href=>resource_path(@resource, :sha => @resource.prev_commit), :accesskey=>'o'}= :older.t
+        %a.action-older{:href=>resource_path(@resource, :sha => @resource.prev_commit.id), :accesskey=>'o'}= :older.t
     - if @resource.next_commit
       %li
-        %a.action-newer{:href=>resource_path(@resource, :sha => @resource.next_commit), :accesskey=>'n'}= :newer.t
+        %a.action-newer{:href=>resource_path(@resource, :sha => @resource.next_commit.id), :accesskey=>'n'}= :newer.t
     - if !@resource.current?
       %li
         %a.action-current{:href=> @resource.path.urlpath, :accesskey=>'c'}= :current.t

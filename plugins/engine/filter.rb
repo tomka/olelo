@@ -103,7 +103,7 @@ class FilterEngine < Engine
   end
 
   def output(context)
-    @filter.call(context, context.page.content)
+    @filter.call(context, context.page.content.dup)
   end
 
   class Builder < Filter::Builder

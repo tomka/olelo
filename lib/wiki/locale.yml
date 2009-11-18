@@ -24,7 +24,6 @@ en:
   empty_password:         'Empty password'
   engine_not_available:   'Engine #{engine} is not available for page #{page} with mime-type #{mime}'
   file:                   'File'
-  files:                  'Files'
   file_uploaded:          'File uploaded'
   from:                   'From'
   from_short:             'Fr'
