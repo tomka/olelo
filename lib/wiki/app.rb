@@ -21,6 +21,9 @@ module Wiki
 
       I18n.load_locale(File.join(File.dirname(__FILE__), 'locale.yml'))
 
+      @logger.info 'Opening repository'
+      @shared_repository = Git::Repository.new(:path => Config.git.repository, :create => true, :bare => true)
+
       Plugin.logger = @logger
       Plugin.dir = File.join(Config.root, 'plugins')
       Plugin.load('*')
@@ -31,8 +34,11 @@ module Wiki
     end
 
     def repository
-      @logger.info 'Opening repository'
-      @repository ||= Git::Repository.new(:path => Config.git.repository, :create => true, :bare => true)
+      @repository ||= begin
+                        repo = @shared_repository.dup
+                        repo.refresh
+                        repo
+                      end
     end
 
     class<< self
