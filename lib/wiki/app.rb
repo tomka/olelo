@@ -34,11 +34,8 @@ module Wiki
     end
 
     def repository
-      @repository ||= begin
-                        repo = @shared_repository.dup
-                        repo.refresh
-                        repo
-                      end
+      # @repository ||= Git::Repository.new(:path => Config.git.repository, :create => true, :bare => true)
+      @repository ||= @shared_repository.dup
     end
 
     class<< self
@@ -187,7 +184,6 @@ module Wiki
 
     get '/?:path?/history' do
       @resource = Resource.find!(repository, params[:path])
-      puts @resource.commit.message
       cache_control :etag => @resource.sha, :last_modified => @resource.commit.date
       haml :history
     end

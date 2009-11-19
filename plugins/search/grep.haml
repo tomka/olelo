@@ -5,4 +5,4 @@
   = list_of @matches do |match|
     %a{:href=>match[0].urlpath}=match[0]
     %br
-    &=match[1]
+    &=match[1].join("\n").truncate(1000)
