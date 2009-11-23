@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-require 'git'
+require 'gitrb'
 require 'wiki/routing'
 require 'wiki/utils'
 require 'wiki/extensions'
@@ -191,7 +191,7 @@ module Wiki
 
       repository.transaction do
         content = File.read(content.path) if content.respond_to? :path # FIXME
-        repository.root[@path] = Git::Blob.from_data(content)
+        repository.root[@path] = Gitrb::Blob.from_data(content)
         repository.commit(message, author && author.to_git_user)
       end
 
@@ -260,7 +260,9 @@ module Wiki
 
     # Get archive of current tree
     def archive
-      @repository.archive(id, nil, :format => 'tgz', :prefix => "#{safe_name}/")
+      file = Tempfile.new('archive').path
+      @repository.git_archive(sha, nil, '--format=zip', "--prefix=#{safe_name}/", "--output=#{file}")
+      file
     end
 
     # Directory mime type

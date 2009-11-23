@@ -22,7 +22,7 @@ module Wiki
       I18n.load_locale(File.join(File.dirname(__FILE__), 'locale.yml'))
 
       @logger.info 'Opening repository'
-      @shared_repository = Git::Repository.new(:path => Config.git.repository, :create => true, :bare => true)
+      @shared_repository = Gitrb::Repository.new(:path => Config.git.repository, :create => true, :bare => true)
 
       Plugin.logger = @logger
       Plugin.dir = File.join(Config.root, 'plugins')
@@ -34,7 +34,6 @@ module Wiki
     end
 
     def repository
-      # @repository ||= Git::Repository.new(:path => Config.git.repository, :create => true, :bare => true)
       @repository ||= @shared_repository.dup
     end
 
@@ -177,9 +176,8 @@ module Wiki
 
     get '/?:path?/archive' do
       tree = Tree.find!(repository, params[:path])
-      cache_control :etag => tree.id, :last_modified => tree.commit.date
-      archive = tree.archive
-      send_file(archive, :content_type => 'application/x-tar-gz', :filename => "#{tree.safe_name}.tar.gz")
+      cache_control :etag => tree.sha, :last_modified => tree.commit.date
+      send_file(tree.archive, :content_type => 'application/zip', :filename => "#{tree.safe_name}.zip")
     end
 
     get '/?:path?/history' do

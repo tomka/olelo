@@ -20,7 +20,7 @@ module Wiki
     end
 
     def to_git_user
-      Git::User.new(name, email)
+      Gitrb::User.new(name, email)
     end
 
     def modify(&block)

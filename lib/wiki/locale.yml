@@ -31,7 +31,6 @@ en:
   history:                'History'
   history_of:             'History of #{path}'
   home:                   'Home'
-  initialize_repository:  'Initialize Repository'
   insertions:             'Insertions'
   invalid_email:          'E-Mail is invalid'
   invalid_name:           'Name is invalid'
