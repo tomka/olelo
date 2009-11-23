@@ -1,29 +1,20 @@
 - menu :view, :edit
 - title :history_of.t(:path => @resource.title)
-%form{:action=> action_path(@resource, :diff) }
-  %div
-    = show_messages
-    %input{:type=>'submit', :value=>:show_diff.t}
-    %br
-  %table.history
-    %thead
-      %tr
-        %th= :from_short.t
-        %th= :to_short.t
-        %th= :message.t
-        %th= :author.t
-        %th= :date.t
-        %th= :commit.t
-    %tbody
-      - @resource.history.each do |commit|
-        %tr
-          %td
-            %input{:type=>'radio', :name=>'from', :value=> commit.id}
-          %td
-            %input{:type=>'radio', :name=>'to', :value=> commit.id}
-          %td.link
-            %a{:href=>resource_path(@resource, :sha => commit.id)}&=commit.message.truncate(50)
-          %td&= commit.author.name
-          %td= date commit.date
-          %td.link
-            %a{:href=> ('commit'/commit.id).urlpath }= :commit.t
+%div
+  %p= :drag_drop_for_diff.t
+%table.history
+  %thead
+    %tr
+      %th= :message.t
+      %th= :author.t
+      %th= :date.t
+      %th= :commit.t
+  %tbody
+    - @resource.history.each do |commit|
+      %tr{:id => commit.id }
+        %td.link
+          %a{:href=>resource_path(@resource, :sha => commit.id)}&=commit.message.truncate(50)
+        %td&= commit.author.name
+        %td= date commit.date
+        %td.link
+          %a{:href=> ('commit'/commit.id).urlpath }= :commit.t

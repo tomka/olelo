@@ -170,7 +170,7 @@ module Wiki
       cache_control :etag => params[:sha], :validate_only => true
       @commit = repository.get_commit(params[:sha])
       cache_control :etag => @commit.id, :last_modified => @commit.date
-      @diff = repository.diff(@commit, @commit.parent)
+      @diff = repository.diff(@commit.id, @commit.parent.first.id)
       haml :commit
     end
 

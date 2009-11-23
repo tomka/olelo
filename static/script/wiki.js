@@ -83,6 +83,25 @@ $(document).ready(function(){
         }
     });
 
+    $('table.history').disableTextSelect();
+    $('table.history tbody tr').draggable({
+	helper: function() {
+	    table = $('<table><tbody>' + $(this).html() + '</tbody></table>');
+	    a = $.makeArray(table.find('td'));
+	    b = $.makeArray($(this).find('td'));
+	    for (i = 0; i < a.length; ++i)
+		$(a[i]).css({ width: $(b[i]).width() + 'px' });
+	    return table;
+	}
+    }).droppable({
+	drop: function(event, ui) {
+	    to = this.id;
+	    from = ui.draggable.attr('id');
+	    if (to != from)
+		location.href = '/diff?from=' + from + '&to=' + to;
+	}
+    });
+
     $('.zebra tr:even').addClass('even');
     $('.zebra tr:odd').addClass('odd');
 
