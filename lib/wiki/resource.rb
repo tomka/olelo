@@ -191,7 +191,7 @@ module Wiki
 
       repository.transaction do
         content = File.read(content.path) if content.respond_to? :path # FIXME
-        repository.root[@path] = Gitrb::Blob.from_data(content)
+        repository.root[@path] = Gitrb::Blob.new(:data => content)
         repository.commit(message, author && author.to_git_user)
       end
 
