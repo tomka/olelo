@@ -62,14 +62,12 @@ module Wiki
 
     class << self
       lazy_reader(:paths) { [File.join(Config.root, 'views')] }
-      lazy_reader :template_cache, {}
+      lazy_reader :engine_cache, {}
     end
 
     def sass(name, opts = {})
-      template = Symbol === name ? lookup_template(:sass, name) : name
-      name = Symbol === name ? "#{name}.sass" : 'inline sass'
-      sass_opts = SASS_OPTIONS.merge(opts[:options] || {}).merge(:filename => name)
-      engine = ::Sass::Engine.new(template, sass_opts)
+      sass_opts = SASS_OPTIONS.merge(opts[:options] || {}).merge(:filename => Symbol === name ? "#{name}.sass" : 'inline sass')
+      engine = load_engine(:sass, name, sass_opts) { |content, opt| ::Sass::Engine.new(content, opt) }
       engine.render
     end
 
@@ -82,24 +80,32 @@ module Wiki
     private
 
     def render_haml(name, opts = {}, &block)
-      template = Symbol === name ? lookup_template(:haml, name) : name
-      name = Symbol === name ? "#{name}.haml" : 'inline haml'
-      haml_opts = HAML_OPTIONS.merge(opts[:options] || {}).merge(:filename => name)
-      engine = ::Haml::Engine.new(template, haml_opts)
+      haml_opts = HAML_OPTIONS.merge(opts[:options] || {}).merge(:filename => Symbol === name ? "#{name}.haml" : 'inline haml')
+      engine = load_engine(:haml, name, haml_opts) { |content, opt| ::Haml::Engine.new(content, opt) }
       engine.render(self, opts[:locals] || {}, &block)
     end
 
-    def lookup_template(type, name)
+    def load_engine(type, name, opts)
       if Config.production?
-        Templates.template_cache["#{type}-#{name}}"] ||= load_template(type, name)
-      else
-        load_template(type, name)
+        id = [type,name,opts]
+        return Templates.engine_cache[id] if Templates.engine_cache[id]
       end
-    end
 
-    def load_template(type, name)
-      paths = Templates.paths.map {|path| File.join(path, "#{name}.#{type}") }
-      File.read(paths.find {|path| File.exists?(path) })
+      content = if Symbol === name
+                  paths = Templates.paths.map {|path| File.join(path, "#{name}.#{type}") }
+                  File.read(paths.find {|path| File.exists?(path) })
+                else
+                  name
+                end
+
+      engine = yield(content, opts)
+
+      if Config.production?
+        id = [type,name,opts]
+        Templates.engine_cache[id] = engine
+      end
+
+      engine
     end
   end
 
