@@ -18,14 +18,17 @@
 		return false;
 	    });
 	},
-	// Disable text select
-	disableTextSelect: function() {
-	    if ($.browser.mozilla)
-                $(this).css({'MozUserSelect' : 'none'});
-	    else if ($.browser.msie)
-                $(this).bind('selectstart.disableTextSelect', function() { return false; });
-	    else
-                $(this).bind('mousedown.disableTextSelect', function() { return false; });
+	// Underline access key
+	underlineAccessKey: function() {
+	    this.each(function() {
+		key = $(this).attr('accesskey');
+		if (key) {
+		    text = $(this).text();
+		    i = text.toLowerCase().indexOf(key.toLowerCase());
+		    if (i >= 0)
+			$(this).html(text.substr(0, i) + '<span style="text-decoration: underline">' + text.substr(i, 1) + '</span>' + text.substr(i+1));
+		}
+	    });
 	},
 	// Date toggler
 	dateToggler: function() {
@@ -83,7 +86,7 @@ $(document).ready(function(){
         }
     });
 
-    $('table.history').disableTextSelect();
+    $('table.history').disableSelection().css({cursor: 'move'});
     $('table.history tbody tr').draggable({
 	helper: function() {
 	    table = $('<table><tbody>' + $(this).html() + '</tbody></table>');
@@ -114,7 +117,7 @@ $(document).ready(function(){
     });
 
     $('.date').dateToggler();
-    $('label, #menu').disableTextSelect();
+    $('label, #menu, .tabs > ul').disableSelection();
     $('#upload-file').change(function() {
 	elem = $('#upload-path');
 	if (elem.size() == 1) {
@@ -127,4 +130,6 @@ $(document).ready(function(){
 	    }
 	}
     });
+
+    $('*[accesskey]').underlineAccessKey();
 });

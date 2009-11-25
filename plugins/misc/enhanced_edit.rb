@@ -6,8 +6,8 @@ class Wiki::App
   add_hook(:before_edit_form_buttons) do
     %Q{<input type="checkbox" name="minor" id="minor" value="1"#{params[:minor] ? ' checked="checked"' : ''}/>
 <label for="minor">Minor changes</label><br/>
-<input type="submit" name="preview" value="#{:preview.t}"/>
-<input type="submit" name="changes" value="#{:changes.t}"/>}
+<button type="submit" name="preview">#{:preview.t}</button>
+<button type="submit" name="changes">#{:changes.t}</button>}
   end
 
   add_hook(:before_edit_form) do

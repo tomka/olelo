@@ -21,8 +21,8 @@
         %label{:for=>'text-message'}= :message.t
         %input#text-message{:type=>'text', :name=>'message', :value => params[:message], :size => 50}
         = render_block(:edit_form_buttons) do
-          %input{:type=>'submit', :value=> :save.t, :accesskey => 's'}
-          %input{:type=>'reset', :value=> :reset.t, :accesskey => 'r'}
+          %button{:type=>'submit' :accesskey => 's'}= :save.t
+          %button{:type=>'reset', :accesskey => 'r'}= :reset.t
         %br
     %form{:action => '/', :method=>'post', :enctype=> 'multipart/form-data'}
       #tab-upload.box
@@ -36,5 +36,5 @@
         %input#upload-file{:name=>'file', :type=>'file'}
         %br
         = render_block(:upload_form_buttons) do
-          %input{:type=>'submit', :value=> :upload.t, :accesskey => 'u'}
+          %button{:type=>'submit', :accesskey => 'u'}= :upload.t
         %br

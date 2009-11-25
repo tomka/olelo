@@ -15,7 +15,7 @@
       %label{:for=>'login-password'}= :password.t
       %input#login-password{:type=>'password', :name=>'password'}
       %br
-      %input{:type=>'submit', :value=>:login.t}
+      %button{:type=>'submit'}= :login.t
       %br
   %form{:action => '/signup', :method=>'post'}
     #tab-signup.fieldset
@@ -33,5 +33,5 @@
       %label{:for=>'signup-email'}= :email.t
       %input#signup-email{:type=>'text', :name=>'email'}
       %br
-      %input{:type=>'submit', :value=>:sign_up.t}
+      %button{:type=>'submit'}= :sign_up.t
       %br
