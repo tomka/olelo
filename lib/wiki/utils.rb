@@ -62,13 +62,12 @@ module Wiki
 
     class << self
       lazy_reader(:paths) { [File.join(Config.root, 'views')] }
-      lazy_reader :engine_cache, {}
+      lazy_reader :template_cache, {}
     end
 
     def sass(name, opts = {})
       sass_opts = SASS_OPTIONS.merge(opts[:options] || {}).merge(:filename => Symbol === name ? "#{name}.sass" : 'inline sass')
-      engine = load_engine(:sass, name, sass_opts) { |content, opt| ::Sass::Engine.new(content, opt) }
-      engine.render
+      load_template(:sass, name, sass_opts) { |content, opt| ::Sass::Engine.new(content, opt).render }
     end
 
     def haml(name, opts = {})
@@ -81,14 +80,14 @@ module Wiki
 
     def render_haml(name, opts = {}, &block)
       haml_opts = HAML_OPTIONS.merge(opts[:options] || {}).merge(:filename => Symbol === name ? "#{name}.haml" : 'inline haml')
-      engine = load_engine(:haml, name, haml_opts) { |content, opt| ::Haml::Engine.new(content, opt) }
+      engine = load_template(:haml, name, haml_opts) { |content, opt| ::Haml::Engine.new(content, opt) }
       engine.render(self, opts[:locals] || {}, &block)
     end
 
-    def load_engine(type, name, opts)
+    def load_template(type, name, opts)
       if Config.production?
         id = [type,name,opts]
-        return Templates.engine_cache[id] if Templates.engine_cache[id]
+        return Templates.template_cache[id] if Templates.template_cache[id]
       end
 
       content = if Symbol === name
@@ -98,14 +97,14 @@ module Wiki
                   name
                 end
 
-      engine = yield(content, opts)
+      template = yield(content, opts)
 
       if Config.production?
         id = [type,name,opts]
-        Templates.engine_cache[id] = engine
+        Templates.template_cache[id] = template
       end
 
-      engine
+      template
     end
   end
 
