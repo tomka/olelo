@@ -13,7 +13,7 @@
     - @resource.history.each do |commit|
       %tr{:id => commit.id }
         %td.link
-          %a{:href=>resource_path(@resource, :sha => commit.id)}&=commit.message.truncate(50)
+          %a{:href=>resource_path(@resource, :sha => commit.id)}&=commit.message.truncate(30)
         %td&= commit.author.name
         %td= date commit.date
         %td.link

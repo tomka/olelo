@@ -21,7 +21,7 @@ module Wiki
       end
     end
 
-    attr_reader :repository, :path, :commit, :object
+    attr_reader :repository, :path, :commit
 
     # Find resource in repository by path and commit sha
     def self.find(repository, path, sha = nil)
@@ -29,7 +29,7 @@ module Wiki
       forbid_invalid_path(path)
       commit = sha ? (String === sha ? repository.get_commit(sha) : sha) : repository.log(1, nil, path).first
       return nil if !commit
-      object = commit.tree[path] rescue nil
+      object = commit.tree[path].object rescue nil
       object && (self != Resource ? valid_object?(object) && new(repository, path, object, commit, !sha) :
                  object.type == 'blob' && Page.new(repository, path, object, commit, !sha) ||
                  object.type == 'tree' && Tree.new(repository, path, object, commit, !sha)) || nil

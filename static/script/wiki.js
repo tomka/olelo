@@ -86,10 +86,11 @@ $(document).ready(function(){
         }
     });
 
-    $('table.history').disableSelection().css({cursor: 'move'});
+    $('table.history').disableSelection();
+    $('table.history td *').css({ cursor: 'move' });
     $('table.history tbody tr').draggable({
 	helper: function() {
-	    table = $('<table><tbody>' + $(this).html() + '</tbody></table>');
+	    table = $('<table><tbody>' + $(this).html() + '</tbody></table>').css({opacity: 0.8});
 	    a = $.makeArray(table.find('td'));
 	    b = $.makeArray($(this).find('td'));
 	    for (i = 0; i < a.length; ++i)
