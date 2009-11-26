@@ -21,7 +21,7 @@ module Wiki
       end
     end
 
-    attr_reader :repository, :path, :commit
+    attr_reader :repository, :path, :commit, :object
 
     # Find resource in repository by path and commit sha
     def self.find(repository, path, sha = nil)
@@ -29,7 +29,7 @@ module Wiki
       forbid_invalid_path(path)
       commit = sha ? (String === sha ? repository.get_commit(sha) : sha) : repository.log(1, nil, path).first
       return nil if !commit
-      object = commit.tree[path].object rescue nil
+      object = commit.tree[path] rescue nil
       object && (self != Resource ? valid_object?(object) && new(repository, path, object, commit, !sha) :
                  object.type == 'blob' && Page.new(repository, path, object, commit, !sha) ||
                  object.type == 'tree' && Tree.new(repository, path, object, commit, !sha)) || nil
@@ -246,11 +246,11 @@ module Wiki
     end
 
     def pages
-      @pages ||= @object.map {|name, child| Page.new(repository, path/name, child, commit, current?) if child.object.type == 'blob' }.compact
+      @pages ||= @object.map {|name, child| Page.new(repository, path/name, child, commit, current?) if child.type == 'blob' }.compact
     end
 
     def trees
-      @trees ||= @object.map {|name, child| Tree.new(repository, path/name, child, commit, current?) if child.object.type == 'tree' }.compact
+      @trees ||= @object.map {|name, child| Tree.new(repository, path/name, child, commit, current?) if child.type == 'tree' }.compact
     end
 
     # Tree title
