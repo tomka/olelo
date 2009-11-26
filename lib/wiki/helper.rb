@@ -195,7 +195,7 @@ module Wiki
       if session[:messages]
         out = '<ul>'
         session[:messages].each do |msg|
-          out += %Q{<li class="#{msg[0]}">#{escape_html msg[1]}</li>}
+          out << %Q{<li class="#{msg[0]}">#{escape_html msg[1]}</li>}
         end
         session.delete(:messages)
         out + '</ul>'
