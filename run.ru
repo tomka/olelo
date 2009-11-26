@@ -69,7 +69,7 @@ if Wiki::Config.rack.profiling?
   use Rack::Profiler, :printer => :graph
 end
 
-use Rack::Session::PStore, :file => ::File.join(Wiki::Config.cache, 'session.pstore')
+use Rack::Session::Pool
 use Rack::ReverseIP
 use Rack::MethodOverride
 
