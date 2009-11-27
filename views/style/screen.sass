@@ -19,6 +19,26 @@
   :border-bottom 1px solid #999
   :font-size = !size
 
+=rounded-tl(!radius = 4px)
+  :-moz-border-radius-topleft = !radius
+  :-webkit-border-top-left-radius = !radius
+
+=rounded-tr(!radius = 4px)
+  :-moz-border-radius-topright = !radius
+  :-webkit-border-top-right-radius = !radius
+
+=rounded-bl(!radius = 4px)
+  :-moz-border-radius-bottomleft = !radius
+  :-webkit-border-bottom-left-radius = !radius
+
+=rounded-br(!radius = 4px)
+  :-moz-border-radius-bottomright = !radius
+  :-webkit-border-bottom-right-radius = !radius
+
+=rounded(!radius = 4px)
+  :-moz-border-radius = !radius
+  :-webkit-border-radius = !radius
+
 body
   :color #000
   :background #FFF
@@ -67,6 +87,7 @@ table
     :background #FFF
     td, th
       :padding 0.2em 0.5em
+      :white-space nowrap
       &.link
         :padding 0
         a
@@ -143,12 +164,6 @@ a
   &, &:visited
     :color #0B3E71
     :text-decoration none
-  &:hover, &:active, &:focus
-    :color #FFF
-    :background #0B3E71
-    :text-decoration none
-  &:active
-    :background #022763
   &.img
     :background transparent
   div.img &
@@ -258,11 +273,6 @@ hr
         :white-space nowrap
         :padding 0 1em
         :color #333
-        &:hover, &:focus
-          :color #FFF
-          :background #0B3E71
-        &:active
-          :background #022763
         &.action-older:before
           content: "\00ab\00a0"
         &.action-newer:after
@@ -277,6 +287,8 @@ hr
           +menu-icon("history")
         &.action-archive:before
           +menu-icon("archive")
+        &:hover, &:focus, &:active
+          :text-shadow #333 1px 1px 2px
       ul
         :display none
         :position absolute
@@ -292,7 +304,7 @@ hr
         :display block
 
 #container
-  :background #FFFFE0 url(static/images/container_bg.png) repeat-y top left
+  :background #FFF url(static/images/container_bg.png) repeat-y top left
   #body
     :display block
     :overflow hidden
@@ -326,8 +338,6 @@ hr
             :padding 0 5px
             :margin 0
             :display block
-          &:active
-            :text-indent 3px
       ul ul a
         :padding 0 20px
       ul ul ul a
@@ -351,9 +361,6 @@ pre
   :min-width 60%
   :white-space pre
   :display block
-
-table.history .sha
-  :font-size 8pt
 
 table.tree, table.history
   :width 100%
@@ -419,7 +426,7 @@ table.tree
 
 form
   :display inline
-  button, input, select, textarea, pre
+  select, textarea, pre, input
     :float		left
     :margin		0.3em 0.5em 0.3em 0
     :padding		2px
@@ -428,6 +435,18 @@ form
     :color              #333
     &:focus
       :border-style	dotted
+  button
+    +rounded
+    :float		left
+    :margin		0.3em 0.5em 0.3em 0
+    :padding		2px
+    :border		1px outset #999
+    :background		#AAA
+    :color              #333
+    &:focus
+      :border-style	dotted
+    &:active
+      :border-style     inset
   &.inline *
     :float   none
     :display inline
@@ -469,10 +488,10 @@ table input
   :padding 1em
 
 .box, .fieldset
+  +rounded
   :clear both
   :display block
   :border 1px solid #999
-  :background #FFF
   :padding 0.5em 1em
   :margin 1em 0
   :overflow hidden
@@ -488,16 +507,20 @@ table input
     :height 1.7em
     :width 100%
     > li
+      +rounded-tl
+      +rounded-tr
       :font-variant small-caps
       :background #EEF
       :float left
       :padding 0
-      :margin 0 0 0 1em
+      :margin 0 0 0 4px
       :height 1.7em
       :line-height 1.7em
       :border 1px solid #999
       :color #333
       &.tabs-selected > a
+        +rounded-tl
+        +rounded-tr
         :background #FFF
         :border-bottom 1px solid #FFF
       > a
@@ -506,20 +529,14 @@ table input
         :white-space nowrap
         :padding 0 1em
         :color #333
-        &:hover, &:focus
-          :color #FFF
-          :background #0B3E71
-        &:active
-          :background #022763
+        &:hover, &:active, &:focus
+          :text-shadow #333 1px 1px 2px
 
 .hidden
   :display none !important
 
 .date
   :cursor pointer
-
-a[accesskey]:focus:after, a[accesskey]:hover:after
-  :content " [" attr(accesskey) "] " !important
 
 .toc
   :background #FFF

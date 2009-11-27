@@ -36,6 +36,7 @@ class Wiki::App
 
   get '/sys/treeview.css' do
     content_type 'text/css', :charset => 'utf-8'
+    cache_control :max_age => 3600
     sass :treeview
   end
 
