@@ -4315,14 +4315,14 @@ $("table.history").tablesorter({widgets:["zebra"],headers:{0:{sorter:false},1:{s
 $("table.history").disableSelection();
 $("table.history td *").css({cursor:"move"});
 $("table.history tbody tr").draggable({helper:function(){
-table=$("<table><tbody>"+$(this).html()+"</tbody></table>").css({opacity:0.8});
+table=$("<table class=\"history-draggable\"><tbody>"+$(this).html()+"</tbody></table>");
 a=$.makeArray(table.find("td"));
 b=$.makeArray($(this).find("td"));
 for(i=0;i<a.length;++i){
 $(a[i]).css({width:$(b[i]).width()+"px"});
 }
 return table;
-}}).droppable({drop:function(_6,ui){
+}}).droppable({hoverClass:"history-droppable-hover",drop:function(_6,ui){
 to=this.id;
 from=ui.draggable.attr("id");
 if(to!=from){

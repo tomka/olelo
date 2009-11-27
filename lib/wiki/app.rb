@@ -219,7 +219,7 @@ module Wiki
         boilerplate
         forbid(:path_not_allowed.t => name_clash?(params[:path]))
       rescue StandardError => error
-        message :error, error
+	message :error, error
       end
       haml :new
     end
@@ -282,7 +282,7 @@ module Wiki
         end
         redirect @resource.path.urlpath
       rescue StandardError => error
-        message :error, error
+	message :error, error
         haml :new
       end
     end

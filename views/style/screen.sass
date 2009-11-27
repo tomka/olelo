@@ -87,7 +87,6 @@ table
     :background #FFF
     td, th
       :padding 0.2em 0.5em
-      :white-space nowrap
       &.link
         :padding 0
         a
@@ -364,6 +363,16 @@ pre
 
 table.tree, table.history
   :width 100%
+  td, th
+    :white-space nowrap
+
+.history-draggable
+  :opacity 0.8
+  td
+    :background-color #F99
+
+.history-droppable-hover
+  :background-color #FF9 !important
 
 =action-icon(!icon)
   :background url(static/images/#{!icon}.png) no-repeat center center

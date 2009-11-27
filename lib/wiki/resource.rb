@@ -196,7 +196,7 @@ module Wiki
       end
 
       reload
-      @commit = history.first
+      @commit = latest_commit
       @object = @commit.tree[@path] || raise(NotFound, path)
       @current = true
     end

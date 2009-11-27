@@ -90,7 +90,7 @@ $(document).ready(function(){
     $('table.history td *').css({ cursor: 'move' });
     $('table.history tbody tr').draggable({
 	helper: function() {
-	    table = $('<table><tbody>' + $(this).html() + '</tbody></table>').css({opacity: 0.8});
+	    table = $('<table class="history-draggable"><tbody>' + $(this).html() + '</tbody></table>');
 	    a = $.makeArray(table.find('td'));
 	    b = $.makeArray($(this).find('td'));
 	    for (i = 0; i < a.length; ++i)
@@ -98,6 +98,7 @@ $(document).ready(function(){
 	    return table;
 	}
     }).droppable({
+	hoverClass: 'history-droppable-hover',
 	drop: function(event, ui) {
 	    to = this.id;
 	    from = ui.draggable.attr('id');
