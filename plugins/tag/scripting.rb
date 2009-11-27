@@ -54,7 +54,7 @@ Tag.define(:call, :requires => :name, :immediate => true) do |context, attrs, co
 end
 
 Tag.define(:include, :requires => :page, :limit => 5) do |context, attrs, content|
-  if page = Page.find(context.page.repo, attrs['page'])
+  if page = Page.find(context.page.repository, attrs['page'])
     engine = Engine.find(page, attrs['output'])
     raise(RuntimeError, "No engine found for #{attrs['page']}") if !engine || !engine.layout?
     engine.output(context.subcontext(attrs.merge(:engine => engine, :page => page)))

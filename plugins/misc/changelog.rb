@@ -10,7 +10,7 @@ class Wiki::App
   end
 
   get '/changelog.rss', '/:path/changelog.rss' do
-    resource = Resource.find!(@repo, params[:path])
+    resource = Resource.find!(repository, params[:path])
     cache_control :etag => resource.latest_commit.sha, :last_modified => resource.latest_commit.date
 
     content_type 'application/rss+xml', :charset => 'utf-8'

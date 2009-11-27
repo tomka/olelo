@@ -4,7 +4,7 @@ description 'Basic sidebar implementation'
 class Wiki::App
   get '/sys/sidebar' do
     content_hook :sidebar do
-      if page = Page.find(@repo, :sidebar.t)
+      if page = Page.find(repository, :sidebar.t)
         engine = Engine.find!(page)
         if engine.layout?
           #cache_control :etag => page.commit.sha, :last_modified => page.latest_commit.date

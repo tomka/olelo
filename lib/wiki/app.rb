@@ -21,18 +21,8 @@ module Wiki
 
       I18n.load_locale(File.join(File.dirname(__FILE__), 'locale.yml'))
 
-      if File.exists?(Config.git.repository) && File.exists?(Config.git.workspace)
-        @logger.info 'Opening repository'
-        @repo = Git.open(Config.git.workspace, :repository => Config.git.repository,
-                         :index => File.join(Config.git.repository, 'index'), :log => @logger)
-      else
-        @logger.info 'Initializing repository'
-        @repo = Git.init(Config.git.workspace, :repository => Config.git.repository,
-                         :index => File.join(Config.git.repository, 'index'), :log => @logger)
-        page = Page.new(@repo, Config.main_page)
-        page.write(:main_page_text.t, :initialize_repository.t)
-        @logger.info 'Repository initialized'
-      end
+      @logger.info 'Opening repository'
+      @shared_repository = Gitrb::Repository.new(:path => Config.git.repository, :create => true, :bare => true)
 
       Plugin.logger = @logger
       Plugin.dir = File.join(Config.root, 'plugins')
@@ -40,6 +30,11 @@ module Wiki
       Plugin.start
 
       @logger.debug self.class.dump_routes
+      @repository = nil
+    end
+
+    def repository
+      @repository ||= @shared_repository.dup
     end
 
     class<< self
@@ -173,27 +168,26 @@ module Wiki
 
     get '/commit/:sha' do
       cache_control :etag => params[:sha], :validate_only => true
-      @commit = @repo.gcommit(params[:sha])
+      @commit = repository.get_commit(params[:sha])
       cache_control :etag => @commit.sha, :last_modified => @commit.date
-      @diff = @repo.diff(@commit.parent, @commit.sha)
+      @diff = repository.diff(@commit.sha, @commit.parent.first.sha)
       haml :commit
     end
 
     get '/?:path?/archive' do
-      tree = Tree.find!(@repo, params[:path])
+      tree = Tree.find!(repository, params[:path])
       cache_control :etag => tree.sha, :last_modified => tree.commit.date
-      archive = tree.archive
-      send_file(archive, :content_type => 'application/x-tar-gz', :filename => "#{tree.safe_name}.tar.gz")
+      send_file(tree.archive, :content_type => 'application/zip', :filename => "#{tree.safe_name}.zip")
     end
 
     get '/?:path?/history' do
-      @resource = Resource.find!(@repo, params[:path])
+      @resource = Resource.find!(repository, params[:path])
       cache_control :etag => @resource.sha, :last_modified => @resource.commit.date
       haml :history
     end
 
     get '/?:path?/diff' do
-      @resource = Resource.find!(@repo, params[:path])
+      @resource = Resource.find!(repository, params[:path])
       begin
         forbid('From not selected' => params[:from].blank?, 'To not selected' => params[:to].blank?)
         cache_control :static => true
@@ -207,7 +201,7 @@ module Wiki
 
     get '/:path/edit', '/:path/upload' do
       begin
-        @resource = Page.find!(@repo, params[:path])
+        @resource = Page.find!(repository, params[:path])
         haml :edit
       rescue Resource::NotFound
         pass if action? :upload # Pass to next handler because /upload is used twice
@@ -218,10 +212,10 @@ module Wiki
     get '/new', '/upload', '/:path/new', '/:path/upload' do
       begin
         # Redirect to edit for existing pages
-        if !params[:path].blank? && Resource.find(@repo, params[:path])
+        if !params[:path].blank? && Resource.find(repository, params[:path])
           redirect (params[:path]/'edit').urlpath
         end
-        @resource = Page.new(@repo, params[:path])
+        @resource = Page.new(repository, params[:path])
         boilerplate
         forbid(:path_not_allowed.t => name_clash?(params[:path]))
       rescue StandardError => error
@@ -242,12 +236,12 @@ module Wiki
 
     # Edit form sends put requests
     put '/:path' do
-      @resource = Page.find!(@repo, params[:path])
+      @resource = Page.find!(repository, params[:path])
       begin
         forbid(:version_conflict.t => @resource.commit.sha != params[:sha]) # TODO: Implement conflict diffs
         if action?(:upload) && params[:file]
           invoke_hook :page_save, @resource do
-            @resource.write(params[:file][:tempfile], :file_uploaded.t, @user.author)
+            @resource.write(params[:file][:tempfile], :file_uploaded.t, @user)
           end
         elsif action?(:edit) && params[:content]
           invoke_hook :page_save, @resource do
@@ -258,7 +252,7 @@ module Wiki
                       else
                         params[:content]
                       end
-            @resource.write(content, params[:message], @user.author)
+            @resource.write(content, params[:message], @user)
           end
         else
           redirect((@resource.path/'edit').urlpath)
@@ -274,14 +268,14 @@ module Wiki
     post '/', '/:path' do
       begin
         pass if name_clash?(params[:path])
-        @resource = Page.new(@repo, params[:path])
+        @resource = Page.new(repository, params[:path])
         if action?(:upload) && params[:file]
           invoke_hook :page_save, @resource do
-            @resource.write(params[:file][:tempfile], "File #{@resource.path} uploaded", @user.author)
+            @resource.write(params[:file][:tempfile], "File #{@resource.path} uploaded", @user)
           end
         elsif action?(:new)
           invoke_hook :page_save, @resource do
-            @resource.write(params[:content], params[:message], @user.author)
+            @resource.write(params[:content], params[:message], @user)
           end
         else
           redirect '/new'
@@ -314,7 +308,7 @@ module Wiki
 
     # Show resource
     def show
-      @resource = Resource.find!(@repo, params[:path], params[:sha])
+      @resource = Resource.find!(repository, params[:path], params[:sha])
       if @resource.current?
         cache_control :etag => @resource.latest_commit.sha, :last_modified => @resource.latest_commit.date
       else

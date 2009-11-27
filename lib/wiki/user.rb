@@ -19,8 +19,8 @@ module Wiki
       User.service.change_password(self, oldpassword, password)
     end
 
-    def author
-      "#{@name} <#{@email}>"
+    def to_git_user
+      Gitrb::User.new(name, email)
     end
 
     def modify(&block)
