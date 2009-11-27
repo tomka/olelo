@@ -22,4 +22,3 @@ log:
   file:      '/home/user/wiki/log'
 git:
   repository:   '/home/user/wiki/repository'
-  workspace:    '/home/user/wiki/workspace'

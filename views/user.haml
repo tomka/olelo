@@ -1,7 +1,9 @@
 = :user.t
-%a{:href=>'/profile'}= @user.name
-|
 - if @user.anonymous?
+  = @user.name
+  |
   %a{:href=>'/login'}= :login.t
 - else
+  %a{:href=>'/profile'}= @user.name
+  |
   %a{:href=>'/logout'}= :logout.t

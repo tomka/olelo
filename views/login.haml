@@ -20,7 +20,7 @@
   %form{:action => '/signup', :method=>'post'}
     #tab-signup.fieldset
       %h2= :sign_up.t
-      = show_messages if action? :sign_up
+      = show_messages if action? :signup
       %label{:for=>'signup-user'}= :user.t
       %input#signup-user{:type=>'text', :name=>'user'}
       %br

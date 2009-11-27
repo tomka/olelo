@@ -53,7 +53,6 @@ default_config = {
   },
   :git => {
     :repository => ::File.join(path, '.wiki', 'repository'),
-    :workspace  => ::File.join(path, '.wiki', 'workspace'),
   },
   :log => {
     :level => 'INFO',

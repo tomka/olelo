@@ -246,11 +246,13 @@ module Wiki
     end
 
     def pages
-      @pages ||= @object.map {|name, child| Page.new(repository, path/name, child, commit, current?) if child.type == 'blob' }.compact
+      @pages ||= @object.select {|name, child| name[0..0] != '@' && child.type == 'blob' }.map {|name, child|
+      	Page.new(repository, path/name, child, commit, current?) }
     end
 
     def trees
-      @trees ||= @object.map {|name, child| Tree.new(repository, path/name, child, commit, current?) if child.type == 'tree' }.compact
+      @trees ||= @object.select {|name, child| name[0..0] != '@' && child.type == 'tree' }.map {|name, child|
+      	Tree.new(repository, path/name, child, commit, current?) }
     end
 
     # Tree title

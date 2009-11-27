@@ -50,7 +50,6 @@ describe 'wiki' do
       },
       :git => {
         :repository => File.join(@test_path, 'repository'),
-        :workspace  => File.join(@test_path, 'workspace'),
       },
       :log => {
         :level => 'INFO',
