@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 require 'wiki/extensions'
 require 'haml'
-require 'sass'
 require 'yaml'
 require 'cgi'
 
@@ -58,16 +57,10 @@ module Wiki
 
   module Templates
     HAML_OPTIONS = { :format => :xhtml, :attr_wrapper  => '"', :ugly => true }
-    SASS_OPTIONS = { :style => :compat }
 
     class << self
       lazy_reader(:paths) { [File.join(Config.root, 'views')] }
       lazy_reader :template_cache, {}
-    end
-
-    def sass(name, opts = {})
-      sass_opts = SASS_OPTIONS.merge(opts[:options] || {}).merge(:filename => Symbol === name ? "#{name}.sass" : 'inline sass')
-      load_template(:sass, name, sass_opts) { |content, opt| ::Sass::Engine.new(content, opt).render }
     end
 
     def haml(name, opts = {})

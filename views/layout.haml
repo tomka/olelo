@@ -3,17 +3,15 @@
 %html{:xmlns=>"http://www.w3.org/1999/xhtml", 'xmlns:esi' => 'http://www.edge-delivery.org/esi/1.0'}
   %head
     %title= Wiki::Config.title + ' - ' + include_block(:title)
-    %link{:rel => 'stylesheet', :href => '/screen.css', :type => 'text/css', :media => 'screen'}
-    %link{:rel => 'stylesheet', :href => '/print.css',  :type => 'text/css', :media => 'print'}
-    %link{:rel => 'shortcut icon', :href => '/static/images/favicon.png', :type => 'image/png'}
-    %script{:src=>'/static/script/all.js', :type=>'text/javascript'}
+    %link{:rel => 'stylesheet', :href => '/static/themes/current/screen.css', :type => 'text/css', :media => 'screen'}
+    %link{:rel => 'stylesheet', :href => '/static/themes/current/print.css',  :type => 'text/css', :media => 'print'}
+    %link{:rel => 'shortcut icon', :href => '/static/themes/current/images/favicon.png', :type => 'image/png'}
+    %script{:src=>'/static/script.js', :type=>'text/javascript'}
     = include_block :head
   - timemachine = @resource && !@resource.current?
   %body{timemachine ? {:class => 'timemachine'} : {}}
     #header
       %h1&= Wiki::Config.title
-      - if timemachine
-        %h1.timemachine= :time_machine.t
       #info
         %esi:include{:src=>'/sys/user'}/
       #search

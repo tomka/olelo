@@ -1,6 +1,8 @@
 %ul
   %li
-    %a.action-home{:href=>resource_path(@resource, :path => Wiki::Config.main_page.urlpath), :accesskey=>'z'}= :home.t
+    %a.action-home{:href=>resource_path(@resource, :path => Wiki::Config.main_page.urlpath), :accesskey=>'z'}
+      .icon
+      .text= :home.t
   = breadcrumbs(@resource)
   - if @resource && !@resource.current?
     %li.noborder
@@ -11,34 +13,54 @@
   - if menu.include?(:version)
     - if @resource.prev_commit
       %li
-        %a.action-older{:href=>resource_path(@resource, :sha => @resource.prev_commit), :accesskey=>'o'}= :older.t
+        %a.action-older{:href=>resource_path(@resource, :sha => @resource.prev_commit), :accesskey=>'o'}
+          .icon
+          .text= :older.t
     - if @resource.next_commit
       %li
-        %a.action-newer{:href=>resource_path(@resource, :sha => @resource.next_commit), :accesskey=>'n'}= :newer.t
+        %a.action-newer{:href=>resource_path(@resource, :sha => @resource.next_commit), :accesskey=>'n'}
+          .icon
+          .text= :newer.t
     - if !@resource.current?
       %li
-        %a.action-current{:href=> @resource.path.urlpath, :accesskey=>'c'}= :current.t
+        %a.action-current{:href=> @resource.path.urlpath, :accesskey=>'c'}
+          .icon
+          .text= :current.t
   - if @resource
     - if !@resource.new?
       %li
-        %a.action-view{:href=> @resource.path.urlpath, :accesskey=>'v'}= :view.t
+        %a.action-view{:href=> @resource.path.urlpath, :accesskey=>'v'}
+          .icon
+          .text= :view.t
         %ul
           = list_of(Wiki::Engine.find_all(@resource).reject {|engine| @engine && engine.name == @engine.name }) do |engine|
             %a{:href => resource_path(@resource, :output => engine.name)}= engine.name
     - if !@resource.path.blank?
       %li
         - if @resource.discussion?
-          %a.action-page{:href=> (@resource.path/'..'/@resource.name[1..-1]).urlpath, :accesskey=>'p' }= :page.t
+          %a.action-page{:href=> (@resource.path/'..'/@resource.name[1..-1]).urlpath, :accesskey=>'p' }
+            .icon
+            .text= :page.t
         - else
-          %a.action-discuss{:href=> (@resource.path/'..'/"@#{@resource.name}").urlpath, :accesskey=>'d' }= :discuss.t
+          %a.action-discuss{:href=> (@resource.path/'..'/"@#{@resource.name}").urlpath, :accesskey=>'d' }
+            .icon
+            .text= :discuss.t
   %li
-    %a.action-new{:href=> @resource && @resource.tree? ? (@resource.path/'new page/new').urlpath : '/new page/new'  }= :new_page.t
+    %a.action-new{:href=> @resource && @resource.tree? ? (@resource.path/'new page/new').urlpath : '/new page/new'  }
+      .icon
+      .text= :new_page.t
   - if menu.include?(:edit) && @resource.page?
     %li
-      %a.action-edit{:href=>action_path(@resource, :edit), :accesskey=>'e'}= :edit.t
+      %a.action-edit{:href=>action_path(@resource, :edit), :accesskey=>'e'}
+        .icon
+        .text= :edit.t
   - if menu.include?(:history)
     %li
-      %a.action-history{:href=>action_path(@resource, :history), :accesskey=>'h'}= :history.t
+      %a.action-history{:href=>action_path(@resource, :history), :accesskey=>'h'}
+        .icon
+        .text= :history.t
   - if menu.include?(:archive) && @resource.tree?
     %li
-      %a.action-archive{:href=>action_path(@resource, :archive)}= :archive.t
+      %a.action-archive{:href=>action_path(@resource, :archive)}
+        .icon
+        .text= :archive.t

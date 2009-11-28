@@ -1,0 +1,79 @@
+@import constants
+
+#header
+  :background = !header_bg
+  :padding-left 0.5em
+  :clear both
+  :height 3em
+  h1
+    +reset-box-model
+    :border none
+    :color #FFFFC2
+    :font-family Georgia, serif
+    :font-size 200%
+    :font-variant small-caps
+    :font-weight bold
+    :float left
+  #info
+    :float right
+    :border = !border
+    :background = !light_bg
+    :padding 0.3em
+    :margin 0.65em 0.65em 0 0.65em
+  #search
+    :float right
+    :border none
+    :right 15em
+    input
+      :margin 0.65em 0 0 0
+      :width 10em
+      :padding 0.2em
+      :padding-left 20px
+      :background #FFF url(images/search.png) no-repeat 0.2em 0.2em
+
+#container
+  :background #FFF url(images/container_bg.png) repeat-y top left
+  #body
+    :display block
+    :overflow hidden
+    :background url(images/body_bg.png) repeat-x top left
+    #content
+      :min-height 600px
+      :padding 1em 3.5em
+      :float left
+      :width 70%
+    #sidebar
+      :min-height 600px
+      :width 155px
+      :float left
+      :font-variant small-caps
+      h1, h2, h3, h4, h5, h6
+        :font-size 140%
+        :background #FFF
+        :font-weight normal
+        :padding 0 5px
+        :margin 1em 0 0 0
+        :border-top 1px solid #85AAFF
+        :border-bottom 1px solid #85AAFF
+        :display block
+      ul
+        +reset-box-model
+        :list-style none
+        li
+          :margin 0
+          a
+            :padding 0 5px
+            :margin 0
+            :display block
+      ul ul a
+        :padding 0 20px
+      ul ul ul a
+        :padding 0 35px
+
+  #footer
+    :color #555
+    :background url(images/footer_bg.png) repeat-x top left
+    :padding 2em 3em 0 3em
+    :text-align right
+    :line-height 2em
+    :clear both

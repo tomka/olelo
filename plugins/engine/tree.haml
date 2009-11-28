@@ -14,8 +14,8 @@
             \..
     - @tree.children.each do |child|
       - classes = child.tree? ? 'tree' : 'page'
-      - ext = child.mime.extensions.first
-      - classes << (ext ? " ext_#{ext}" : '')
+      - if child.page? && !child.extension.empty?
+        - classes << " file-type-#{child.extension}"
       %tr
         %td.link
           %a{:href=>resource_path(child), :class => classes}= child.name
@@ -25,9 +25,12 @@
         %td
           - if child.tree?
             %a.action-archive{:href=>action_path(child, :archive), :title => :archive.t}
-              %span= :archive.t
+              .icon
+              .text= :archive.t
           - else
             %a.action-edit{:href=>action_path(child, :edit), :title => :edit.t}
-              %span= :edit.t
+              .icon
+              .text= :edit.t
           %a.action-history{:href=>action_path(child, :history), :title => :history.t}
-            %span= :history.t
+            .icon
+            .text= :history.t

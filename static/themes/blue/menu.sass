@@ -1,0 +1,82 @@
+@import ../common/horizontal-list
+@import constants
+
+=menu-icon(!icon)
+  .icon
+    :background url(images/#{!icon}.png) no-repeat center center
+    :width 16px
+    :height 1.7em
+    :margin-right 5px
+
+#menu
+  :height 1.7em
+  :border-top = !border
+  :border-bottom = !border
+  :font-variant small-caps
+  ul
+    +list-bar
+    :height 1.7em
+    &.wiki
+      :float right
+      li
+        :border-left = !border
+        :border-right none
+    li
+      +reset-box-model
+      :display block
+      :float left
+      :height 1.7em
+      :line-height 1.7em
+      :border-right = !border
+      :color #333
+      &.noborder
+        :padding 0 1em
+        :color #999
+        :border none
+      &.breadcrumb
+        :border none
+        a
+          :padding 0 0.3em
+        &.first a
+          :padding-left 1em
+        &.last
+          :border-right = !border
+          a
+            :padding-right 1em
+      a
+        :display block
+        :text-decoration none
+        :white-space nowrap
+        :padding 0 1em
+        :color #333
+        .text, .icon
+          :float left
+        &.action-older .icon
+          content: "\00ab\00a0"
+        &.action-newer .icon
+          content: "\00a0\00bb"
+        &.action-home
+          +menu-icon("home")
+        &.action-new
+          +menu-icon("new")
+        &.action-edit
+          +menu-icon("edit")
+        &.action-history
+          +menu-icon("history")
+        &.action-archive
+          +menu-icon("archive")
+        &:hover, &:focus, &:active
+          :text-shadow #333 1px 1px 2px
+      ul
+        :display none
+        :position absolute
+        :border-top = !border
+        :margin-left -1px
+        li
+          :background #FFF
+          :clear both
+          :border = !border !important
+          :border-top none !important
+          :width 6em
+      &:hover>ul
+        :display block

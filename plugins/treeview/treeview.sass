@@ -1,39 +1,40 @@
 #treeview-tabs
   li
     :background #FFF
+    :border-bottom 1px solid #85AAFF
     :display block !important
     &.tabs-selected
       :display none !important
 
-=ext(!ext)
-  .ext_#{!ext}
-    :background url(/static/images/ext/#{!ext}.png) no-repeat center center !important
+=file-type(!type)
+  .file-type-#{!type}
+    :background url(/static/themes/current/images/ext/#{!type}.png) no-repeat center center !important
 
 #treeview
-  +ext("7z")
-  +ext("bz2")
-  +ext("doc")
-  +ext("flac")
-  +ext("gz")
-  +ext("html")
-  +ext("java")
-  +ext("jpg")
-  +ext("midi")
-  +ext("mp3")
-  +ext("ogg")
-  +ext("pdf")
-  +ext("php")
-  +ext("png")
-  +ext("ppt")
-  +ext("psd")
-  +ext("rar")
-  +ext("rb")
-  +ext("sh")
-  +ext("tar")
-  +ext("txt")
-  +ext("wma")
-  +ext("xls")
-  +ext("zip")
+  +file-type("7z")
+  +file-type("bz2")
+  +file-type("doc")
+  +file-type("flac")
+  +file-type("gz")
+  +file-type("html")
+  +file-type("java")
+  +file-type("jpg")
+  +file-type("midi")
+  +file-type("mp3")
+  +file-type("ogg")
+  +file-type("pdf")
+  +file-type("php")
+  +file-type("png")
+  +file-type("ppt")
+  +file-type("psd")
+  +file-type("rar")
+  +file-type("rb")
+  +file-type("sh")
+  +file-type("tar")
+  +file-type("txt")
+  +file-type("wma")
+  +file-type("xls")
+  +file-type("zip")
   :padding 0
   :margin 0
   :width 155px
@@ -73,15 +74,15 @@
           :height 16px
           :float left
     .wait .arrow
-      :background url(treeview/spinner.gif) no-repeat center center !important
+      :background url(spinner.gif) no-repeat center center !important
     .collapsed .arrow
-      :background url(treeview/collapsed.png) no-repeat center center
+      :background url(collapsed.png) no-repeat center center
     .expanded .arrow
-      :background url(treeview/expanded.png) no-repeat center center
+      :background url(expanded.png) no-repeat center center
     .page
-      :background url(/static/images/page.png) no-repeat center center
+      :background url(/static/themes/current/images/page.png) no-repeat center center
     .expanded .tree
-      :background url(treeview/tree_open.png) no-repeat center center
+      :background url(/static/themes/current/images/tree_open.png) no-repeat center center
     .collapsed .tree
-      :background url(/static/images/tree.png) no-repeat center center
+      :background url(/static/themes/current/images/tree.png) no-repeat center center
 

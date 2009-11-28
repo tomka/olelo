@@ -55,7 +55,7 @@ class Wiki::App
   end
 
   add_hook(:after_footer) do
-    haml(:tagbox, :layout => false) if @resource
+    haml(:tagbox, :layout => false) if @resource && !@resource.new?
   end
 
   get '/tags/:tag' do

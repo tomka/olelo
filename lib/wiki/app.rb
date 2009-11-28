@@ -151,21 +151,6 @@ module Wiki
       haml :profile
     end
 
-    get "/:style.css" do
-      begin
-        # Try to use wiki version
-        params[:output] = 'css'
-        params[:path] = params[:style] + '.sass'
-        show
-      rescue Resource::NotFound
-        pass if !%w(screen print reset).include?(params[:style])
-        # Fallback to default style
-        cache_control :max_age => 3600
-        content_type 'text/css', :charset => 'utf-8'
-        sass :"style/#{params[:style]}"
-      end
-    end
-
     get '/commit/:sha' do
       cache_control :etag => params[:sha], :validate_only => true
       @commit = repository.get_commit(params[:sha])
@@ -216,7 +201,6 @@ module Wiki
           redirect (params[:path]/'edit').urlpath
         end
         @resource = Page.new(repository, params[:path])
-        boilerplate
         forbid(:path_not_allowed.t => name_clash?(params[:path]))
       rescue StandardError => error
 	message :error, error
@@ -322,14 +306,6 @@ module Wiki
       else
         content_type @engine.mime(@resource).to_s
         @content
-      end
-    end
-
-    # Boilerplate for new pages
-    def boilerplate
-      if @resource.path =~ /^\w+\.sass$/
-	name = File.join(Config.root, 'views', 'style', @resource.path)
-	params[:content] = File.read(name) if File.file?(name)
       end
     end
 
