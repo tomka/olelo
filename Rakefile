@@ -2,9 +2,47 @@ require 'rubygems'
 require 'rake'
 require 'rake/testtask'
 require 'rake/rdoctask'
-require 'rcov/rcovtask'
 
-task :default => ['test:unit','test:spec','test:coverage']
+task :default => %w(test:unit test:spec test:coverage)
+
+desc('Shrink JS files')
+task :script => %w(static/script.js plugins/treeview/script.js)
+
+desc('Compile CSS files')
+task :css => %w(static/themes/blue/style.css plugins/treeview/treeview.css plugins/misc/pygments.css plugins/engine/gallery/gallery.css)
+
+def shrink_js(t)
+  sh "CLASSPATH=$CLASSPATH:tools/js.jar java -jar tools/shrinksafe.jar #{t.prerequisites.sort.join(' ')} > #{t.name}"
+end
+
+def sass(file)
+  gem 'haml', '>= 0'
+  require 'sass'
+  engine = Sass::Engine.new(File.read(file), :style => :compressed, :load_paths => [File.dirname(file)], :cache => false)
+  engine.render
+end
+
+def spew(file, content)
+  File.open(file, 'w') {|f| f.write(content) }
+end
+
+file 'plugins/misc/pygments.sass' do
+  sh "pygmentize -S default -f html -a .highlight | css2sass > plugins/misc/pygments.sass"
+end
+
+file('static/themes/blue/style.css' => Dir.glob('static/themes/blue/*.sass') + Dir.glob('static/themes/lib/*.sass')) do |t|
+  puts "Creating #{t.name}..."
+  content = "@media screen{#{sass(t.name.gsub('style.css', 'screen.sass'))}}@media print{#{sass(t.name.gsub('style.css', 'print.sass'))}}"
+  spew(t.name, content)
+end
+
+rule '.css' => ['.sass'] do |t|
+  puts "Creating #{t.name}..."
+  spew(t.name, sass(t.source))
+end
+
+file('static/script.js' => Dir.glob('static/script/*.js')) { |t| shrink_js(t) }
+file('plugins/treeview/script.js' => Dir.glob('plugins/treeview/script/*.js')) {|t| shrink_js(t) }
 
 namespace :test do
   Rake::TestTask.new(:unit) do |t|
@@ -13,13 +51,14 @@ namespace :test do
     t.test_files = FileList['test/test_*.rb']
   end
 
-  Rcov::RcovTask.new(:coverage) do |t|
-    t.rcov_opts << '--exclude' << '/gems/,/ruby-git\/lib/'
-    t.libs << 'test' << 'lib'
-    t.warning = false
-    t.verbose = true
-    t.test_files = FileList['test/test_*.rb','test/spec_*.rb']
-  end
+  #require 'rcov/rcovtask'
+  #Rcov::RcovTask.new(:coverage) do |t|
+  #  t.rcov_opts << '--exclude' << '/gems/,/ruby-git\/lib/'
+  #  t.libs << 'test' << 'lib'
+  #  t.warning = false
+  #  t.verbose = true
+  #  t.test_files = FileList['test/test_*.rb','test/spec_*.rb']
+  #end
 
   Rake::TestTask.new(:spec) do |t|
     t.libs << 'test' << 'lib'

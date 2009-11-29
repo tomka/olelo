@@ -1,10 +1,10 @@
-@import ../common/reset
-@import ../common/rounded
-@import ../common/headlines
-@import ../common/patch
-@import contants
-@import layout
-@import menu
+@import ../lib/reset.sass
+@import ../lib/rounded.sass
+@import ../lib/headlines.sass
+@import ../lib/patch.sass
+@import constants.sass
+@import layout.sass
+@import menu.sass
 
 +global-reset
 
@@ -120,10 +120,10 @@ pre
   :padding 1em 0.5em
   :background #FFF
   :min-width 60%
-  :white-space pre
+  :white-space pre-wrap
   :display block
 
-table.tree, table.history
+table.data, table.history, table.tree
   :width 100%
   td, th
     :white-space nowrap
@@ -322,10 +322,19 @@ table input
   .toc1 a, .toc1 .counter
     :font-weight bold
 
+#themes
+  float: left
+  .styleswitcher
+    +reset-box-model
+    +no-bullet
+    display: inline
+    li
+      margin-right: 0.5em
+      display: inline
+
 body.timemachine
+  :background-color #EEE
   #header
     :background #333
-  #container
-    :background-color #EEE
   tr.even
     :background #DDD

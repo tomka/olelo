@@ -6,29 +6,10 @@ class Wiki::App
 
   add_hook(:after_head) do
     '<link rel="stylesheet" href="/sys/treeview/treeview.css" type="text/css"/>' +
-      '<script src="/sys/treeview/jquery.treeview.js" type="text/javascript"></script>'
+      '<script src="/sys/treeview/script.js" type="text/javascript"></script>'
   end
 
-  add_hook(:before_sidebar) do
-%Q{
-<div id="treeview-tabs">
-  <ul>
-    <li class="tabs-selected"><a href="#sidebar-menu">#{:menu.t}</a></li>
-    <li><a href="#sidebar-treeview">#{:tree.t}</a></li>
-  </ul>
-</div>
-<div id="sidebar-treeview">
-  <h1>#{:tree.t}</h1>
-  <div id="treeview">#{:loading.t}</div>
-</div>
-<div id="sidebar-menu">}
-  end
-
-  add_hook(:after_sidebar) do
-    '</div>'
-  end
-
-  public_files 'jquery.treeview.js',
+  public_files 'script.js',
                'expanded.png',
                'collapsed.png',
                'spinner.gif',

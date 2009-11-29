@@ -1,88 +1,19 @@
-%script{:src=>'/sys/engine/gallery/jquery.galleriffic.js', :type=>'text/javascript'}
-%img{:src=>'/sys/engine/gallery/loading.gif',:style=>'display:none'}
-%style{:type=>'text/css'}
-  :sass
-    #gallery
-      :float right
-      #slideshow
-        :float left
-        :clear both
-        :border 1px solid #999
-        :padding 3px
-        :margin 5px 0
-      #caption
-        :float left
-        :clear both
-        :border 1px solid #999
-        :padding 3px
-        :width 500px
-        :background #CCC
-      #controls
-        :float left
-        :clear both
-        a
-          :float left
-          :border 1px solid #999
-          :background #FFF
-          :padding 3px 5px
-          :margin-right 3px
-          :color #333
-        a:hover
-          :background #333
-          :color #FFF
-        .ss-controls
-          :float left
-        .nav-controls
-          :float right
-    #thumbs
-      :float left
-      :clear both
-      ul.thumbs
-        :display block
-        :clear both
-        :float left
-        :list-style-type none
-        :width 360px
-        :margin 0
-        :padding 0
-        li
-          a.first
-            :clear left
-          a
-            :float left
-            :display block
-            :margin 5px 10px 5px 0
-            :padding 3px
-            :background #FFF url(/sys/engine/gallery/loading.gif) no-repeat center center
-            :border 1px solid #999
-            :width 100px
-            :min-height 40px
-    .pagination
-      :clear both
-      :float left
-      :margin 0
-      span, a
-        :float left
-        :display block
-        :border 1px solid #999
-        :background #FFF
-        :padding 3px 5px
-        :margin-right 3px
-        :color #333
-      span, a:hover
-        :background #333
-        :color #FFF
-#thumbs
-  %ul.thumbs
-    - @images.each_with_index do |image, i|
-      %li
+- per_page = 16
+- per_row = 4
+- first = @page * per_page
+- last = (@page + 1) * per_page
+%p
+  - if first > 0
+    %a{:href => resource_path(@tree, :output => 'gallery', :page => @page - 1)} Previous
+  - if last < @images.size
+    %a{:href => resource_path(@tree, :output => 'gallery', :page => @page + 1)} Next
+%table.thumbs
+  - @images[first...last].to_a.each_slice(per_row) do |row|
+    %tr
+      - row.each do |image|
         - thumb_path = resource_path(image, :output => 'image', :geometry => '100x>')
         - image_path = resource_path(image, :output => 'image', :geometry => '500x>')
-        %a.thumb{:href=>image_path, :class=> i % 3 == 0 ? 'first' : nil}
-          %img{:src=>thumb_path, :alt=>''}
-        .caption
-          %a{:href=>resource_path(image)}= image.title
-#gallery
-  #controls
-  #slideshow
-  #caption
+        %td
+          %a{:href=>image_path}
+            %img{:src=>thumb_path, :alt=>''}
+.screen

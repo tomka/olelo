@@ -2783,6 +2783,43 @@ return this[0]==_1?document.compatMode=="CSS1Compat"&&document.documentElement["
 };
 });
 })();
+jQuery.cookie=function(_1,_2,_3){
+if(typeof _2!="undefined"){
+_3=_3||{};
+if(_2===null){
+_2="";
+_3.expires=-1;
+}
+var _4="";
+if(_3.expires&&(typeof _3.expires=="number"||_3.expires.toUTCString)){
+var _5;
+if(typeof _3.expires=="number"){
+_5=new Date();
+_5.setTime(_5.getTime()+(_3.expires*24*60*60*1000));
+}else{
+_5=_3.expires;
+}
+_4="; expires="+_5.toUTCString();
+}
+var _6=_3.path?"; path="+(_3.path):"";
+var _7=_3.domain?"; domain="+(_3.domain):"";
+var _8=_3.secure?"; secure":"";
+document.cookie=[_1,"=",encodeURIComponent(_2),_4,_6,_7,_8].join("");
+}else{
+var _9=null;
+if(document.cookie&&document.cookie!=""){
+var _a=document.cookie.split(";");
+for(var i=0;i<_a.length;i++){
+var _b=jQuery.trim(_a[i]);
+if(_b.substring(0,_1.length+1)==(_1+"=")){
+_9=decodeURIComponent(_b.substring(_1.length+1));
+break;
+}
+}
+}
+return _9;
+}
+};
 (function($){
 $.extend({tablesorter:new function(){
 var _1=[],_2=[];
@@ -3288,6 +3325,41 @@ if(_69.config.debug){
 $.tablesorter.benchmark("Applying Zebra widget",_6a);
 }
 }});
+})(jQuery);
+(function($){
+$.styleswitcher={set:function(_1){
+$("link[rel*=style][title]").each(function(){
+this.disabled=this.title!=_1;
+});
+$.cookie("style",_1,{expires:365*100});
+},toggle:function(){
+links=$("link[rel*=style][title]").get();
+for(i in links){
+if(!links[i].disabled){
+i=i+1<links.length?i+1:0;
+$.styleswitcher.set(links[i].title);
+break;
+}
+}
+}};
+$.fn.styleswitcher=function(){
+html="Themes: <ul class=\"styleswitcher\"><li><a href=\"#\">none</a></li>";
+$("link[rel*=style][title]").each(function(){
+if(this.title!="default"){
+html+="<li><a href=\"#\">"+this.title+"</a></li>";
+}
+});
+html+="</ul>";
+$(this).html(html);
+$(".styleswitcher li a").click(function(){
+$.styleswitcher.set($(this).text());
+return false;
+});
+style=$.cookie("style");
+if(style){
+$.styleswitcher.set(style);
+}
+};
 })(jQuery);
 jQuery.ui||(function($){
 var _1=$.fn.remove,_2=$.browser.mozilla&&(parseFloat($.browser.version)<1.9);
@@ -4312,10 +4384,9 @@ elem.click(_5);
 });
 }});
 })(jQuery);
-$(document).ready(function(){
+$(function(){
 $(".tabs").tabs();
 $("table.sortable").tablesorter({widgets:["zebra"]});
-$("table.history").tablesorter({widgets:["zebra"],headers:{0:{sorter:false},1:{sorter:false},2:{sorter:"text"},3:{sorter:"text"},4:{sorter:"text"},5:{sorter:"text"},6:{sorter:false}}});
 $("table.history").disableSelection();
 $("table.history td *").css({cursor:"move"});
 $("table.history tbody tr").draggable({helper:function(){
@@ -4361,5 +4432,6 @@ elem.val(val);
 }
 });
 $("*[accesskey]").underlineAccessKey();
+$("#themes").styleswitcher();
 });
 

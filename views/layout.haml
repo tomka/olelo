@@ -3,9 +3,8 @@
 %html{:xmlns=>"http://www.w3.org/1999/xhtml", 'xmlns:esi' => 'http://www.edge-delivery.org/esi/1.0'}
   %head
     %title= Wiki::Config.title + ' - ' + include_block(:title)
-    %link{:rel => 'stylesheet', :href => '/static/themes/current/screen.css', :type => 'text/css', :media => 'screen'}
-    %link{:rel => 'stylesheet', :href => '/static/themes/current/print.css',  :type => 'text/css', :media => 'print'}
-    %link{:rel => 'shortcut icon', :href => '/static/themes/current/images/favicon.png', :type => 'image/png'}
+    = theme_links
+    %link{:rel => 'shortcut icon', :href => '/static/themes/images/favicon.png', :type => 'image/png'}
     %script{:src=>'/static/script.js', :type=>'text/javascript'}
     = include_block :head
   - timemachine = @resource && !@resource.current?
@@ -21,16 +20,16 @@
             %input.clear{:type=>'text',:id=>'pattern',:name=>'pattern', :value=> params[:pattern] || :search.t}
     #menu= include_menu
     #container
-      #body
-        #sidebar
-          %esi:include{:src=>'/sys/sidebar', :onerror => 'continue'}/
-        #content
-          = render_block :content do
-            %h1= include_block :title
-            = yield
-      #footer
-        = render_block :footer do
-          Powered by
-          %a{:href=>'http://github.com/minad/git-wiki/tree/master'} Git-Wiki
-          = include_block :footnote
-          %span.noprint= "| #{:generated_in.t(:ms => elapsed_time)}"
+      #sidebar
+        %esi:include{:src=>'/sys/sidebar', :onerror => 'continue'}/
+      #content
+        = render_block :content do
+          %h1= include_block :title
+          = yield
+    #footer
+      #themes.noprint
+      = render_block :footer do
+        Powered by
+        %a{:href=>'http://github.com/minad/git-wiki/tree/master'} Git-Wiki
+        = include_block :footnote
+        %span.noprint= "| #{:generated_in.t(:ms => elapsed_time)}"

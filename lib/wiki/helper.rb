@@ -35,6 +35,17 @@ module Wiki
     def head(content = nil, &block);     define_block(:head, content, &block);     end
     def title(content = nil, &block);    define_block(:title, content, &block);    end
 
+    def theme_links
+      Dir.glob(File.join(Config.root, 'static', 'themes', '*', 'style.css')).map do |file|
+        name = File.basename(File.dirname(file))
+        if (name == 'default')
+          '<link rel="stylesheet" href="/static/themes/default/style.css" type="text/css" title="default"/>'
+        else
+          %{<link rel="stylesheet" href="/static/themes/#{name}/style.css" type="text/css" title="#{name}"/>}
+        end
+      end.join("\n")
+    end
+
     def menu(*menu)
       define_block :menu, haml(:menu, :layout => false, :locals => { :menu => menu })
     end

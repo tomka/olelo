@@ -8,7 +8,7 @@
 
 =file-type(!type)
   .file-type-#{!type}
-    :background url(/static/themes/current/images/ext/#{!type}.png) no-repeat center center !important
+    :background url(/static/themes/default/images/ext/#{!type}.png) no-repeat center center !important
 
 #treeview
   +file-type("7z")
@@ -35,9 +35,10 @@
   +file-type("wma")
   +file-type("xls")
   +file-type("zip")
+  :position relative
   :padding 0
   :margin 0
-  :width 155px
+  :width 100%
   :max-height 600px
   :font-size 9pt
   :overflow auto
@@ -80,9 +81,9 @@
     .expanded .arrow
       :background url(expanded.png) no-repeat center center
     .page
-      :background url(/static/themes/current/images/page.png) no-repeat center center
+      :background url(/static/themes/default/images/page.png) no-repeat center center
     .expanded .tree
-      :background url(/static/themes/current/images/tree_open.png) no-repeat center center
+      :background url(/static/themes/default/images/tree_open.png) no-repeat center center
     .collapsed .tree
-      :background url(/static/themes/current/images/tree.png) no-repeat center center
+      :background url(/static/themes/default/images/tree.png) no-repeat center center
 

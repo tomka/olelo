@@ -45,6 +45,7 @@ module Wiki
           @plugin_files = {}
           get "/sys/:file", :patterns => {:file => /.*/} do
             if path = self.class.plugin_files[params[:file]]
+              raise Resource::NotFound, path if !File.exists?(path)
               cache_control :last_modified => File.mtime(path), :static => true
               send_file path
             else

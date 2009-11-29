@@ -73,22 +73,10 @@
     });
 })(jQuery);
 
-$(document).ready(function(){
+$(function() {
     $('.tabs').tabs();
 
     $('table.sortable').tablesorter({widgets: ['zebra']});
-    $('table.history').tablesorter({
-        widgets: ['zebra'],
-        headers: {
-            0: { sorter: false },
-            1: { sorter: false },
-            2: { sorter: 'text' },
-	    3: { sorter: 'text' },
-	    4: { sorter: 'text' }, // FIXME: Write parser for date
-	    5: { sorter: 'text' },
-            6: { sorter: false }
-        }
-    });
 
     $('table.history').disableSelection();
     $('table.history td *').css({ cursor: 'move' });
@@ -138,4 +126,6 @@ $(document).ready(function(){
     });
 
     $('*[accesskey]').underlineAccessKey();
+
+    $('#themes').styleswitcher();
 });

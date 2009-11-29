@@ -47,8 +47,3 @@
 	}
     });
 })(jQuery);
-
-$(document).ready(function() {
-    $('#treeview-tabs').tabs();
-    $('#treeview').treeView();
-});
