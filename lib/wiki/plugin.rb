@@ -87,7 +87,7 @@ module Wiki
     def start
       return true if @started
       context { instance_eval(&@setup) } if @setup
-      Plugin.logger.info("Plugin #{name} successfully started")
+      Plugin.logger.debug("Plugin #{name} successfully started")
       @started = true
     rescue Exception => ex
       Plugin.logger.error ex

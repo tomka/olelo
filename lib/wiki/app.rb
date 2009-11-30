@@ -21,7 +21,7 @@ module Wiki
 
       I18n.load_locale(File.join(File.dirname(__FILE__), 'locale.yml'))
 
-      @logger.info 'Opening repository'
+      @logger.debug 'Opening repository'
       @shared_repository = Gitrb::Repository.new(:path => Config.git.repository, :create => true, :bare => true)
 
       Plugin.logger = @logger
@@ -31,6 +31,8 @@ module Wiki
 
       @logger.debug self.class.dump_routes
       @repository = nil
+
+      @logger.info 'Wiki successfully started'
     end
 
     def repository
