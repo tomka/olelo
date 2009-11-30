@@ -3331,7 +3331,7 @@ $.styleswitcher={set:function(_1){
 $("link[rel*=style][title]").each(function(){
 this.disabled=this.title!=_1;
 });
-$.cookie("style",_1,{expires:365*100});
+$.cookie("style",_1,{expires:365*100,path:"/"});
 },toggle:function(){
 links=$("link[rel*=style][title]").get();
 for(i in links){
@@ -4316,24 +4316,28 @@ this.tab.show();
 $(this).parent("li").addClass("tabs-selected");
 return false;
 });
+},underlineText:function(_1){
+this.each(function(){
+if($(this).children().get().length==0){
+text=$(this).text();
+i=text.toLowerCase().indexOf(_1.toLowerCase());
+if(i>=0){
+$(this).html(text.substr(0,i)+"<span style=\"text-decoration: underline\">"+text.substr(i,_1.length)+"</span>"+text.substr(i+_1.length));
+}
+}else{
+$(this).children().underlineText(_1);
+}
+});
 },underlineAccessKey:function(){
 this.each(function(){
 key=$(this).attr("accesskey");
 if(key){
-$(this).contents().each(function(){
-if($(this).children().get().length==0){
-text=$(this).text();
-i=text.toLowerCase().indexOf(key.toLowerCase());
-if(i>=0){
-$(this).replaceWith(text.substr(0,i)+"<span style=\"text-decoration: underline\">"+text.substr(i,1)+"</span>"+text.substr(i+1));
-}
-}
-});
+$(this).underlineText(key);
 }
 });
 },dateToggler:function(){
-function _1(to,_2){
-n=Math.floor((to-_2)/60000);
+function _2(to,_3){
+n=Math.floor((to-_3)/60000);
 if(n==0){
 return "less than a minute";
 }
@@ -4366,21 +4370,21 @@ return "about 1 year";
 }
 return "over "+Math.round(n/525960)+" years";
 };
-function _3(_4){
-return _1(new Date().getTime(),new Date(_4*1000))+" ago";
+function _4(_5){
+return _2(new Date().getTime(),new Date(_5*1000))+" ago";
 };
-function _5(){
+function _6(){
 elem=$(this);
 match=elem.attr("class").match(/seconds_(\d+)/);
-elem.children(".ago").text(_3(match[1]));
+elem.children(".ago").text(_4(match[1]));
 elem.children(".full, .ago").toggle();
 };
 this.each(function(){
 elem=$(this);
 elem.html("<span class=\"full\">"+elem.text()+"</span><span class=\"ago\"></span>");
 elem.children(".ago").hide();
-_5.apply(this);
-elem.click(_5);
+_6.apply(this);
+elem.click(_6);
 });
 }});
 })(jQuery);
@@ -4397,7 +4401,7 @@ for(i=0;i<a.length;++i){
 $(a[i]).css({width:$(b[i]).width()+"px"});
 }
 return table;
-}}).droppable({hoverClass:"history-droppable-hover",drop:function(_6,ui){
+}}).droppable({hoverClass:"history-droppable-hover",drop:function(_7,ui){
 to=this.id;
 from=ui.draggable.attr("id");
 if(to!=from){

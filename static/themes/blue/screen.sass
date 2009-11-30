@@ -136,26 +136,23 @@ table.data, table.history, table.tree
 .history-droppable-hover
   :background-color #FF9 !important
 
-=action-icon(!icon)
-  .icon
-    :background url(images/#{!icon}.png) no-repeat center center
+=action-icon(!name)
+  .action-#{!name}
+    :text-indent -1000px
+    :background url(images/actions/#{!name}.png) no-repeat top left
     :float left
     :width 16px
     :height 16px
-  .text
-    :display none
+    :overflow hidden
 
 =file-type(!type)
   .file-type-#{!type}:before
-    :content url(images/ext/#{!type}.png) "\00a0"
+    :content url(images/filetypes/#{!type}.png) "\00a0"
 
 table.tree
-  .action-archive
-    +action-icon("archive")
-  .action-edit
-    +action-icon("edit")
-  .action-history
-    +action-icon("history")
+  +action-icon("archive")
+  +action-icon("edit")
+  +action-icon("history")
   .page:before
     :content url(images/page.png) "\00a0"
   .tree:before

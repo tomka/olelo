@@ -19,14 +19,15 @@
     %tr
       %td Version
       %td.sha= @resource.latest_commit.sha
-%h3 Exif
-%table.zebra
-  %thead
-    %tr
-      %th Entry
-      %th Value
-  %tbody
-    - @exif.each do |key, value|
+- if @exif
+  %h3 Exif
+  %table.zebra
+    %thead
       %tr
-        %td&= key
-        %td&= value
+        %th Entry
+        %th Value
+    %tbody
+      - @exif.each do |key, value|
+        %tr
+          %td&= key
+          %td&= value

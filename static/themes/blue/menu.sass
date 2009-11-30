@@ -1,12 +1,9 @@
 @import ../lib/horizontal-list.sass
 @import constants.sass
 
-=menu-icon(!icon)
-  .icon
-    :background url(images/#{!icon}.png) no-repeat center center
-    :width 16px
-    :height 1.7em
-    :margin-right 5px
+=menu-action(!name)
+  &.action-#{!name}:before
+    :content url(images/actions/#{!name}.png) "\00a0"
 
 #menu
   :height 1.7em
@@ -49,22 +46,15 @@
         :white-space nowrap
         :padding 0 1em
         :color #333
-        .text, .icon
-          :float left
-        &.action-older .icon
+        &.action-older:before
           content: "\00ab\00a0"
-        &.action-newer .icon
+        &.action-newer:before
           content: "\00a0\00bb"
-        &.action-home
-          +menu-icon("home")
-        &.action-new
-          +menu-icon("new")
-        &.action-edit
-          +menu-icon("edit")
-        &.action-history
-          +menu-icon("history")
-        &.action-archive
-          +menu-icon("archive")
+        +menu-action("home")
+        +menu-action("new")
+        +menu-action("edit")
+        +menu-action("history")
+        +menu-action("archive")
         &:hover, &:focus, &:active
           :text-shadow #333 1px 1px 2px
       ul

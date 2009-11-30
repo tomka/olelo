@@ -18,6 +18,7 @@ Engine.create(:imageinfo, :priority => 1, :layout => true, :cacheable => true) d
       stdin.close
       stdout.read
     }.split("\n").map {|line| line.split("\t") }
+    @exif = nil if !@exif[0] || !@exif[0][1]
     haml :imageinfo, :layout => false
   end
 end

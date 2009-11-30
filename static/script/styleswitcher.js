@@ -2,7 +2,7 @@
     $.styleswitcher = {
 	set: function(name) {
 	    $('link[rel*=style][title]').each(function() { this.disabled = this.title != name; });
-	    $.cookie('style', name, { expires: 365*100 });
+	    $.cookie('style', name, { expires: 365*100, path: '/' });
 	},
 	toggle: function() {
 	    links = $('link[rel*=style][title]').get();
