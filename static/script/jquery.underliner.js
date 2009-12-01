@@ -3,14 +3,15 @@
 	// Underline text
 	underlineText: function(str) {
 	    this.each(function() {
-		if ($(this).children().get().length == 0) {
-		    var text = $(this).text();
-		    var i = text.toLowerCase().indexOf(str.toLowerCase());
+		var elem = $(this), text, i;
+		if (elem.children().get().length == 0) {
+		    text = elem.text();
+		    i = text.toLowerCase().indexOf(str.toLowerCase());
 		    if (i >= 0)
-			$(this).html(text.substr(0, i) + '<span style="text-decoration: underline">' +
-					    text.substr(i, str.length) + '</span>' + text.substr(i+str.length));
+			elem.html(text.substr(0, i) + '<span style="text-decoration: underline">' +
+			          text.substr(i, str.length) + '</span>' + text.substr(i+str.length));
 		} else {
-		    $(this).children().underlineText(str);
+		    elem.children().underlineText(str);
 		}
 	    });
 	},

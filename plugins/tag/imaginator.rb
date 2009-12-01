@@ -4,7 +4,7 @@ author       'Daniel Mendler'
 description  'LaTeX/Graphviz support'
 
 class Wiki::App
-  public_files 'imaginator_failed.png'
+  static_files 'imaginator_failed.png'
 
   def self.imaginator
     @imaginator ||= Imaginator.new("drbunix://#{Config.cache}/imaginator.sock", File.join(Config.cache, 'imaginator')) do |server|

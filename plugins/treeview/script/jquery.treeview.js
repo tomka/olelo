@@ -47,9 +47,9 @@
 
 	    function bindTree(element) {
 		element.find('li > .hitarea').click(function() {
-		    var hitarea = $(this);
-		    var parent = hitarea.parent();
-		    var path = parent.children('a').attr('href');
+		    var hitarea = $(this),
+		    	parent = hitarea.parent(),
+		        path = parent.children('a').attr('href');
 		    if (hitarea.hasClass('collapsed')) {
 			openTree(parent, path);
 			hitarea.removeClass('collapsed').addClass('expanded');
@@ -60,9 +60,9 @@
 		    setExpanded(path, hitarea.hasClass('expanded'));
 		    return false;
 		}).each(function() {
-		    var hitarea = $(this);
-		    var parent = hitarea.parent();
-		    var path = parent.children('a').attr('href');
+		    var hitarea = $(this),
+		    parent = hitarea.parent(),
+		    path = parent.children('a').attr('href');
 		    if (isExpanded(path)) {
 			openTree(parent, path);
 			hitarea.removeClass('collapsed').addClass('expanded');

@@ -9,9 +9,8 @@ class Wiki::App
       '<script src="/sys/treeview/script.js" type="text/javascript"></script>'
   end
 
-  public_files 'script.js',
-               'expanded.png',
-               'collapsed.png',
+  static_files 'script.js',
+               '*.png',
                'spinner.gif',
 	       'treeview.css'
 

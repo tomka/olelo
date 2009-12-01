@@ -3,7 +3,7 @@ description  'Gallery engine'
 
 class Wiki::App
 
-  public_files 'gallery.css', 'gallery.js'
+  static_files 'gallery.css', 'gallery.js'
 
   add_hook(:after_head) do
     if @engine && @engine.name == 'gallery'

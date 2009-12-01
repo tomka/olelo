@@ -48,7 +48,7 @@ end
 class Wiki::App
   TAG_STORE = 'tags.yml'
 
-  public_files 'add.png', 'delete.png'
+  static_files '*.png'
 
   lazy_reader :tag_store do
     TagStore.find(repository, TAG_STORE) || TagStore.new(repository, TAG_STORE)

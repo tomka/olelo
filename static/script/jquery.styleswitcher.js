@@ -6,8 +6,8 @@
 	    $.store.set('style', name);
 	},
 	toggle: function() {
-	    var links = $('link[rel*=style][title]').get();
-	    for (var i in links) {
+	    var links = $('link[rel*=style][title]').get(), i;
+	    for (i in links) {
 		if (!links[i].disabled) {
 		    i = i + 1 < links.length ? i + 1 : 0;
 		    $.styleswitcher.set(links[i].title);
@@ -17,7 +17,7 @@
 	}
     };
     $.fn.styleswitcher = function() {
-	var html = 'Themes: <ul class="styleswitcher"><li><a href="#">none</a></li>';
+	var html = 'Themes: <ul class="styleswitcher"><li><a href="#">none</a></li>', style;
 	$('link[rel*=style][title]').each(function() {
 	    if (this.title != 'default')
 		html += '<li><a href="#">' + this.title + '</a></li>';
@@ -28,7 +28,7 @@
 	    $.styleswitcher.set($(this).text());
 	    return false;
 	});
-	var style = $.store.get('style');
+	style = $.store.get('style');
 	if (style)
 	    $.styleswitcher.set(style);
     };

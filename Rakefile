@@ -12,7 +12,8 @@ desc('Compile CSS files')
 task :css => %w(static/themes/blue/style.css plugins/treeview/treeview.css plugins/misc/pygments.css plugins/engine/gallery/gallery.css)
 
 def shrink_js(t)
-  sh "CLASSPATH=$CLASSPATH:tools/js.jar java -jar tools/shrinksafe.jar #{t.prerequisites.sort.join(' ')} > #{t.name}"
+  #sh "cat #{t.prerequisites.sort.join(' ')} | java -jar tools/yuicompressor*.jar --type js -v /dev/stdin > #{t.name}"
+  sh "java -jar tools/compiler.jar --compilation_level SIMPLE_OPTIMIZATIONS #{t.prerequisites.sort.map {|x| "--js #{x}" }.join(' ')} > #{t.name}"
 end
 
 def sass(file)

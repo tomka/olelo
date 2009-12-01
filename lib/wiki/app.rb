@@ -43,12 +43,11 @@ module Wiki
     class<< self
       attr_reader :plugin_files
 
-      def public_files(*files)
+      def static_files(*files)
         if !@plugin_files
           @plugin_files = {}
           get "/sys/:file", :patterns => {:file => /.*/} do
             if path = self.class.plugin_files[params[:file]]
-              raise Resource::NotFound, path if !File.exists?(path)
               cache_control :last_modified => File.mtime(path), :static => true
               send_file path
             else
@@ -58,7 +57,11 @@ module Wiki
         end
         name = File.dirname(Plugin.current.name)
         dir = File.dirname(Plugin.current.file)
-        files.each { |file| @plugin_files[name/file] = File.join(dir, file) }
+        files.each do |file|
+          Dir.glob(File.join(dir, file)).each do |path|
+            @plugin_files[name/path[dir.length+1..-1]] = path
+          end
+        end
       end
     end
 

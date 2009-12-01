@@ -21,8 +21,7 @@
 	}
 
 	function toggleDate() {
-	    var elem = $(this);
-	    var match = elem.attr('class').match(/seconds_(\d+)/);
+	    var elem = $(this), match = elem.attr('class').match(/seconds_(\d+)/);
 	    elem.children('.ago').text(timeAgo(match[1]));
 	    elem.children('.full, .ago').toggle();
 	}

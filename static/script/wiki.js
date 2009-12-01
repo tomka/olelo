@@ -9,18 +9,19 @@ $(function() {
     $('table.history td *').css({ cursor: 'move' });
     $('table.history tbody tr').draggable({
 	helper: function() {
-	    var table = $('<table class="history-draggable"><tbody>' + $(this).html() + '</tbody></table>');
-	    var a = $.makeArray(table.find('td'));
-	    var b = $.makeArray($(this).find('td'));
-	    for (var i = 0; i < a.length; ++i)
+	    var table = $('<table class="history-draggable"><tbody>' + $(this).html() + '</tbody></table>'),
+		a = $.makeArray(table.find('td')),
+		b = $.makeArray($(this).find('td')),
+		i;
+	    for (i = 0; i < a.length; ++i)
 		$(a[i]).css({ width: $(b[i]).width() + 'px' });
 	    return table;
 	}
     }).droppable({
 	hoverClass: 'history-droppable-hover',
 	drop: function(event, ui) {
-	    var to = this.id;
-	    var from = ui.draggable.attr('id');
+	    var to = this.id,
+		from = ui.draggable.attr('id');
 	    if (to != from)
 		location.href = '/diff?from=' + from + '&to=' + to;
 	}
@@ -40,9 +41,9 @@ $(function() {
     $('.date').dateToggler();
     $('label, #menu, .tabs > ul').disableSelection();
     $('#upload-file').change(function() {
-	var elem = $('#upload-path');
+	var elem = $('#upload-path'), val;
 	if (elem.size() == 1) {
-	    var val = elem.val();
+	    val = elem.val();
 	    if (val == '') {
 		elem.val(this.value);
 	    } else if (val.match(/^(.*\/)?new page$/)) {

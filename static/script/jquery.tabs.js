@@ -1,10 +1,11 @@
 // Written by Daniel Mendler
 (function($) {
     $.fn.tabs = function(options) {
-	var store = options && options.store;
-	var links = $("ul:first > li > a[href^='#']", this).each(function() {
-	    this.tabName = this.href.match(/(#.*)$/)[1];
-	});
+	var selected = null,
+	    store = options && options.store,
+	    links = $("ul:first > li > a[href^='#']", this).each(function() {
+	    	        this.tabName = this.href.match(/(#.*)$/)[1];
+		    });
 
 	$("ul:first > li > a[href^='#']", this).click(function() {
 	    links.each(function() { $(this.tabName).hide(); });
@@ -16,7 +17,6 @@
 	    return false;
 	});
 
-	var selected = null;
 	if (store) {
 	    var name = $.store.get(store);
 	    if (name)
