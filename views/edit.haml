@@ -25,7 +25,7 @@
         %label{:for=>'edit-message'}= :message.t
         %input#edit-message{:type=>'text', :name=>'message', :size => 50, :value => params[:message]}
         = render_block(:edit_form_buttons) do
-          %button{:type=>'submit' :accesskey => 's'}= :save.t
+          %button{:type=>'submit', :accesskey => 's'}= :save.t
           %button{:type=>'reset', :accesskey => 'r'}= :reset.t
         %br
     %form{:action => @resource.path.urlpath, :method=>'post', :enctype=> 'multipart/form-data'}

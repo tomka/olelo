@@ -64,7 +64,7 @@ class Wiki::Tag < Filter
           else
             text = elem.children ? elem.children.map { |x| x.to_original_html }.join : ''
             text = begin
-                     method.bind(self).call(context, elem.attributes.with_indifferent_access, text)
+                     method.bind(self).call(context, elem.attributes.to_hash.with_indifferent_access, text)
                    rescue Exception => ex
                      "#{name}: #{escape_html ex.message}"
                    end
