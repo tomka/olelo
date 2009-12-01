@@ -11,7 +11,8 @@
 		    return;
 		}
 		element.addClass('wait');
-		$.ajax({url: options.url, data: { dir: path }, dataType: 'json', type: 'GET', success: function(data) {
+
+		function dataReceived(data) {
 		    var html = '<ul>';
 		    $.each(data, function(i, child) {
 			html += '<li><div class="'+(child[0] ? 'hitarea collapsed' : 'placeholder')+'"><div class="arrow"/><div class="'+
@@ -20,28 +21,27 @@
 		    html += '</ul>';
 		    if (path == options.root)
 			element.empty();
+		    element.children('ul').remove();
 		    element.removeClass('wait').append(html);
 		    bindTree(element);
-		}});
-	    }
+		}
 
-	    function readState() {
-		var cookie = $.cookie(options.cookie);
-		return cookie ? cookie.split(',') : [];
+		$.ajax({url: options.url, data: { dir: path }, dataType: 'json', type: 'GET', success: dataReceived});
+		$.ajax({url: options.url, data: { dir: path }, dataType: 'json', type: 'GET', success: dataReceived, cache: false});
 	    }
 
 	    function isExpanded(path) {
-		return options.cookie && $.inArray(path, readState()) >= 0;
+		return options.store && $.inArray(path, $.store.get(options.store, [])) >= 0;
 	    }
 
 	    function setExpanded(path, expanded) {
-		if (options.cookie) {
-		    var state = readState();
+		if (options.store) {
+		    var state = $.store.get(options.store, []);
 		    if (!expanded)
 			state = $.grep(state, function(n, i) { return n != path; });
 		    else if ($.inArray(path, state) < 0)
 			state.push(path);
-		    $.cookie(options.cookie, state.join(','), { expires: 365*100, path: '/' });
+		    $.store.set(options.store, state);
 		}
 	    }
 

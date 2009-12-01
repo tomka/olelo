@@ -1,8 +1,9 @@
+// Written by Daniel Mendler
 (function($) {
     $.styleswitcher = {
 	set: function(name) {
 	    $('link[rel*=style][title]').each(function() { this.disabled = this.title != name; });
-	    $.cookie('style', name, { expires: 365*100, path: '/' });
+	    $.store.set('style', name);
 	},
 	toggle: function() {
 	    var links = $('link[rel*=style][title]').get();
@@ -27,7 +28,7 @@
 	    $.styleswitcher.set($(this).text());
 	    return false;
 	});
-	var style = $.cookie('style');
+	var style = $.store.get('style');
 	if (style)
 	    $.styleswitcher.set(style);
     };

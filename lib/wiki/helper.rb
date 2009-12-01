@@ -110,7 +110,8 @@ module Wiki
 
       mode = opts[:private] ? 'private' : 'public'
       max_age = opts[:max_age] || (opts[:static] ? 2592000 : 0)
-      response['Cache-Control'] = "#{mode}, max-age=#{max_age}, must-revalidate"
+      revalidate = opts[:proxy_revalidate] ? 'proxy-revalidate' : 'must-revalidate'
+      response['Cache-Control'] = "#{mode}, max-age=#{max_age}, #{revalidate}"
     end
 
     def no_caching
