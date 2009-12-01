@@ -1,6 +1,3 @@
-[submodule "deps/sinatra"]
-	path = deps/sinatra
-	url = git://github.com/sinatra/sinatra.git
-[submodule "gitrb"]
-	path = gitrb
+[submodule "deps/gitrb"]
+	path = deps/gitrb
 	url = git://github.com/minad/gitrb.git

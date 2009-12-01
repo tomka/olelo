@@ -48,6 +48,7 @@ file('plugins/treeview/script.js' => Dir.glob('plugins/treeview/script/*.js')) {
 namespace :test do
   Rake::TestTask.new(:unit) do |t|
     t.libs << 'test' << 'lib'
+    Dir[::File.join('deps', '*', 'lib')].each {|x| t.libs << x }
     t.warning = true
     t.test_files = FileList['test/test_*.rb']
   end
@@ -63,6 +64,7 @@ namespace :test do
 
   Rake::TestTask.new(:spec) do |t|
     t.libs << 'test' << 'lib'
+    Dir[::File.join('deps', '*', 'lib')].each {|x| t.libs << x }
     t.warning = false
     t.test_files = FileList['test/spec_*.rb']
   end
