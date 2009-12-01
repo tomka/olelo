@@ -5,8 +5,8 @@
 	    $.cookie('style', name, { expires: 365*100, path: '/' });
 	},
 	toggle: function() {
-	    links = $('link[rel*=style][title]').get();
-	    for (i in links) {
+	    var links = $('link[rel*=style][title]').get();
+	    for (var i in links) {
 		if (!links[i].disabled) {
 		    i = i + 1 < links.length ? i + 1 : 0;
 		    $.styleswitcher.set(links[i].title);
@@ -16,7 +16,7 @@
 	}
     };
     $.fn.styleswitcher = function() {
-	html = 'Themes: <ul class="styleswitcher"><li><a href="#">none</a></li>';
+	var html = 'Themes: <ul class="styleswitcher"><li><a href="#">none</a></li>';
 	$('link[rel*=style][title]').each(function() {
 	    if (this.title != 'default')
 		html += '<li><a href="#">' + this.title + '</a></li>';
@@ -27,7 +27,7 @@
 	    $.styleswitcher.set($(this).text());
 	    return false;
 	});
-	style = $.cookie('style');
+	var style = $.cookie('style');
 	if (style)
 	    $.styleswitcher.set(style);
     };

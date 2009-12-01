@@ -1,29 +1,35 @@
 (function($) {
     $.extend($.fn, {
 	// Tabs
-	tabs: function() {
-	    links = $('ul:first > li > a', this);
-	    links.each(function() {
-		hash = this.href.match(/(#.*)$/);
-		this.tab = $(hash[1]);
-		this.tabLinks = links;
-		if ($(this).parent('li.tabs-selected').length == 0)
-		    this.tab.hide();
+	tabs: function(options) {
+	    var cookie = options && options.cookie;
+	    var links = $("ul:first > li > a[href^='#']", this).each(function() {
+		this.tabName = this.href.match(/(#.*)$/)[1];
 	    });
-	    links.click(function() {
-		this.tabLinks.each(function() { this.tab.hide(); });
-		this.tabLinks.parent('li').removeClass('tabs-selected');
-		this.tab.show();
-		$(this).parent('li').addClass('tabs-selected');
+
+	    $("ul:first > li > a[href^='#']", this).click(function() {
+		links.each(function() { $(this.tabName).hide(); });
+		links.parent().removeClass('tabs-selected');
+		$(this).parent().addClass('tabs-selected');
+		$(this.tabName).show();
+		if (cookie)
+		    $.cookie(cookie, this.tabName, { expires: 365*100, path: '/' });
 		return false;
 	    });
+
+	    var selected = null;
+	    if (cookie)
+		selected = $("ul:first > li > a[href='" + $.cookie(cookie) + "']", this);
+	    if (!selected || selected.get().length == 0)
+		selected = $("ul:first > li.tabs-selected > a[href^='#']", this);
+	    selected.click();
 	},
 	// Underline text
 	underlineText: function(str) {
 	    this.each(function() {
 		if ($(this).children().get().length == 0) {
-		    text = $(this).text();
-		    i = text.toLowerCase().indexOf(str.toLowerCase());
+		    var text = $(this).text();
+		    var i = text.toLowerCase().indexOf(str.toLowerCase());
 		    if (i >= 0)
 			$(this).html(text.substr(0, i) + '<span style="text-decoration: underline">' +
 					    text.substr(i, str.length) + '</span>' + text.substr(i+str.length));
@@ -35,7 +41,7 @@
 	// Underline access key
 	underlineAccessKey: function() {
 	    this.each(function() {
-		key = $(this).attr('accesskey');
+		var key = $(this).attr('accesskey');
 		if (key)
 		    $(this).underlineText(key);
 	    });
@@ -43,7 +49,7 @@
 	// Date toggler
 	dateToggler: function() {
 	    function timeDistance(to, from) {
-		n = Math.floor((to  - from) / 60000)
+		var n = Math.floor((to  - from) / 60000)
 		if (n == 0) return 'less than a minute';
 		if (n == 1) return 'a minute';
 		if (n < 45) return n + ' minutes';
@@ -62,14 +68,14 @@
 	    }
 
 	    function toggleDate() {
-		elem = $(this);
-		match = elem.attr('class').match(/seconds_(\d+)/);
+		var elem = $(this);
+		var match = elem.attr('class').match(/seconds_(\d+)/);
 		elem.children('.ago').text(timeAgo(match[1]));
 		elem.children('.full, .ago').toggle();
 	    }
 
 	    this.each(function() {
-		elem = $(this);
+		var elem = $(this);
 		elem.html('<span class="full">' + elem.text() + '</span><span class="ago"></span>')
 		elem.children('.ago').hide();
 		toggleDate.apply(this);
@@ -88,18 +94,18 @@ $(function() {
     $('table.history td *').css({ cursor: 'move' });
     $('table.history tbody tr').draggable({
 	helper: function() {
-	    table = $('<table class="history-draggable"><tbody>' + $(this).html() + '</tbody></table>');
-	    a = $.makeArray(table.find('td'));
-	    b = $.makeArray($(this).find('td'));
-	    for (i = 0; i < a.length; ++i)
+	    var table = $('<table class="history-draggable"><tbody>' + $(this).html() + '</tbody></table>');
+	    var a = $.makeArray(table.find('td'));
+	    var b = $.makeArray($(this).find('td'));
+	    for (var i = 0; i < a.length; ++i)
 		$(a[i]).css({ width: $(b[i]).width() + 'px' });
 	    return table;
 	}
     }).droppable({
 	hoverClass: 'history-droppable-hover',
 	drop: function(event, ui) {
-	    to = this.id;
-	    from = ui.draggable.attr('id');
+	    var to = this.id;
+	    var from = ui.draggable.attr('id');
 	    if (to != from)
 		location.href = '/diff?from=' + from + '&to=' + to;
 	}
@@ -119,9 +125,9 @@ $(function() {
     $('.date').dateToggler();
     $('label, #menu, .tabs > ul').disableSelection();
     $('#upload-file').change(function() {
-	elem = $('#upload-path');
+	var elem = $('#upload-path');
 	if (elem.size() == 1) {
-	    val = elem.val();
+	    var val = elem.val();
 	    if (val == '') {
 		elem.val(this.value);
 	    } else if (val.match(/^(.*\/)?new page$/)) {
