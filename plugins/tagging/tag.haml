@@ -13,6 +13,6 @@
     %form{:class=>'inline', :method=>'post', :action=> '/tags/new'}
       %div
         %input{:type=>'hidden', :name=>'tag', :value => @tag}
-        %input{:type=>'text', :name=>'path'}
+        %input{:type=>'text', :name=>'path', :alt => :page.t}
         %button{:type=>'submit'}
           %img{:src=>'/sys/tagging/add.png', :alt=>:add.t}

@@ -14,6 +14,6 @@
   %form.inline.noprint{:method=>'post', :action=>'/tags/new'}
     %div
       %input{:type=>'hidden', :name=>'path', :value=>@resource.path}
-      %input{:type=>'text', :name=>'tag'}
+      %input{:type=>'text', :name=>'tag', :alt=>:new_tag.t}
       %button{:type=>'submit'}
         %img{:src=>'/sys/tagging/add.png', :alt=>:add.t}
