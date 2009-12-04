@@ -20,8 +20,8 @@ $(function() {
     }).droppable({
 	hoverClass: 'history-droppable-hover',
 	drop: function(event, ui) {
-	    var to = this.id,
-		from = ui.draggable.attr('id');
+	    var to = this.id.substr(7),
+		from = ui.draggable.attr('id').substr(7);
 	    if (to != from)
 		location.href = '/diff?from=' + from + '&to=' + to;
 	}
