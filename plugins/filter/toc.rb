@@ -16,12 +16,21 @@ class Toc < Filter
 
     walk(@doc)
     while @level > 0
-      @toc << indent + '</ul>'
       @level -= 1
+      @toc << '</li></ul>'
     end
+    @toc << '</div>'
 
     content = @doc.to_html.fix_encoding
-    content.gsub!(context['__TOC__'], @toc.fix_encoding + '</div>')
+    @toc = @toc.fix_encoding
+
+    content.gsub!(context['__TOC__']) do
+      prefix = $`
+      count = prefix.scan('<p>').size - prefix.scan('</p>').size
+      count > 0 ? '</p>' + @toc + '<p>' : @toc
+    end
+    content.gsub!(%r{<p>\s*</p>}, '')
+
     content
   end
 
@@ -32,29 +41,30 @@ class Toc < Filter
       next if !child.elem?
       if child.name =~ /^h(\d)$/
         nr = $1.to_i - @offset
-        while nr > @level
-          @toc << indent + '<ul>'
-          @count[@level] = 0
-          @level += 1
-        end
-        while nr < @level
-          @level -= 1
-          @toc << indent + '</ul>'
+        if nr > @level
+          while nr > @level
+            @toc << '<ul>'
+            @count[@level] = 0
+            @level += 1
+            @toc << '<li>' if nr > @level
+          end
+        else
+          while nr < @level
+            @level -= 1
+            @toc << '</li></ul>'
+          end
+          @toc << '</li>'
         end
         @count[@level-1] += 1
         headline = child.children.first ? child.children.first.inner_text : ''
         section = 'section-' + @count[0..@level-1].join('_') + '_' + headline.strip.gsub(/[^\w]/, '_')
-        @toc << %Q{#{indent}<li class="toc#{@level-@offset+1}"><a href="##{section}">
-<span class="counter">#{@count[@level-1]}</span> #{headline}</a></li>}
+        @toc << %{<li class="toc#{@level-@offset+1}"><a href="##{section}">\
+<span class="counter">#{@count[@level-1]}</span> #{headline}</a>}
         child.inner_html = %Q{<span class="counter" id="#{section}">#{@count[0..@level-1].join('.')}</span> #{child.inner_html}}
       else
         walk(child)
       end
     end
-  end
-
-  def indent
-    ('  ' * @level)
   end
 end
 

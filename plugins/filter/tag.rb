@@ -41,12 +41,27 @@ class Wiki::Tag < Filter
     @prefix = "TAG_#{Thread.current.object_id.abs.to_s(36)}_"
     content = subfilter(nested_tags(context, content))
     10.times do
-      break if !content.gsub!(/#{@prefix}(\d+)/) { |match| @elements[$1.to_i] }
+      break if !content.gsub!(/#{@prefix}(\d+)/) do
+        element = @elements[$1.to_i]
+        if block_element? element
+          prefix = $`
+          count = prefix.scan('<p>').size - prefix.scan('</p>').size
+          count > 0 ? '</p>' + element + '<p>' : element
+        else
+          element
+        end
+      end
+
+      content.gsub!(%r{<p>\s*</p>}, '')
     end
     content
   end
 
   private
+
+  def block_element?(element)
+    element =~ /<(div|p|ul|ol|table)/
+  end
 
   def walk_elements(context, parent)
     parent.each_child do |elem|

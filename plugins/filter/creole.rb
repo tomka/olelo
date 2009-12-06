@@ -3,7 +3,7 @@ description  'Creole wiki text filter'
 dependencies 'engine/filter'
 require      'creole'
 
-class CreoleParser < Creole::CreoleParser
+class WikiCreoleParser < Creole
   include Helper
 
   def initialize(page)
@@ -32,18 +32,18 @@ class CreoleParser < Creole::CreoleParser
     page_path = escape_html(page_path)
     nolink = args.delete('nolink')
     box = args.delete('box')
-    alt = args[0] ? " alt=\"#{escape_html args[0]}\"" : ''
+    alt = escape_html(args[0] ? args[0] : path)
     if nolink
-      "<img src=\"#{image_path}\"#{alt}/>"
+      %{<img src="#{image_path}" alt="#{alt}"/>}
     elsif box
-      caption = args[0] ? "<span class=\"caption\">#{escape_html args[0]}</span>" : ''
-      "<div class=\"img\"><a href=\"#{page_path}\"><img src=\"#{image_path}\"#{alt}/>#{caption}</a></div>"
+      caption = args[0] ? %{<span class="caption">#{escape_html args[0]}</span>} : ''
+      %{<span class="img"><a href="#{page_path}"><img src="#{image_path}" alt="#{alt}"/>#{caption}</a></span>}
     else
-      "<a href=\"#{page_path}\" class=\"img\"><img src=\"#{image_path}\"#{alt}/></a>"
+      %{<a href="#{page_path}" class="img"><img src="#{image_path}" alt="#{alt}"/></a>}
     end
   end
 end
 
 Filter.create :creole do |content|
-  CreoleParser.new(context.page).parse(content)
+  WikiCreoleParser.new(context.page).parse(content)
 end
