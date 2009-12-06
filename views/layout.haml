@@ -5,7 +5,6 @@
     %title= Wiki::Config.title + ' - ' + include_block(:title)
     = theme_links
     %link{:rel => 'shortcut icon', :href => '/static/themes/images/favicon.png', :type => 'image/png'}
-    %script{:src=>'/static/script.js', :type=>'text/javascript'}
     = include_block :head
   - timemachine = @resource && !@resource.current?
   %body{timemachine ? {:class => 'timemachine'} : {}}
@@ -33,3 +32,5 @@
         %a{:href=>'http://github.com/minad/git-wiki/tree/master'} Git-Wiki
         = include_block :footnote
         %span.noprint= "| #{:generated_in.t(:ms => elapsed_time)}"
+    %script{:src=>'/static/script.js', :type=>'text/javascript'}
+    = include_block :script

@@ -5,8 +5,11 @@ description  'Tree Viewer'
 class Wiki::App
 
   add_hook(:after_head) do
-    '<link rel="stylesheet" href="/sys/treeview/treeview.css" type="text/css"/>' +
-      '<script src="/sys/treeview/script.js" type="text/javascript"></script>'
+    '<link rel="stylesheet" href="/sys/treeview/treeview.css" type="text/css"/>'
+  end
+
+  add_hook(:after_script) do
+    '<script src="/sys/treeview/script.js" type="text/javascript"></script>'
   end
 
   static_files 'script.js',

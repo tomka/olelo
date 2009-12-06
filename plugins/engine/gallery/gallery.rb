@@ -7,8 +7,13 @@ class Wiki::App
 
   add_hook(:after_head) do
     if @engine && @engine.name == 'gallery'
-      '<link rel="stylesheet" href="/sys/engine/gallery/gallery.css" type="text/css"/>' +
-        '<script src="/sys/engine/gallery/gallery.js" type="text/javascript"></script>'
+      '<link rel="stylesheet" href="/sys/engine/gallery/gallery.css" type="text/css"/>'
+    end
+  end
+
+  add_hook(:after_script) do
+    if @engine && @engine.name == 'gallery'
+      '<script src="/sys/engine/gallery/gallery.js" type="text/javascript"></script>'
     end
   end
 
