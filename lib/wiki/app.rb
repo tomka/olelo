@@ -162,7 +162,7 @@ module Wiki
       cache_control :etag => params[:sha], :validate_only => true
       @commit = repository.get_commit(params[:sha])
       cache_control :etag => @commit.sha, :last_modified => @commit.date
-      @diff = repository.diff(@commit.sha, @commit.parent.first.sha)
+      @diff = repository.diff(@commit.parent.first.sha, @commit.sha)
       haml :commit
     end
 
@@ -176,6 +176,33 @@ module Wiki
       @resource = Resource.find!(repository, params[:path])
       cache_control :etag => @resource.sha, :last_modified => @resource.commit.date
       haml :history
+    end
+
+    get '/:path/move' do
+      @resource = Resource.find!(repository, params[:path])
+      haml :move
+    end
+
+    get '/:path/delete' do
+      @resource = Resource.find!(repository, params[:path])
+      haml :delete
+    end
+
+    post '/:path/move' do
+      begin
+        @resource = Resource.find!(repository, params[:path])
+        invoke_hook(:resource_move, @resource, params[:destination]) { @resource.move(params[:destination], @user) }
+        redirect @resource.path.urlpath
+      rescue StandardError => error
+	message :error, error
+        haml :move
+      end
+    end
+
+    post '/:path/delete' do
+      @resource = Resource.find!(repository, params[:path])
+      invoke_hook(:resource_delete, @resource) { @resource.delete(@user) }
+      haml :deleted
     end
 
     get '/?:path?/diff' do

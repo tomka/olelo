@@ -27,7 +27,7 @@ module Wiki
     def self.find(repository, path, sha = nil)
       path = path.to_s.cleanpath
       forbid_invalid_path(path)
-      commit = sha ? (String === sha ? repository.get_commit(sha) : sha) : repository.log(1, nil, path).first
+      commit = sha ? (String === sha ? repository.get_commit(sha) : sha) : repository.log(1, nil).first
       return nil if !commit
       object = commit.tree[path].object rescue nil
       object && (self != Resource ? valid_object?(object) && new(repository, path, object, commit, !sha) :
@@ -49,6 +49,25 @@ module Wiki
       @object = object
       @commit = commit
       @current = current
+      reload
+    end
+
+    # Delete page
+    def delete(author = nil)
+      repository.transaction(:resource_deleted.t(:path => @path), author && author.to_git_user) do
+        repository.root.delete(@path)
+      end
+    end
+
+    # Move page
+    def move(destination, author = nil)
+      Resource.forbid_invalid_path(destination)
+      forbid(:already_exists.t => Resource.find(@repository, destination))
+      repository.transaction(:resource_moved_to.t(:path => @path, :destination => destination), author && author.to_git_user) do
+        repository.root.move(@path, destination)
+        repository.root[@path] = Gitrb::Blob.new(:data => %{<redirect path="#{destination.urlpath}"/>})
+      end
+      @path = destination
       reload
     end
 
@@ -189,10 +208,9 @@ module Wiki
              :already_exists.t => new? && Resource.find(@repository, @path),
              :empty_commit_message.t => message.blank?)
 
-      repository.transaction do
+      repository.transaction(message, author && author.to_git_user) do
         content = File.read(content.path) if content.respond_to? :path # FIXME
         repository.root[@path] = Gitrb::Blob.new(:data => content)
-        repository.commit(message, author && author.to_git_user)
       end
 
       reload

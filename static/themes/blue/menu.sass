@@ -48,13 +48,15 @@
         color: #333
         &.action-older:before
           content: "\00ab\00a0"
-        &.action-newer:before
+        &.action-newer:after
           content: "\00a0\00bb"
         +menu-action("home")
         +menu-action("new")
         +menu-action("edit")
         +menu-action("history")
         +menu-action("archive")
+        +menu-action("delete")
+        +menu-action("move")
         &:hover, &:focus, &:active
           text-shadow: #333 1px 1px 2px
       ul
@@ -68,6 +70,6 @@
           clear: both
           border = !border !important
           border-top: none !important
-          width: 6em
+          width: 100%
       &:hover>ul
         display: block

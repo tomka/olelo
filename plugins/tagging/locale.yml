@@ -4,5 +4,4 @@ en:
   id_tagged_as: '#{id} tagged as #{tag}'
   tag_deleted:  'Tag #{tag} deleted from #{id}'
   add:          'Add'
-  delete:       'Delete'
   new_tag:      'New Tag'

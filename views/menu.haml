@@ -31,11 +31,19 @@
           %a.action-page{:href=> (@resource.path/'..'/@resource.name[1..-1]).urlpath, :accesskey=>'p' }= :page.t
         - else
           %a.action-discuss{:href=> (@resource.path/'..'/"@#{@resource.name}").urlpath, :accesskey=>'d' }= :discuss.t
-  %li
-    %a.action-new{:href=> @resource && @resource.tree? ? (@resource.path/'new page/new').urlpath : '/new page/new'  }= :new_page.t
   - if menu.include?(:edit) && @resource.page?
     %li
       %a.action-edit{:href=>action_path(@resource, :edit), :accesskey=>'e'}= :edit.t
+      %ul
+        %li
+          %a.action-new{:href=> @resource && @resource.tree? ? (@resource.path/'new page/new').urlpath : '/new page/new'  }= :new_page.t
+        %li
+          %a.action-move{:href=> action_path(@resource, :move) }= :move.t
+        %li
+          %a.action-delete{:href=> action_path(@resource, :delete) }= :delete.t
+  - else
+    %li
+      %a.action-new{:href=> @resource && @resource.tree? ? (@resource.path/'new page/new').urlpath : '/new page/new'  }= :new_page.t
   - if menu.include?(:history)
     %li
       %a.action-history{:href=>action_path(@resource, :history), :accesskey=>'h'}= :history.t

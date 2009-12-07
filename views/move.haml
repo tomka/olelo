@@ -1,0 +1,8 @@
+- menu :view, :history, :edit
+- title :move_page.t(:page => @resource.title)
+%form{:action => action_path(@resource.path, :move), :method=>'post'}
+  .fieldset
+    = show_messages
+    %label.inline{:for=>'destination'}= :destination.t
+    %input#destination.inline{:name=>'destination', :type=>'text', :value => @resource.path}
+    %button.inline{:type=>'submit', :accesskey => 'm'}= :move.t
