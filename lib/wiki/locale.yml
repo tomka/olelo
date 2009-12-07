@@ -1,7 +1,6 @@
 en:
   actions:                'Actions'
   already_exists:         'Already exists'
-  anonymous:              'Anonymous'
   anonymous_profile:      "Anonymous users don't have a profile."
   archive:                'Archive'
   author:                 'Author'
@@ -28,6 +27,7 @@ en:
   file_uploaded:          'File uploaded'
   from:                   'From'
   generated_in:           'Generated in #{ms}ms'
+  groups:                 'Groups'
   history:                'History'
   history_of:             'History of #{path}'
   home:                   'Home'

@@ -4,10 +4,10 @@ description 'Access control lists'
 class Wiki::Resource
   def access?(type, user = nil)
     acl = metadata['acl'] || {}
-    users = [acl[type.to_s]].flatten.compact
-    users.empty? ||
-    users.include?('all') || users.include?('*') ||
-    user && !user.anonymous? && (users.include?('user') || users.include?(user.name))
+    names = [acl[type.to_s]].flatten.compact
+    names.empty? ||
+    names.include?(user.name) ||
+    user.groups.any? {|group| names.include?('@'+group) }
   end
 end
 

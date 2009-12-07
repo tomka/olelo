@@ -4,14 +4,18 @@ require 'wiki/extensions'
 
 module Wiki
   class User
-    attr_reader :name
+    attr_reader :name, :groups
     attr_accessor :email
-    question_reader :anonymous
 
-    def initialize(name, email, anonymous)
+    def anonymous?
+      @groups.include? 'anonymous'
+    end
+
+    def initialize(name, email, groups = [])
       @name = name
       @email = email
-      @anonymous = anonymous
+      @groups = groups || []
+      @groups << 'user' if !anonymous?
     end
 
     def change_password(oldpassword, password, confirm)
@@ -35,8 +39,7 @@ module Wiki
 
     def validate
       forbid(:invalid_email.t => email !~ /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\Z/i,
-             :invalid_name.t  => name !~ /[\w.\-+_]+/,
-             :anonymous.t     => anonymous?)
+             :invalid_name.t  => name !~ /[\w.\-+_]+/)
     end
 
     @services = {}
@@ -62,7 +65,7 @@ module Wiki
       def anonymous(request)
         ip = request.ip || 'unknown-ip'
         name = request.env['rack.hostbyip'] ? "#{request.env['rack.hostbyip']} (#{ip})" : ip
-        new(name, "anonymous@#{ip}", true)
+        new(name, "anonymous@#{ip}", %w(anonymous))
       end
 
       def find(name)
@@ -75,7 +78,7 @@ module Wiki
 
       def create(name, password, confirm, email)
         validate_password(password, confirm)
-        user = User.new(name, email, false )
+        user = new(name, email)
         user.validate
         service.create(user, password)
         user
