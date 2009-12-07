@@ -36,14 +36,12 @@ module Wiki
     def title(content = nil, &block);    define_block(:title, content, &block);    end
 
     def theme_links
+      default = File.basename(File.dirname(File.readlink(File.join(Config.root, 'static', 'themes', 'default'))))
       Dir.glob(File.join(Config.root, 'static', 'themes', '*', 'style.css')).map do |file|
         name = File.basename(File.dirname(file))
-        if (name == 'default')
-          '<link rel="stylesheet" href="/static/themes/default/style.css" type="text/css" title="default"/>'
-        else
-          %{<link rel="stylesheet" href="/static/themes/#{name}/style.css" type="text/css" title="#{name}"/>}
-        end
-      end.join("\n")
+        next if name == 'default'
+        %{<link rel="#{name == default ? 'alternate ' : ''}stylesheet" href="/static/themes/#{name}/style.css" type="text/css" title="#{name}"/>}
+      end.compact.join("\n")
     end
 
     def menu(*menu)

@@ -11,6 +11,7 @@ Dir[::File.join(path, 'deps', '*', 'lib')].each {|x| $: << x }
 require 'rubygems'
 require 'fileutils'
 require 'logger'
+require 'rack/deflater'
 require 'rack/patched_request'
 require 'rack/esi'
 require 'rack/session/pstore'
@@ -68,6 +69,7 @@ if Wiki::Config.rack.profiling?
   use Rack::Profiler, :printer => :graph
 end
 
+use Rack::Deflater
 use Rack::Session::Pool
 use Rack::ReverseIP
 use Rack::MethodOverride
