@@ -106,7 +106,7 @@ module Wiki
         halt(304) if time == request.env['HTTP_IF_MODIFIED_SINCE']
       end
 
-      mode = opts[:private] ? 'private' : 'public'
+      mode = (@user && !@user.anonymous? || opts[:private]) ? 'private' : 'public'
       max_age = opts[:max_age] || (opts[:static] ? 2592000 : 0)
       revalidate = opts[:proxy_revalidate] ? 'proxy-revalidate' : 'must-revalidate'
       response['Cache-Control'] = "#{mode}, max-age=#{max_age}, #{revalidate}"

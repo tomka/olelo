@@ -21,10 +21,6 @@ class Wiki::App
   add_hook(:after_action) do |method, action|
     if @resource && method == :get
       @resource.access?(:read, @user) || raise(AccessDenied)
-
-      if !@resource.access?(:read) && response['Cache-Control']
-        response['Cache-Control'].sub!(/^public/, 'private')
-      end
     end
   end
 

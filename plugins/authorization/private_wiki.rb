@@ -24,10 +24,4 @@ class Wiki::App
       end
     end
   end
-
-  add_hook(:after_action) do |method, action|
-    if !public_access? && response['Cache-Control']
-      response['Cache-Control'].sub!(/^public/, 'private')
-    end
-  end
 end
