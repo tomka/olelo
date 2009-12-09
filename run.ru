@@ -11,10 +11,7 @@ Dir[::File.join(path, 'deps', '*', 'lib')].each {|x| $: << x }
 require 'rubygems'
 require 'fileutils'
 require 'logger'
-require 'rack/deflater'
 require 'rack/patched_request'
-require 'rack/esi'
-require 'rack/session/pstore'
 require 'rack/reverseip'
 require 'wiki/app'
 
@@ -49,8 +46,10 @@ default_config = {
   ],
   :rack => {
     :esi          => true,
+    :embed        => false,
     :rewrite_base => nil,
     :profiling    => false,
+    :deflater     => true,
   },
   :git => {
     :repository => ::File.join(path, '.wiki', 'repository'),
@@ -69,13 +68,23 @@ if Wiki::Config.rack.profiling?
   use Rack::Profiler, :printer => :graph
 end
 
-use Rack::Deflater
 use Rack::Session::Pool
 use Rack::ReverseIP
 use Rack::MethodOverride
 
+if Wiki::Config.rack.deflater?
+  require 'rack/deflater'
+  use Rack::Deflater
+end
+
+if Wiki::Config.rack.embed?
+  require 'rack/embed'
+  use Rack::Embed, :threaded => true
+end
+
 if Wiki::Config.rack.esi?
-  use Rack::ESI, :no_cache => true
+  require 'rack/esi'
+  use Rack::ESI
 
   if env == 'deployment' || env == 'production'
     require 'rack/cache'
@@ -97,7 +106,6 @@ end
 FileUtils.mkdir_p ::File.dirname(Wiki::Config.log.file), :mode => 0755
 logger = Logger.new(Wiki::Config.log.file)
 logger.level = Logger.const_get(Wiki::Config.log.level)
-
 
 use Rack::CommonLogger, logger
 
