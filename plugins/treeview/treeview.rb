@@ -25,7 +25,7 @@ class Wiki::App
 
     result = '[';
     result << resource.children.map do |child|
-      ext = child.page? && child.extension.empty? ? '' : " file-type-#{ext}"
+      ext = !child.page? || child.extension.empty? ? '' : " file-type-#{child.extension.downcase}"
       "[#{child.tree? && !child.children.empty?},'#{child.tree? ? 'tree' : 'page' + ext}','#{resource_path(child)}','#{child.name}']"
     end.join(',')
     result << ']'
