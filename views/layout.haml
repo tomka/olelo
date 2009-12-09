@@ -4,7 +4,7 @@
   %head
     %title= Wiki::Config.title + ' - ' + include_block(:title)
     = theme_links
-    %link{:rel => 'shortcut icon', :href => '/static/themes/images/favicon.png', :type => 'image/png'}
+    %link{:rel => 'shortcut icon', :href => '/static/images/favicon.png', :type => 'image/png'}
     = include_block :head
   - timemachine = @resource && !@resource.current?
   %body{timemachine ? {:class => 'timemachine'} : {}}
