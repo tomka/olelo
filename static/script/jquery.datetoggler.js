@@ -23,10 +23,9 @@
 	this.each(function() {
 	    var elem = $(this);
 	    var text = elem.text();
-	    elem.click(function() {
-		var match = elem.attr('class').match(/epoch-(\d+)/);
-		elem.html(elem.text() == text ? timeAgo(match[1]) : text);
-	    }).click();
+	    var match = elem.attr('class').match(/epoch-(\d+)/);
+	    if (match)
+	        elem.click(function() { elem.html(elem.text() == text ? timeAgo(match[1]) : text); }).click();
 	});
     };
 })(jQuery);
