@@ -1,0 +1,23 @@
+%p
+  - if @prev
+    %a{:href=>@prev} Previous
+  - if @next
+    %a{:href=>@next} Next
+  %br
+  %img#pdf{:src=> @src}
+%h3 Information
+%table.zebra
+  %tbody
+    %tr
+      %td Name
+      %td&= @resource.name
+    %tr
+      %td Last modified
+      %td= date @resource.latest_commit.date
+    %tr
+      %td Version
+      %td.sha= @resource.latest_commit.sha
+    %tr
+      %td Download
+      %td
+        %a{:href=> resource_path(@resource, :output => 'raw')} Download File

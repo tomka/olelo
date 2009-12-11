@@ -4,19 +4,17 @@ TODO
 - Get rid of alias method chains
 - Documentation
 - Code comments and rdoc generation
-- More specs and more unit tests, or throw away
-  the specs and write only unit tests. I don't like
-  this spec syntax that much.
+- More specs/unit tests
 - Captcha support
-- Image support, Image gallery
 - Clean up stylesheet
-- More caching where it makes sense
 - Support for branching operations (Maybe not that important for a gui?)
-- Switch to grit maybe (grit does not support some things yet, but has native implementation of some git features)
 - Implement revert operation
 - Syntax highlighting abstraction which use ultraviolet, coderay or pygments
+- (DONE) Image support, Image gallery
+- (DONE) More caching where it makes sense
 - (DONE) Wiki installation under subpath (path_info translation could be done
   via rack middleware, generated links must be adapted)
+- (DONE) Switch to grit maybe (grit does not support some things yet, but has native implementation of some git features)
 - (DONE) Cache-control and etag support
 - (DONE) Plugin system
 - (DONE) Stackable output filters/engines
