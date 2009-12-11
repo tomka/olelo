@@ -20,18 +20,13 @@
 	    return timeDistance(new Date().getTime(), new Date(from * 1000)) + ' ago';
 	}
 
-	function toggleDate() {
-	    var elem = $(this), match = elem.attr('class').match(/seconds_(\d+)/);
-	    elem.children('.ago').text(timeAgo(match[1]));
-	    elem.children('.full, .ago').toggle();
-	}
-
 	this.each(function() {
 	    var elem = $(this);
-	    elem.html('<span class="full">' + elem.text() + '</span><span class="ago"></span>')
-	    elem.children('.ago').hide();
-	    toggleDate.apply(this);
-	    elem.click(toggleDate);
+	    var text = elem.text();
+	    elem.click(function() {
+		var match = elem.attr('class').match(/epoch-(\d+)/);
+		elem.html(elem.text() == text ? timeAgo(match[1]) : text);
+	    }).click();
 	});
     };
 })(jQuery);

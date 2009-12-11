@@ -159,7 +159,7 @@ module Wiki
     end
 
     def date(t)
-      %Q{<span class="date seconds_#{t.to_i}">#{t.strftime('%d %h %Y %H:%M')}</span>}
+      %Q{<span class="date epoch-#{t.to_i}">#{t.strftime('%d %h %Y %H:%M')}</span>}
     end
 
     def breadcrumbs(resource)

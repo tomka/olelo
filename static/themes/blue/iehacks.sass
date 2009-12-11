@@ -1,0 +1,30 @@
+// IE 6 hack
+* html
+  #container
+    // little offset to avoid wrapping
+    // wrong box model computations?
+    width: 100%
+    padding: 0
+    background: transparent
+    border-bottom: 1px solid #999
+  #sidebar
+    margin: 0
+    border-right: 1px solid #999
+    border-bottom: 1px solid #999
+  #content
+    width: 70%
+    background: transparent
+  #footer
+    background: transparent
+    margin-top: 0
+    padding-top: 0
+
+// IE 7 hack
+*:first-child+html
+  #container
+    // little offset to avoid wrapping
+    // wrong box model computations?
+    padding-right: 7.1em
+  #menu ul li li
+    // IE 7 does not understand width: 100%
+    width: 8em

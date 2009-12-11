@@ -132,7 +132,8 @@ module Wiki
 
     # Page title
     def title
-      n = name.gsub(/\.([^.]+)$/, '')
+      i = name.index('.')
+      n = i ? name[0...i] : name
       discussion? ? :discussion_of.t(:name => n[1..-1]) : n
     end
 
@@ -221,8 +222,8 @@ module Wiki
 
     # Page extension
     def extension
-      path =~ /.\.([^\/.]+)$/
-      $1.to_s
+      i = path.index('.')
+      i ? path[i+1..-1] : ''
     end
 
     # Detect mime type by extension, by content or use default mime type
