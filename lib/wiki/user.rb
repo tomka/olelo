@@ -44,6 +44,12 @@ module Wiki
 
     @services = {}
 
+    class NullService
+      def method_missing(name, *args)
+        raise StandardError, "Authentication service does not support #{name}"
+      end
+    end
+
     class<< self
       def validate_password(password, confirm)
         forbid(:passwords_do_not_match.t => password != confirm,
@@ -51,7 +57,7 @@ module Wiki
       end
 
       def define_service(name, &block)
-        service = Class.new
+        service = Class.new(NullService)
         service.class_eval(&block)
         @services[name.to_s] = service
       end
