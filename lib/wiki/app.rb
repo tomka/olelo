@@ -108,7 +108,6 @@ module Wiki
     end
 
     get '/login', '/signup' do
-      cache_control :static => true
       haml :login
     end
 
@@ -159,7 +158,6 @@ module Wiki
     end
 
     get '/commit/:sha' do
-      cache_control :etag => params[:sha], :validate_only => true
       @commit = repository.get_commit(params[:sha])
       cache_control :etag => @commit.sha, :last_modified => @commit.date
       @diff = repository.diff(@commit.parent.first.sha, @commit.sha)
@@ -209,7 +207,6 @@ module Wiki
       @resource = Resource.find!(repository, params[:path])
       begin
         forbid('From not selected' => params[:from].blank?, 'To not selected' => params[:to].blank?)
-        cache_control :static => true
         @diff = @resource.diff(params[:from], params[:to])
         haml :diff
       rescue StandardError => error
@@ -327,11 +324,7 @@ module Wiki
     # Show resource
     def show
       @resource = Resource.find!(repository, params[:path], params[:sha])
-      if @resource.current?
-        cache_control :etag => @resource.latest_commit.sha, :last_modified => @resource.latest_commit.date
-      else
-        cache_control :static => true
-      end
+      cache_control :etag => @resource.latest_commit.sha, :last_modified => @resource.latest_commit.date
 
       @engine = Engine.find!(@resource, params[:output])
       @content = @engine.render(@resource, params, no_cache?)

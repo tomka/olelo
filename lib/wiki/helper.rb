@@ -89,24 +89,37 @@ module Wiki
     def cache_control(opts)
       return if !Config.production?
 
+      last_modified = opts[:last_modified]
+      modified_since = request.env['HTTP_IF_MODIFIED_SINCE']
+      last_modified = last_modified.to_time if last_modified.respond_to?(:to_time)
+      last_modified = last_modified.httpdate if last_modified.respond_to?(:httpdate)
+
+      mode = opts[:private] ? 'private' : 'public'
+
+      if @user && !@user.anonymous?
+        # Always private mode if user is logged in
+        mode = 'private'
+
+        # Special etag for authenticated user
+        opts[:etag] = Digest::MD5.hexdigest("#{@user.name}#{opts[:etag]}") if opts[:etag]
+      end
+
       if opts[:etag]
         value = '"%s"' % opts[:etag]
-        response['ETag'] = value if !opts[:validate_only]
+        response['ETag'] = value
+        response['Last-Modified'] = last_modified if last_modified
         if etags = env['HTTP_IF_NONE_MATCH']
           etags = etags.split(/\s*,\s*/)
-          halt(304) if etags.include?(value) || etags.include?('*')
+          # Etag is matching and modification date matches (HTTP Spec §14.26)
+          halt(304) if (etags.include?(value) || etags.include?('*')) && (!last_modified || last_modified == modified_since)
         end
+      elsif last_modified
+        # If-Modified-Since is only processed if no etag supplied.
+        # If the etag match failed the If-Modified-Since has to be ignored (HTTP Spec §14.26)
+        response['Last-Modified'] = last_modified
+        halt(304) if last_modified == modified_since
       end
 
-      if opts[:last_modified]
-        time = opts[:last_modified]
-        time = time.to_time if time.respond_to?(:to_time)
-        time = time.httpdate if time.respond_to?(:httpdate)
-        response['Last-Modified'] = time if !opts[:validate_only]
-        halt(304) if time == request.env['HTTP_IF_MODIFIED_SINCE']
-      end
-
-      mode = (@user && !@user.anonymous? || opts[:private]) ? 'private' : 'public'
       max_age = opts[:max_age] || (opts[:static] ? 2592000 : 0)
       revalidate = opts[:proxy_revalidate] ? 'proxy-revalidate' : 'must-revalidate'
       response['Cache-Control'] = "#{mode}, max-age=#{max_age}, #{revalidate}"
