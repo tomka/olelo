@@ -1,0 +1,14 @@
+!shadow_default_blur ||= 12px
+!shadow_default_x ||= 4px
+!shadow_default_y ||= 4px
+!shadow_default_color ||= #555
+
+=box-shadow(!x = !shadow_default_x, !y = !shadow_default_y, !blur = !shadow_default_blur, !color = !shadow_default_color)
+  box-shadow = !x !y !blur !color
+  -moz-box-shadow = !x !y !blur !color
+  -webkit-box-shadow = !x !y !blur !color
+
+=no-box-shadow
+  box-shadow: 0px 0px 0px transparent
+  -moz-box-shadow: 0px 0px 0px transparent
+  -webkit-box-shadow: 0px 0px 0px transparent

@@ -1,5 +1,6 @@
 @import ../lib/reset.sass
 @import ../lib/rounded.sass
+@import ../lib/shadow.sass
 @import ../lib/headlines.sass
 @import ../lib/patch.sass
 @import constants.sass
@@ -40,6 +41,7 @@ ul, ol
   padding-left: 1.5em
 
 table
+  +box-shadow
   background: #999
   border-collapse: separate
   border-spacing: 1px
@@ -264,6 +266,7 @@ table input
 
 .box, .fieldset
   +rounded
+  +box-shadow
   clear: both
   display: block
   border = !border
