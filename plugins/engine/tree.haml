@@ -21,7 +21,7 @@
           %a{:href=>resource_path(child), :class => classes}= child.name
         %td= date(child.latest_commit.date)
         %td= child.latest_commit.author.name
-        %td= child.latest_commit.message.truncate(30)
+        %td&= child.latest_commit.message.truncate(30)
         %td.actions
           - if child.tree?
             %a.action-archive{:href=>action_path(child, :archive), :title => :archive.t}= :archive.t
