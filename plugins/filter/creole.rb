@@ -18,7 +18,7 @@ class WikiCreoleParser < Creole
   def make_image(path, title)
     args = title.to_s.split('|')
     image_path, page_path = path, path
-    if !args.delete('raw')
+    if !args.delete('download')
       geometry = args.find { |x| x =~ /(\d+x)|(x\d+)|(\d+%)/}
       opts = {:path => path, :output => 'image'}
       if geometry

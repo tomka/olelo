@@ -102,5 +102,5 @@ module Wiki
   end
 
   # Raw engine
-  Engine.register(Engine.new(:raw, :priority => 999, :layout => false))
+  Engine.register(Engine.new(:download, :priority => 999, :layout => false))
 end
