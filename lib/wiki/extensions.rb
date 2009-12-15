@@ -151,8 +151,10 @@ end
 class Symbol
   # Another nice helper from rails activesupport to
   # convert symbols to procs
-  def to_proc
-    proc { |obj, *args| obj.send(self, *args) }
+  if !:to_proc.respond_to?(:to_proc)
+    def to_proc
+      proc { |obj, *args| obj.send(self, *args) }
+    end
   end
 end
 

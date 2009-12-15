@@ -219,7 +219,7 @@ module Wiki
       end
 
       reload
-      @commit = latest_commit
+      @commit = repository.log(1, nil).first
       @object = @commit.tree[@path] || raise(NotFound, path)
       @current = true
     end

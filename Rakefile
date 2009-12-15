@@ -3,7 +3,7 @@ require 'rake'
 require 'rake/testtask'
 require 'rake/rdoctask'
 
-task :default => %w(test:unit test:spec test:coverage)
+task :default => %w(test)
 
 desc('Shrink JS files')
 task :script => %w(static/script.js plugins/treeview/script.js)
@@ -45,29 +45,20 @@ end
 file('static/script.js' => Dir.glob('static/script/*.js')) { |t| shrink_js(t) }
 file('plugins/treeview/script.js' => Dir.glob('plugins/treeview/script/*.js')) {|t| shrink_js(t) }
 
-namespace :test do
-  Rake::TestTask.new(:unit) do |t|
-    t.libs << 'test' << 'lib'
-    Dir[::File.join('deps', '*', 'lib')].each {|x| t.libs << x }
-    t.warning = true
-    t.test_files = FileList['test/test_*.rb']
-  end
+Rake::TestTask.new(:test) do |t|
+  t.libs << 'test' << 'lib'
+  Dir[::File.join('deps', '*', 'lib')].each {|x| t.libs << x }
+  t.test_files = FileList['test/*_test.rb']
+end
 
-  #require 'rcov/rcovtask'
-  #Rcov::RcovTask.new(:coverage) do |t|
-  #  t.rcov_opts << '--exclude' << '/gems/,/ruby-git\/lib/'
-  #  t.libs << 'test' << 'lib'
-  #  t.warning = false
-  #  t.verbose = true
-  #  t.test_files = FileList['test/test_*.rb','test/spec_*.rb']
-  #end
-
-  Rake::TestTask.new(:spec) do |t|
-    t.libs << 'test' << 'lib'
-    Dir[::File.join('deps', '*', 'lib')].each {|x| t.libs << x }
-    t.warning = false
-    t.test_files = FileList['test/spec_*.rb']
-  end
+gem 'rcov', '>= 0'
+require 'rcov/rcovtask'
+Rcov::RcovTask.new(:coverage) do |t|
+  t.rcov_opts << '--exclude' << '/gems/,/ruby-git\/lib/'
+  t.libs << 'test' << 'lib'
+  t.warning = false
+  t.verbose = true
+  t.test_files = FileList['test/*_test.rb']
 end
 
 desc 'Cleanup'

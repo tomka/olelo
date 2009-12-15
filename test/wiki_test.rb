@@ -1,6 +1,4 @@
-require 'wiki/app'
-require 'test/spec'
-require 'rack/test'
+require 'spec_setup'
 
 Rack::MockRequest::DEFAULT_ENV['REMOTE_ADDR'] = 'localhorst'
 
