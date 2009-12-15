@@ -15,6 +15,9 @@ require 'rack/patched_request'
 require 'rack/reverseip'
 require 'wiki/app'
 
+# Try to load server gem
+gem(server, '>= 0') rescue nil
+
 config_file = if ENV['WIKI_CONFIG']
   ENV['WIKI_CONFIG']
 else
@@ -64,6 +67,7 @@ Wiki::Config.update(default_config)
 Wiki::Config.load(config_file)
 
 if Wiki::Config.rack.profiling?
+  gem 'rack-contrib', '>= 0'
   require 'rack/contrib'
   use Rack::Profiler, :printer => :graph
 end
@@ -78,15 +82,18 @@ if Wiki::Config.rack.deflater?
 end
 
 if Wiki::Config.rack.embed?
+  gem 'rack-embed', '>= 0'
   require 'rack/embed'
   use Rack::Embed, :threaded => true
 end
 
 if Wiki::Config.rack.esi?
+  gem 'minad-rack-esi', '>= 0'
   require 'rack/esi'
   use Rack::ESI
 
   if env == 'deployment' || env == 'production'
+    gem 'rack-cache', '>= 0.5.2'
     require 'rack/cache'
     require 'rack/purge'
     use Rack::Purge

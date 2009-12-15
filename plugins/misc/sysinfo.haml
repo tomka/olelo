@@ -28,7 +28,6 @@ Installed Plugins:
       %th Author
       %th Description
       %th Dependencies
-      %th Required libraries
   %tbody
     - @plugins.each do |plugin|
       %tr
@@ -36,4 +35,3 @@ Installed Plugins:
         %td&= plugin.author
         %td&= plugin.description
         %td&= plugin.dependencies.join(', ')
-        %td&= plugin.libraries.join(', ')

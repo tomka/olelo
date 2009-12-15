@@ -1,6 +1,6 @@
 author       'Daniel Mendler'
 description  'Creole wiki text filter'
-dependencies 'engine/filter'
+dependencies 'engine/filter', 'gem:creole'
 require      'creole'
 
 class WikiCreoleParser < Creole

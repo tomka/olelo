@@ -1,5 +1,5 @@
-author       'Daniel Mendler'
-description  'MathML utilities'
+author      'Daniel Mendler'
+description 'MathML utilities'
 
 class ::MathML
   def self.replace_entities(s)

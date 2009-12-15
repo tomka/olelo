@@ -1,5 +1,5 @@
-author       'Daniel Mendler'
-description  'Interwiki support'
+author      'Daniel Mendler'
+description 'Interwiki support'
 
 setup do
   interwiki = YAML.load_file(File.join(Config.root, 'interwiki.yml'))

@@ -1,5 +1,5 @@
-author       'Daniel Mendler'
-description  'Basic searching via grep'
+author      'Daniel Mendler'
+description 'Basic searching via grep'
 
 class Wiki::App
   get '/search' do

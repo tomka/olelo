@@ -1,7 +1,7 @@
-dependencies 'filter/tag'
-require      'evaluator'
 author       'Daniel Mendler'
 description  'Scripting tags'
+dependencies 'filter/tag', 'gem:evaluator'
+require      'evaluator'
 
 class Wiki::Engine::Context
   def function_table

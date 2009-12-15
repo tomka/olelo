@@ -14,6 +14,7 @@ module Wiki
     include Helper
     include Templates
     patterns :path => PATH_PATTERN, :sha => SHA_PATTERN
+    attr_reader :repository
 
     def initialize(app = nil, opts = {})
       @app = app
@@ -22,8 +23,8 @@ module Wiki
       I18n.load_locale(File.join(File.dirname(__FILE__), 'locale.yml'))
 
       @logger.debug 'Opening repository'
-      @shared_repository = Gitrb::Repository.new(:path => Config.git.repository, :create => true,
-                                                 :bare => true, :logger => @logger)
+      @repository = Gitrb::Repository.new(:path => Config.git.repository, :create => true,
+                                          :bare => true, :logger => @logger)
 
       Plugin.logger = @logger
       Plugin.dir = File.join(Config.root, 'plugins')
@@ -31,13 +32,14 @@ module Wiki
       Plugin.start
 
       @logger.debug self.class.dump_routes
-      @repository = nil
-
       @logger.info 'Wiki successfully started'
     end
 
-    def repository
-      @repository ||= @shared_repository.dup
+    def dup
+      super.instance_eval do
+        @repository = @repository.dup
+        self
+      end
     end
 
     class<< self

@@ -1,6 +1,6 @@
 author       'Daniel Mendler'
 description  'Filter which fixes punctuation'
-dependencies 'engine/filter'
+dependencies 'engine/filter', 'gem:rubypants'
 require      'rubypants'
 
 Filter.create :rubypants do |content|

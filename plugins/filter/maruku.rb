@@ -1,6 +1,6 @@
 author       'Daniel Mendler'
 description  'Maruku/Markdown text filter'
-dependencies 'engine/filter'
+dependencies 'engine/filter', 'gem:maruku'
 require      'maruku'
 
 Filter.create :maruku do |content|

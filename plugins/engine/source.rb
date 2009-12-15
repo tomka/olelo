@@ -1,5 +1,5 @@
-author       'Daniel Mendler'
-description  'Source engine'
+author      'Daniel Mendler'
+description 'Source engine'
 
 Engine.create(:source, :priority => 3, :layout => true, :cacheable => true) do
   def accepts?(page); page.mime.text?; end

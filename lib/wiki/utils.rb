@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 require 'wiki/extensions'
-require 'haml'
 require 'yaml'
 require 'cgi'
+
+gem 'haml', '>= 2.2.0'
+require 'haml'
 
 module Wiki
   class MultiError < StandardError
@@ -151,7 +153,6 @@ module Wiki
   end
 
   class Semaphore
-
     def initialize(counter = 1)
       @mutex = Mutex.new
       @cond = ConditionVariable.new

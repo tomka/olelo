@@ -1,6 +1,5 @@
 author      'Daniel Mendler'
 description 'Register some mime types'
-require     'mimemagic'
 
 MimeMagic.add('text/x-creole', %w(creole text), %w(text/plain), [0..64, 'creole'])
 MimeMagic.add('text/x-markdown', %w(markdown md mdown mkdn mdown), %w(text/plain), [0..64, 'markdown'])

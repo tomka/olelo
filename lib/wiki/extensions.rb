@@ -64,11 +64,12 @@ class HashWithIndifferentAccess < Hash
   alias_method :regular_update, :update
 
   def []=(key, value)
-    regular_writer(convert_key(key), convert_value(value))
+    regular_writer(convert_key(key), value)
+    value
   end
 
   def update(other)
-    other.each_pair { |key, value| regular_writer(convert_key(key), convert_value(value)) }
+    other.each_pair { |key, value| regular_writer(convert_key(key), value) }
     self
   end
 
@@ -110,17 +111,6 @@ class HashWithIndifferentAccess < Hash
 
   def convert_key(key)
     Symbol === key ? key.to_s : key
-  end
-
-  def convert_value(value)
-    case value
-    when Hash
-      value.with_indifferent_access
-    when Array
-      value.collect { |e| e.is_a?(Hash) ? e.with_indifferent_access : e }
-    else
-      value
-    end
   end
 end
 

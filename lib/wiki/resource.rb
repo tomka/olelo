@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
-require 'gitrb'
 require 'wiki/routing'
 require 'wiki/utils'
 require 'wiki/extensions'
 require 'wiki/config'
-require 'mimemagic'
 require 'yaml'
+
+gem 'gitrb', '>= 0.0.2'
+require 'gitrb'
+
+gem 'mimemagic', '>= 0.1.1'
+require 'mimemagic'
 
 module Wiki
   PATH_PATTERN = '[^\s](?:.*[^\s]+)?'
@@ -29,8 +33,8 @@ module Wiki
       forbid_invalid_path(path)
       commit = sha ? (String === sha ? repository.get_commit(sha) : sha) : repository.log(1, nil).first
       return nil if !commit
-      object = commit.tree[path].object rescue nil
-      object && (self != Resource ? valid_object?(object) && new(repository, path, object, commit, !sha) :
+      object = commit.tree[path] rescue nil
+      object && (self != Resource ? self.type == object.type && new(repository, path, object, commit, !sha) :
                  object.type == 'blob' && Page.new(repository, path, object, commit, !sha) ||
                  object.type == 'tree' && Tree.new(repository, path, object, commit, !sha)) || nil
     end
@@ -171,8 +175,8 @@ module Wiki
 
   # Page resource in repository
   class Page < Resource
-    def self.valid_object?(object)
-      object.type == 'blob'
+    def self.type
+      'blob'
     end
 
     # Reload cached data
@@ -249,8 +253,8 @@ module Wiki
   class Tree < Resource
     DIRECTORY_MIME = MimeMagic.new('inode/directory')
 
-    def self.valid_object?(object)
-      object.type == 'tree'
+    def self.type
+      'tree'
     end
 
     # Reload cached data

@@ -1,6 +1,6 @@
-dependencies 'misc/sidebar'
 author       'Daniel Mendler'
 description  'Tree Viewer'
+dependencies 'misc/sidebar'
 
 class Wiki::App
 

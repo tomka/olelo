@@ -47,6 +47,7 @@ First, you have to install the [Gem][] dependencies via `gem`:
     gem install rubypants
     gem install imaginator
     gem install evaluator
+    gem install rack-embed
 
 Then, run the program using the command:
 
@@ -70,13 +71,12 @@ Dependencies
 
 - [HAML][]
 - [gitrb][]
-- [RubyPants][]
 
 ### Optional Dependencies
 
 - [hpricot][] for tags in the wikitext
 - [imaginator][] for [LaTeX][]/[GraphViz][] output
-  (`imaginator` Gem from [GitHub][])
+  (`imaginator` Gem from [gemcutter][])
 - [Pygments][] for syntax highlighting
 - [ImageMagick][] for image scaling and svg rendering
 - [RubyPants][] to fix punctuation
@@ -86,7 +86,7 @@ Dependencies
 At least one of these renderers should be installed:
 
 - [creole][] for creole wikitext rendering
-  (`creole` Gem from [GitHub][])
+  (`creole` Gem from [gemcutter][])
 - [RDiscount][] for Markdown rendering
 - [RedCloth][] for Textile rendering
 
@@ -103,5 +103,6 @@ At least one of these renderers should be installed:
 [RDiscount]:http://github.com/rtomayko/rdiscount
 [RedCloth]:http://whytheluckystiff.net/ruby/redcloth/
 [ImageMagick]:http://www.imagemagick.org/
-[gitrb]:http://github.com/minad/gitr/
+[gitrb]:http://github.com/minad/gitrb/
+[gemcutter]:http://gemcutter.org/
 [RubyPants]:http://chneukirchen.org/blog/static/projects/rubypants.html

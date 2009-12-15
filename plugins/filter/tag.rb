@@ -1,6 +1,6 @@
 author       'Daniel Mendler'
 description  'Support for XML tags in wiki text'
-dependencies 'engine/filter'
+dependencies 'engine/filter', 'gem:hpricot'
 require      'hpricot'
 
 class Wiki::Engine::Context

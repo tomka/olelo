@@ -2,8 +2,6 @@
 require 'wiki/utils'
 require 'pathname'
 
-alias wiki_original_require require
-
 module Wiki
   # Wiki plugin system
   class Plugin
@@ -108,21 +106,18 @@ module Wiki
       @dependencies ||= []
       @dependencies += list
       list.each do |dep|
-        raise(RuntimeError, "Could not load dependency #{dep} for #{name}") if !Plugin.load(dep)
+        if dep =~ /^gem:\s*(.*)\s*$/
+          dep = $1.split(/\s+/)
+          raise(ArgumentError, 'Invalid gem specification') if dep.length < 1
+          name = dep[0]
+          version = dep.length > 1 ? dep[1..-1].join(' ') : '>= 0'
+          gem name, version
+        else
+          raise(RuntimeError, "Could not load dependency #{dep} for #{name}") if !Plugin.load(dep)
+        end
       end
       @dependencies
     end
-
-    # Required libraries
-    def libraries(*list)
-      @libraries ||= []
-      @libraries += list
-      @libraries.each do |dep|
-        wiki_original_require dep
-      end
-      @libraries
-    end
-    alias require libraries
 
     def context
       (Thread.current[:plugin] ||= []) << self

@@ -1,6 +1,6 @@
-author       'Daniel Mendler'
-description  'Enhanced edit form with preview and diff'
-require      'tempfile'
+author      'Daniel Mendler'
+description 'Enhanced edit form with preview and diff'
+require     'tempfile'
 
 class Wiki::App
   add_hook(:before_edit_form_buttons) do

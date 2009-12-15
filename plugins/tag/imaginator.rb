@@ -1,7 +1,7 @@
-dependencies 'filter/tag'
-require      'imaginator'
 author       'Daniel Mendler'
 description  'LaTeX/Graphviz support'
+dependencies 'filter/tag', 'gem:imaginator'
+require      'imaginator'
 
 class Wiki::App
   static_files 'imaginator_failed.png'

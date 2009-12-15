@@ -1,6 +1,6 @@
-dependencies 'filter/tag'
 author       'Daniel Mendler'
 description  'Footnote support'
+dependencies 'filter/tag'
 
 Tag.define :ref do |context, attrs, content|
   footnotes = context['__FOOTNOTES__'] ||= []
