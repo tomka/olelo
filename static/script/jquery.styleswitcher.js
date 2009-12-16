@@ -1,4 +1,5 @@
-// Written by Daniel Mendler
+// Styleswitcher from http://www.kelvinluck.com/assets/jquery/styleswitch/toggle.html
+// Adapted by Daniel Mendler
 (function($) {
     $.styleswitcher = {
 	set: function(name) {

@@ -1,3 +1,5 @@
+// Simple store which saves key/value pairs as JSON in cookies
+// Written by Daniel Mendler
 (function($) {
     $.store = {
 	load: function() {

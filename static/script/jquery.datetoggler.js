@@ -1,3 +1,4 @@
+// Toggle date to relative by click
 // Written by Daniel Mendler
 (function($) {
     $.fn.dateToggler = function() {

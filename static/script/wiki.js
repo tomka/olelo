@@ -30,13 +30,7 @@ $(function() {
     $('.zebra tr:even').addClass('even');
     $('.zebra tr:odd').addClass('odd');
 
-    $('input.clear').focus(function() {
-	if (this.value == this.defaultValue)
-	    this.value = '';
-    }).blur(function() {
-	if (this.value == '')
-	    this.value = this.defaultValue;
-    });
+    $('input.placeholder').placeholder();
 
     $('.date').dateToggler();
     $('label, #menu, .tabs > ul').disableSelection();

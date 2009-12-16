@@ -1,3 +1,4 @@
+// Simple tabs used as an unobtrusive enhancement
 // Written by Daniel Mendler
 (function($) {
     $.fn.tabs = function(options) {

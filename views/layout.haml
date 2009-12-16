@@ -6,7 +6,7 @@
     %link{:rel => 'shortcut icon', :href => '/static/images/favicon.png', :type => 'image/png'}
     = include_block :head
   - timemachine = @resource && !@resource.current?
-  %body{timemachine ? {:class => 'timemachine'} : {}}
+  %body{:class => timemachine ? 'timemachine' : nil}
     #header
       %h1&= Wiki::Config.title
       #info
@@ -15,7 +15,7 @@
         %form{:action=>'/search',:method=>'get'}
           %div
             %label.hidden{:for=>'pattern'}= :search.t
-            %input.clear{:type=>'text',:id=>'pattern',:name=>'pattern', :value=> params[:pattern] || :search.t}
+            %input{:type=>'text',:id=>'pattern',:name=>'pattern', :value=> params[:pattern] || :search.t, :class=> !params[:pattern] && 'placeholder'}
     #menu= include_menu
     #container
       #sidebar
