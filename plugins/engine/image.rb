@@ -1,11 +1,12 @@
 author      'Daniel Mendler'
 description 'Image rendering engine'
-require     'open3'
 
 cpu_count = `cat /proc/cpuinfo | grep processor | wc -l`.to_i rescue 1
 @semaphore = Semaphore.new(cpu_count)
 
 Engine.create(:image, :priority => 5, :layout => false, :cacheable => true) do
+  autoload 'Open3', 'open3'
+
   def svg?(page); page.mime.to_s =~ /svg/; end
   def ps?(page); page.mime.to_s =~ /postscript/; end
   def pdf_or_ps?(page); page.mime == 'application/pdf' || ps?(page); end

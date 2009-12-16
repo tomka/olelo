@@ -1,7 +1,7 @@
 author       'Daniel Mendler'
 description  'Auto-generated table of contents'
 dependencies 'engine/filter', 'filter/tag', 'gem:hpricot'
-require      'hpricot'
+autoload 'Hpricot', 'hpricot'
 
 class Toc < Filter
   def filter(content)

@@ -1,15 +1,10 @@
 # -*- coding: utf-8 -*-
 require 'wiki/routing'
-require 'wiki/utils'
-require 'wiki/extensions'
 require 'wiki/config'
-require 'yaml'
+require 'tempfile'
 
 gem 'gitrb', '>= 0.0.2'
 require 'gitrb'
-
-gem 'mimemagic', '>= 0.1.1'
-require 'mimemagic'
 
 module Wiki
   PATH_PATTERN = '[^\s](?:.*[^\s]+)?'
@@ -66,7 +61,7 @@ module Wiki
     # Move page
     def move(destination, author = nil)
       Resource.forbid_invalid_path(destination)
-      forbid(:already_exists.t => Resource.find(@repository, destination))
+      Wiki.forbid(:already_exists.t => Resource.find(@repository, destination))
       repository.transaction(:resource_moved_to.t(:path => @path, :destination => destination), author && author.to_git_user) do
         repository.root.move(@path, destination)
         repository.root[@path] = Gitrb::Blob.new(:data => %{<redirect path="#{destination.urlpath}"/>})
@@ -169,7 +164,7 @@ module Wiki
     end
 
     def self.forbid_invalid_path(path)
-      forbid(:invalid_path.t => (!path.blank? && path !~ /^#{PATH_PATTERN}$/))
+      Wiki.forbid(:invalid_path.t => (!path.blank? && path !~ /^#{PATH_PATTERN}$/))
     end
   end
 
@@ -209,9 +204,9 @@ module Wiki
 	return if @object && @object.data == content
       end
 
-      forbid(:no_content.t => content.blank?,
-             :already_exists.t => new? && Resource.find(@repository, @path),
-             :empty_commit_message.t => message.blank?)
+      Wiki.forbid(:no_content.t => content.blank?,
+                  :already_exists.t => new? && Resource.find(@repository, @path),
+                  :empty_commit_message.t => message.blank?)
 
       repository.transaction(message, author && author.to_git_user) do
         content = File.read(content.path) if content.respond_to? :path # FIXME

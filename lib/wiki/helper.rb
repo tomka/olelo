@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-require 'wiki/extensions'
 require 'wiki/utils'
-require 'mimemagic'
 require 'cgi'
+require 'digest/md5'
 
 module Wiki
   # Wiki helper methods which are mainly used in the views
@@ -150,18 +149,18 @@ module Wiki
         elsif line =~ /^@@ -(\d+)(,\d+)? \+(\d+)/
           minus = $1.to_i
           plus = $3.to_i
-          html << %Q{<tr><td>&#160;</td><td>&#160;</td><td class="marker">#{escape_html line}</td></tr>}
+          html << %Q{<tr><td>&#160;</td><td>&#160;</td><td class="marker">#{Wiki.html_escape line}</td></tr>}
         elsif plus >= 0
           if line[0..0] == '\\'
-            html << %Q{<tr><td>&#160;</td><td>&#160;</td><td class="code">#{escape_html line}</td></tr>}
+            html << %Q{<tr><td>&#160;</td><td>&#160;</td><td class="code">#{Wiki.html_escape line}</td></tr>}
           elsif line[0..0] == '-'
-            html << %Q{<tr><td>#{minus}</td><td>&#160;</td><td class="code minus">#{escape_html line}</td></tr>}
+            html << %Q{<tr><td>#{minus}</td><td>&#160;</td><td class="code minus">#{Wiki.html_escape line}</td></tr>}
             minus += 1
           elsif line[0..0] == '+'
-            html << %Q{<tr><td>&#160;</td><td>#{plus}</td><td class="code plus">#{escape_html line}</td></tr>}
+            html << %Q{<tr><td>&#160;</td><td>#{plus}</td><td class="code plus">#{Wiki.html_escape line}</td></tr>}
             plus += 1
           else
-            html << %Q{<tr><td>#{minus}</td><td>#{plus}</td><td class="code">#{escape_html line}</td></tr>}
+            html << %Q{<tr><td>#{minus}</td><td>#{plus}</td><td class="code">#{Wiki.html_escape line}</td></tr>}
             minus += 1
             plus += 1
           end
@@ -218,7 +217,7 @@ module Wiki
       if session[:messages]
         out = '<ul>'
         session[:messages].each do |msg|
-          out << %Q{<li class="#{msg[0]}">#{escape_html msg[1]}</li>}
+          out << %Q{<li class="#{msg[0]}">#{Wiki.html_escape msg[1]}</li>}
         end
         session.delete(:messages)
         out + '</ul>'

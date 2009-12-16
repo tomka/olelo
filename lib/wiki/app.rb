@@ -32,7 +32,6 @@ module Wiki
       Plugin.start
 
       @logger.debug self.class.dump_routes
-      @logger.info 'Wiki successfully started'
     end
 
     def dup
@@ -208,7 +207,7 @@ module Wiki
     get '/?:path?/diff' do
       @resource = Resource.find!(repository, params[:path])
       begin
-        forbid('From not selected' => params[:from].blank?, 'To not selected' => params[:to].blank?)
+        Wiki.forbid('From not selected' => params[:from].blank?, 'To not selected' => params[:to].blank?)
         @diff = @resource.diff(params[:from], params[:to])
         haml :diff
       rescue StandardError => error
@@ -234,7 +233,7 @@ module Wiki
           redirect (params[:path]/'edit').urlpath
         end
         @resource = Page.new(repository, params[:path])
-        forbid(:path_not_allowed.t => name_clash?(params[:path]))
+        Wiki.forbid(:path_not_allowed.t => name_clash?(params[:path]))
       rescue StandardError => error
 	message :error, error
       end
@@ -255,7 +254,7 @@ module Wiki
     put '/:path' do
       @resource = Page.find!(repository, params[:path])
       begin
-        forbid(:version_conflict.t => @resource.commit.sha != params[:sha]) # TODO: Implement conflict diffs
+        Wiki.forbid(:version_conflict.t => @resource.commit.sha != params[:sha]) # TODO: Implement conflict diffs
         if action?(:upload) && params[:file]
           invoke_hook :page_save, @resource do
             @resource.write(params[:file][:tempfile], :file_uploaded.t, @user)

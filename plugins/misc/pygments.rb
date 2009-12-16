@@ -1,6 +1,6 @@
 author      'Daniel Mendler'
 description 'Pygments syntax highlighter'
-require     'open3'
+autoload 'Open3', 'open3'
 
 module ::Pygments
   PROGRAM = 'pygmentize'
@@ -17,7 +17,7 @@ module ::Pygments
     end
 
     format = options[:filename] ? find_lexer(options[:filename]) : options[:format]
-    return "<pre>#{escape_html(content.strip)}</pre>" if !format
+    return "<pre>#{Wiki.html_escape(content.strip)}</pre>" if !format
     run(text, format)
   end
 
@@ -31,7 +31,7 @@ module ::Pygments
       stdin.close
       stdout.read
     }
-    content.blank? ? "<pre>#{escape_html(text.strip)}</pre>" : content
+    content.blank? ? "<pre>#{Wiki.html_escape(text.strip)}</pre>" : content
   end
 
   @mapping = nil

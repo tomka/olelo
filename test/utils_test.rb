@@ -60,10 +60,10 @@ describe 'wiki utility methods' do
 
   it 'forbid' do
     assert_raise Wiki::MultiError do
-      forbid('Forbidden' => true)
+      Wiki.forbid('Forbidden' => true)
     end
     assert_raise Wiki::MultiError do
-      forbid('Allowed'   => false,
+      Wiki.forbid('Allowed'   => false,
              'Forbidden' => true)
     end
   end

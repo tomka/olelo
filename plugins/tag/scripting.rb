@@ -1,7 +1,7 @@
 author       'Daniel Mendler'
 description  'Scripting tags'
 dependencies 'filter/tag', 'gem:evaluator'
-require      'evaluator'
+autoload 'Evaluator', 'evaluator'
 
 class Wiki::Engine::Context
   def function_table
@@ -10,26 +10,26 @@ class Wiki::Engine::Context
 end
 
 Tag.define(:value, :requires => :of, :immediate => true) do |context, attrs, content|
-  escape_html(Evaluator(attrs['of'], context))
+  Wiki.html_escape(Evaluator.eval(attrs['of'], context))
 end
 
 Tag.define(:calc) do |context, attrs, content|
   code = content.strip.split("\n").map do |line|
     line.strip!
     val = if line =~ /^(\w+)\s*:=?\s*(.*)$/
-      context[$1] = Evaluator($2, context)
+      context[$1] = Evaluator.eval($2, context)
     else
-      Evaluator(line, context)
+      Evaluator.eval(line, context)
     end
     "> #{line}\n#{val}\n"
   end.join
-  "<pre>#{escape_html code}</pre>"
+  "<pre>#{Wiki.html_escape code}</pre>"
 end
 
 Tag.define(:def, :requires => :name, :immediate => true) do |context, attrs, content|
   name = attrs['name'].downcase
   if attrs['value']
-    context[name] = Evaluator(attrs['value'], context)
+    context[name] = Evaluator.eval(attrs['value'], context)
   else
     context.function_table[name] = [attrs['args'].to_s.split(/\s+/), content]
   end
@@ -42,7 +42,7 @@ Tag.define(:call, :requires => :name, :immediate => true) do |context, attrs, co
   args, content = context.function_table[name]
   args = args.map do |arg|
     raise(NameError, "Argument #{arg} is required") if !attrs[arg]
-    [arg, Evaluator(attrs[arg], context)]
+    [arg, Evaluator.eval(attrs[arg], context)]
   end.flatten
   result = nested_tags(context.subcontext(Hash[*args]), content)
   if attrs['result']
@@ -83,7 +83,7 @@ Tag.define(:repeat, :requires => :times, :immediate => true, :limit => 50) do |c
 end
 
 Tag.define(:if, :requires => :test, :immediate => true) do |context, attrs, content|
-  if Evaluator(attrs['test'], context)
+  if Evaluator.eval(attrs['test'], context)
     nested_tags(context.subcontext, content)
   end
 end

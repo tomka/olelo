@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-require 'wiki/extensions'
-require 'wiki/utils'
+require 'wiki/helper'
 require 'wiki/cache'
 
 module Wiki

@@ -1,6 +1,6 @@
 author      'Daniel Mendler'
 description 'Persistent login'
-require     'pstore'
+autoload 'PStore', 'pstore'
 
 class Wiki::App
   TOKEN_LENGTH = 64

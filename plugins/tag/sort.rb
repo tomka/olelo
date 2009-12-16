@@ -7,5 +7,5 @@ Tag.define(:sort) do |context, attrs, content|
   desc = attrs['descending'].to_s.downcase == 'true'
   "<#{type}>" + content.strip.split(/\n/).
     sort {|a,b| (a <=> b) * (desc ? -1 : 1) }.
-    map {|x| "<li>#{escape_html x}</li>" }.join + "</#{type}>"
+    map {|x| "<li>#{Wiki.html_escape x}</li>" }.join + "</#{type}>"
 end

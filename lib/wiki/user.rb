@@ -38,8 +38,8 @@ module Wiki
     end
 
     def validate
-      forbid(:invalid_email.t => email !~ /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\Z/i,
-             :invalid_name.t  => name !~ /[\w.\-+_]+/)
+      Wiki.forbid(:invalid_email.t => email !~ /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\Z/i,
+                  :invalid_name.t  => name !~ /[\w.\-+_]+/)
     end
 
     @services = {}
@@ -52,8 +52,8 @@ module Wiki
 
     class<< self
       def validate_password(password, confirm)
-        forbid(:passwords_do_not_match.t => password != confirm,
-               :empty_password.t => password.blank?)
+        Wiki.forbid(:passwords_do_not_match.t => password != confirm,
+                    :empty_password.t => password.blank?)
       end
 
       def define_service(name, &block)

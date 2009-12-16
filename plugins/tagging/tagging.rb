@@ -1,6 +1,5 @@
 author      'Daniel Mendler'
 description 'Tagging support'
-require     'yaml'
 
 class YamlPage < Page
   lazy_reader :data do

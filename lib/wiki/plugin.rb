@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 require 'wiki/utils'
-require 'pathname'
 
 module Wiki
   # Wiki plugin system
@@ -38,7 +37,7 @@ module Wiki
       def load(*list)
         dir = File.join(Config.root, 'plugins')
         files = list.map do |name|
-          name = Pathname.new(name).cleanpath
+          name = name.cleanpath
           Dir.glob(File.join(dir, '**', "#{name}.rb"))
         end.flatten
         return false if files.empty?

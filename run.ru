@@ -1,6 +1,8 @@
 #!/usr/bin/env rackup
 # -*- coding: utf-8 -*-
 
+start_time = Time.now
+
 env ||= ENV['RACK_ENV'] || 'development'
 
 path = ::File.expand_path(::File.dirname(__FILE__))
@@ -118,3 +120,5 @@ use Rack::CommonLogger, logger
 
 use Rack::Static, :urls => ['/static'], :root => path
 run Wiki::App.new(nil, :logger => logger)
+
+logger.info "Wiki successfully started in #{((Time.now - start_time) * 1000).to_i}ms"

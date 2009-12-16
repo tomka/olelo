@@ -1,7 +1,7 @@
 author       'Daniel Mendler'
 description  'Support for XML tags in wiki text'
 dependencies 'engine/filter', 'gem:hpricot'
-require      'hpricot'
+autoload 'Hpricot', 'hpricot'
 
 class Wiki::Engine::Context
   def tag_recursion=(x)
@@ -81,7 +81,7 @@ class Wiki::Tag < Filter
             text = begin
                      method.bind(self).call(context, elem.attributes.to_hash.with_indifferent_access, text)
                    rescue Exception => ex
-                     "#{name}: #{escape_html ex.message}"
+                     "#{name}: #{Wiki.html_escape ex.message}"
                    end
             if opts[:immediate]
               if !(String === text) || text.blank?
@@ -105,5 +105,5 @@ end
 Filter.register Tag.new(:tag)
 
 Tag.define :nowiki do |context, attrs, content|
-  escape_html(content)
+  Wiki.html_escape(content)
 end

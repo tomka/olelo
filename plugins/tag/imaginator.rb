@@ -1,7 +1,7 @@
 author       'Daniel Mendler'
 description  'LaTeX/Graphviz support'
 dependencies 'filter/tag', 'gem:imaginator'
-require      'imaginator'
+autoload 'Imaginator', 'imaginator'
 
 class Wiki::App
   static_files 'imaginator_failed.png'
@@ -31,7 +31,7 @@ def define_tag(type)
   Tag.define type do |context, attrs, content|
     raise(RuntimeError, "Limits exceeded") if content.size > 10240
     name = App.imaginator.enqueue(type, content)
-    alt = escape_html content.truncate(30).gsub(/\s+/, ' ')
+    alt = Wiki.html_escape content.truncate(30).gsub(/\s+/, ' ')
     "<img src=\"/sys/tag/imaginator/#{name}\" alt=\"#{alt}\"/>"
   end
 end

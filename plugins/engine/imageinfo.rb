@@ -1,8 +1,9 @@
 author      'Daniel Mendler'
 description 'Image information engine'
-require     'open3'
 
 Engine.create(:imageinfo, :priority => 1, :layout => true, :cacheable => true) do
+  autoload 'Open3', 'open3'
+
   def accepts?(page); page.mime.mediatype == 'image'; end
   def output(context)
     @resource = context.page

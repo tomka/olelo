@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 require 'wiki/extensions'
 require 'yaml'
-require 'cgi'
 
 gem 'haml', '>= 2.2.0'
-require 'haml'
+autoload 'Haml', 'haml'
+
+gem 'mimemagic', '>= 0.1.1'
+autoload 'MimeMagic', 'mimemagic'
 
 module Wiki
   class MultiError < StandardError
@@ -75,7 +77,7 @@ module Wiki
 
     def render_haml(name, opts = {}, &block)
       haml_opts = HAML_OPTIONS.merge(opts[:options] || {}).merge(:filename => Symbol === name ? "#{name}.haml" : 'inline haml')
-      engine = load_template(:haml, name, haml_opts) { |content, opt| ::Haml::Engine.new(content, opt) }
+      engine = load_template(:haml, name, haml_opts) { |content, opt| Haml::Engine.new(content, opt) }
       engine.render(self, opts[:locals] || {}, &block)
     end
 
@@ -178,16 +180,14 @@ module Wiki
       leave
     end
   end
-end
 
-module Kernel
-  def escape_html(html)
-    CGI::escapeHTML(html.to_s)
-  end
-
-  def forbid(conds)
+  def self.forbid(conds)
     failed = conds.keys.select {|key| conds[key] }
     raise(Wiki::MultiError, *failed) if !failed.empty?
+  end
+
+  def self.html_escape(text)
+    Haml::Helpers.html_escape(text)
   end
 end
 

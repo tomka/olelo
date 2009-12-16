@@ -1,12 +1,14 @@
 author       'Daniel Mendler'
 description  'Proprietary web portal based user storage'
 dependencies 'gem:hpricot'
-require      'hpricot'
-require      'open-uri'
-require      'openssl'
 
 User.define_service(:portal) do
+  autoload 'Hpricot', 'hpricot'
+  autoload 'OpenSSL', 'openssl'
+
   def authenticate(name, password)
+    require 'open-uri'
+
     xml = open(Wiki::Config.auth.portal_uri,
                :ssl_verify_mode => OpenSSL::SSL::VERIFY_NONE,
                :http_basic_authentication => [name, password]).read

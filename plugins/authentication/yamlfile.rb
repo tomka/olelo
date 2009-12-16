@@ -1,12 +1,15 @@
 author      'Daniel Mendler'
 description 'YAML based user storage'
-require     'yaml/store'
-require     'digest'
+require     'digest/sha2'
+
+module ::YAML
+  autoload 'Store', 'yaml/store'
+end
 
 User.define_service(:yamlfile) do
   def initialize
     FileUtils.mkdir_p File.dirname(Config.auth.store), :mode => 0755
-    @store = YAML::Store.new(Config.auth.store)
+    @store = ::YAML::Store.new(Config.auth.store)
   end
 
   def find(name)
@@ -19,14 +22,14 @@ User.define_service(:yamlfile) do
   def authenticate(name, password)
     @store.transaction(true) do |store|
       user = store[name]
-      forbid('Wrong username or password' => !user || user['password'] != crypt(password))
+      Wiki.forbid('Wrong username or password' => !user || user['password'] != crypt(password))
       User.new(name, user['email'], user['groups'])
     end
   end
 
   def create(user, password)
     @store.transaction do |store|
-      forbid('User already exists' => store[user.name])
+      Wiki.forbid('User already exists' => store[user.name])
       store[user.name] = {
         'email' => user.email,
         'password' => crypt(password),
@@ -37,7 +40,7 @@ User.define_service(:yamlfile) do
 
   def update(user)
     @store.transaction do |store|
-      forbid('User not found' => !store[user.name])
+      Wiki.forbid('User not found' => !store[user.name])
       store[user.name]['email'] = user.email
       store[user.name]['groups'] = user.groups
     end
@@ -45,8 +48,8 @@ User.define_service(:yamlfile) do
 
   def change_password(user, oldpassword, password)
     @store.transaction do |store|
-      forbid('User not found' => !store[user.name])
-      forbid('Password is wrong' => crypt(oldpassword) != store[user.name]['password'])
+      Wiki.forbid('User not found' => !store[user.name],
+                  'Password is wrong' => crypt(oldpassword) != store[user.name]['password'])
       store[user.name]['password'] = crypt(password)
     end
   end
