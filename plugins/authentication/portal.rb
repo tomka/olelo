@@ -1,10 +1,9 @@
 author       'Daniel Mendler'
 description  'Proprietary web portal based user storage'
 dependencies 'gem:hpricot'
-
-require 'hpricot'
-require 'open-uri'
-require 'openssl'
+require      'hpricot'
+require      'open-uri'
+require      'openssl'
 
 User.define_service(:portal) do
   def authenticate(name, password)
@@ -20,6 +19,6 @@ User.define_service(:portal) do
     raise if name.blank?
     User.new(name, email || "#{name}@localhost", groups)
   rescue
-    raise MultiError, 'Wrong username or password'
+    raise StandardError, 'Wrong username or password'
   end
 end

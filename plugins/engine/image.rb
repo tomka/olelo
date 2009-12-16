@@ -2,10 +2,8 @@ author      'Daniel Mendler'
 description 'Image rendering engine'
 require     'open3'
 
-setup do
-  cpu_count = `cat /proc/cpuinfo | grep processor | wc -l`.to_i rescue 1
-  $image_semaphore = Semaphore.new(cpu_count)
-end
+cpu_count = `cat /proc/cpuinfo | grep processor | wc -l`.to_i rescue 1
+@semaphore = Semaphore.new(cpu_count)
 
 Engine.create(:image, :priority => 5, :layout => false, :cacheable => true) do
   def svg?(page); page.mime.to_s =~ /svg/; end
@@ -56,7 +54,7 @@ Engine.create(:image, :priority => 5, :layout => false, :cacheable => true) do
   end
 
   def convert(page, cmd)
-    $image_semaphore.synchronize do
+    Plugin['engine/image'].semaphore.synchronize do
       Open3.popen3(cmd) { |stdin, stdout, stderr|
         stdin << page.content
         stdin.close
@@ -65,3 +63,4 @@ Engine.create(:image, :priority => 5, :layout => false, :cacheable => true) do
     end
   end
 end
+

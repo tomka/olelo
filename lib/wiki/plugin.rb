@@ -10,7 +10,6 @@ module Wiki
     @logger = nil
 
     class<< self
-      attr_reader :plugins
       attr_accessor :dir, :logger
 
       # Current loading plugin
@@ -18,6 +17,16 @@ module Wiki
         stack = Thread.current[:plugin]
         raise RuntimeError, 'No plugin context' if !stack || !stack.last
         stack.last
+      end
+
+      # Get plugin by name
+      def [](name)
+        @plugins[name.to_s]
+      end
+
+      # Get all plugins
+      def plugins
+        @plugins.values
       end
 
       # Start plugins
@@ -74,6 +83,16 @@ module Wiki
       @logger = logger
       @setup = nil
       @started = false
+    end
+
+    # Access plugin variables
+    def method_missing(name, *args)
+      if args.size == 0 && instance_variable_defined?("@#{name}")
+        metaclass.class_eval { attr_reader(name) }
+        instance_variable_get("@#{name}")
+      else
+        super
+      end
     end
 
     # Add setup method

@@ -60,14 +60,12 @@ module ::Pygments
   private_class_method :lexer_mapping, :find_lexer, :run
 end
 
-setup do
-  raise(RuntimeError, 'pygments is not installed') if !Pygments.installed?
+raise(RuntimeError, 'pygments is not installed') if !Pygments.installed?
 
-  class Wiki::App
-    add_hook(:after_head) do
-      '<link rel="stylesheet" href="/sys/misc/pygments.css" type="text/css"/>'
-    end
-
-    static_files 'pygments.css'
+class Wiki::App
+  add_hook(:after_head) do
+    '<link rel="stylesheet" href="/sys/misc/pygments.css" type="text/css"/>'
   end
+
+  static_files 'pygments.css'
 end

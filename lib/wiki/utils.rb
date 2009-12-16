@@ -87,7 +87,7 @@ module Wiki
 
       content = if Symbol === name
                   paths = Templates.paths.map {|path| File.join(path, "#{name}.#{type}") }
-                  path = paths.find {|path| File.exists?(path) }
+                  path = paths.find {|p| File.exists?(p) }
                   raise RuntimeError, "Template #{name} not found" if !path
                   File.read(path)
                 else
