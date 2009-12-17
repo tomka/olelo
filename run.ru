@@ -15,6 +15,7 @@ require 'fileutils'
 require 'logger'
 require 'rack/patched_request'
 require 'rack/reverseip'
+require 'rack/relative_redirect'
 require 'wiki/app'
 
 # Try to load server gem
@@ -74,6 +75,7 @@ if Wiki::Config.rack.profiling?
   use Rack::Profiler, :printer => :graph
 end
 
+use Rack::RelativeRedirect
 use Rack::Session::Pool
 use Rack::ReverseIP
 use Rack::MethodOverride
