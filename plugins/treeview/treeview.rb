@@ -5,11 +5,11 @@ dependencies 'misc/sidebar'
 class Wiki::App
 
   add_hook(:after_head) do
-    '<link rel="stylesheet" href="/sys/treeview/treeview.css" type="text/css"/>'
+    '<link rel="stylesheet" href="/_/treeview/treeview.css" type="text/css"/>'
   end
 
   add_hook(:after_script) do
-    '<script src="/sys/treeview/script.js" type="text/javascript"></script>'
+    '<script src="/_/treeview/script.js" type="text/javascript"></script>'
   end
 
   static_files 'script.js',
@@ -17,7 +17,7 @@ class Wiki::App
                'spinner.gif',
 	       'treeview.css'
 
-  get '/sys/treeview.json' do
+  get '/_/treeview.json' do
     content_type 'application/json', :charset => 'utf-8'
 
     resource = Resource.find!(repository, params[:dir], params[:sha])

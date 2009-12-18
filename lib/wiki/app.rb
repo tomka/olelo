@@ -47,7 +47,7 @@ module Wiki
       def static_files(*files)
         if !@plugin_files
           @plugin_files = {}
-          get "/sys/:file", :patterns => {:file => /.*/} do
+          get "/_/:file", :patterns => {:file => /.*/} do
             if path = self.class.plugin_files[params[:file]]
               cache_control :last_modified => File.mtime(path), :static => true
               send_file path
@@ -100,7 +100,7 @@ module Wiki
       haml :error
     end
 
-    get '/sys/user' do
+    get '/_/user' do
       haml :user, :layout => false
     end
 

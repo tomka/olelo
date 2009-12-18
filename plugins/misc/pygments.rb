@@ -64,7 +64,7 @@ raise(RuntimeError, 'pygments is not installed') if !Pygments.installed?
 
 class Wiki::App
   add_hook(:after_head) do
-    '<link rel="stylesheet" href="/sys/misc/pygments.css" type="text/css"/>'
+    '<link rel="stylesheet" href="/_/misc/pygments.css" type="text/css"/>'
   end
 
   static_files 'pygments.css'

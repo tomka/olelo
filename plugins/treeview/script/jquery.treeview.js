@@ -3,7 +3,7 @@
 	treeView: function(options) {
 	    if (!options) options = {};
 	    if (!options.root) options.root = '/';
-	    if (!options.url) options.url = '/sys/treeview.json';
+	    if (!options.url) options.url = '/_/treeview.json';
 
 	    function openTree(element, path) {
 		if (element.children('ul').length != 0) {

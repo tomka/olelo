@@ -8,7 +8,7 @@ class Wiki::App
      '/screen\.css',
      '/print\.css',
      '/reset\.css',
-     '/sys/user'
+     '/_/user'
     ]
 
   def public_access?
@@ -17,9 +17,9 @@ class Wiki::App
 
   add_hook(:before_routing) do
     if @user.anonymous?
-      halt if request.path_info == '/sys/sidebar'
+      halt if request.path_info == '/_/sidebar'
       if !public_access?
-        session[:goto] = request.path_info if request.path_info !~ %r{^/sys/}
+        session[:goto] = request.path_info if request.path_info !~ %r{^/_/}
 	redirect '/login'
       end
     end

@@ -2,7 +2,7 @@ author      'Daniel Mendler'
 description 'Basic sidebar implementation'
 
 class Wiki::App
-  get '/sys/sidebar' do
+  get '/_/sidebar' do
     content_hook :sidebar do
       if page = Page.find(repository, :sidebar.t)
         engine = Engine.find!(page)

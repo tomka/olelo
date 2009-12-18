@@ -17,12 +17,12 @@ class Wiki::App
     end
   end
 
-  get '/sys/tag/imaginator/:name', :patterns => {:name => '[\w\.]+'} do
+  get '/_/tag/imaginator/:name', :patterns => {:name => '[\w\.]+'} do
     begin
       send_file App.imaginator.result(params[:name])
     rescue Exception => ex
       @logger.error ex
-      redirect '/sys/tag/imaginator_failed.png'
+      redirect '/_/tag/imaginator_failed.png'
     end
   end
 end
@@ -32,7 +32,7 @@ def define_tag(type)
     raise(RuntimeError, "Limits exceeded") if content.size > 10240
     name = App.imaginator.enqueue(type, content)
     alt = Wiki.html_escape content.truncate(30).gsub(/\s+/, ' ')
-    "<img src=\"/sys/tag/imaginator/#{name}\" alt=\"#{alt}\"/>"
+    "<img src=\"/_/tag/imaginator/#{name}\" alt=\"#{alt}\"/>"
   end
 end
 

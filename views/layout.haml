@@ -10,7 +10,7 @@
     #header
       %h1&= Wiki::Config.title
       #info
-        %esi:include{:src=>'/sys/user'}/
+        %esi:include{:src=>'/_/user'}/
       #search
         %form{:action=>'/search',:method=>'get'}
           %div
@@ -19,7 +19,7 @@
     #menu= include_menu
     #container
       #sidebar
-        %esi:include{:src=>'/sys/sidebar', :onerror => 'continue'}/
+        %esi:include{:src=>'/_/sidebar', :onerror => 'continue'}/
       #content
         = render_block :content do
           %h1= include_block :title
