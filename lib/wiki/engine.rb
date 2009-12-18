@@ -4,10 +4,16 @@ require 'wiki/cache'
 
 module Wiki
   # An Engine renders resources
+  # Engines get a resource as input and create text.
   class Engine
     include Helper
     include Templates
 
+    # Engine context
+    # A engine context holds the request parameters and other
+    # variables used by the engines.
+    # It is possible for a engine to run sub-engines. For this
+    # purpose you create a subcontext which inherits the variables.
     class Context < HashWithIndifferentAccess
       attr_reader :resource, :engine
       alias page resource
@@ -33,6 +39,11 @@ module Wiki
 
     @engines = {}
 
+    # Constructor for engine
+    # Options:
+    # * layout: Engine output should be wrapped in HTML layout (Not used for download/image engines for example)
+    # * cacheable: Engine output can be cached
+    # * priority: Engine priority. The engine with the highest priority will be used for a resource.
     def initialize(name, opts)
       @name = name.to_s
       @layout = !!opts[:layout]
@@ -51,18 +62,20 @@ module Wiki
       register engine.new(name, opts)
     end
 
+    # Register engine instance
     def self.register(engine)
       raise(ArgumentError, "Engine '#{engine.name}' already exists") if @engines.key?(engine.name)
       @engines[engine.name] = engine
     end
 
-    # Find all accepting engines
+    # Find all accepting engines for a resource
     def self.find_all(resource)
       @engines.values.find_all { |e| e.accepts? resource }.sort_by {|a| a.name }
     end
 
     # Find appropiate engine for resource. An optional
     # name can be given to claim a specific engine.
+    # If no engine is found a exception is raised.
     def self.find!(resource, name = nil)
       name ||= resource.metadata[:engine]
 
@@ -77,21 +90,28 @@ module Wiki
       engine.dup
     end
 
+
+    # Find appropiate engine for resource. An optional
+    # name can be given to claim a specific engine.
+    # If no engine is found nil is returned.
     def self.find(resource, name = nil)
       find!(resource, name) rescue nil
     end
 
-    # Acceptor should return true if resource would be accepted by this engine
+    # Acceptor should return true if resource would be accepted by this engine.
+    # Reimplement this method.
     def accepts?(resource); resource.respond_to? :content; end
 
-    # Render resource content
+    # Render resource content.
+    # Reimplement this method.
     def output(context); context.resource.content; end
 
-    # Get output mime type
+    # Get output mime type.
+    # Reimplement this method.
     def mime(resource); resource.mime; end
 
-    # Render resource with caching. This is
-    # the primary engine interface
+    # Render resource with caching. Should be used
+    # to render the resource. It should not be overwritten.
     def render(resource, params = {}, update = false)
       context = Context.new(self, resource, params)
       Cache.cache('engine', context.id,
@@ -100,6 +120,6 @@ module Wiki
     end
   end
 
-  # Raw engine
+  # Download engine. Renders raw resource content.
   Engine.register(Engine.new(:download, :priority => 999, :layout => false))
 end
