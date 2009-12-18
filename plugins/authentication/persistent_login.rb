@@ -1,9 +1,9 @@
 author      'Daniel Mendler'
 description 'Persistent login'
 autoload 'PStore', 'pstore'
+autoload 'SecureRandom', 'securerandom'
 
 class Wiki::App
-  TOKEN_LENGTH = 64
   TOKEN_LIFETIME = 24*60*60*365
   TOKEN_NAME = 'git_wiki_token'
 
@@ -47,8 +47,7 @@ class Wiki::App
     if path == '/login'
       if !@user.anonymous?
         ch = ('a'..'z').to_a + ('A'..'Z').to_a + ('0'..'9').to_a
-        token = ''
-        1.upto(TOKEN_LENGTH) { |i| token << ch[rand(ch.size-1)] }
+        token = SecureRandom.hex
         response.set_cookie(TOKEN_NAME, :value => token, :expires => Time.now + TOKEN_LIFETIME)
         set_login_token(token, @user.name)
       end
