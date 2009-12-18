@@ -233,17 +233,28 @@ module Wiki
           redirect (params[:path]/'edit').urlpath
         end
         @resource = Page.new(repository, params[:path])
-        Wiki.forbid(:path_not_allowed.t => name_clash?(params[:path]))
+        Wiki.forbid(:reserved_path.t => reserved_path?(params[:path]))
       rescue StandardError => error
 	message :error, error
       end
       haml :new
     end
 
-    get '/:sha', '/:path/:sha', '/:path' do
+    get '/version/:sha', '/:path/version/:sha', '/:path' do
       begin
-        pass if name_clash?(params[:path])
-        show
+        pass if reserved_path?(params[:path])
+
+        @resource = Resource.find!(repository, params[:path], params[:sha])
+        cache_control :etag => @resource.latest_commit.sha, :last_modified => @resource.latest_commit.date
+
+        @engine = Engine.find!(@resource, params[:output])
+        @content = @engine.render(@resource, params, no_cache?)
+        if @engine.layout?
+          haml :resource
+        else
+          content_type @engine.mime(@resource).to_s
+          @content
+        end
       rescue Resource::NotFound
         request.env['wiki.redirect_to_new'] = true
         pass
@@ -283,7 +294,7 @@ module Wiki
     # New form sends post request
     post '/', '/:path' do
       begin
-        pass if name_clash?(params[:path])
+        pass if reserved_path?(params[:path])
         @resource = Page.new(repository, params[:path])
         if action?(:upload) && params[:file]
           invoke_hook :page_save, @resource do
@@ -305,35 +316,12 @@ module Wiki
 
     private
 
-    def name_clash?(path)
+    def reserved_path?(path)
       path = path.to_s.urlpath
-      patterns = self.class.routes.values.inject([], &:+).map {|x| x[1] }.uniq
-
-      # Remove overly general patterns
-      patterns.delete(%r{^/(#{PATH_PATTERN})$}) # Path
-      patterns.delete(%r{^/(#{PATH_PATTERN})/(#{SHA_PATTERN})$}) # Path with unstrict sha
-      patterns.delete(%r{^/(#{SHA_PATTERN})$}) # Root with unstrict sha
-
-      # Add pattern to ensure availability of strict sha urls
-      # Shortcut sha urls (e.g /Beef) can be overridden
-      patterns << %r{^/(#{STRICT_SHA_PATTERN})$}
-      patterns << %r{^/(#{PATH_PATTERN})/(#{STRICT_SHA_PATTERN})$}
-
-      patterns.any? {|pattern| pattern =~ path }
-    end
-
-    # Show resource
-    def show
-      @resource = Resource.find!(repository, params[:path], params[:sha])
-      cache_control :etag => @resource.latest_commit.sha, :last_modified => @resource.latest_commit.date
-
-      @engine = Engine.find!(@resource, params[:output])
-      @content = @engine.render(@resource, params, no_cache?)
-      if @engine.layout?
-        haml :resource
-      else
-        content_type @engine.mime(@resource).to_s
-        @content
+      self.class.routes.any? do |method, routes|
+        routes.any? do |name,pattern|
+          name != '/:path' && pattern =~ path
+        end
       end
     end
 

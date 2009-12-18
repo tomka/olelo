@@ -199,7 +199,7 @@ module Wiki
       else
         path = resource.path
       end
-      path = (path/sha).urlpath
+      path = (sha.blank? ? path : path/'version'/sha).urlpath
       path << '?' << opts.map {|k,v| "#{k}=#{CGI.escape(v.to_s)}" }.join('&') if !opts.empty?
       path
     end

@@ -9,7 +9,6 @@ require 'gitrb'
 module Wiki
   PATH_PATTERN = '[^\s](?:.*[^\s]+)?'
   SHA_PATTERN = '[A-Fa-f0-9]{5,40}'
-  STRICT_SHA_PATTERN = '[A-Fa-f0-9]{40}'
 
   # Wiki repository resource
   class Resource

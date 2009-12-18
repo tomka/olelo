@@ -156,9 +156,9 @@ module Wiki
 
       def dump_routes
         s = "=== ROUTES ===\n"
-        routes.each do |method,routes|
+        routes.each do |method,list|
           s << "  #{method}:\n"
-          routes.each {|x| s << "    #{x[0]} -> #{x[1].source}\n" }
+          list.each {|x| s << "    #{x[0]} -> #{x[1].source}\n" }
         end
         s
       end
