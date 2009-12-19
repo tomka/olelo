@@ -161,7 +161,7 @@ module Wiki
     get '/commit/:sha' do
       @commit = repository.get_commit(params[:sha])
       cache_control :etag => @commit.sha, :last_modified => @commit.date
-      @diff = repository.diff(@commit.parent.first.sha, @commit.sha)
+      @diff = repository.diff(@commit.parent.first && @commit.parent.first.sha, @commit.sha)
       haml :commit
     end
 

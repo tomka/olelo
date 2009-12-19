@@ -1,6 +1,6 @@
 %p
   %a{:href => resource_path(@resource, :output => 'download') }
-    %img{:src=> resource_path(@resource, :output => 'image', :geometry => '640x480>')}
+    %img{:src=> resource_path(@resource, :output => 'image', :geometry => '640x480>'), :alt=>@resource.name}
 %h3 General
 %table.zebra
   %tbody

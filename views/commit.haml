@@ -16,4 +16,5 @@
     %tr
       %td= :insertions.t
       %td= @diff.insertions
-%p~ format_patch(@diff.patch, @diff.from, @diff.to)
+%br
+~ format_patch(@diff.patch, @diff.from, @diff.to)

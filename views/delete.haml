@@ -3,4 +3,4 @@
 %form{:action => action_path(@resource.path, :delete), :method=>'post'}
   .fieldset
     %label.inline{:for=>'submit'}= :really_delete.t
-    %button.inline{:name=>'submit', :type=>'submit', :accesskey => 'd'}= :delete.t
+    %button#submit.inline{:name=>'submit', :type=>'submit', :accesskey => 'd'}= :delete.t
