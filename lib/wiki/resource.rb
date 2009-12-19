@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 require 'wiki/routing'
 require 'wiki/config'
-require 'tempfile'
 
 gem 'gitrb', '>= 0.0.2'
 require 'gitrb'
@@ -9,6 +8,10 @@ require 'gitrb'
 module Wiki
   PATH_PATTERN = '[^\s](?:.*[^\s]+)?'
   SHA_PATTERN = '[A-Fa-f0-9]{5,40}'
+  DISCUSSION_PREFIX = '@'
+  META_PREFIX = '$'
+  DIRECTORY_MIME = MimeMagic.new('inode/directory')
+  YAML_MIME = MimeMagic.new('text/x-yaml')
 
   # Wiki repository resource
   class Resource
@@ -94,6 +97,24 @@ module Wiki
       @current || new?
     end
 
+    # Discussion page
+    def discussion?
+      page? && name.begins_with?(DISCUSSION_PREFIX)
+    end
+
+    # Metadata page
+    def meta?
+      page? && name.begins_with?(META_PREFIX)
+    end
+
+    def discussion_path
+      path/"../#{DISCUSSION_PREFIX}#{name}"
+    end
+
+    def meta_path
+      path/"../#{META_PREFIX}#{name}"
+    end
+
     # Latest commit of this resource
     def latest_commit
       init_commits
@@ -132,12 +153,15 @@ module Wiki
     def title
       i = name.index('.')
       n = i ? name[0...i] : name
-      discussion? ? :discussion_of.t(:name => n[1..-1]) : n
-    end
-
-    # Discussion page
-    def discussion?
-      name.begins_with?('@')
+      if meta?
+        n = n[META_PREFIX.length..-1]
+        :metadata_of.t(:name => n.blank? ? :root_path.t : n)
+      elsif discussion?
+        n = n[DISCUSSION_PREFIX.length..-1]
+        :discussion_of.t(:name => n.blank? ? :root_path.t : n)
+      else
+        n.blank? ? :root_path.t : n
+      end
     end
 
     # Safe name
@@ -226,27 +250,29 @@ module Wiki
 
     # Detect mime type by extension, by content or use default mime type
     def mime
-      @mime ||= MimeMagic.by_extension(extension) ||
-        (Config.mime.magic && MimeMagic.by_magic(content)) ||
-        MimeMagic.new(Config.mime.default)
+      @mime ||= if meta?
+                  YAML_MIME
+                else
+                  MimeMagic.by_extension(extension) ||
+                    (Config.mime.magic && MimeMagic.by_magic(content)) ||
+                    MimeMagic.new(Config.mime.default)
+                end
     end
 
     # Get metadata
     def metadata
-      @metadata ||= if path.ends_with?('meta') || (mime.text? && content =~ /^---\r?\n/)
-        hash = YAML.load(content + "\n") rescue nil
-        Hash === hash ? hash.with_indifferent_access : {}
-      else
-        page = Page.find(repository, path + '.meta', current? ? nil : commit)
-        page ? page.metadata : {}
-      end
+      @metadata ||= if meta? || (mime.text? && content =~ /^---\r?\n/)
+                      hash = YAML.load("#{content}\n") rescue nil
+                      Hash === hash ? hash.with_indifferent_access : {}
+                    else
+                      page = Page.find(repository, meta_path, current? ? nil : commit)
+                      page ? page.metadata : {}
+                    end
     end
   end
 
   # Tree resource in repository
   class Tree < Resource
-    DIRECTORY_MIME = MimeMagic.new('inode/directory')
-
     def self.type
       'tree'
     end
@@ -263,25 +289,13 @@ module Wiki
     end
 
     def pages
-      @pages ||= @object.select {|name, child| name[0..0] != '@' && child.type == 'blob' }.map {|name, child|
-      	Page.new(repository, path/name, child, commit, current?) }
+      @pages ||= @object.select {|name, child| child.type == 'blob' }.map {|name, child|
+        Page.new(repository, path/name, child, commit, current?) }.select {|page| !page.discussion? && !page.meta? }
     end
 
     def trees
-      @trees ||= @object.select {|name, child| name[0..0] != '@' && child.type == 'tree' }.map {|name, child|
-      	Tree.new(repository, path/name, child, commit, current?) }
-    end
-
-    # Tree title
-    def title
-      path.blank? ? :root_path.t : super
-    end
-
-    # Get archive of current tree
-    def archive
-      file = Tempfile.new('archive').path
-      @repository.git_archive(sha, nil, '--format=zip', "--prefix=#{safe_name}/", "--output=#{file}")
-      file
+      @trees ||= @object.select {|name, child| child.type == 'tree' }.map {|name, child|
+        Tree.new(repository, path/name, child, commit, current?) }
     end
 
     # Directory mime type
@@ -292,7 +306,7 @@ module Wiki
     # Get metadata
     def metadata
       @metadata ||= begin
-                      page = Page.find(@repository, path/'meta', commit)
+                      page = Page.find(@repository, meta_path, commit)
                       page ? page.metadata : {}
                     end
     end

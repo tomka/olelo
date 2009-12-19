@@ -6,7 +6,7 @@ module Wiki
   # An Engine renders resources
   # Engines get a resource as input and create text.
   class Engine
-    include Helper
+    include PageHelper
     include Templates
 
     # Engine context
@@ -43,7 +43,7 @@ module Wiki
     # Options:
     # * layout: Engine output should be wrapped in HTML layout (Not used for download/image engines for example)
     # * cacheable: Engine output can be cached
-    # * priority: Engine priority. The engine with the highest priority will be used for a resource.
+    # * priority: Engine priority. The engine with the lowest priority will be used for a resource.
     def initialize(name, opts)
       @name = name.to_s
       @layout = !!opts[:layout]
@@ -58,7 +58,7 @@ module Wiki
     # register an engine class in one step.
     def self.create(name, opts = {}, &block)
       engine = Class.new(Engine)
-      engine.class_eval(&block)
+      engine.class_eval(&block) if block
       register engine.new(name, opts)
     end
 
@@ -77,7 +77,7 @@ module Wiki
     # name can be given to claim a specific engine.
     # If no engine is found a exception is raised.
     def self.find!(resource, name = nil)
-      name ||= resource.metadata[:engine]
+      name ||= resource.metadata[:engine] if !resource.meta?
 
       engine = if !name
         @engines.values.sort_by {|a| a.priority }.find { |e| e.accepts? resource }
@@ -89,7 +89,6 @@ module Wiki
       raise(RuntimeError, :engine_not_available.t(:engine => name, :page => resource.path, :mime => resource.mime)) if !engine
       engine.dup
     end
-
 
     # Find appropiate engine for resource. An optional
     # name can be given to claim a specific engine.
@@ -110,8 +109,13 @@ module Wiki
     # Reimplement this method.
     def mime(resource); resource.mime; end
 
-    # Render resource with caching. Should be used
-    # to render the resource. It should not be overwritten.
+    # Engine response. Reimplement this method
+    # if you want to set response headers for example.
+    def response(resource, params, request, response)
+      render(resource, params, request.no_cache?)
+    end
+
+    # Render resource with caching. It should not be overwritten.
     def render(resource, params = {}, update = false)
       context = Context.new(self, resource, params)
       Cache.cache('engine', context.id,
@@ -119,7 +123,4 @@ module Wiki
                   :update => update) { output(context) }
     end
   end
-
-  # Download engine. Renders raw resource content.
-  Engine.register(Engine.new(:download, :priority => 999, :layout => false))
 end

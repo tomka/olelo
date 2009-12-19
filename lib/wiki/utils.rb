@@ -3,7 +3,11 @@ require 'wiki/extensions'
 require 'yaml'
 
 gem 'haml', '>= 2.2.0'
-autoload 'Haml', 'haml'
+module Haml
+  autoload 'Engine', 'haml/engine'
+  autoload 'Util', 'haml/util'
+  autoload 'Helpers', 'haml/helpers'
+end
 
 gem 'mimemagic', '>= 0.1.1'
 autoload 'MimeMagic', 'mimemagic'

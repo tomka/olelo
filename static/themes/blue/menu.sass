@@ -26,6 +26,10 @@
       line-height: 1.7em
       border-right = !border
       color: #333
+      &.selected a:before
+        content: '\2022\00a0'
+      &.download
+        background: #EEF
       &.noborder
         padding: 0 1em
         color: #999
@@ -54,7 +58,6 @@
         +menu-action("new")
         +menu-action("edit")
         +menu-action("history")
-        +menu-action("archive")
         +menu-action("delete")
         +menu-action("move")
         &:hover, &:focus, &:active

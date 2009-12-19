@@ -4,19 +4,8 @@ require 'cgi'
 require 'digest/md5'
 
 module Wiki
-  # Wiki helper methods which are mainly used in the views
-  # TODO: Restructure this a little bit. Separate view
-  # from controller helpers maybe.
-  module Helper
+  module BlockHelper
     lazy_reader(:blocks) { Hash.with_indifferent_access('') }
-
-    def start_timer
-      @start_time = Time.now
-    end
-
-    def elapsed_time
-      ((Time.now - @start_time) * 1000).to_i
-    end
 
     def define_block(name, content = nil, &block)
       blocks[name] = block ? capture_haml(&block) : content
@@ -34,15 +23,6 @@ module Wiki
     def head(content = nil, &block);     define_block(:head, content, &block);     end
     def title(content = nil, &block);    define_block(:title, content, &block);    end
 
-    def theme_links
-      default = File.basename(File.dirname(File.readlink(File.join(Config.root, 'static', 'themes', 'default'))))
-      Dir.glob(File.join(Config.root, 'static', 'themes', '*', 'style.css')).map do |file|
-        name = File.basename(File.dirname(file))
-        next if name == 'default'
-        %{<link rel="#{name == default ? 'alternate ' : ''}stylesheet" href="/static/themes/#{name}/style.css" type="text/css" title="#{name}"/>}
-      end.compact.join("\n")
-    end
-
     def menu(*menu)
       define_block :menu, haml(:menu, :layout => false, :locals => { :menu => menu })
     end
@@ -51,83 +31,16 @@ module Wiki
       blocks.include?(:menu) || menu
       include_block(:menu)
     end
+  end
 
-    # Access the underlying Rack session.
-    def session
-      env['rack.session'] ||= {}
-    end
-
-    def content_type(type, params={})
-      type = type.to_s
-      if params.any?
-        params = params.collect { |kv| "%s=%s" % kv }.join(', ')
-        response['Content-Type'] = [type, params].join(";")
-      else
-        response['Content-Type'] = type
-      end
-    end
-
-    def send_file(file, opts = {})
-      content_type(opts[:content_type] || MimeMagic.by_extension(File.extname(file)) || 'application/octet-stream')
-      if opts[:disposition] == 'attachment' || opts[:filename]
-        response['Content-Disposition'] = 'attachment; filename="%s"' % (opts[:filename] || File.basename(file))
-      elsif opts[:disposition] == 'inline'
-        response['Content-Disposition'] = 'inline'
-      end
-      response['Content-Length'] ||= File.stat(file).size.to_s
-      halt BlockFile.open(file, 'rb')
-    rescue Errno::ENOENT
-      raise NotFound
-    end
-
-    def no_cache?
-      env['HTTP_PRAGMA'] == 'no-cache' || env['HTTP_CACHE_CONTROL'].to_s.include?('no-cache')
-    end
-
-    # Cache control for resource
-    def cache_control(opts)
-      return if !Config.production?
-
-      last_modified = opts[:last_modified]
-      modified_since = request.env['HTTP_IF_MODIFIED_SINCE']
-      last_modified = last_modified.to_time if last_modified.respond_to?(:to_time)
-      last_modified = last_modified.httpdate if last_modified.respond_to?(:httpdate)
-
-      mode = opts[:private] ? 'private' : 'public'
-
-      if @user && !@user.anonymous?
-        # Always private mode if user is logged in
-        mode = 'private'
-
-        # Special etag for authenticated user
-        opts[:etag] = Digest::MD5.hexdigest("#{@user.name}#{opts[:etag]}") if opts[:etag]
-      end
-
-      if opts[:etag]
-        value = '"%s"' % opts[:etag]
-        response['ETag'] = value
-        response['Last-Modified'] = last_modified if last_modified
-        if etags = env['HTTP_IF_NONE_MATCH']
-          etags = etags.split(/\s*,\s*/)
-          # Etag is matching and modification date matches (HTTP Spec §14.26)
-          halt(304) if (etags.include?(value) || etags.include?('*')) && (!last_modified || last_modified == modified_since)
-        end
-      elsif last_modified
-        # If-Modified-Since is only processed if no etag supplied.
-        # If the etag match failed the If-Modified-Since has to be ignored (HTTP Spec §14.26)
-        response['Last-Modified'] = last_modified
-        halt(304) if last_modified == modified_since
-      end
-
-      max_age = opts[:max_age] || (opts[:static] ? 2592000 : 0)
-      revalidate = opts[:proxy_revalidate] ? 'proxy-revalidate' : 'must-revalidate'
-      response['Cache-Control'] = "#{mode}, max-age=#{max_age}, #{revalidate}"
-    end
-
-    def no_caching
-      response.headers.delete('ETag')
-      response.headers.delete('Last-Modified')
-      response.headers.delete('Cache-Control')
+  module PageHelper
+    def theme_links
+      default = File.basename(File.dirname(File.readlink(File.join(Config.root, 'static', 'themes', 'default'))))
+      Dir.glob(File.join(Config.root, 'static', 'themes', '*', 'style.css')).map do |file|
+        name = File.basename(File.dirname(file))
+        next if name == 'default'
+        %{<link rel="#{name == default ? 'alternate ' : ''}stylesheet" href="/static/themes/#{name}/style.css" type="text/css" title="#{name}"/>}
+      end.compact.join("\n")
     end
 
     def format_patch(patch, from = nil, to = nil)
@@ -176,7 +89,7 @@ module Wiki
 
     def breadcrumbs(resource)
       path = resource.respond_to?(:path) ? resource.path : ''
-      links = [%Q{<a href="#{resource_path(resource, :path => '/root')}">&#8730;&#175; Root</a>}]
+      links = [%Q{<a href="#{resource_path(resource, :path => '/root')}">#{:root_path.t}</a>}]
       path.split('/').inject('') do |parent,elem|
         links << %Q{<a href="#{resource_path(resource, :path => (parent/elem).urlpath)}">#{elem}</a>}
         parent/elem
@@ -209,10 +122,6 @@ module Wiki
       (path.to_s/action.to_s).urlpath
     end
 
-    def tab_selected(action)
-      action?(action) ? {:class=>'tabs-selected'} : {}
-    end
-
     def show_messages
       if session[:messages]
         out = '<ul>'
@@ -239,6 +148,104 @@ module Wiki
       end
     end
 
+    def edit_content(page)
+      return params[:content] if params[:content]
+      return :no_text_file.t(:page => page.path, :mime => page.mime) if !page.mime.text?
+      page.content(params[:pos], params[:len])
+    end
+  end
+
+  module CacheHelper
+    # Cache control for resource
+    def cache_control(opts)
+      return if !Config.production?
+
+      if opts[:no_cache]
+        response.headers.delete('ETag')
+        response.headers.delete('Last-Modified')
+        response['Cache-Control'] = 'no-cache'
+      end
+
+      last_modified = opts[:last_modified]
+      modified_since = env['HTTP_IF_MODIFIED_SINCE']
+      last_modified = last_modified.to_time if last_modified.respond_to?(:to_time)
+      last_modified = last_modified.httpdate if last_modified.respond_to?(:httpdate)
+
+      mode = opts[:private] ? 'private' : 'public'
+
+      if @user && !@user.anonymous?
+        # Always private mode if user is logged in
+        mode = 'private'
+
+        # Special etag for authenticated user
+        opts[:etag] = Digest::MD5.hexdigest("#{@user.name}#{opts[:etag]}") if opts[:etag]
+      end
+
+      if opts[:etag]
+        value = '"%s"' % opts[:etag]
+        response['ETag'] = value
+        response['Last-Modified'] = last_modified if last_modified
+        if etags = env['HTTP_IF_NONE_MATCH']
+          etags = etags.split(/\s*,\s*/)
+          # Etag is matching and modification date matches (HTTP Spec §14.26)
+          halt(304) if (etags.include?(value) || etags.include?('*')) && (!last_modified || last_modified == modified_since)
+        end
+      elsif last_modified
+        # If-Modified-Since is only processed if no etag supplied.
+        # If the etag match failed the If-Modified-Since has to be ignored (HTTP Spec §14.26)
+        response['Last-Modified'] = last_modified
+        halt(304) if last_modified == modified_since
+      end
+
+      max_age = opts[:max_age] || (opts[:static] ? 2592000 : 0)
+      revalidate = opts[:proxy_revalidate] ? 'proxy-revalidate' : 'must-revalidate'
+      response['Cache-Control'] = "#{mode}, max-age=#{max_age}, #{revalidate}"
+    end
+  end
+
+  module ResponseHelper
+    def content_type(type, params={})
+      type = type.to_s
+      if params.any?
+        params = params.collect { |kv| "%s=%s" % kv }.join(', ')
+        response['Content-Type'] = [type, params].join(";")
+      else
+        response['Content-Type'] = type
+      end
+    end
+
+    def send_file(file, opts = {})
+      content_type(opts[:content_type] || MimeMagic.by_extension(File.extname(file)) || 'application/octet-stream')
+      if opts[:disposition] == 'attachment' || opts[:filename]
+        response['Content-Disposition'] = 'attachment; filename="%s"' % (opts[:filename] || File.basename(file))
+      elsif opts[:disposition] == 'inline'
+        response['Content-Disposition'] = 'inline'
+      end
+      response['Content-Length'] ||= File.stat(file).size.to_s
+      halt BlockFile.open(file, 'rb')
+    rescue Errno::ENOENT
+      raise NotFound
+    end
+  end
+
+  module Helper
+    include BlockHelper
+    include PageHelper
+    include CacheHelper
+    include ResponseHelper
+
+    def start_timer
+      @start_time = Time.now
+    end
+
+    def elapsed_time
+      ((Time.now - @start_time) * 1000).to_i
+    end
+
+    def tab_selected(action)
+      action?(action) ? {:class=>'tabs-selected'} : {}
+    end
+
     def action?(name)
       if params[:action]
         params[:action] == name.to_s
@@ -247,11 +254,8 @@ module Wiki
       end
     end
 
-    def edit_content(page)
-      return params[:content] if params[:content]
-      return :no_text_file.t(:page => page.path, :mime => page.mime) if !page.mime.text?
-      page.content(params[:pos], params[:len])
+    def session
+      env['rack.session'] ||= {}
     end
-
   end
 end

@@ -23,30 +23,44 @@
       %li
         %a.action-view{:href=> @resource.path.urlpath, :accesskey=>'v'}= :view.t
         %ul
-          = list_of(Wiki::Engine.find_all(@resource).reject {|engine| @engine && engine.name == @engine.name }) do |engine|
-            %a{:href => resource_path(@resource, :output => engine.name)}= engine.name
-    - if !@resource.path.blank?
-      %li
-        - if @resource.discussion?
-          %a.action-page{:href=> (@resource.path/'..'/@resource.name[1..-1]).urlpath, :accesskey=>'p' }= :page.t
-        - else
-          %a.action-discuss{:href=> (@resource.path/'..'/"@#{@resource.name}").urlpath, :accesskey=>'d' }= :discuss.t
-  - if menu.include?(:edit) && @resource.page?
+          - engines = Wiki::Engine.find_all(@resource)
+          - engines.select {|engine| engine.layout? }.each do |engine|
+            %li{:class => @engine && engine.name == @engine.name ? 'selected': nil}
+              %a{:href => resource_path(@resource, :output => engine.name)}= engine.name
+          - engines.select {|engine| !engine.layout? }.each do |engine|
+            %li.download{:class => @engine && engine.name == @engine.name ? 'selected': nil}
+              %a{:href => resource_path(@resource, :output => engine.name)}= engine.name
     %li
-      %a.action-edit{:href=>action_path(@resource, :edit), :accesskey=>'e'}= :edit.t
-      %ul
+      - if @resource.discussion?
+        %a.action-page{:href=> (@resource.path/'..'/@resource.name[Wiki::DISCUSSION_PREFIX.length..-1]).urlpath, :accesskey=>'p' }= :page.t
+      - elsif @resource.meta?
+        %a.action-page{:href=> (@resource.path/'..'/@resource.name[Wiki::META_PREFIX.length..-1]).urlpath, :accesskey=>'p' }= :page.t
+      - else
+        %a.action-discuss{:href=> @resource.discussion_path.urlpath, :accesskey=>'d' }= :discuss.t
+    - if menu.include?(:edit)
+      - if @resource.page?
         %li
-          %a.action-new{:href=> @resource && @resource.tree? ? (@resource.path/'new page/new').urlpath : '/new page/new', :accesskey=>'n'}= :new_page.t
+          %a.action-edit{:href=>action_path(@resource, :edit), :accesskey=>'e'}= :edit.t
+          %ul
+            %li
+              %a.action-new{:href=> '/new page/new', :accesskey=>'n'}= :new_page.t
+            %li
+              %a.action-move{:href=> action_path(@resource, :move) }= :move.t
+            %li
+              %a.action-delete{:href=> action_path(@resource, :delete) }= :delete.t
+      - else
         %li
-          %a.action-move{:href=> action_path(@resource, :move) }= :move.t
-        %li
-          %a.action-delete{:href=> action_path(@resource, :delete) }= :delete.t
+          %a.action-edit= :edit.t
+          %ul
+            %li
+              %a.action-new{:href=> (@resource.path/'new page/new').urlpath, :accesskey=>'n'}= :new_page.t
+            %li
+              %a.action-move{:href=> action_path(@resource, :move) }= :move.t
+            %li
+              %a.action-delete{:href=> action_path(@resource, :delete) }= :delete.t
+    - if menu.include?(:history)
+      %li
+        %a.action-history{:href=>action_path(@resource, :history), :accesskey=>'h'}= :history.t
   - else
     %li
-      %a.action-new{:href=> @resource && @resource.tree? ? (@resource.path/'new page/new').urlpath : '/new page/new', :accesskey=>'n'}= :new_page.t
-  - if menu.include?(:history)
-    %li
-      %a.action-history{:href=>action_path(@resource, :history), :accesskey=>'h'}= :history.t
-  - if menu.include?(:archive) && @resource.tree?
-    %li
-      %a.action-archive{:href=>action_path(@resource, :archive)}= :archive.t
+      %a.action-new{:href=>'/new page/new', :accesskey=>'n'}= :new_page.t

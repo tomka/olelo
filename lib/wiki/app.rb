@@ -86,7 +86,7 @@ module Wiki
         # Redirect to create new page if flag is set
         redirect(params[:sha] ? params[:path].urlpath : (params[:path]/'new').urlpath)
       else
-        no_caching
+        cache_control :no_cache => true
         @error = ex
         haml :error
       end
@@ -94,7 +94,7 @@ module Wiki
 
     # Show wiki error page
     add_hook(Exception) do |ex|
-      no_caching
+      cache_control :no_cache => true
       @error = ex
       @logger.error @error
       haml :error
@@ -163,12 +163,6 @@ module Wiki
       cache_control :etag => @commit.sha, :last_modified => @commit.date
       @diff = repository.diff(@commit.parent.first.sha, @commit.sha)
       haml :commit
-    end
-
-    get '/?:path?/archive' do
-      tree = Tree.find!(repository, params[:path])
-      cache_control :etag => tree.sha, :last_modified => tree.commit.date
-      send_file(tree.archive, :content_type => 'application/zip', :filename => "#{tree.safe_name}.zip")
     end
 
     get '/?:path?/history' do
@@ -248,7 +242,7 @@ module Wiki
         cache_control :etag => @resource.latest_commit.sha, :last_modified => @resource.latest_commit.date
 
         @engine = Engine.find!(@resource, params[:output])
-        @content = @engine.render(@resource, params, no_cache?)
+        @content = @engine.response(@resource, params, request, response)
         if @engine.layout?
           haml :resource
         else

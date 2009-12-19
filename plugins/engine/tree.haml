@@ -23,9 +23,7 @@
         %td= child.latest_commit.author.name
         %td&= child.latest_commit.message.truncate(30)
         %td.actions
-          - if child.tree?
-            %a.action-archive{:href=>action_path(child, :archive), :title => :archive.t}= :archive.t
-          - else
+          - if child.page?
             %a.action-edit{:href=>action_path(child, :edit), :title => :edit.t}= :edit.t
           %a.action-history{:href=>action_path(child, :history), :title => :history.t}= :history.t
           %a.action-move{:href=>action_path(child, :move), :title => :move.t}= :move.t

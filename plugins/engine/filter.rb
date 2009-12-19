@@ -2,7 +2,7 @@ author      'Daniel Mendler'
 description 'Filter pipeline engine'
 
 class Wiki::Filter
-  include Helper
+  include PageHelper
   include Templates
 
   @filters = {}

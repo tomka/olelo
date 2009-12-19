@@ -5,7 +5,7 @@ autoload 'Creole', 'creole'
 
 Filter.create :creole do |content|
   class ::WikiCreoleParser < Creole
-    include Helper
+    include PageHelper
 
     def initialize(page)
       super()
