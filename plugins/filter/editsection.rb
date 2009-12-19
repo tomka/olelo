@@ -5,7 +5,7 @@ Filter.create :editsection do |content|
   if context.page.modified? || !context.page.current?
     subfilter(content)
   else
-    prefix = "EDIT_#{Thread.current.object_id.abs.to_s(36)}_"
+    prefix = "EDIT_#{unique_id}_"
     len = content.length
     pos, off = [], 0
     while (off = content.index(/^([ \t]*(=+)(.*?))=*\s*$/, off))

@@ -25,8 +25,8 @@ TEMPLATE = %q{
 %ol
   - @footnotes.map do |id, note, refs|
     %li{:id=>"note#{id}"}
-      - refs.each_with_index do |ref, i|
-        %a.backref{:href=>"#ref#{ref}"}= i+1
+      - refs.each do |ref|
+        %a.backref{:href=>"#ref#{ref}"} &#8593;
       = note
 }
 

@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 require 'wiki/extensions'
 require 'yaml'
+require 'cgi'
 
 gem 'haml', '>= 2.2.0'
 module Haml
   autoload 'Engine', 'haml/engine'
   autoload 'Util', 'haml/util'
-  autoload 'Helpers', 'haml/helpers'
 end
 
 gem 'mimemagic', '>= 0.1.1'
@@ -191,7 +191,11 @@ module Wiki
   end
 
   def self.html_escape(text)
-    Haml::Helpers.html_escape(text)
+    CGI.escapeHTML(text.to_s)
+  end
+
+  def self.html_unescape(text)
+    CGI.unescapeHTML(text.to_s)
   end
 end
 

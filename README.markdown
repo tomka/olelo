@@ -19,9 +19,9 @@ A lot of the features are implemented as plugins.
 - LaTeX/Graphviz
 - Syntax highlighting (embedded code blocks)
 - Image support, SVG support
-- Auto-generated table of contents
+- Auto-generated table of contents (via nokogiri)
 - Templates
-- XML tags can be used to extend Wiki syntax
+- XML tag soup can be used to extend Wiki syntax
 
 Installation
 ------------
@@ -40,7 +40,7 @@ First, you have to install the [Gem][] dependencies via `gem`:
 
 ### Optional:
 
-    gem install hpricot
+    gem install nokogiri
     gem install rdiscount
     gem install RedCloth
     gem install maruku
@@ -74,7 +74,7 @@ Dependencies
 
 ### Optional Dependencies
 
-- [hpricot][] for tags in the wikitext
+- [nokogiri][] for auto-generated table of contents
 - [imaginator][] for [LaTeX][]/[GraphViz][] output
   (`imaginator` Gem from [gemcutter][])
 - [Pygments][] for syntax highlighting
@@ -96,12 +96,12 @@ At least one of these renderers should be installed:
 [GitHub]:http://github.com
 [GraphViz]:http://www.graphviz.org
 [HAML]:http://haml.hamptoncatlin.com
-[hpricot]:http://wiki.github.com/why/hpricot
+[nokogiri]:http://nokogiri.org/
 [imaginator]:http://github.com/minad/imaginator
 [LaTeX]:www.latex-project.org
 [pygments]:http://pygments.org/
 [RDiscount]:http://github.com/rtomayko/rdiscount
-[RedCloth]:http://whytheluckystiff.net/ruby/redcloth/
+[RedCloth]:http://redcloth.org/
 [ImageMagick]:http://www.imagemagick.org/
 [gitrb]:http://github.com/minad/gitrb/
 [gemcutter]:http://gemcutter.org/

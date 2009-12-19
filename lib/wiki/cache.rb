@@ -66,7 +66,7 @@ module Wiki
 
       # Write entry <i>content</i> in <i>bucket</i> with <i>key</i>.
       def write(bucket, key, content)
-        temp_file = File.join(root, ['tmp', $$, Thread.current.object_id.abs.to_s(36)].join('-'))
+        temp_file = File.join(root, ['tmp', $$, Thread.current.unique_id].join('-'))
         File.open(temp_file, 'wb') do |dest|
           if content.respond_to? :to_str
 	    dest.write(content.to_str)

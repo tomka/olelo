@@ -37,7 +37,7 @@ default_config = {
     :service => 'yamlfile',
     :store   => ::File.join(path, '.wiki', 'users.yml'),
   },
-  :cache        => ::File.join(path, '.wiki', 'cache'),
+  :cache => ::File.join(path, '.wiki', 'cache'),
   :mime => {
     :default => 'text/x-creole',
     :magic   => true,
@@ -115,7 +115,8 @@ if !Wiki::Config.rack.rewrite_base.blank?
   use Rack::Rewrite, :base => Wiki::Config.rack.rewrite_base
 end
 
-FileUtils.mkdir_p ::File.dirname(Wiki::Config.log.file), :mode => 0755
+FileUtils.mkpath Wiki::Config.cache, :mode => 0755
+FileUtils.mkpath ::File.dirname(Wiki::Config.log.file), :mode => 0755
 logger = Logger.new(Wiki::Config.log.file)
 logger.level = Logger.const_get(Wiki::Config.log.level)
 

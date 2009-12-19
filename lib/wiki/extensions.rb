@@ -30,7 +30,7 @@ end
 
 class Proc
   def to_method(clazz)
-    name = "__to_method_#{Thread.current.object_id.abs.to_s(36)}"
+    name = "__to_method_#{Thread.current.unique_id}"
     proc = self
     clazz.module_eval do
       define_method(name, proc)
@@ -145,6 +145,11 @@ class Object
   # Nice blank? helper from rails activesupport
   def blank?
     respond_to?(:empty?) ? empty? : !self
+  end
+
+  # Unique object identifier as string
+  def unique_id
+    object_id.abs.to_s(16)
   end
 end
 

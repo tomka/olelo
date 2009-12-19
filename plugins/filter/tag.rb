@@ -1,7 +1,6 @@
 author       'Daniel Mendler'
-description  'Support for XML tags in wiki text'
-dependencies 'engine/filter', 'gem:hpricot'
-autoload 'Hpricot', 'hpricot'
+description  'Support for XML tag soup in wiki text'
+dependencies 'engine/filter'
 
 class Wiki::Engine::Context
   def tag_recursion=(x)
@@ -28,22 +27,30 @@ class Wiki::Tag < Filter
     end
   end
 
+  def add_protected_element(content)
+    @protected_elements << content
+    "#{@protection_prefix}#{@protected_elements.length-1}"
+  end
+
   def nested_tags(context, content)
     context.tag_recursion += 1
     return 'Maximum tag nesting exceeded' if context.tag_recursion > MAXIMUM_RECURSION
-    doc = Hpricot.XML(content)
-    walk_elements(context, doc)
-    doc.to_original_html.fix_encoding
+    Parser.new(self, context, content).parse
   end
 
   def filter(content)
-    @elements = []
-    @prefix = "TAG_#{Thread.current.object_id.abs.to_s(36)}_"
-    content = subfilter(nested_tags(context, content))
+    @protected_elements = []
+    @protection_prefix = "TAG_#{unique_id}_"
+    replace_protected_elements(subfilter(nested_tags(context, content)))
+  end
+
+  private
+
+  def replace_protected_elements(content)
     10.times do
-      break if !content.gsub!(/#{@prefix}(\d+)/) do
-        element = @elements[$1.to_i]
-        if block_element? element
+      break if !content.gsub!(/#{@protection_prefix}(\d+)/) do
+        element = @protected_elements[$1.to_i]
+        if block_element?(element)
           prefix = $`
           count = prefix.scan('<p>').size - prefix.scan('</p>').size
           count > 0 ? '</p>' + element + '<p>' : element
@@ -51,52 +58,119 @@ class Wiki::Tag < Filter
           element
         end
       end
-
       content.gsub!(%r{<p>\s*</p>}, '')
     end
     content
   end
 
-  private
-
   def block_element?(element)
     element =~ /<(div|p|ul|ol|table)/
   end
 
-  def walk_elements(context, parent)
-    parent.each_child do |elem|
-      if elem.elem?
-        name = elem.name.downcase
-        tag = self.class.tags[name]
-        if tag
-          context.tag_counter[name] ||= 0
-          context.tag_counter[name] += 1
-          opts, method = tag
-          if opts[:limit] && context.tag_counter[name] > opts[:limit]
-            elem.swap "#{name}: Tag limit exceeded"
-          elsif opts[:requires] && attr = [opts[:requires]].flatten.find {|a| elem[a.to_s].blank? }
-            elem.swap "#{name}: Attribute \"#{attr}\" is required"
-          else
-            text = elem.children ? elem.children.map { |x| x.to_original_html }.join : ''
-            text = begin
-                     method.bind(self).call(context, elem.attributes.to_hash.with_indifferent_access, text)
-                   rescue Exception => ex
-                     "#{name}: #{Wiki.html_escape ex.message}"
-                   end
-            if opts[:immediate]
-              if !(String === text) || text.blank?
-                parent.children.delete(elem)
-              else
-                elem.swap text
-              end
-            else
-              @elements << text
-              elem.swap "#{@prefix}#{@elements.length-1}"
-            end
-          end
+  class Parser
+    def initialize(filter, context, content)
+      @filter = filter
+      @context = context
+      @content = content
+      @output = ''
+      @parsed = nil
+    end
+
+    def parse
+      while @content =~ /<([:\-\w]+)/
+        @output << $`
+        @content = $'
+        name = $1.downcase
+        if Wiki::Tag.tags[name]
+          @name = name
+          @parsed = $&
+          parse_tag
         else
-          walk_elements(context, elem)
+          # unknown tag, continue parsing after it
+          @output << $&
         end
+      end
+      @output << @content
+    end
+
+    def parse_tag
+      if @content =~ /\A(\s*([:\-\w]+)=("[^"]+"|'[^']+'))+/
+        @content = $'
+        @parsed << $&
+        array = $&.scan(/([:\-\w]+)=("[^"]+"|'[^']+')/).map do |a,b|
+          [a, Wiki.html_unescape(b[1...-1])]
+        end.flatten
+        @attrs = Hash[*array].with_indifferent_access
+      else
+        @attrs = {}
+      end
+
+      case @content
+      when /\A\s*\/>/
+        # empty tag
+        @content = $'
+        @parsed << $&
+        process_tag('')
+      when /\A\s*>/
+        @content = $'
+        @parsed << $&
+        process_tag(get_inner_text)
+      else
+        # Tag which begins with <name but has no >.
+        # Ignore this and continue parsing after it.
+        @output << @parsed
+      end
+    end
+
+    def get_inner_text
+      stack = [@name]
+      text = ''
+      while !stack.empty?
+	case @content
+        when /\A<([:\-\w]+)/
+          @content = $'
+          text << $` << $&
+          stack << $1
+        when /\A<\/([:\-\w]+)>/
+          @content = $'
+          text << $`
+          stack.pop while !stack.empty? && stack.last != $1
+          stack.pop if !stack.empty?
+          text << $& if !stack.empty?
+        else
+          i = @content.index('<')
+          if i == 0
+            text << '<'
+            @content = @content[1..-1]
+          elsif i
+            text << @content[0...i]
+            @content = @content[i..-1]
+          else
+            text << @content
+            break
+          end
+        end
+      end
+      text
+    end
+
+    def process_tag(text)
+      opts, method = Wiki::Tag.tags[@name]
+
+      @context.tag_counter[@name] ||= 0
+      @context.tag_counter[@name] += 1
+
+      if opts[:limit] && @context.tag_counter[@name] > opts[:limit]
+        @output << "#{@name}: Tag limit exceeded"
+      elsif attr = [opts[:requires] || []].flatten.find {|a| !@attrs.include?(a) }
+        @output << "#{@name}: Attribute \"#{attr}\" is required"
+      else
+        text = begin
+                 method.bind(@filter).call(@context, @attrs, text).to_s
+               rescue Exception => ex
+                 "#{@name}: #{Wiki.html_escape ex.message}"
+               end
+        @output << (opts[:immediate] ? text : @filter.add_protected_element(text))
       end
     end
   end
