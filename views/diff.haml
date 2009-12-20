@@ -1,4 +1,3 @@
-- menu :view, :edit, :history
 - title :diff_of.t(:name => @resource.title)
 %table
   %tbody
@@ -16,4 +15,4 @@
     %tr
       %td= :insertions.t
       %td= @diff.insertions
-%p~ format_patch(@diff.patch, @diff.from, @diff.to)
+%p~ format_changes(@diff.patch, :from => @diff.from, :to => @diff.to)

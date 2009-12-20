@@ -43,63 +43,75 @@ module Wiki
       end.compact.join("\n")
     end
 
-    def format_patch(patch, from = nil, to = nil)
+    def format_changes(patch, opts = {})
       lines = patch.split(/[\n\r]+/)
-      html, plus, minus, path = '', -1, -1, nil
+      html, path, header, last, separator = '', nil, true, nil, false
       lines.each do |line|
-        if line =~ %r{^diff --git a/(.+) b/(.+)$}
-          path = $1
-        elsif line =~ /^\+\+\+ (.*)$/
+        case line
+        when %r{^diff ([\w\-\s]+?) a/(.+?) b/(.+?)$}
+          path = $2
+          header = true
+        when /^\+\+\+/
+          html << '</span></td></tr>' if last
+          last = nil
           html << '</tbody></table>' if !html.empty?
-          if path && from && to
-            html << %Q{<table class="patch"><thead><tr><th>-</th><th>+</th><th class="title"><a class="left" href="#{path.urlpath}">#{path}</a>
-<span class="right"><a href="#{(path/from).urlpath}">#{from[0..4]}</a> to
-<a href="#{(path/to).urlpath}">#{to[0..4]}</a></span></th></tr></thead><tbody>}
-          else
-            html << %Q{<table class="patch"><thead><tr><th>-</th><th>+</th><th class="title">#{$1}</th></tr></thead><tbody>}
+          html << %{<table class="changes">}
+          if path
+            if opts[:from] && opts[:to]
+              html << %{<thead><tr><th><a class="left" href="#{path.urlpath}">#{path}</a>
+<span class="right"><a href="#{(path/'version'/opts[:from]).urlpath}">#{opts[:from][0..4]}</a> to
+<a href="#{(path/'version'/opts[:to]).urlpath}">#{opts[:to][0..4]}</a></span></th></tr></thead>}
+            else
+              html << %{<thead><tr><th><a class="left" href="#{path.urlpath}">#{path}</a></th></tr></thead>}
+            end
           end
-          plus, minus = -1, -1
-        elsif line =~ /^@@ -(\d+)(,\d+)? \+(\d+)/
-          minus = $1.to_i
-          plus = $3.to_i
-          html << %Q{<tr><td>&#160;</td><td>&#160;</td><td class="marker">#{Wiki.html_escape line}</td></tr>}
-        elsif plus >= 0
-          if line[0..0] == '\\'
-            html << %Q{<tr><td>&#160;</td><td>&#160;</td><td class="code">#{Wiki.html_escape line}</td></tr>}
-          elsif line[0..0] == '-'
-            html << %Q{<tr><td>#{minus}</td><td>&#160;</td><td class="code minus">#{Wiki.html_escape line}</td></tr>}
-            minus += 1
-          elsif line[0..0] == '+'
-            html << %Q{<tr><td>&#160;</td><td>#{plus}</td><td class="code plus">#{Wiki.html_escape line}</td></tr>}
-            plus += 1
+          html << %{<tbody>}
+        else
+          ch = line[0..0]
+          if header
+            if ch == '@'
+              header = false
+              separator = false
+            end
           else
-            html << %Q{<tr><td>#{minus}</td><td>#{plus}</td><td class="code">#{Wiki.html_escape line}</td></tr>}
-            minus += 1
-            plus += 1
+            case ch
+            when '@'
+              separator = true
+              html << '</span></td></tr>' if last
+              last = nil
+            when /-|\+| /
+              html << '</span></td></tr>' if last && last != ch
+              clazz = [{'-' => 'minus', '+' => 'plus'}[ch], separator ? 'separator' : nil].compact
+              separator = false
+              html << (last != ch ? '<tr><td' + (clazz.empty? ? '' : %{ class="#{clazz.join(' ')}"}) + '><span>' : "\n")
+              last = ch
+              html << (line.length > 1 ? Wiki.html_escape(line[1..-1]) : '&#160;')
+            end
           end
         end
       end
+      html << '</span></td></tr>' if last
       html << '</tbody></table>' if !html.empty?
       html
     end
 
     def date(t)
-      %Q{<span class="date epoch-#{t.to_i}">#{t.strftime('%d %h %Y %H:%M')}</span>}
+      %{<span class="date epoch-#{t.to_i}">#{t.strftime('%d %h %Y %H:%M')}</span>}
     end
 
     def breadcrumbs(resource)
       path = resource.respond_to?(:path) ? resource.path : ''
-      links = [%Q{<a href="#{resource_path(resource, :path => '/root')}">#{:root_path.t}</a>}]
+      links = [%{<a href="#{resource_path(resource, :path => '/root')}">#{:root_path.t}</a>}]
       path.split('/').inject('') do |parent,elem|
-        links << %Q{<a href="#{resource_path(resource, :path => (parent/elem).urlpath)}">#{elem}</a>}
+        links << %{<a href="#{resource_path(resource, :path => (parent/elem).urlpath)}">#{elem}</a>}
         parent/elem
       end
 
       result = []
       links.each_with_index do |link,i|
-        result << %Q{<li class="breadcrumb#{i==0 ? ' first' : ''}#{i==links.size-1 ? ' last' : ''}">#{link}</li>}
+        result << %{<li class="breadcrumb#{i==0 ? ' first' : ''}#{i==links.size-1 ? ' last' : ''}">#{link}</li>}
       end
-      result.join(%Q{<li class="breadcrumb">/</li>})
+      result.join(%{<li class="breadcrumb">/</li>})
     end
 
     def resource_path(resource, opts = {})
@@ -126,7 +138,7 @@ module Wiki
       if session[:messages]
         out = '<ul>'
         session[:messages].each do |msg|
-          out << %Q{<li class="#{msg[0]}">#{Wiki.html_escape msg[1]}</li>}
+          out << %{<li class="#{msg[0]}">#{Wiki.html_escape msg[1]}</li>}
         end
         session.delete(:messages)
         out + '</ul>'

@@ -4,8 +4,9 @@ en:
   anonymous_profile:      "Anonymous users don't have a profile."
   author:                 'Author'
   change_password:        'Change password'
+  changes:                'Changes'
+  changes_of:             'Changes of #{sha}'
   changes_saved:          'Changes saved'
-  commit:                 'Commit'
   confirmation:           'Confirmation'
   content:                'Content'
   current:                'Current'

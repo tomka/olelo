@@ -77,7 +77,7 @@ module Wiki
     # name can be given to claim a specific engine.
     # If no engine is found a exception is raised.
     def self.find!(resource, name = nil)
-      name ||= resource.metadata[:engine] if !resource.meta?
+      name ||= resource.metadata[:output] || resource.metadata[:engine] if !resource.meta?
 
       engine = if !name
         @engines.values.sort_by {|a| a.priority }.find { |e| e.accepts? resource }

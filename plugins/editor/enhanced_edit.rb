@@ -13,7 +13,7 @@ class Wiki::App
     if @preview
       "<div class=\"preview\">#{@preview}</div>"
     elsif @patch
-      format_patch(@patch)
+      format_changes(@patch)
     end
   end
 
@@ -36,10 +36,10 @@ class Wiki::App
         original.close
 
         new = Tempfile.new('new')
-        new.write(params[:content])
+        new.write(params[:content].gsub("\r\n", "\n"))
         new.close
 
-        @patch = `diff -u "#{original.path}" #{new.path}`
+        @patch = `diff -u "#{original.path}" "#{new.path}"`
         halt haml(request.put? ? :edit : :new)
       else
         params[:message] = :minor_changes.t if params[:minor] && params[:message].blank?

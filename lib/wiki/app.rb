@@ -158,11 +158,11 @@ module Wiki
       haml :profile
     end
 
-    get '/commit/:sha' do
+    get '/changes/:sha' do
       @commit = repository.get_commit(params[:sha])
       cache_control :etag => @commit.sha, :last_modified => @commit.date
       @diff = repository.diff(@commit.parent.first && @commit.parent.first.sha, @commit.sha)
-      haml :commit
+      haml :changes
     end
 
     get '/?:path?/history' do
@@ -241,10 +241,10 @@ module Wiki
         @resource = Resource.find!(repository, params[:path], params[:sha])
         cache_control :etag => @resource.latest_commit.sha, :last_modified => @resource.latest_commit.date
 
-        @engine = Engine.find!(@resource, params[:output])
+        @engine = Engine.find!(@resource, params[:output] || params[:engine])
         @content = @engine.response(@resource, params, request, response)
         if @engine.layout?
-          haml :resource
+          haml :show
         else
           content_type @engine.mime(@resource).to_s
           @content

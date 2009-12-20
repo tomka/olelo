@@ -1,4 +1,4 @@
-- title "#{:commit.t} #{@commit}"
+- title :changes_of.t(:sha => @commit)
 %table.zebra
   %tbody
     %tr
@@ -17,4 +17,4 @@
       %td= :insertions.t
       %td= @diff.insertions
 %br
-~ format_patch(@diff.patch, @diff.from, @diff.to)
+~ format_changes(@diff.patch, :from => @diff.from, :to => @diff.to)

@@ -146,21 +146,30 @@ module Wiki
 
     # Resource name
     def name
-      path =~ %r{/?([^/]+)$} ? $1 : path
+      i = path.rindex('/')
+      name = i ? path[i+1..-1] : path
+    end
+
+    # Resource name without extension
+    def name_without_extension
+      tmp = name
+      i = tmp.index('.')
+      i ? tmp[0...i] : tmp
     end
 
     # Page title
     def title
-      i = name.index('.')
-      n = i ? name[0...i] : name
       if meta?
-        n = n[META_PREFIX.length..-1]
-        :metadata_of.t(:name => n.blank? ? :root_path.t : n)
+        name = name_without_extension
+        name = name[META_PREFIX.length..-1]
+        :metadata_of.t(:name => name.blank? ? :root_path.t : name)
       elsif discussion?
-        n = n[DISCUSSION_PREFIX.length..-1]
-        :discussion_of.t(:name => n.blank? ? :root_path.t : n)
+        name = name_without_extension
+        name = name[DISCUSSION_PREFIX.length..-1]
+        :discussion_of.t(:name => name.blank? ? :root_path.t : name)
       else
-        n.blank? ? :root_path.t : n
+        name = metadata['title'] || name_without_extension
+        name.blank? ? :root_path.t : name
       end
     end
 

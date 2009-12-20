@@ -8,17 +8,17 @@
       %span.sha{:title => @resource.commit}
         = @resource.commit.sha[0..4]
 %ul.wiki
-  - if menu.include?(:version)
-    - if @resource.prev_commit
-      %li
-        %a.action-older{:href=>resource_path(@resource, :sha => @resource.prev_commit), :accesskey=>'o'}= :older.t
-    - if @resource.next_commit
-      %li
-        %a.action-newer{:href=>resource_path(@resource, :sha => @resource.next_commit), :accesskey=>'n'}= :newer.t
-    - if !@resource.current?
-      %li
-        %a.action-current{:href=> @resource.path.urlpath, :accesskey=>'c'}= :current.t
   - if @resource
+    - if menu.include?(:version)
+      - if @resource.prev_commit
+        %li
+          %a.action-older{:href=>resource_path(@resource, :sha => @resource.prev_commit), :accesskey=>'o'}= :older.t
+      - if @resource.next_commit
+        %li
+          %a.action-newer{:href=>resource_path(@resource, :sha => @resource.next_commit), :accesskey=>'n'}= :newer.t
+      - if !@resource.current?
+        %li
+          %a.action-current{:href=> @resource.path.urlpath, :accesskey=>'c'}= :current.t
     - if !@resource.new?
       %li
         %a.action-view{:href=> @resource.path.urlpath, :accesskey=>'v'}= :view.t
@@ -37,30 +37,20 @@
         %a.action-page{:href=> (@resource.path/'..'/@resource.name[Wiki::META_PREFIX.length..-1]).urlpath, :accesskey=>'p' }= :page.t
       - else
         %a.action-discuss{:href=> @resource.discussion_path.urlpath, :accesskey=>'d' }= :discuss.t
-    - if menu.include?(:edit)
+    %li
       - if @resource.page?
-        %li
-          %a.action-edit{:href=>action_path(@resource, :edit), :accesskey=>'e'}= :edit.t
-          %ul
-            %li
-              %a.action-new{:href=> '/new page/new', :accesskey=>'n'}= :new_page.t
-            %li
-              %a.action-move{:href=> action_path(@resource, :move) }= :move.t
-            %li
-              %a.action-delete{:href=> action_path(@resource, :delete) }= :delete.t
+        %a.action-edit{:href=>action_path(@resource, :edit), :accesskey=>'e'}= :edit.t
       - else
+        %a.action-edit= :edit.t
+      %ul
         %li
-          %a.action-edit= :edit.t
-          %ul
-            %li
-              %a.action-new{:href=> (@resource.path/'new page/new').urlpath, :accesskey=>'n'}= :new_page.t
-            %li
-              %a.action-move{:href=> action_path(@resource, :move) }= :move.t
-            %li
-              %a.action-delete{:href=> action_path(@resource, :delete) }= :delete.t
-    - if menu.include?(:history)
-      %li
-        %a.action-history{:href=>action_path(@resource, :history), :accesskey=>'h'}= :history.t
+          %a.action-new{:href=> ((@resource.tree? ? @resource.path : '')/'new page/new').urlpath, :accesskey=>'n'}= :new_page.t
+        %li
+          %a.action-move{:href=> action_path(@resource, :move) }= :move.t
+        %li
+          %a.action-delete{:href=> action_path(@resource, :delete) }= :delete.t
+    %li
+      %a.action-history{:href=>action_path(@resource, :history), :accesskey=>'h'}= :history.t
   - else
     %li
       %a.action-new{:href=>'/new page/new', :accesskey=>'n'}= :new_page.t

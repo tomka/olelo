@@ -13,7 +13,7 @@ jQuery.fn.historyTable = function() {
 	var from = $(this),
             offset = from.offset(),
             to = null;
-	    fromText = $('td:first-child', from).text(),
+	    fromText = $('td:first-child a:first-child', from).text(),
 	    fromDate = $('td:nth-child(3)', from).text(),
 	    draggable = null;
 
@@ -60,7 +60,7 @@ jQuery.fn.historyTable = function() {
 	}).bind('mouseover.history', function() {
             if (draggable) {
                 to = $(this);
-		var toText = $('td:first-child', to).text(),
+		var toText = $('td:first-child a:first-child', to).text(),
 		    toDate = $('td:nth-child(3)', to).text(),
 		    offset = to.offset();
                 draggable.css({
