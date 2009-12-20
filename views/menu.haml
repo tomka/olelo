@@ -37,23 +37,25 @@
         %a.action-page{:href=> (@resource.path/'..'/@resource.name[Wiki::META_PREFIX.length..-1]).urlpath, :accesskey=>'p' }= :page.t
       - else
         %a.action-discuss{:href=> @resource.discussion_path.urlpath, :accesskey=>'d' }= :discuss.t
-    %li
-      - if @resource.page?
-        %a.action-edit{:href=>action_path(@resource, :edit), :accesskey=>'e'}= :edit.t
-      - else
-        %a.action-edit= :edit.t
-      %ul
-        %li
-          %a.action-new{:href=> (@resource.tree? ? @resource.path/'new' : 'new').urlpath, :accesskey=>'n'}= :new_page.t
-        %li
-          %a.action-move{:href=> action_path(@resource, :move) }= :move.t
-        %li
-          %a.action-delete{:href=> action_path(@resource, :delete) }= :delete.t
-        - if !@resource.meta?
+    - if !@resource.new?
+      %li
+        - if @resource.page?
+          %a.action-edit{:href=>action_path(@resource, :edit), :accesskey=>'e'}= :edit.t
+        - else
+          %a.action-edit= :edit.t
+        %ul
           %li
-            %a.action-metadata{:href=> action_path(@resource.meta_path, :edit) }= :metadata.t
-    %li
-      %a.action-history{:href=>action_path(@resource, :history), :accesskey=>'h'}= :history.t
+            %a.action-new{:href=> (@resource.tree? ? @resource.path/'new' : 'new').urlpath, :accesskey=>'n'}= :new_page.t
+          - if !@resource.path.blank?
+            %li
+              %a.action-move{:href=> action_path(@resource, :move) }= :move.t
+            %li
+              %a.action-delete{:href=> action_path(@resource, :delete) }= :delete.t
+          - if !@resource.meta?
+            %li
+              %a.action-metadata{:href=> action_path(@resource.meta_path, :edit) }= :metadata.t
+      %li
+        %a.action-history{:href=>action_path(@resource, :history), :accesskey=>'h'}= :history.t
   - else
     %li
       %a.action-new{:href=>'/new', :accesskey=>'n'}= :new_page.t

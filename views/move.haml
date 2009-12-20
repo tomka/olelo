@@ -5,3 +5,4 @@
     %label.inline{:for=>'destination'}= :destination.t
     %input#destination.inline{:name=>'destination', :type=>'text', :value => @resource.path}
     %button.inline{:type=>'submit', :accesskey => 'm'}= :move.t
+    %button.inline{:type=>'button', :accesskey => 'c', :onclick=>'history.back()'}= :cancel.t

@@ -21,7 +21,7 @@ class Wiki::App
     content_type 'application/json', :charset => 'utf-8'
 
     resource = Resource.find!(repository, params[:dir], params[:sha])
-    cache_control :static => true, :etag => resource.latest_commit.id, :last_modified => resource.latest_commit.date, :proxy_revalidate => true
+    cache_control :max_age => 3600, :etag => resource.latest_commit.id, :last_modified => resource.latest_commit.date, :proxy_revalidate => true
 
     result = '[';
     result << resource.children.map do |child|

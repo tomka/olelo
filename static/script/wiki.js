@@ -45,8 +45,9 @@ jQuery.fn.historyTable = function() {
             var distance = Math.abs(event.pageX - moveEvent.pageX) + Math.abs(event.pageY - moveEvent.pageY);
             if (distance > 5) {
                 draggable = $('<div class="history-draggable">' + fromText + ' (' + fromDate + ')</div>').css({
-                    width: from.width() + 'px',
-                    height: from.height() + 'px',
+                    width: (from.width() - 10) + 'px',
+                    height: (from.height() - 4) + 'px',
+                    padding: '2px 5px',
                     position: 'absolute',
                     display: 'block',
                     zIndex: 1000,
@@ -71,11 +72,9 @@ jQuery.fn.historyTable = function() {
             return true;
 	});
 
-	$(document).mouseup(mouseup);
 	return false;
     });
 };
-
 
 // Wiki bootstrap
 // Written by Daniel Mendler
@@ -86,8 +85,8 @@ $(function() {
 
     $('table.history').historyTable();
 
-    $('.zebra tr:even').addClass('even');
-    $('.zebra tr:odd').addClass('odd');
+    $('.zebra tr:even, .history tr:even').addClass('even');
+    $('.zebra tr:odd, .history tr:odd').addClass('odd');
 
     $('input.placeholder').placeholder();
 

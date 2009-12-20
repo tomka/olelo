@@ -3,6 +3,7 @@
 @import ../lib/shadow.sass
 @import ../lib/headlines.sass
 @import ../lib/changes.sass
+@import ../lib/gradient.sass
 @import constants.sass
 @import layout.sass
 @import menu.sass
@@ -43,9 +44,10 @@ ul, ol
 
 table
   +box-shadow
-  background: #999
-  border-collapse: separate
-  border-spacing: 1px
+  border-collapse: collapse
+  border-spacing: 0
+  border = !border
+  margin: 0 0 1em 0
   tr
     background: #FFF
     td, th
@@ -57,11 +59,12 @@ table
           padding: 0.2em 0.5em
           display: block
     th
+      background: #999
+      border-bottom = !border
       font-variant: small-caps
       background: #CCC
-      border: 1px solid #FFF
     &.even
-      background: #EEF
+      background: #DDF
     .header
       background: #CCC url(images/table_bg.png) no-repeat center right
       cursor: pointer
@@ -71,15 +74,15 @@ table
     .headerSortDown
       background-image: url(images/table_asc.png)
   &.highlighttable
-    border: none
+    +no-box-shadow
     background: transparent
-    border-spacing: 0
-    border-collapse: collapse
     td, th, tr
-      border: none
-      padding: 0
+      padding: 0.2em
     .linenos
       color: #555
+    pre
+      padding: 0
+      border: none
 
 a
   &, &:visited
@@ -120,7 +123,7 @@ hr
 
 pre
   border = !border
-  padding: 1em 0.5em
+  padding: 0.2em
   background: #FFF
   min-width: 60%
   white-space: pre-wrap
@@ -204,11 +207,11 @@ form
       border-style:	dotted
   button
     +rounded
+    +v-gradient(#fff, #aaa)
     float:		left
     margin:		0.3em 0.5em 0.3em 0
     padding:		2px
     border:		1px outset #999
-    background:		#AAA
     color:              #333
     &:focus
       border-style:	dotted
@@ -280,7 +283,7 @@ table input
       +rounded-tl
       +rounded-tr
       font-variant: small-caps
-      background: #EEF
+      background: #DDF
       float: left
       padding: 0
       margin: 0 0 0 4px

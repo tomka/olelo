@@ -3,6 +3,7 @@ en:
   already_exists:         '#{path} exists already'
   anonymous_profile:      "Anonymous users don't have a profile."
   author:                 'Author'
+  cancel:                 'Cancel'
   change_password:        'Change password'
   changes:                'Changes'
   changes_of:             'Changes of #{sha}'
