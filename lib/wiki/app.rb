@@ -226,7 +226,7 @@ module Wiki
           if resource.tree?
             params[:path] = "#{params[:path]}/new page"
           else
-            redirect (params[:path]/'edit').urlpath
+            redirect((params[:path]/'edit').urlpath)
           end
         end
         @resource = Page.new(repository, params[:path])
@@ -237,7 +237,7 @@ module Wiki
       haml :new
     end
 
-    get '/version/:sha', '/:path/version/:sha', '/:path' do
+    get '/?:path?/version/?:sha?', '/:path' do
       begin
         pass if reserved_path?(params[:path])
 
@@ -253,7 +253,7 @@ module Wiki
           @content
         end
       rescue Resource::NotFound
-        request.env['wiki.redirect_to_new'] = true
+        request.env['wiki.redirect_to_new'] = params[:sha].blank?
         pass
       end
     end

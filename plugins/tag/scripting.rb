@@ -59,7 +59,7 @@ Tag.define(:include, :requires => :page, :limit => 50) do |context, attrs, conte
     raise(RuntimeError, "No engine found for #{attrs['page']}") if !engine || !engine.layout?
     engine.output(context.subcontext(attrs.merge(:engine => engine, :page => page)))
   else
-    "<a href=\"/#{attrs['page']}/new\">Create #{attrs['page']}</a>"
+    %{<a href="/#{attrs['page']}/new">Create #{attrs['page']}</a>}
   end
 end
 

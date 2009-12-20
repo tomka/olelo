@@ -86,19 +86,17 @@ describe 'wiki' do
     get '/not-existing'
     should.be.redirect
     location.should.equal '/not-existing/new'
+
+    get '/not-existing/edit'
+    should.be.redirect
+    location.should.equal '/not-existing/new'
   end
 
   it 'should not redirect to /new' do
-    get '/not-existing/edit'
-    should.be.not_found
-
     get '/not-existing/history'
     should.be.not_found
 
     get '/not-existing/diff'
-    should.be.not_found
-
-    get '/not-existing/archive'
     should.be.not_found
   end
 

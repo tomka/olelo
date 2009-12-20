@@ -4,6 +4,19 @@ require 'yaml'
 require 'cgi'
 
 gem 'haml', '>= 2.2.0'
+require 'haml/helpers'
+module Haml::Helpers
+  # Remove stupid deprecated helper
+  remove_method :puts
+
+  alias original_capture_haml capture_haml
+
+  # Encoding problem with haml
+  def capture_haml(*args, &block)
+    Wiki.set_encoding(original_capture_haml(*args, &block))
+  end
+end
+
 module Haml
   autoload 'Engine', 'haml/engine'
   autoload 'Util', 'haml/util'
@@ -135,7 +148,7 @@ module Wiki
       def content_hook(type, *args, &block)
         invoke_hook(type, *args, &block).map(&:to_s).join
       rescue => ex
-        "<span class=\"error\">#{ex.message}</span>"
+        %{<span class="error">#{ex.message}</span>}
       end
     end
 
@@ -185,17 +198,23 @@ module Wiki
     end
   end
 
-  def self.forbid(conds)
-    failed = conds.keys.select {|key| conds[key] }
-    raise(Wiki::MultiError, *failed) if !failed.empty?
-  end
+  class<< self
+    def forbid(conds)
+      failed = conds.keys.select {|key| conds[key] }
+      raise(Wiki::MultiError, *failed) if !failed.empty?
+    end
 
-  def self.html_escape(text)
-    CGI.escapeHTML(text.to_s)
-  end
+    def html_escape(text)
+      CGI.escapeHTML(text.to_s)
+    end
 
-  def self.html_unescape(text)
-    CGI.unescapeHTML(text.to_s)
+    def html_unescape(text)
+      CGI.unescapeHTML(text.to_s)
+    end
+
+    def set_encoding(object)
+      object.respond_to?(:force_encoding) ? object.force_encoding(__ENCODING__) : object
+    end
   end
 end
 

@@ -18,7 +18,7 @@ Tag.define :ref do |context, attrs, content|
     footnotes << [note_id, content.gsub(/^\s*<p>\s*|\s*<\/p>\s*$/, ''), [ref_id]]
     hash[name] = note_id if !name.blank?
   end
-  %Q{<a class="ref" id="ref#{ref_id}" href="#note#{note_id}">[#{note_id}]</a>}
+  %{<a class="ref" id="ref#{ref_id}" href="#note#{note_id}">[#{note_id}]</a>}
 end
 
 TEMPLATE = %q{

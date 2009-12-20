@@ -22,8 +22,7 @@ class Toc < Filter
     end
     @toc << '</div>'
 
-    content = @doc.to_xhtml.fix_encoding
-    @toc = @toc.fix_encoding
+    content = @doc.to_xhtml
 
     content.gsub!(context['__TOC__']) do
       prefix = $`
@@ -58,7 +57,7 @@ class Toc < Filter
     section = 'section-' + @count[0..@level-1].join('_') + '_' + headline.strip.gsub(/[^\w]/, '_')
     @toc << %{<li class="toc#{@level-@offset+1}"><a href="##{section}">\
 <span class="counter">#{@count[@level-1]}</span> #{headline}</a>}
-    elem.inner_html = %Q{<span class="counter" id="#{section}">#{@count[0..@level-1].join('.')}</span> #{elem.inner_html}}
+    elem.inner_html = %{<span class="counter" id="#{section}">#{@count[0..@level-1].join('.')}</span> #{elem.inner_html}}
   end
 end
 

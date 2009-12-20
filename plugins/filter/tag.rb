@@ -163,7 +163,7 @@ class Wiki::Tag < Filter
       if opts[:limit] && @context.tag_counter[@name] > opts[:limit]
         @output << "#{@name}: Tag limit exceeded"
       elsif attr = [opts[:requires] || []].flatten.find {|a| !@attrs.include?(a) }
-        @output << "#{@name}: Attribute \"#{attr}\" is required"
+        @output << %{#{@name}: Attribute "#{attr}" is required}
       else
         text = begin
                  method.bind(@filter).call(@context, @attrs, text).to_s

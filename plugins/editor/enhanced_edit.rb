@@ -3,7 +3,7 @@ description 'Enhanced edit form with preview and diff'
 
 class Wiki::App
   add_hook(:before_edit_form_buttons) do
-    %Q{<input type="checkbox" name="minor" id="minor" value="1"#{params[:minor] ? ' checked="checked"' : ''}/>
+    %{<input type="checkbox" name="minor" id="minor" value="1"#{params[:minor] ? ' checked="checked"' : ''}/>
 <label for="minor">Minor changes</label><br/>
 <button type="submit" name="preview">#{:preview.t}</button>
 <button type="submit" name="changes">#{:changes.t}</button>}
@@ -11,7 +11,7 @@ class Wiki::App
 
   add_hook(:before_edit_form) do
     if @preview
-      "<div class=\"preview\">#{@preview}</div>"
+      %{<div class="preview">#{@preview}</div>}
     elsif @patch
       format_changes(@patch)
     end

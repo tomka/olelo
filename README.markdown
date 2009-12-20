@@ -59,9 +59,6 @@ Point your web browser at <http://localhost:4567>.
 
 Git-Wiki automatically creates a repository in the directory `./.wiki`.
 
-If you use Ruby 1.9, it is very important that you set the environment
-variable LANG to a UTF-8 locale. Otherwise, you might get encoding exceptions.
-
 For production purposes, I recommend that you deploy the wiki
 with Mongrel. You can use the WIKI_CONFIG environment variable
 to specify multiple wiki configurations.

@@ -5,7 +5,7 @@ autoload 'RSS', 'rss/maker'
 class Wiki::App
   add_hook(:after_head) do
     if @resource && !@resource.new?
-      %Q{<link rel="alternate" href="#{(@resource.path/'changelog.rss').urlpath}" type="application/rss+xml" title="Changelog"/>}
+      %{<link rel="alternate" href="#{(@resource.path/'changelog.rss').urlpath}" type="application/rss+xml" title="Changelog"/>}
     end
   end
 

@@ -185,6 +185,14 @@ module Wiki
       @repository.diff(from, to, path)
     end
 
+    # Get metadata
+    def metadata
+      @metadata ||= begin
+                      page = Page.find(@repository, meta_path, commit)
+                      page ? page.metadata : {}
+                    end
+    end
+
     protected
 
     def init_commits
@@ -221,6 +229,7 @@ module Wiki
     # Page content
     def content(pos = nil, len = nil)
       c = @content || (@object && @object.data)
+      Wiki.set_encoding(c)
       pos ? c[[[0, pos.to_i].max, c.size].min, [0, len.to_i].max] : c
     end
 
@@ -274,8 +283,7 @@ module Wiki
                       hash = YAML.load("#{content}\n") rescue nil
                       Hash === hash ? hash.with_indifferent_access : {}
                     else
-                      page = Page.find(repository, meta_path, current? ? nil : commit)
-                      page ? page.metadata : {}
+                      super
                     end
     end
   end
@@ -310,14 +318,6 @@ module Wiki
     # Directory mime type
     def mime
       DIRECTORY_MIME
-    end
-
-    # Get metadata
-    def metadata
-      @metadata ||= begin
-                      page = Page.find(@repository, meta_path, commit)
-                      page ? page.metadata : {}
-                    end
     end
   end
 end
