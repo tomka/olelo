@@ -94,14 +94,14 @@ $(function() {
     $('.date').dateToggler();
     $('label, #menu, .tabs > ul').disableSelection();
     $('#upload-file').change(function() {
-	var elem = $('#upload-path'), val;
+        var elem = $('#upload-path'), val, oldpath;
 	if (elem.size() == 1) {
 	    val = elem.val();
-	    if (val == '') {
-		elem.val(this.value);
-	    } else if (val.match(/^(.*\/)?new page$/)) {
-		val = val.replace(/new page$/, '') + this.value;
+	    oldpath = elem.attr('oldpath') || 'new page';
+	    if (val.match(new RegExp('^(.*\/)?' + oldpath + '$'))) {
+		val = val.replace(new RegExp(oldpath + '$'), '') + this.value;
 		elem.val(val);
+		elem.attr('oldpath', this.value);
 	    }
 	}
     });

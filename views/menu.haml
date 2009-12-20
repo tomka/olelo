@@ -44,13 +44,16 @@
         %a.action-edit= :edit.t
       %ul
         %li
-          %a.action-new{:href=> ((@resource.tree? ? @resource.path : '')/'new page/new').urlpath, :accesskey=>'n'}= :new_page.t
+          %a.action-new{:href=> (@resource.tree? ? @resource.path/'new' : 'new').urlpath, :accesskey=>'n'}= :new_page.t
         %li
           %a.action-move{:href=> action_path(@resource, :move) }= :move.t
         %li
           %a.action-delete{:href=> action_path(@resource, :delete) }= :delete.t
+        - if !@resource.meta?
+          %li
+            %a.action-metadata{:href=> action_path(@resource.meta_path, :edit) }= :metadata.t
     %li
       %a.action-history{:href=>action_path(@resource, :history), :accesskey=>'h'}= :history.t
   - else
     %li
-      %a.action-new{:href=>'/new page/new', :accesskey=>'n'}= :new_page.t
+      %a.action-new{:href=>'/new', :accesskey=>'n'}= :new_page.t

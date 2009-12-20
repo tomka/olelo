@@ -63,7 +63,7 @@ module Wiki
     # Move page
     def move(destination, author = nil)
       Resource.forbid_invalid_path(destination)
-      Wiki.forbid(:already_exists.t => Resource.find(@repository, destination))
+      Wiki.forbid(:already_exists.t(:path => destination) => Resource.find(@repository, destination))
       repository.transaction(:resource_moved_to.t(:path => @path, :destination => destination), author && author.to_git_user) do
         repository.root.move(@path, destination)
         repository.root[@path] = Gitrb::Blob.new(:data => %{<redirect path="#{destination.urlpath}"/>})
@@ -237,7 +237,7 @@ module Wiki
       end
 
       Wiki.forbid(:no_content.t => content.blank?,
-                  :already_exists.t => new? && Resource.find(@repository, @path),
+                  :already_exists.t(:path => @path) => new? && Resource.find(@repository, @path),
                   :empty_commit_message.t => message.blank?)
 
       repository.transaction(message, author && author.to_git_user) do

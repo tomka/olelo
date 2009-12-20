@@ -211,20 +211,23 @@ module Wiki
     end
 
     get '/:path/edit', '/:path/upload' do
-      begin
-        @resource = Page.find!(repository, params[:path])
-        haml :edit
-      rescue Resource::NotFound
+      @resource = Page.find(repository, params[:path])
+      if !@resource
         pass if action? :upload # Pass to next handler because /upload is used twice
-        raise
+        redirect (params[:path]/'new').urlpath
       end
+      haml :edit
     end
 
     get '/new', '/upload', '/:path/new', '/:path/upload' do
       begin
         # Redirect to edit for existing pages
-        if !params[:path].blank? && Resource.find(repository, params[:path])
-          redirect (params[:path]/'edit').urlpath
+        if resource = Resource.find(repository, params[:path])
+          if resource.tree?
+            params[:path] = "#{params[:path]}/new page"
+          else
+            redirect (params[:path]/'edit').urlpath
+          end
         end
         @resource = Page.new(repository, params[:path])
         Wiki.forbid(:reserved_path.t => reserved_path?(params[:path]))

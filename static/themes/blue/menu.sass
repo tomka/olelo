@@ -50,6 +50,7 @@
         white-space: nowrap
         padding: 0 1em
         color: #333
+        cursor: pointer
         &.action-older:before
           content: "\00ab\00a0"
         &.action-newer:after
@@ -60,6 +61,9 @@
         +menu-action("history")
         +menu-action("delete")
         +menu-action("move")
+        +menu-action("metadata")
+        +menu-action("discuss")
+        +menu-action("page")
         &:hover, &:focus, &:active
           text-shadow: #333 1px 1px 2px
       ul

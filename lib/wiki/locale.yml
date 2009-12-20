@@ -1,6 +1,6 @@
 en:
   actions:                'Actions'
-  already_exists:         'Already exists'
+  already_exists:         '#{path} exists already'
   anonymous_profile:      "Anonymous users don't have a profile."
   author:                 'Author'
   change_password:        'Change password'
