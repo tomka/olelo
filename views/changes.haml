@@ -16,5 +16,9 @@
     %tr
       %td= :insertions.t
       %td= @diff.insertions
-%br
+    %tr
+      %td= :parents.t
+      %td
+        - @commit.parent.each do |parent|
+          %a{:href=> ('changes'/parent.sha).urlpath }= parent.sha[0..4]
 ~ format_changes(@diff.patch, :from => @diff.from, :to => @diff.to)

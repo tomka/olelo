@@ -45,16 +45,16 @@ module Wiki
 
     def format_changes(patch, opts = {})
       lines = patch.split(/[\n\r]+/)
-      html, path, header, last, separator = '', nil, true, nil, false
+      html, path, header, last = '', nil, true, nil
       lines.each do |line|
         case line
         when %r{^diff ([\w\-\s]+?) a/(.+?) b/(.+?)$}
           path = $2
           header = true
         when /^\+\+\+/
-          html << '</span></td></tr>' if last
+          html << '</span>' if last
           last = nil
-          html << '</tbody></table>' if !html.empty?
+          html << '</td></tr></tbody></table>' if !html.empty?
           html << %{<table class="changes">}
           if path
             if opts[:from] && opts[:to]
@@ -65,33 +65,28 @@ module Wiki
               html << %{<thead><tr><th><a class="left" href="#{path.urlpath}">#{path}</a></th></tr></thead>}
             end
           end
-          html << %{<tbody>}
+          html << %{<tbody><tr><td>}
         else
           ch = line[0..0]
           if header
-            if ch == '@'
-              header = false
-              separator = false
-            end
+            header = false if ch == '@'
           else
             case ch
             when '@'
-              separator = true
-              html << '</span></td></tr>' if last
+              html << '</span>' if last
+              html << '</tr></td><tr><td>'
               last = nil
             when /-|\+| /
-              html << '</span></td></tr>' if last && last != ch
-              clazz = [{'-' => 'minus', '+' => 'plus'}[ch], separator ? 'separator' : nil].compact
-              separator = false
-              html << (last != ch ? '<tr><td' + (clazz.empty? ? '' : %{ class="#{clazz.join(' ')}"}) + '><span>' : "\n")
+              html << '</span>' if last && last != ch
+              html << "<span#{{'-' => ' class="minus"', '+' => ' class="plus"'}[ch]}>" if last != ch
+              html << (line.length > 1 ? Wiki.html_escape(line[1..-1]) : '&#160;') << "\n"
               last = ch
-              html << (line.length > 1 ? Wiki.html_escape(line[1..-1]) : '&#160;')
             end
           end
         end
       end
-      html << '</span></td></tr>' if last
-      html << '</tbody></table>' if !html.empty?
+      html << '</span>' if last
+      html << '</td></tr></tbody></table>' if !html.empty?
       html
     end
 
