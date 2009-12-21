@@ -2,14 +2,14 @@ author      'Daniel Mendler'
 description 'Enhanced edit form with preview and diff'
 
 class Wiki::App
-  add_hook(:before_edit_form_buttons) do
+  hook(:before_edit_form_buttons) do
     %{<input type="checkbox" name="minor" id="minor" value="1"#{params[:minor] ? ' checked="checked"' : ''}/>
 <label for="minor">Minor changes</label><br/>
 <button type="submit" name="preview">#{:preview.t}</button>
 <button type="submit" name="changes">#{:changes.t}</button>}
   end
 
-  add_hook(:before_edit_form) do
+  hook(:before_edit_form) do
     if @preview
       %{<div class="preview">#{@preview}</div>}
     elsif @patch
@@ -17,7 +17,7 @@ class Wiki::App
     end
   end
 
-  add_hook(:before_page_save) do |page|
+  hook(:before_page_save) do |page|
     if (action?(:new) || action?(:edit)) && params[:content]
       if params[:preview]
         message(:error, :empty_commit_message.t) if params[:message].blank? && !params[:minor]

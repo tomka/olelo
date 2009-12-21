@@ -3,7 +3,7 @@ description  'Markitup Editor'
 
 class Wiki::App
 
-  add_hook(:after_head) do
+  hook(:after_head) do
     path = request.path_info
     if path.ends_with?('edit') || path.ends_with?('new') || path.ends_with?('upload')
       '<link rel="stylesheet" href="/_/markitup/src/skins/markitup/style.css" type="text/css"/>' +
@@ -11,7 +11,7 @@ class Wiki::App
     end
   end
 
-  add_hook(:after_script) do
+  hook(:after_script) do
     path = request.path_info
     if path.ends_with?('edit') || path.ends_with?('new') || path.ends_with?('upload')
       '<script type="text/javascript" src="/_/markitup/src/jquery.markitup.js"></script>' +
@@ -20,5 +20,5 @@ class Wiki::App
     end
   end
 
-  static_files 'src/**/*'
+  assets 'src/**/*'
 end

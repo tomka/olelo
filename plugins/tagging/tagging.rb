@@ -47,13 +47,13 @@ end
 class Wiki::App
   TAG_STORE = 'tags.yml'
 
-  static_files '*.png'
+  assets '*.png'
 
   lazy_reader :tag_store do
     TagStore.find(repository, TAG_STORE) || TagStore.new(repository, TAG_STORE)
   end
 
-  add_hook(:after_footer) do
+  hook(:after_footer) do
     haml(:tagbox, :layout => false) if @resource && !@resource.new?
   end
 

@@ -42,13 +42,13 @@ module Wiki
     end
 
     class<< self
-      attr_reader :plugin_files
+      attr_reader :plugin_assets
 
-      def static_files(*files)
-        if !@plugin_files
-          @plugin_files = {}
+      def assets(*files)
+        if !@plugin_assets
+          @plugin_assets = {}
           get "/_/:file", :patterns => {:file => /.*/} do
-            if path = self.class.plugin_files[params[:file]]
+            if path = self.class.plugin_assets[params[:file]]
               cache_control :last_modified => File.mtime(path), :static => true
               send_file path
             else
@@ -60,14 +60,14 @@ module Wiki
         dir = File.dirname(Plugin.current.file)
         files.each do |file|
           Dir.glob(File.join(dir, file)).each do |path|
-            @plugin_files[name/path[dir.length+1..-1]] = path
+            @plugin_assets[name/path[dir.length+1..-1]] = path
           end
         end
       end
     end
 
     # Executed before each request
-    add_hook(:before_routing) do
+    hook(:before_routing) do
       start_timer
       @logger.debug request.env
 
@@ -81,7 +81,7 @@ module Wiki
     end
 
     # Handle 404s
-    add_hook(NotFound) do |ex|
+    hook(NotFound) do |ex|
       if request.env['wiki.redirect_to_new']
         # Redirect to create new page if flag is set
         redirect((params[:path]/'new').urlpath)
@@ -93,7 +93,7 @@ module Wiki
     end
 
     # Show wiki error page
-    add_hook(Exception) do |ex|
+    hook(Exception) do |ex|
       cache_control :no_cache => true
       @error = ex
       @logger.error @error
@@ -184,7 +184,9 @@ module Wiki
     post '/:path/move' do
       begin
         @resource = Resource.find!(repository, params[:path])
-        invoke_hook(:resource_move, @resource, params[:destination]) { @resource.move(params[:destination], @user) }
+        with_hooks(:resource_move, @resource, params[:destination]) do
+          @resource.move(params[:destination], @user)
+        end
         redirect @resource.path.urlpath
       rescue StandardError => error
 	message :error, error
@@ -194,7 +196,9 @@ module Wiki
 
     post '/:path/delete' do
       @resource = Resource.find!(repository, params[:path])
-      invoke_hook(:resource_delete, @resource) { @resource.delete(@user) }
+      with_hooks(:resource_delete, @resource) do
+        @resource.delete(@user)
+      end
       haml :deleted
     end
 
@@ -264,11 +268,11 @@ module Wiki
       begin
         Wiki.forbid(:version_conflict.t => @resource.commit.sha != params[:version]) # TODO: Implement conflict diffs
         if action?(:upload) && params[:file]
-          invoke_hook :page_save, @resource do
+          with_hooks :page_save, @resource do
             @resource.write(params[:file][:tempfile], :file_uploaded.t, @user)
           end
         elsif action?(:edit) && params[:content]
-          invoke_hook :page_save, @resource do
+          with_hooks :page_save, @resource do
             content = if params[:pos]
                         pos = [[0, params[:pos].to_i].max, @resource.content.size].min
                         len = [0, params[:len].to_i].max
@@ -294,11 +298,11 @@ module Wiki
         pass if reserved_path?(params[:path])
         @resource = Page.new(repository, params[:path])
         if action?(:upload) && params[:file]
-          invoke_hook :page_save, @resource do
+          with_hooks :page_save, @resource do
             @resource.write(params[:file][:tempfile], "File #{@resource.path} uploaded", @user)
           end
         elsif action?(:new)
-          invoke_hook :page_save, @resource do
+          with_hooks :page_save, @resource do
             @resource.write(params[:content], params[:message], @user)
           end
         else

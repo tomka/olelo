@@ -35,7 +35,7 @@ class Wiki::App
     end
   end
 
-  add_hook(:auto_login) do
+  hook(:auto_login) do
     token = request.cookies[TOKEN_NAME]
     if token
       user = get_login_token(token)
@@ -43,7 +43,7 @@ class Wiki::App
     end
   end
 
-  add_hook(:after_action) do |method, path|
+  hook(:after_action) do |method, path|
     if path == '/login'
       if !@user.anonymous?
         ch = ('a'..'z').to_a + ('A'..'Z').to_a + ('0'..'9').to_a

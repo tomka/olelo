@@ -18,13 +18,13 @@ class Wiki::AccessDenied < StandardError
 end
 
 class Wiki::App
-  add_hook(:after_action) do |method, action|
+  hook(:after_action) do |method, action|
     if @resource && method == :get
       @resource.access?(:read, @user) || raise(AccessDenied)
     end
   end
 
-  add_hook(:before_page_save) do |resource|
+  hook(:before_page_save) do |resource|
     resource.access?(:write, @user) || raise(AccessDenied)
   end
 end

@@ -50,7 +50,7 @@ module Wiki
       def handle_error(ex)
         @response.status = ex.respond_to?(:status) ? ex.status : 500
         @response.body   = [ex.message]
-        content_hook(ex.class, ex)
+        output_with_hooks(ex.class, ex)
       end
 
       def perform!
@@ -116,7 +116,7 @@ module Wiki
               end
             @params = @original_params.merge(params)
             catch(:pass) do
-              invoke_hook(:action, @request.request_method.downcase.to_sym, name) do
+              with_hooks(:action, @request.request_method.downcase.to_sym, name) do
                 halt(method.arity == 0 ? method.bind(self).call : method.bind(self).call(*values))
               end
             end

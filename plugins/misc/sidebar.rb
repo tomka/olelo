@@ -3,7 +3,7 @@ description 'Basic sidebar implementation'
 
 class Wiki::App
   get '/_/sidebar' do
-    content_hook :sidebar do
+    output_with_hooks :sidebar do
       if page = Page.find(repository, :sidebar.t)
         engine = Engine.find!(page)
         if engine.layout?

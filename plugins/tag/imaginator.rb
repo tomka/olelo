@@ -4,7 +4,7 @@ dependencies 'filter/tag', 'gem:imaginator'
 autoload 'Imaginator', 'imaginator'
 
 class Wiki::App
-  static_files 'imaginator_failed.png'
+  assets 'imaginator_failed.png'
 
   def self.imaginator
     @imaginator ||= Imaginator.new("drbunix://#{Config.cache}/imaginator.sock", File.join(Config.cache, 'imaginator')) do |server|

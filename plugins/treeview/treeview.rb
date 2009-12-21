@@ -4,18 +4,18 @@ dependencies 'misc/sidebar'
 
 class Wiki::App
 
-  add_hook(:after_head) do
+  hook(:after_head) do
     '<link rel="stylesheet" href="/_/treeview/treeview.css" type="text/css"/>'
   end
 
-  add_hook(:after_script) do
+  hook(:after_script) do
     '<script src="/_/treeview/script.js" type="text/javascript"></script>'
   end
 
-  static_files 'script.js',
-               '*.png',
-               'spinner.gif',
-	       'treeview.css'
+  assets 'script.js',
+         '*.png',
+         'spinner.gif',
+	 'treeview.css'
 
   get '/_/treeview.json' do
     content_type 'application/json', :charset => 'utf-8'

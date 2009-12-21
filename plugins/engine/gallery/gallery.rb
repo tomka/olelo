@@ -3,15 +3,15 @@ description  'Gallery engine'
 
 class Wiki::App
 
-  static_files 'gallery.css', 'gallery.js'
+  assets 'gallery.css', 'gallery.js'
 
-  add_hook(:after_head) do
+  hook(:after_head) do
     if @engine && @engine.name == 'gallery'
       '<link rel="stylesheet" href="/_/engine/gallery/gallery.css" type="text/css"/>'
     end
   end
 
-  add_hook(:after_script) do
+  hook(:after_script) do
     if @engine && @engine.name == 'gallery'
       '<script src="/_/engine/gallery/gallery.js" type="text/javascript"></script>'
     end

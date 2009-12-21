@@ -131,22 +131,26 @@ module Wiki
     end
 
     module InstanceMethods
-      def invoke_hook(type, *args)
-        if block_given?
-          result = []
-          begin
-            result += self.class.invoke_hook(self, :"before_#{type}", *args) << yield
-          ensure
-            result += self.class.invoke_hook(self, :"after_#{type}", *args)
-          end
-          result
-        else
-          self.class.invoke_hook(self, type, *args)
+      def with_hooks(type, *args)
+        result = []
+        begin
+          result += invoke_hook(:"before_#{type}", *args) << yield
+        ensure
+          result += invoke_hook(:"after_#{type}", *args)
         end
+        result
       end
 
-      def content_hook(type, *args, &block)
-        invoke_hook(type, *args, &block).map(&:to_s).join
+      def invoke_hook(type, *args)
+        self.class.invoke_hook(self, type, *args)
+      end
+
+      def output_with_hooks(type, *args)
+        if block_given?
+          with_hooks(type, *args, &block).map(&:to_s).join
+        else
+          invoke_hook(type, *args, &block).to_s.join
+        end
       rescue => ex
         %{<span class="error">#{ex.message}</span>}
       end
@@ -155,7 +159,7 @@ module Wiki
     module ClassMethods
       lazy_reader :hooks, {}
 
-      def add_hook(type, &block)
+      def hook(type, &block)
         (hooks[type] ||= []) << block.to_method(self)
       end
 

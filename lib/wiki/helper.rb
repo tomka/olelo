@@ -12,11 +12,11 @@ module Wiki
     end
 
     def include_block(name)
-      content_hook(name) { blocks[name] }
+      output_with_hooks(name) { blocks[name] }
     end
 
     def render_block(name, &block)
-      content_hook(name) { capture_haml(&block) }
+      output_with_hooks(name) { capture_haml(&block) }
     end
 
     def footnote(content = nil, &block); define_block(:footnote, content, &block); end
