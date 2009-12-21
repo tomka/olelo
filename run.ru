@@ -15,7 +15,6 @@ require 'fileutils'
 require 'logger'
 require 'rack/patched_request'
 require 'rack/session/security_patch'
-require 'rack/reverseip'
 require 'rack/relative_redirect'
 require 'rack/encode'
 require 'wiki/app'
@@ -72,7 +71,6 @@ Wiki::Config.load(config_file)
 
 use Rack::RelativeRedirect
 use Rack::Session::Pool
-use Rack::ReverseIP
 use Rack::MethodOverride
 
 if Wiki::Config.rack.deflater?

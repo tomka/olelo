@@ -46,7 +46,6 @@ class Wiki::App
   hook(:after_action) do |method, path|
     if path == '/login'
       if !@user.anonymous?
-        ch = ('a'..'z').to_a + ('A'..'Z').to_a + ('0'..'9').to_a
         token = SecureRandom.hex
         response.set_cookie(TOKEN_NAME, :value => token, :expires => Time.now + TOKEN_LIFETIME)
         set_login_token(token, @user.name)

@@ -70,12 +70,16 @@ module Wiki
 
       def anonymous(request)
         ip = request.ip || 'unknown-ip'
-        name = request.env['rack.hostbyip'] ? "#{request.env['rack.hostbyip']} (#{ip})" : ip
+        name = request.remote_host ? "#{request.remote_host} (#{ip})" : ip
         new(name, "anonymous@#{ip}", %w(anonymous))
       end
 
-      def find(name)
+      def find!(name)
         service.find(name)
+      end
+
+      def find(name)
+        find!(name) rescue nil
       end
 
       def authenticate(name, password)

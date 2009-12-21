@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 require 'rack'
+require 'socket'
 
 class Rack::Request
   remove_method :params
@@ -19,6 +20,11 @@ class Rack::Request
     else
       @env['REMOTE_ADDR']
     end
+  end
+
+  # Remote host name
+  def remote_host
+    @remote_host ||= Socket.gethostbyaddr(ip.split('.').map(&:to_i).pack('C*')).first rescue nil
   end
 
   # No caching for this request?
