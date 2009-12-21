@@ -3,18 +3,11 @@ require 'wiki/extensions'
 require 'yaml'
 require 'cgi'
 
-gem 'haml', '>= 2.2.0'
+gem 'haml', '>= 2.2.16'
 require 'haml/helpers'
 module Haml::Helpers
   # Remove stupid deprecated helper
   remove_method :puts
-
-  alias original_capture_haml capture_haml
-
-  # Encoding problem with haml
-  def capture_haml(*args, &block)
-    Wiki.set_encoding(original_capture_haml(*args, &block))
-  end
 end
 
 module Haml
@@ -149,10 +142,11 @@ module Wiki
         if block
           with_hooks(type, *args, &block).map(&:to_s).join
         else
-          invoke_hook(type, *args, &block).to_s.join
+          invoke_hook(type, *args, &block).to_s
         end
       rescue => ex
         %{<span class="error">#{ex.message}</span>}
+        @logger.error ex if @logger
       end
     end
 
@@ -216,8 +210,35 @@ module Wiki
       CGI.unescapeHTML(text.to_s)
     end
 
-    def set_encoding(object)
-      object.respond_to?(:force_encoding) ? object.force_encoding(__ENCODING__) : object
+    def uri_escape(uri)
+      CGI.escape(uri)
+    end
+
+    if RUBY_VERSION > '1.9'
+      def backslash_unescape(s)
+        s.gsub(/\\([0-7]{3})/) { $1.to_i(8).chr }.
+          gsub(/\\x([\da-f]{2})/i) { $1.to_i(16).chr }.
+          force_encoding(s.encoding)
+      end
+
+      # Like CGI.unescape but does not unescape +
+      def uri_unescape(s)
+        s.gsub(/((?:%[0-9a-fA-F]{2})+)/) do
+          [$1.delete('%')].pack('H*')
+        end.force_encoding(s.encoding)
+      end
+    else
+      def backslash_unescape(s)
+        s.gsub(/\\([0-7]{3})/) { $1.to_i(8).chr }.
+          gsub(/\\x([\da-f]{2})/i) { $1.to_i(16).chr }
+      end
+
+      # Like CGI.unescape but does not unescape +
+      def uri_unescape(s)
+        s.gsub(/((?:%[0-9a-fA-F]{2})+)/) do
+          [$1.delete('%')].pack('H*')
+        end
+      end
     end
   end
 end

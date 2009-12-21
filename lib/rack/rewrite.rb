@@ -29,7 +29,8 @@ module Rack
         [status, header, body]
       else
         response = Response.new
-        response.write %{Webserver is not configured correctly. <a href="/#{@base}">Application is available under /#{@base}</a><p>#{CGI::escapeHTML env.inspect}</p>}
+        response.write %{Webserver is not configured correctly.
+<a href="/#{@base}">Application is available under /#{@base}</a><p>#{CGI.escapeHTML env.inspect}</p>}
         response.finish
       end
     end

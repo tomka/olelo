@@ -1,6 +1,5 @@
 #!/usr/bin/env rackup
 # -*- coding: utf-8 -*-
-Encoding.default_external = Encoding::UTF_8 if RUBY_VERSION > '1.9'
 
 start_time = Time.now
 
@@ -18,6 +17,7 @@ require 'rack/patched_request'
 require 'rack/session/security_patch'
 require 'rack/reverseip'
 require 'rack/relative_redirect'
+require 'rack/encode'
 require 'wiki/app'
 
 # Try to load server gem
@@ -56,7 +56,6 @@ default_config = {
     :esi          => true,
     :embed        => false,
     :rewrite_base => nil,
-    :profiling    => false,
     :deflater     => true,
   },
   :git => {
@@ -70,12 +69,6 @@ default_config = {
 
 Wiki::Config.update(default_config)
 Wiki::Config.load(config_file)
-
-if Wiki::Config.rack.profiling?
-  gem 'rack-contrib', '>= 0'
-  require 'rack/contrib'
-  use Rack::Profiler, :printer => :graph
-end
 
 use Rack::RelativeRedirect
 use Rack::Session::Pool
@@ -124,6 +117,7 @@ logger.level = Logger.const_get(Wiki::Config.log.level)
 use Rack::CommonLogger, logger
 
 use Rack::Static, :urls => ['/static'], :root => path
+use Rack::Encode
 run Wiki::App.new(nil, :logger => logger)
 
 logger.info "Wiki successfully started in #{((Time.now - start_time) * 1000).to_i}ms"

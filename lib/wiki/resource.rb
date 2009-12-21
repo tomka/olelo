@@ -229,7 +229,8 @@ module Wiki
     # Page content
     def content(pos = nil, len = nil)
       c = @content || (@object && @object.data)
-      Wiki.set_encoding(c)
+      # Encode binary data
+      c.force_encoding(__ENCODING__) if c.respond_to?(:force_encoding)
       pos ? c[[[0, pos.to_i].max, c.size].min, [0, len.to_i].max] : c
     end
 

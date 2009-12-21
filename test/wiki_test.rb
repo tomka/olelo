@@ -1,4 +1,6 @@
+# -*- coding: utf-8 -*-
 require 'spec_setup'
+require 'rack/encode'
 
 Rack::MockRequest::DEFAULT_ENV['REMOTE_ADDR'] = 'localhorst'
 
@@ -56,7 +58,10 @@ describe 'wiki' do
     }
     Wiki::Config.update default_config
 
-    @app = Wiki::App.new
+    @app = Rack::Builder.new do
+      use Rack::Encode
+      run Wiki::App.new
+    end
   end
 
   after(:each) do
@@ -113,14 +118,39 @@ describe 'wiki' do
 
     get '/Testfolder/Testpage'
     should.be.ok
+    body.should.include '<h1>Testpage</h1>'
+    body.should.include 'Content of the Testpage'
 
     get '/Testfolder/Testpage/history'
     should.be.ok
+    body.should.include 'Commit message'
 
     get '/Testfolder/Testpage/edit'
     should.be.ok
 
     get '/Testfolder/Testpage/upload'
+    should.be.ok
+  end
+
+  it 'should create page with special characters' do
+    data = {
+      'action' => 'new',
+      'content' => 'すみませんわかりません',
+      'message' => '测试'
+    }
+    post(Wiki.uri_escape('/子供を公園/中文'), data)
+    location.should.equal Wiki.uri_unescape('/子供を公園/中文')
+
+    get Wiki.uri_escape('/子供を公園/中文')
+    should.be.ok
+
+    get Wiki.uri_escape('/子供を公園/中文/history')
+    should.be.ok
+
+    get Wiki.uri_escape('/子供を公園/中文/edit')
+    should.be.ok
+
+    get Wiki.uri_escape('/子供を公園/中文/upload')
     should.be.ok
   end
 end

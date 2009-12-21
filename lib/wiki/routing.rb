@@ -98,7 +98,7 @@ module Wiki
       def route!
         invoke_hook(:before_routing)
 
-        path = unescape(@request.path_info)
+        path = Wiki.uri_unescape(@request.path_info)
         routes = self.class.routes[@request.request_method].to_a
         routes.each do |name, pattern, keys, method|
           if match = pattern.match(path)
@@ -128,12 +128,6 @@ module Wiki
 
       private
 
-      # Stolen from rack
-      def unescape(s)
-        s.gsub(/((?:%[0-9a-fA-F]{2})+)/) {
-          [$1.delete('%')].pack('H*')
-        }
-      end
 
     end
 

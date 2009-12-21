@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 require 'wiki/utils'
-require 'cgi'
 require 'digest/md5'
 
 module Wiki
@@ -44,13 +43,13 @@ module Wiki
     end
 
     def format_changes(patch, opts = {})
-      lines = patch.split(/[\n\r]+/)
+      lines = patch.split("\n")
       html, path, header, last = '', nil, true, nil
       files, count = [], 0
       lines.each do |line|
         case line
-        when %r{^diff ([\w\-\s]+?) a/(.+?) b/(.+?)$}
-          path = $2
+        when %r{^diff ([\w\-\s]+?) "?a/(.+?)"? "?b/(.+?)"?$}
+          path = Wiki.backslash_unescape($2)
           count += 1
           header = true
         when /^\+\+\+/
@@ -61,8 +60,8 @@ module Wiki
             html << %{<table class="changes" id="file-#{count}">}
             if opts[:from] && opts[:to]
               html << %{<thead><tr><th><a class="left" href="#{path.urlpath}">#{path}</a>
-<span class="right"><a href="#{Wiki.html_escape (path/'version'/opts[:from]).urlpath}">#{opts[:from][0..4]}</a> to
-<a href="#{Wiki.html_escape (path/'version'/opts[:to]).urlpath}">#{opts[:to][0..4]}</a></span></th></tr></thead>}
+<span class="right"><a href="#{Wiki.html_escape((path/'version'/opts[:from]).urlpath)}">#{opts[:from].sha[0..4]}</a> to
+<a href="#{Wiki.html_escape((path/'version'/opts[:to]).urlpath)}">#{opts[:to].sha[0..4]}</a></span></th></tr></thead>}
             else
               html << %{<thead><tr><th><a class="left" href="#{Wiki.html_escape path.urlpath}">#{Wiki.html_escape path}</a></th></tr></thead>}
             end
@@ -134,7 +133,7 @@ module Wiki
         path = resource.path
       end
       path = (version.blank? ? path : path/'version'/version).urlpath
-      path << '?' << opts.map {|k,v| "#{k}=#{CGI.escape(v.to_s)}" }.join('&') if !opts.empty?
+      path << '?' << opts.map {|k,v| "#{k}=#{Wiki.uri_escape(v.to_s)}" }.join('&') if !opts.empty?
       path
     end
 
