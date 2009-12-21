@@ -13,7 +13,7 @@ module Wiki
     include Routing
     include Helper
     include Templates
-    patterns :path => PATH_PATTERN, :sha => SHA_PATTERN
+    patterns :path => PATH_PATTERN, :version => VERSION_PATTERN
     attr_reader :repository
 
     def initialize(app = nil, opts = {})
@@ -84,7 +84,7 @@ module Wiki
     add_hook(NotFound) do |ex|
       if request.env['wiki.redirect_to_new']
         # Redirect to create new page if flag is set
-        redirect(params[:sha] ? params[:path].urlpath : (params[:path]/'new').urlpath)
+        redirect((params[:path]/'new').urlpath)
       else
         cache_control :no_cache => true
         @error = ex
@@ -158,8 +158,8 @@ module Wiki
       haml :profile
     end
 
-    get '/changes/:sha' do
-      @commit = repository.get_commit(params[:sha])
+    get '/changes/:version' do
+      @commit = repository.get_commit(params[:version])
       cache_control :etag => @commit.sha, :last_modified => @commit.date
       @diff = repository.diff(@commit.parent.first && @commit.parent.first.sha, @commit.sha)
       haml :changes
@@ -167,7 +167,7 @@ module Wiki
 
     get '/?:path?/history' do
       @resource = Resource.find!(repository, params[:path])
-      cache_control :etag => @resource.sha, :last_modified => @resource.commit.date
+      cache_control :etag => @resource.version, :last_modified => @resource.commit.date
       haml :history
     end
 
@@ -237,11 +237,11 @@ module Wiki
       haml :new
     end
 
-    get '/?:path?/version/?:sha?', '/:path' do
+    get '/?:path?/version/?:version?', '/:path' do
       begin
         pass if reserved_path?(params[:path])
 
-        @resource = Resource.find!(repository, params[:path], params[:sha])
+        @resource = Resource.find!(repository, params[:path], params[:version])
         cache_control :etag => @resource.latest_commit.sha, :last_modified => @resource.latest_commit.date
 
         @engine = Engine.find!(@resource, params[:output] || params[:engine])
@@ -253,7 +253,7 @@ module Wiki
           @content
         end
       rescue Resource::NotFound
-        request.env['wiki.redirect_to_new'] = params[:sha].blank?
+        request.env['wiki.redirect_to_new'] = params[:version].blank?
         pass
       end
     end
@@ -262,7 +262,7 @@ module Wiki
     put '/:path' do
       @resource = Page.find!(repository, params[:path])
       begin
-        Wiki.forbid(:version_conflict.t => @resource.commit.sha != params[:sha]) # TODO: Implement conflict diffs
+        Wiki.forbid(:version_conflict.t => @resource.commit.sha != params[:version]) # TODO: Implement conflict diffs
         if action?(:upload) && params[:file]
           invoke_hook :page_save, @resource do
             @resource.write(params[:file][:tempfile], :file_uploaded.t, @user)

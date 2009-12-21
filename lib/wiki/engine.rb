@@ -33,7 +33,7 @@ module Wiki
       end
 
       def id
-        Digest::MD5.hexdigest(@engine.name + resource.sha + inspect)
+        Digest::MD5.hexdigest(@engine.name + resource.version + inspect)
       end
     end
 

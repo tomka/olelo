@@ -4,11 +4,11 @@
     %tr
       %td= :from.t
       %td
-        %a.sha{:href=>resource_path(@resource, :sha => @diff.from)}= @diff.from
+        %a.version{:href=>resource_path(@resource, :version => @diff.from)}= @diff.from
     %tr
       %td= :to.t
       %td
-        %a.sha{:href=>resource_path(@resource, :sha => @diff.to)}= @diff.to
+        %a.version{:href=>resource_path(@resource, :version => @diff.to)}= @diff.to
     %tr
       %td= :deletions.t
       %td= @diff.deletions

@@ -7,7 +7,7 @@ require 'gitrb'
 
 module Wiki
   PATH_PATTERN = '[^\s](?:.*[^\s]+)?'
-  SHA_PATTERN = '[A-Fa-f0-9]{5,40}'
+  VERSION_PATTERN = '([A-Fa-f0-9]{5,40}|[\w\-\.]+)([\^~](\d+)?)*'
   DISCUSSION_PREFIX = '@'
   META_PREFIX = '$'
   DIRECTORY_MIME = MimeMagic.new('inode/directory')
@@ -24,21 +24,21 @@ module Wiki
 
     attr_reader :repository, :path, :commit
 
-    # Find resource in repository by path and commit sha
-    def self.find(repository, path, sha = nil)
+    # Find resource in repository by path and commit version
+    def self.find(repository, path, version = nil)
       path = path.to_s.cleanpath
       forbid_invalid_path(path)
-      commit = sha ? (String === sha ? repository.get_commit(sha) : sha) : repository.log(1, nil).first
+      commit = version ? (String === version ? repository.get_commit(version) : version) : repository.log(1, nil).first
       return nil if !commit
       object = commit.tree[path] rescue nil
-      object && (self != Resource ? self.type == object.type && new(repository, path, object, commit, !sha) :
-                 object.type == 'blob' && Page.new(repository, path, object, commit, !sha) ||
-                 object.type == 'tree' && Tree.new(repository, path, object, commit, !sha)) || nil
+      object && (self != Resource ? self.type == object.type && new(repository, path, object, commit, !version) :
+                 object.type == 'blob' && Page.new(repository, path, object, commit, !version) ||
+                 object.type == 'tree' && Tree.new(repository, path, object, commit, !version)) || nil
     end
 
     # Find resource but raise not found exceptions
-    def self.find!(repository, path, sha = nil)
-      find(repository, path, sha) || raise(NotFound, path)
+    def self.find!(repository, path, version = nil)
+      find(repository, path, version) || raise(NotFound, path)
     end
 
     # Constructor
@@ -87,8 +87,8 @@ module Wiki
       new?
     end
 
-    # Resource sha
-    def sha
+    # Resource version
+    def version
       new? ? '' : @object.id
     end
 

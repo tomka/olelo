@@ -20,7 +20,7 @@ class Wiki::App
   get '/_/treeview.json' do
     content_type 'application/json', :charset => 'utf-8'
 
-    resource = Resource.find!(repository, params[:dir], params[:sha])
+    resource = Resource.find!(repository, params[:dir], params[:version])
     cache_control :max_age => 3600, :etag => resource.latest_commit.id, :last_modified => resource.latest_commit.date, :proxy_revalidate => true
 
     result = '[';

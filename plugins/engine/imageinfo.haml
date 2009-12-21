@@ -18,7 +18,7 @@
       %td= date @resource.latest_commit.date
     %tr
       %td Version
-      %td.sha= @resource.latest_commit.sha
+      %td.version= @resource.latest_commit
 - if @exif
   %h3 Exif
   %table.zebra

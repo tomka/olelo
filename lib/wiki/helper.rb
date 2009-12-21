@@ -110,8 +110,8 @@ module Wiki
     end
 
     def resource_path(resource, opts = {})
-      sha = opts.delete(:sha) || (resource && !resource.current? && resource.commit) || ''
-      sha = sha.sha if sha.respond_to?(:sha)
+      version = opts.delete(:version) || (resource && !resource.current? && resource.commit) || ''
+      version = version.sha if version.respond_to?(:sha)
       if path = opts.delete(:path)
         if !path.begins_with? '/'
           path = resource.page? ? resource.path/'..'/path : resource.path/path
@@ -119,7 +119,7 @@ module Wiki
       else
         path = resource.path
       end
-      path = (sha.blank? ? path : path/'version'/sha).urlpath
+      path = (version.blank? ? path : path/'version'/version).urlpath
       path << '?' << opts.map {|k,v| "#{k}=#{CGI.escape(v.to_s)}" }.join('&') if !opts.empty?
       path
     end
