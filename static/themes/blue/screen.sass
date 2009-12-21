@@ -255,9 +255,11 @@ table input
   margin: 0
 
 .preview
-  border: 1px dashed #999
-  margin: 1em 0
+  margin: 0 0 1em 0
+  +rounded
+  +box-shadow
   padding: 1em
+  border = !border
 
 .box, .fieldset
   +rounded
@@ -323,6 +325,17 @@ table input
     list-style: none
   .toc1 > a, .toc1 > .counter
     font-weight: bold
+
+.files
+  margin: 0 0 1em 0
+  padding: 0
+  list-style-type: none
+  .deleted
+    background: url(images/minus.png) top left no-repeat
+    padding-left: 20px
+  .new
+    background: url(images/plus.png) top left no-repeat
+    padding-left: 20px
 
 #themes
   float: left

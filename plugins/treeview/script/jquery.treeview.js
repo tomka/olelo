@@ -4,6 +4,7 @@
 	    if (!options) options = {};
 	    if (!options.root) options.root = '/';
 	    if (!options.url) options.url = '/_/treeview.json';
+            if (!options.delay) options.delay = 100;
 
 	    function openTree(element, path) {
 		if (element.children('ul').length != 0) {
@@ -27,7 +28,11 @@
 		}
 
 		$.ajax({url: options.url, data: { dir: path }, dataType: 'json', type: 'GET', success: dataReceived});
-		$.ajax({url: options.url, data: { dir: path }, dataType: 'json', type: 'GET', success: dataReceived, cache: false});
+		
+		// Update tree after page has been rendered
+		setTimeout(function() {
+		  $.ajax({url: options.url, data: { dir: path }, dataType: 'json', type: 'GET', success: dataReceived, cache: false});
+		}, options.delay);
 	    }
 
 	    function isExpanded(path) {

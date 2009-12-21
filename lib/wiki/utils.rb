@@ -145,8 +145,8 @@ module Wiki
         self.class.invoke_hook(self, type, *args)
       end
 
-      def output_with_hooks(type, *args)
-        if block_given?
+      def output_with_hooks(type, *args, &block)
+        if block
           with_hooks(type, *args, &block).map(&:to_s).join
         else
           invoke_hook(type, *args, &block).to_s.join

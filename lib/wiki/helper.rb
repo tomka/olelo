@@ -46,26 +46,32 @@ module Wiki
     def format_changes(patch, opts = {})
       lines = patch.split(/[\n\r]+/)
       html, path, header, last = '', nil, true, nil
+      files, count = [], 0
       lines.each do |line|
         case line
         when %r{^diff ([\w\-\s]+?) a/(.+?) b/(.+?)$}
           path = $2
+          count += 1
           header = true
         when /^\+\+\+/
           html << '</span>' if last
           last = nil
           html << '</td></tr></tbody></table>' if !html.empty?
-          html << %{<table class="changes">}
           if path
+            html << %{<table class="changes" id="file-#{count}">}
             if opts[:from] && opts[:to]
               html << %{<thead><tr><th><a class="left" href="#{path.urlpath}">#{path}</a>
-<span class="right"><a href="#{(path/'version'/opts[:from]).urlpath}">#{opts[:from][0..4]}</a> to
-<a href="#{(path/'version'/opts[:to]).urlpath}">#{opts[:to][0..4]}</a></span></th></tr></thead>}
+<span class="right"><a href="#{Wiki.html_escape (path/'version'/opts[:from]).urlpath}">#{opts[:from][0..4]}</a> to
+<a href="#{Wiki.html_escape (path/'version'/opts[:to]).urlpath}">#{opts[:to][0..4]}</a></span></th></tr></thead>}
             else
-              html << %{<thead><tr><th><a class="left" href="#{path.urlpath}">#{path}</a></th></tr></thead>}
+              html << %{<thead><tr><th><a class="left" href="#{Wiki.html_escape path.urlpath}">#{Wiki.html_escape path}</a></th></tr></thead>}
             end
+          else
+            html << %{<table class="changes">}
           end
           html << %{<tbody><tr><td>}
+        when /^(new|deleted)/
+          files << [$1, path, count]
         else
           ch = line[0..0]
           if header
@@ -87,7 +93,15 @@ module Wiki
       end
       html << '</span>' if last
       html << '</td></tr></tbody></table>' if !html.empty?
-      html
+      if files.empty?
+        html
+      else
+        result = '<ul class="files">'
+        files.each do |clazz, path, id|
+          result << %{<li class="#{clazz}"><a href="#file-#{id}">#{Wiki.html_escape path}</a></li>}
+        end
+        result << '</ul>' << html
+      end
     end
 
     def date(t)
