@@ -31,12 +31,18 @@ First, you have to install the [Gem][] dependencies via `gem`:
     gem sources -a http://gemcutter.org
     gem install creole
     gem install gitrb
-    gem install minad-rack-esi
     gem install mimemagic
-    gem install rack-cache
     gem install haml
     gem install mongrel
     gem install rack
+
+    # other rack-esi implementations should also work
+    # just try it
+    gem install minad-rack-esi
+
+    # this is a more current version of rack-cache with bugfixes
+    # TODO: replace this with official release when new version is released
+    gem install minad-rack-cache
 
 ### Optional:
 

@@ -24,8 +24,7 @@ Encoding.default_external = Encoding::UTF_8
 
 require 'fileutils'
 require 'logger'
-require 'rack/patched_request'
-require 'rack/session/security_patch'
+require 'rack/patches'
 require 'rack/relative_redirect'
 require 'rack/remove_cache_buster'
 require 'rack/encode'
@@ -81,15 +80,23 @@ default_config = {
 Wiki::Config.update(default_config)
 Wiki::Config.load(config_file)
 
-use Rack::RemoveCacheBuster # remove jquery cache buster
 use Rack::RelativeRedirect
-use Rack::Session::Pool
-use Rack::MethodOverride
+
+if !Wiki::Config.rack.rewrite_base.blank?
+  require 'rack/rewrite'
+  use Rack::Rewrite, :base => Wiki::Config.rack.rewrite_base
+end
 
 if Wiki::Config.rack.deflater?
   require 'rack/deflater'
   use Rack::Deflater
 end
+
+use Rack::Static, :urls => ['/static'], :root => path
+
+use Rack::RemoveCacheBuster # remove jquery cache buster
+use Rack::Session::Pool
+use Rack::MethodOverride
 
 if Wiki::Config.rack.embed?
   gem 'rack-embed', '>= 0'
@@ -103,7 +110,8 @@ if Wiki::Config.rack.esi?
   use Rack::ESI
 
   if env == 'deployment' || env == 'production'
-    gem 'rack-cache', '>= 0.5.2'
+    # FIXME: Replace with official release
+    gem 'minad-rack-cache', '>= 0.5.2'
     require 'rack/cache'
     require 'rack/purge'
     use Rack::Purge
@@ -115,19 +123,12 @@ if Wiki::Config.rack.esi?
   end
 end
 
-if !Wiki::Config.rack.rewrite_base.blank?
-  require 'rack/rewrite'
-  use Rack::Rewrite, :base => Wiki::Config.rack.rewrite_base
-end
-
 FileUtils.mkpath Wiki::Config.cache, :mode => 0755
 FileUtils.mkpath ::File.dirname(Wiki::Config.log.file), :mode => 0755
 logger = Logger.new(Wiki::Config.log.file)
 logger.level = Logger.const_get(Wiki::Config.log.level)
 
 use Rack::CommonLogger, logger
-
-use Rack::Static, :urls => ['/static'], :root => path
 use Rack::Encode
 run Wiki::App.new(nil, :logger => logger)
 

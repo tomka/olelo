@@ -2,6 +2,7 @@ gem 'test-unit', '>= 0'
 gem 'test-spec', '>= 0'
 gem 'rack-test', '>= 0'
 
+require 'rack/patches'
 require 'wiki/app'
 require 'test/spec'
 require 'rack/test'

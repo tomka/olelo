@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-require 'rack/patched_request'
 require 'wiki/utils'
 
 module Wiki
