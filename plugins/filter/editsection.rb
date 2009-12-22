@@ -30,9 +30,8 @@ Filter.create :editsection do |content|
       else
         len - pos[i][1]
       end
-      msg = Wiki.html_escape "#{pos[i][3]} edited"
-      %{<span class="editlink">[<a href="#{action_path(context.page, :edit)}?pos=#{pos[i][1]}&amp;len=#{l}&amp;message=#{msg}" \
-title="Edit section #{pos[i][3]}">Edit</a>]</span>}
+      path = action_path(context.page, :edit) + "?pos=#{pos[i][1]}&len=#{l}&message=#{pos[i][3]} edited"
+      %{<span class="editlink">[<a href="#{Wiki.html_escape path}" title="Edit section #{Wiki.html_escape pos[i][3]}">Edit</a>]</span>}
     end
     content
   end

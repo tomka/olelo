@@ -2,7 +2,11 @@
 %form{:action => action_path(@resource.path, :move), :method=>'post'}
   .fieldset
     = show_messages
-    %label.inline{:for=>'destination'}= :destination.t
-    %input#destination.inline{:name=>'destination', :type=>'text', :value => @resource.path}
-    %button.inline{:type=>'submit', :accesskey => 'm'}= :move.t
-    %button.inline{:type=>'button', :accesskey => 'c', :onclick=>'history.back()'}= :cancel.t
+    %label{:for=>'destination'}= :destination.t
+    %input#destination{:name=>'destination', :type=>'text', :value => @resource.path}
+    %br
+    %label{:for=>'create-redirect'}= :create_redirect.t
+    %input#create-redirect{:name=>'create_redirect', :type=>'checkbox', :value => 1, :checked => true}
+    %br
+    %button{:type=>'submit', :accesskey => 'm'}= :move.t
+    %button{:type=>'button', :accesskey => 'c', :onclick=>'history.back()'}= :cancel.t

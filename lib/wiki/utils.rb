@@ -195,22 +195,11 @@ module Wiki
       raise(Wiki::MultiError, *failed) if !failed.empty?
     end
 
-    def html_escape(text)
-      CGI.escapeHTML(text.to_s)
-    end
-
-    def html_unescape(text)
-      CGI.unescapeHTML(text.to_s)
-    end
-
-    def uri_escape(uri)
-      CGI.escape(uri)
-    end
-
-    def backslash_unescape(s)
-      enc = s.encoding
-      s.gsub(/\\([0-7]{3})/) { $1.to_i(8).chr.force_encoding(enc) }.
-        gsub(/\\x([\da-f]{2})/i) { $1.to_i(16).chr.force_encoding(enc) }
+    # Like CGI.escape but escapes space not as +
+    def uri_escape(s)
+      s.gsub(/([^a-zA-Z0-9_.-]+)/) do
+        '%' + $1.unpack('H2' * $1.bytesize).join('%').upcase
+      end
     end
 
     # Like CGI.unescape but does not unescape +
@@ -219,6 +208,30 @@ module Wiki
       s.gsub(/((?:%[0-9a-fA-F]{2})+)/) do
         [$1.delete('%')].pack('H*').force_encoding(enc)
       end
+    end
+
+    def backslash_unescape(s)
+      enc = s.encoding
+      s.gsub(/\\([0-7]{3})/) { $1.to_i(8).chr.force_encoding(enc) }.
+        gsub(/\\x([\da-f]{2})/i) { $1.to_i(16).chr.force_encoding(enc) }
+    end
+
+    def html_escape(text)
+      CGI.escapeHTML(text.to_s)
+    end
+
+    def html_unescape(text)
+      CGI.unescapeHTML(text.to_s)
+    end
+
+    def build_query(params)
+      params.map do |k, v|
+        if v.class == Array
+          build_query(v.map { |x| [k, x] })
+        else
+          "#{uri_escape(k.to_s)}=#{uri_escape(v.to_s)}"
+        end
+      end.join('&')
     end
   end
 end

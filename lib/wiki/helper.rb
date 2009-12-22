@@ -70,7 +70,7 @@ module Wiki
           if path
             html << %{<table class="changes" id="file-#{count}">}
             if opts[:from] && opts[:to]
-              html << %{<thead><tr><th><a class="left" href="#{path.urlpath}">#{path}</a>
+              html << %{<thead><tr><th><a class="left" href="#{Wiki.html_escape path.urlpath}">#{path}</a>
 <span class="right"><a href="#{Wiki.html_escape((path/'version'/opts[:from]).urlpath)}">#{opts[:from].sha[0..4]}</a> to
 <a href="#{Wiki.html_escape((path/'version'/opts[:to]).urlpath)}">#{opts[:to].sha[0..4]}</a></span></th></tr></thead>}
             else
@@ -120,9 +120,9 @@ module Wiki
 
     def breadcrumbs(resource)
       path = resource.try(:path) || ''
-      links = [%{<a href="#{resource_path(resource, :path => '/root')}">#{:root_path.t}</a>}]
+      links = [%{<a href="#{Wiki.html_escape resource_path(resource, :path => '/root')}">#{:root_path.t}</a>}]
       path.split('/').inject('') do |parent,elem|
-        links << %{<a href="#{resource_path(resource, :path => (parent/elem).urlpath)}">#{elem}</a>}
+        links << %{<a href="#{Wiki.html_escape resource_path(resource, :path => (parent/elem).urlpath)}">#{Wiki.html_escape elem}</a>}
         parent/elem
       end
 
@@ -144,7 +144,7 @@ module Wiki
         path = resource.path
       end
       path = (version.blank? ? path : path/'version'/version).urlpath
-      path << '?' << opts.map {|k,v| "#{k}=#{Wiki.uri_escape(v.to_s)}" }.join('&') if !opts.empty?
+      path << '?' << Wiki.build_query(opts) if !opts.empty?
       path
     end
 
@@ -195,25 +195,24 @@ module Wiki
         response.headers.delete('ETag')
         response.headers.delete('Last-Modified')
         response['Cache-Control'] = 'no-cache'
+        return
       end
 
-      last_modified = opts[:last_modified]
+      last_modified = opts.delete(:last_modified)
       modified_since = env['HTTP_IF_MODIFIED_SINCE']
       last_modified = last_modified.try(:to_time) || last_modified
       last_modified = last_modified.try(:httpdate) || last_modified
 
-      mode = opts[:private] ? 'private' : 'public'
-
       if @user && !@user.anonymous?
         # Always private mode if user is logged in
-        mode = 'private'
+        opts[:private] = true
 
         # Special etag for authenticated user
         opts[:etag] = Digest::MD5.hexdigest("#{@user.name}#{opts[:etag]}") if opts[:etag]
       end
 
       if opts[:etag]
-        value = '"%s"' % opts[:etag]
+        value = '"%s"' % opts.delete(:etag)
         response['ETag'] = value
         response['Last-Modified'] = last_modified if last_modified
         if etags = env['HTTP_IF_NONE_MATCH']
@@ -228,9 +227,18 @@ module Wiki
         halt(304) if last_modified == modified_since
       end
 
-      max_age = opts[:max_age] || (opts[:static] ? 2592000 : 0)
-      revalidate = opts[:proxy_revalidate] ? 'proxy-revalidate' : 'must-revalidate'
-      response['Cache-Control'] = "#{mode}, max-age=#{max_age}, #{revalidate}"
+      opts[:public] = !opts[:private]
+      opts[:max_age] ||= 0
+      opts[:must_revalidate] ||= true if !opts.include?(:must_revalidate) && !opts[:proxy_revalidate]
+
+      response['Cache-Control'] = opts.map do |k, v|
+        if v == true
+          k.to_s.gsub('_', '-')
+        elsif v
+          v = 31536000 if v.to_s == 'static'
+          "#{k.to_s.gsub('_', '-')}=#{v}"
+        end
+      end.compact.join(', ')
     end
   end
 

@@ -4,17 +4,24 @@ dependencies 'filter/tag'
 
 class Wiki::App
   hook(:before_content) do
-    %{<p>&#8594; Redirected from <a href="#{action_path(params[:redirect], :edit)}">#{params[:redirect].cleanpath}</a></p>} if @resource && params[:redirect]
+    if params[:redirect]
+      links = [params[:redirect]].flatten.map do |link|
+        %{<a href="#{Wiki.html_escape action_path(link, :edit)}">#{Wiki.html_escape link.cleanpath}</a>}
+      end.join(' &#8594; ')
+    "<p>Redirected from #{links} &#8594; \xE2\xA6\xBF</p>"
+    end
   end
 end
 
 Tag.define(:redirect, :requires => :path) do |context, attrs, content|
-  path = resource_path(context.page, :path => attrs['path'], :redirect => context['redirect'] || context.page.path)
-  if path == resource_path(context.page)
+  path = resource_path(context.page, :path => attrs[:path])
+  list = (context[:redirect] ||= [])
+  if list.include?(path)
     "Invalid redirect to #{path}"
   elsif context.page.modified?
     "Redirect to #{path}"
   else
-    throw :redirect, path
+    list << resource_path(context.page)
+    throw :redirect, resource_path(context.page, :path => attrs[:path], 'redirect[]' => list)
   end
 end

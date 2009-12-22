@@ -49,7 +49,7 @@ module Wiki
           @plugin_assets = {}
           get "/_/:file", :patterns => {:file => /.*/} do
             if path = self.class.plugin_assets[params[:file]]
-              cache_control :last_modified => File.mtime(path), :static => true
+              cache_control :last_modified => File.mtime(path), :max_age => :static
               send_file path
             else
               pass
@@ -84,7 +84,9 @@ module Wiki
     hook(NotFound) do |ex|
       if request.env['wiki.redirect_to_new']
         # Redirect to create new page if flag is set
-        redirect((params[:path]/'new').urlpath)
+        path = (params[:path]/'new').urlpath
+        path += '?' + request.query_string if !request.query_string.blank?
+        redirect path
       else
         cache_control :no_cache => true
         @error = ex
@@ -185,7 +187,7 @@ module Wiki
       begin
         @resource = Resource.find!(repository, params[:path])
         with_hooks(:resource_move, @resource, params[:destination]) do
-          @resource.move(params[:destination], @user)
+          @resource.move(params[:destination], @user, params[:create_redirect])
         end
         redirect @resource.path.urlpath
       rescue StandardError => error
