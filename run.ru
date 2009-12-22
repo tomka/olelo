@@ -27,6 +27,7 @@ require 'logger'
 require 'rack/patched_request'
 require 'rack/session/security_patch'
 require 'rack/relative_redirect'
+require 'rack/remove_cache_buster'
 require 'rack/encode'
 require 'wiki/app'
 
@@ -80,6 +81,7 @@ default_config = {
 Wiki::Config.update(default_config)
 Wiki::Config.load(config_file)
 
+use Rack::RemoveCacheBuster # remove jquery cache buster
 use Rack::RelativeRedirect
 use Rack::Session::Pool
 use Rack::MethodOverride

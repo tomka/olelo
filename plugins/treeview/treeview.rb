@@ -18,16 +18,16 @@ class Wiki::App
 	 'treeview.css'
 
   get '/_/treeview.json' do
+    require 'json'
+
     content_type 'application/json', :charset => 'utf-8'
 
     resource = Resource.find!(repository, params[:dir], params[:version])
-    cache_control :max_age => 3600, :etag => resource.latest_commit.id, :last_modified => resource.latest_commit.date, :proxy_revalidate => true
+    cache_control :max_age => 3600, :s_maxage => 0, :proxy_revalidate => true, :etag => resource.latest_commit.id, :last_modified => resource.latest_commit.date
 
-    result = '[';
-    result << resource.children.map do |child|
+    resource.children.map do |child|
       ext = !child.page? || child.extension.empty? ? '' : " file-type-#{child.extension.downcase}"
-      "[#{child.tree? && !child.children.empty?},'#{child.tree? ? 'tree' : 'page' + ext}','#{resource_path(child)}','#{child.name}']"
-    end.join(',')
-    result << ']'
+      [child.tree? ? 1 : 0, child.tree? && !child.children.empty? ? 1 : 0, child.tree? ? 'tree' : 'page' + ext, resource_path(child), child.name]
+    end.to_json
   end
 end
