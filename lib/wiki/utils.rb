@@ -123,30 +123,23 @@ module Wiki
       base.class_eval { include InstanceMethods }
     end
 
+    class Result < Array
+      def to_s
+        map(&:to_s).join
+      end
+    end
+
     module InstanceMethods
       def with_hooks(type, *args)
-        result = []
-        begin
-          result += invoke_hook(:"before_#{type}", *args) << yield
-        ensure
-          result += invoke_hook(:"after_#{type}", *args)
-        end
-        result
+        result = Result.new
+        result.push *invoke_hook(:"before_#{type}", *args)
+        result << yield
+      ensure
+        result.push *invoke_hook(:"after_#{type}", *args)
       end
 
       def invoke_hook(type, *args)
         self.class.invoke_hook(self, type, *args)
-      end
-
-      def output_with_hooks(type, *args, &block)
-        if block
-          with_hooks(type, *args, &block).map(&:to_s).join
-        else
-          invoke_hook(type, *args, &block).to_s
-        end
-      rescue => ex
-        %{<span class="error">#{ex.message}</span>}
-        @logger.error ex if @logger
       end
     end
 
@@ -158,9 +151,9 @@ module Wiki
       end
 
       def invoke_hook(source, type, *args)
-        result = []
+        result = Result.new
         while type
-          result += hooks[type].to_a.map {|method| method.bind(source).call(*args) }
+          result.push *hooks[type].to_a.map {|method| method.bind(source).call(*args) }
           break if type == Object || hooks[type]
           type = type.superclass rescue nil
         end
@@ -214,30 +207,17 @@ module Wiki
       CGI.escape(uri)
     end
 
-    if RUBY_VERSION > '1.9'
-      def backslash_unescape(s)
-        s.gsub(/\\([0-7]{3})/) { $1.to_i(8).chr }.
-          gsub(/\\x([\da-f]{2})/i) { $1.to_i(16).chr }.
-          force_encoding(s.encoding)
-      end
+    def backslash_unescape(s)
+      enc = s.encoding
+      s.gsub(/\\([0-7]{3})/) { $1.to_i(8).chr.force_encoding(enc) }.
+        gsub(/\\x([\da-f]{2})/i) { $1.to_i(16).chr.force_encoding(enc) }
+    end
 
-      # Like CGI.unescape but does not unescape +
-      def uri_unescape(s)
-        s.gsub(/((?:%[0-9a-fA-F]{2})+)/) do
-          [$1.delete('%')].pack('H*')
-        end.force_encoding(s.encoding)
-      end
-    else
-      def backslash_unescape(s)
-        s.gsub(/\\([0-7]{3})/) { $1.to_i(8).chr }.
-          gsub(/\\x([\da-f]{2})/i) { $1.to_i(16).chr }
-      end
-
-      # Like CGI.unescape but does not unescape +
-      def uri_unescape(s)
-        s.gsub(/((?:%[0-9a-fA-F]{2})+)/) do
-          [$1.delete('%')].pack('H*')
-        end
+    # Like CGI.unescape but does not unescape +
+    def uri_unescape(s)
+      enc = s.encoding
+      s.gsub(/((?:%[0-9a-fA-F]{2})+)/) do
+        [$1.delete('%')].pack('H*').force_encoding(enc)
       end
     end
   end

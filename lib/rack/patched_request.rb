@@ -16,7 +16,7 @@ class Rack::Request
   # FIXME: Rack bug with HTTP_X_FORWARDED_FOR
   def ip
     if addr = @env['HTTP_X_FORWARDED_FOR']
-      addr.split(',').first.strip
+      addr.split(',').find {|x| x =~ /[\d\.]+/ }.strip
     else
       @env['REMOTE_ADDR']
     end

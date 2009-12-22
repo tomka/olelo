@@ -136,19 +136,14 @@ class Object
     respond_to?(:empty?) ? empty? : !self
   end
 
+  # Try to call method if it exists or return nil
+  def try(name, *args)
+    respond_to?(name) ? send(name, *args) : nil
+  end
+
   # Unique object identifier as string
   def unique_id
     object_id.abs.to_s(16)
-  end
-end
-
-class Symbol
-  # Another nice helper from rails activesupport to
-  # convert symbols to procs
-  if !:to_proc.respond_to?(:to_proc)
-    def to_proc
-      proc { |obj, *args| obj.send(self, *args) }
-    end
   end
 end
 

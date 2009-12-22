@@ -15,13 +15,16 @@ module Rack
       def encode(x)
         case x
         when Hash
-          result = {}
-          x.each { |k, v| result[encode(k)] = encode(v) }
-          result
+          x.each { |k,v| x[k] = encode(v) }
         when Array
-          x.map {|v| encode(v) }
+          x.each_with_index {|v,i| x[i] = encode(v) }
         when String
-          x.encoding != @encoding ? x.dup.force_encoding(@encoding) : x
+          if x.encoding != @encoding
+            x = x.dup if x.frozen?
+            x.force_encoding(@encoding)
+          else
+            x
+          end
         else
           x
         end

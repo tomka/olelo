@@ -11,11 +11,15 @@ module Wiki
     end
 
     def include_block(name)
-      output_with_hooks(name) { blocks[name] }
+      safe_output do
+        with_hooks(name) { blocks[name] }.to_s
+      end
     end
 
     def render_block(name, &block)
-      output_with_hooks(name) { capture_haml(&block) }
+      safe_output do
+        with_hooks(name) { capture_haml(&block) }.to_s
+      end
     end
 
     def footnote(content = nil, &block); define_block(:footnote, content, &block); end
@@ -33,6 +37,13 @@ module Wiki
   end
 
   module PageHelper
+    def safe_output
+      yield
+    rescue => ex
+      @logger.error(ex) if @logger
+      %{<span class="error">#{ex.message}</span>}
+    end
+
     def theme_links
       default = File.basename(File.dirname(File.readlink(File.join(Config.root, 'static', 'themes', 'default'))))
       Dir.glob(File.join(Config.root, 'static', 'themes', '*', 'style.css')).map do |file|
@@ -108,7 +119,7 @@ module Wiki
     end
 
     def breadcrumbs(resource)
-      path = resource.respond_to?(:path) ? resource.path : ''
+      path = resource.try(:path) || ''
       links = [%{<a href="#{resource_path(resource, :path => '/root')}">#{:root_path.t}</a>}]
       path.split('/').inject('') do |parent,elem|
         links << %{<a href="#{resource_path(resource, :path => (parent/elem).urlpath)}">#{elem}</a>}
@@ -124,7 +135,7 @@ module Wiki
 
     def resource_path(resource, opts = {})
       version = opts.delete(:version) || (resource && !resource.current? && resource.commit) || ''
-      version = version.sha if version.respond_to?(:sha)
+      version = version.try(:sha) || version
       if path = opts.delete(:path)
         if !path.begins_with? '/'
           path = resource.page? ? resource.path/'..'/path : resource.path/path
@@ -138,7 +149,7 @@ module Wiki
     end
 
     def action_path(path, action)
-      path = path.path if path.respond_to? :path
+      path = path.try(:path) || path
       (path.to_s/action.to_s).urlpath
     end
 
@@ -188,8 +199,8 @@ module Wiki
 
       last_modified = opts[:last_modified]
       modified_since = env['HTTP_IF_MODIFIED_SINCE']
-      last_modified = last_modified.to_time if last_modified.respond_to?(:to_time)
-      last_modified = last_modified.httpdate if last_modified.respond_to?(:httpdate)
+      last_modified = last_modified.try(:to_time) || last_modified
+      last_modified = last_modified.try(:httpdate) || last_modified
 
       mode = opts[:private] ? 'private' : 'public'
 

@@ -39,8 +39,11 @@ class Wiki::App
         new.write(params[:content].gsub("\r\n", "\n"))
         new.close
 
-        @patch = `diff -u "#{original.path}" "#{new.path}"`
-        halt haml(request.put? ? :edit : :new)
+        # Read in binary mode and fix encoding afterwards
+        @patch = IO.popen("diff -u '#{original.path}' '#{new.path}'", 'rb') {|io| io.read }
+        @patch.force_encoding(__ENCODING__)
+
+	halt haml(request.put? ? :edit : :new)
       else
         params[:message] = :minor_changes.t if params[:minor] && params[:message].blank?
       end

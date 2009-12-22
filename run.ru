@@ -11,6 +11,17 @@ $LOAD_PATH << ::File.join(path, 'lib')
 Dir[::File.join(path, 'deps', '*', 'lib')].each {|x| $: << x }
 
 require 'rubygems'
+
+# Load ruby 1.8 compatibility gem
+if RUBY_VERSION < '1.9'
+  # will soon be moved to gem
+  # gem 'compatibility', '>= 0'
+  require 'compatibility'
+end
+
+# We want to read all text data as UTF-8
+Encoding.default_external = Encoding::UTF_8
+
 require 'fileutils'
 require 'logger'
 require 'rack/patched_request'

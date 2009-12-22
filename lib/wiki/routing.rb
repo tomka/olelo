@@ -48,9 +48,11 @@ module Wiki
       private
 
       def handle_error(ex)
-        @response.status = ex.respond_to?(:status) ? ex.status : 500
+        @response.status = ex.try(:status) || 500
         @response.body   = [ex.message]
-        output_with_hooks(ex.class, ex)
+        safe_output do
+          invoke_hook(ex.class, ex).to_s
+        end
       end
 
       def perform!
