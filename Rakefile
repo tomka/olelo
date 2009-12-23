@@ -1,15 +1,7 @@
 require 'rubygems'
 require 'rake'
-require 'rake/testtask'
-require 'rake/rdoctask'
 
 task :default => %w(test)
-
-desc('Shrink JS files')
-task :script => %w(static/script.js plugins/treeview/script.js)
-
-desc('Compile CSS files')
-task :css => %w(static/themes/blue/style.css plugins/treeview/treeview.css plugins/misc/pygments.css plugins/engine/gallery/gallery.css)
 
 def shrink_js(t)
   sh "cat #{t.prerequisites.sort.join(' ')} | java -jar tools/yuicompressor*.jar --type js -v /dev/stdin > #{t.name}"
@@ -45,20 +37,24 @@ end
 file('static/script.js' => Dir.glob('static/script/*.js')) { |t| shrink_js(t) }
 file('plugins/treeview/script.js' => Dir.glob('plugins/treeview/script/*.js')) {|t| shrink_js(t) }
 
-Rake::TestTask.new(:test) do |t|
-  t.libs << 'test' << 'lib'
-  Dir[::File.join('deps', '*', 'lib')].each {|x| t.libs << x }
-  t.test_files = FileList['test/*_test.rb']
+namespace :generate do
+  desc('Shrink JS files')
+  task :script => %w(static/script.js plugins/treeview/script.js)
+
+  desc('Compile CSS files')
+  task :css => %w(static/themes/blue/style.css plugins/treeview/treeview.css plugins/misc/pygments.css plugins/engine/gallery/gallery.css)
 end
 
-gem 'rcov', '>= 0'
-require 'rcov/rcovtask'
-Rcov::RcovTask.new(:coverage) do |t|
-  t.rcov_opts << '--exclude' << '/gems/,/ruby-git\/lib/'
-  t.libs << 'test' << 'lib'
-  t.warning = false
-  t.verbose = true
-  t.test_files = FileList['test/*_test.rb']
+namespace :test do
+  desc 'Run tests with bacon'
+  task :spec => FileList['test/*_test.rb'] do |t|
+    sh "bacon -q -Ilib:test #{t.prerequisites.join(' ')}"
+  end
+
+  desc 'Generate test coverage report'
+  task :rcov => FileList['test/*_test.rb'] do |t|
+    sh "rcov -Ilib:test #{t.prerequisites.join(' ')}"
+  end
 end
 
 desc 'Cleanup'
@@ -75,13 +71,10 @@ task 'clean:all' => :clean do |t|
 end
 
 desc 'Generate documentation'
-Rake::RDocTask.new(:doc) { |rdoc|
-  rdoc.rdoc_dir = 'doc'
-  rdoc.title    = 'Git-Wiki Documentation'
-  rdoc.options << '--line-numbers' << '--inline-source' << '--diagram'
-  rdoc.options << '--charset' << 'utf-8'
-  rdoc.rdoc_files.include('**/*.rb')
-}
+task :doc => 'doc/api/index.html'
+file 'doc/api/index.html' => FileList['**/*.rb'] do |f|
+  sh "rdoc -o doc/api --title 'Git-Wiki Documentation' --inline-source --format=html #{f.prerequisites.join(' ')}"
+end
 
 namespace('notes') do
   task('todo')      do; system('ack TODO');      end

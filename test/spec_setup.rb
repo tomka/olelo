@@ -1,10 +1,9 @@
-gem 'test-unit', '>= 0'
-gem 'test-spec', '>= 0'
+gem 'bacon', '>= 0'
 gem 'rack-test', '>= 0'
 
 require 'rack/patches'
 require 'wiki/app'
-require 'test/spec'
+require 'bacon'
 require 'rack/test'
 require 'wiki/resource'
 
@@ -26,6 +25,6 @@ module GitrbHelpers
   end
 end
 
-class Test::Unit::TestCase
+class Bacon::Context
   include GitrbHelpers
 end

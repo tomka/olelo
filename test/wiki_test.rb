@@ -4,8 +4,9 @@ require 'rack/encode'
 
 Rack::MockRequest::DEFAULT_ENV['REMOTE_ADDR'] = 'localhorst'
 
-describe 'wiki' do
+class Bacon::Context
   include Rack::Test::Methods
+
   attr_reader :app
 
   def should
@@ -19,8 +20,10 @@ describe 'wiki' do
       super
     end
   end
+end
 
-  before(:each) do
+describe 'wiki' do
+  before do
     @test_path = File.expand_path(File.join(File.dirname(__FILE__), '.test'))
 
     default_config = {
@@ -64,7 +67,7 @@ describe 'wiki' do
     end
   end
 
-  after(:each) do
+  after do
     FileUtils.rm_rf(@test_path)
     @app = nil
   end
