@@ -33,8 +33,8 @@ First, you have to install the [Gem][] dependencies via `gem`:
     gem install gitrb
     gem install mimemagic
     gem install haml
-    gem install mongrel
     gem install rack
+    gem install mongrel --source http://gems.rubyinstaller.org
 
     # other rack-esi implementations should also work
     # just try it
