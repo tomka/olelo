@@ -67,6 +67,7 @@ default_config = {
     :embed        => false,
     :rewrite_base => nil,
     :deflater     => true,
+    :lint         => false,
   },
   :git => {
     :repository => ::File.join(path, '.wiki', 'repository'),
@@ -79,6 +80,22 @@ default_config = {
 
 Wiki::Config.update(default_config)
 Wiki::Config.load(config_file)
+
+if Wiki::Config.rack.lint?
+  alias original_use use
+  alias original_run run
+
+  require 'rack/lint'
+  def use(*args)
+    original_use Rack::Lint
+    original_use *args
+  end
+
+  def run(*args)
+    original_use Rack::Lint
+    original_run *args
+  end
+end
 
 use Rack::RelativeRedirect
 
