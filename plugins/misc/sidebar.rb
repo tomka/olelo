@@ -10,7 +10,12 @@ class Wiki::App
           if engine.layout?
             #cache_control :etag => page.commit.sha, :last_modified => page.latest_commit.date
             cache_control :max_age => 60
-            engine.response(page, params, request, response)
+
+            engine.response(:request => request,
+                            :response => response,
+                            :logger => @logger,
+                            :resource => page,
+                            :params => params)
           else
             %{<span class="error">#{:no_engine_found.t(:page => page.name)}</span>}
           end

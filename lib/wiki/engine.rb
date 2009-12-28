@@ -15,25 +15,32 @@ module Wiki
     # It is possible for a engine to run sub-engines. For this
     # purpose you create a subcontext which inherits the variables.
     class Context < HashWithIndifferentAccess
-      attr_reader :resource, :engine
+      attr_reader :resource, :engine, :logger, :request, :response
+
       alias page resource
       alias tree resource
 
-      def initialize(engine, resource, params)
-        merge!(params)
-        @engine = engine
-        @resource = resource
+      def initialize(opts = {})
+        super(opts[:params] || {})
+        @resource = opts[:resource]
+        @engine = opts[:engine]
+        @logger = opts[:logger]
+        @request = opts[:request]
+        @response = opts[:response]
       end
 
-      def subcontext(params = {})
-        sub = Context.new(params.delete(:engine) || @engine,
-                          params.delete(:resource) || params.delete(:page) || params.delete(:tree) || @resource, self)
-        sub.merge!(params)
-        sub
+      def subcontext(opts = {})
+        opts = {:resource => resource,
+          :engine => engine,
+          :logger => logger,
+          :request => request,
+          :response => response}.merge(opts)
+        opts[:params] = merge(opts[:params] || {})
+        Context.new(opts)
       end
 
       def id
-        Digest::MD5.hexdigest(@engine.name + resource.version + inspect)
+        Digest::MD5.hexdigest(engine.name + resource.version + inspect)
       end
     end
 
@@ -111,16 +118,16 @@ module Wiki
 
     # Engine response. Reimplement this method
     # if you want to set response headers for example.
-    def response(resource, params, request, response)
-      render(resource, params, request.no_cache?)
+    def response(opts)
+      render(opts)
     end
 
     # Render resource with caching. It should not be overwritten.
-    def render(resource, params = {}, update = false)
-      context = Context.new(self, resource, params)
+    def render(opts)
+      context = Context.new(opts.merge(:engine => self))
       Cache.cache('engine', context.id,
-                  :disable => resource.modified? || !cacheable?,
-                  :update => update) { output(context) }
+                  :disable => context.resource.modified? || !cacheable?,
+                  :update => context.request.no_cache?) { output(context) }
     end
   end
 end

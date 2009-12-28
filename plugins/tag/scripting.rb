@@ -44,7 +44,7 @@ Tag.define(:call, :requires => :name, :immediate => true) do |context, attrs, co
     raise(NameError, "Argument #{arg} is required") if !attrs[arg]
     [arg, Evaluator.eval(attrs[arg], context)]
   end.flatten
-  result = nested_tags(context.subcontext(Hash[*args]), content)
+  result = nested_tags(context.subcontext(:params => Hash[*args]), content)
   if attrs['result']
     context[attrs['result']] = result
     nil
@@ -57,7 +57,7 @@ Tag.define(:include, :requires => :page, :limit => 50) do |context, attrs, conte
   if page = Page.find(context.page.repository, attrs['page'])
     engine = Engine.find(page, attrs['output'])
     raise(RuntimeError, "No engine found for #{attrs['page']}") if !engine || !engine.layout?
-    engine.output(context.subcontext(attrs.merge(:engine => engine, :page => page)))
+    engine.output(context.subcontext(:params => attrs, :engine => engine, :page => page))
   else
     %{<a href="/#{attrs['page']}/new">Create #{attrs['page']}</a>}
   end
@@ -69,7 +69,7 @@ Tag.define(:for, :requires => [:from, :to], :immediate => true, :limit => 50) do
   raise(RuntimeError, "Limits exceeded") if to - from > 10
   (from..to).map do |i|
     params = attrs['counter'] ? {attrs['counter'] => i} : {}
-    nested_tags(context.subcontext(params), content)
+    nested_tags(context.subcontext(:params => params), content)
   end.join
 end
 
@@ -78,7 +78,7 @@ Tag.define(:repeat, :requires => :times, :immediate => true, :limit => 50) do |c
   raise(RuntimeError, "Limits exceeded") if n > 10
   (1..n).map do |i|
     params = attrs['counter'] ? {attrs['counter'] => i} : {}
-    nested_tags(context.subcontext(params), content)
+    nested_tags(context.subcontext(:params => params), content)
   end.join
 end
 

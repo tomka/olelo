@@ -60,6 +60,7 @@ default_config = {
     'filter/orgmode',
     'tag/math-ritex',
     'tag/math-itex2mml',
+    'misc/filter_benchmark'
 #   'tag/math-imaginator',
   ],
   :rack => {

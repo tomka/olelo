@@ -251,7 +251,11 @@ module Wiki
         cache_control :etag => @resource.latest_commit.sha, :last_modified => @resource.latest_commit.date
 
         @engine = Engine.find!(@resource, params[:output] || params[:engine])
-        @content = @engine.response(@resource, params, request, response)
+        @content = @engine.response(:resource => @resource,
+                                    :params => params,
+                                    :request => request,
+                                    :response => response,
+                                    :logger => @logger)
         if @engine.layout?
           haml :show
         else

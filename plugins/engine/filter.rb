@@ -86,7 +86,7 @@ class Wiki::Filter
   end
 end
 
-class FilterEngine < Engine
+class Wiki::FilterEngine < Engine
   def initialize(name, config, filter)
     super(name, config)
     @accepts = config[:accepts]
