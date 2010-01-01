@@ -169,7 +169,8 @@ module Wiki
     def message(level, *messages)
       session[:messages] ||= []
       messages.flatten.each do |msg|
-        if msg.respond_to? :messages
+        @logger.debug msg
+	if msg.respond_to? :messages
           session[:messages] += msg.messages.map { |m| [level, m] }
         elsif msg.respond_to? :message
           session[:messages] << [level, msg.message]

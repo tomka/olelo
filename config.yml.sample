@@ -11,9 +11,10 @@ disabled_plugins:
   - authorization/private_wiki
   - filter/orgmode
   - tagging
+  - editor/markitup
+  - misc/filter_benchmark
   - tag/math-ritex
   - tag/math-itex2mml
-  - editor/markitup
 #  - tag/math-imaginator
 rack:
   rewrite_base: ''

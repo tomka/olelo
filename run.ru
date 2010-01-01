@@ -58,9 +58,9 @@ default_config = {
     'authorization/private_wiki',
     'tagging',
     'filter/orgmode',
+    'misc/filter_benchmark',
     'tag/math-ritex',
     'tag/math-itex2mml',
-    'misc/filter_benchmark'
 #   'tag/math-imaginator',
   ],
   :rack => {

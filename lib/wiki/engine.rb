@@ -127,7 +127,7 @@ module Wiki
       context = Context.new(opts.merge(:engine => self))
       Cache.cache('engine', context.id,
                   :disable => context.resource.modified? || !cacheable?,
-                  :update => context.request.no_cache?) { output(context) }
+                  :update => context.request && context.request.no_cache?) { output(context) }
     end
   end
 end

@@ -4,7 +4,7 @@
     $.fn.dateToggler = function() {
 	function timeDistance(to, from) {
 	    var n = Math.floor((to  - from) / 60000)
-	    if (n == 0) return 'less than a minute';
+	    if (n <= 0) return 'less than a minute';
 	    if (n == 1) return 'a minute';
 	    if (n < 45) return n + ' minutes';
 	    if (n < 90) return ' about 1 hour';
