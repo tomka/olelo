@@ -3,6 +3,9 @@
 
 start_time = Time.now
 
+# Require newest rack
+raise RuntimeError, 'Rack 1.1.0 or newer required' if Rack.version < '1.1'
+
 env ||= ENV['RACK_ENV'] || 'development'
 
 path = ::File.expand_path(::File.dirname(__FILE__))
@@ -143,8 +146,10 @@ end
 
 FileUtils.mkpath Wiki::Config.cache, :mode => 0755
 FileUtils.mkpath ::File.dirname(Wiki::Config.log.file), :mode => 0755
-logger = Logger.new(Wiki::Config.log.file)
-logger.level = Logger.const_get(Wiki::Config.log.level)
+logger = ::Logger.new(Wiki::Config.log.file)
+logger.level = ::Logger.const_get(Wiki::Config.log.level)
+
+class<< logger; alias :write :<<; end
 
 use Rack::CommonLogger, logger
 use Rack::Encode
