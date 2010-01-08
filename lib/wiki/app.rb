@@ -196,7 +196,7 @@ module Wiki
       end
     end
 
-    post '/:path/delete' do
+    delete '/:path' do
       @resource = Resource.find!(repository, params[:path])
       with_hooks(:resource_delete, @resource) do
         @resource.delete(@user)
