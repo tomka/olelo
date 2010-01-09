@@ -34,3 +34,33 @@ class Rack::Session::Abstract::ID
     SecureRandom.hex
   end
 end
+
+class Rack::CommonLogger
+  def initialize(app, logger=nil)
+    @app = app
+    @logger = logger
+    if @logger && !@logger.respond_to?(:write)
+      # FIXME: Rack:CommonLogger needs write method
+      # ruby Logger class does not provide one
+      class << @logger; alias :write :<<; end
+    end
+  end
+end
+
+class Rack::Builder
+  module UseLint
+    def use(middleware, *args, &block)
+      super Rack::Lint if middleware != Rack::Lint
+      super
+    end
+
+    def run(app)
+      use Rack::Lint
+      super
+    end
+  end
+
+  def use_lint
+    class << self; include UseLint; end
+  end
+end

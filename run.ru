@@ -6,11 +6,9 @@ start_time = Time.now
 # Require newest rack
 raise RuntimeError, 'Rack 1.1.0 or newer required' if Rack.version < '1.1'
 
-env ||= ENV['RACK_ENV'] || 'development'
-
 path = ::File.expand_path(::File.dirname(__FILE__))
 
-$LOAD_PATH << ::File.join(path, 'lib')
+$: << ::File.join(path, 'lib')
 Dir[::File.join(path, 'deps', '*', 'lib')].each {|x| $: << x }
 
 require 'rubygems'
@@ -32,9 +30,6 @@ require 'rack/relative_redirect'
 require 'rack/remove_cache_buster'
 require 'rack/encode'
 require 'wiki/app'
-
-# Try to load server gem
-gem(server, '>= 0') rescue nil
 
 config_file = if ENV['WIKI_CONFIG']
   ENV['WIKI_CONFIG']
@@ -71,7 +66,6 @@ default_config = {
     :embed        => false,
     :rewrite_base => nil,
     :deflater     => true,
-    :lint         => false,
   },
   :git => {
     :repository => ::File.join(path, '.wiki', 'repository'),
@@ -85,21 +79,15 @@ default_config = {
 Wiki::Config.update(default_config)
 Wiki::Config.load(config_file)
 
-if Wiki::Config.rack.lint?
-  alias original_use use
-  alias original_run run
+FileUtils.mkpath Wiki::Config.cache, :mode => 0755
+FileUtils.mkpath ::File.dirname(Wiki::Config.log.file), :mode => 0755
 
-  require 'rack/lint'
-  def use(*args)
-    original_use Rack::Lint
-    original_use *args
-  end
+logger = ::Logger.new(Wiki::Config.log.file)
+logger.level = ::Logger.const_get(Wiki::Config.log.level)
 
-  def run(*args)
-    original_use Rack::Lint
-    original_run *args
-  end
-end
+use_lint if !Wiki::Config.production?
+
+use(Rack::Config) {|env| env['rack.logger'] = logger }
 
 use Rack::RelativeRedirect
 
@@ -109,7 +97,6 @@ if !Wiki::Config.rack.rewrite_base.blank?
 end
 
 if Wiki::Config.rack.deflater?
-  require 'rack/deflater'
   use Rack::Deflater
 end
 
@@ -130,7 +117,7 @@ if Wiki::Config.rack.esi?
   require 'rack/esi'
   use Rack::ESI
 
-  if env == 'deployment' || env == 'production'
+  if Wiki::Config.production?
     # FIXME: Replace with official release
     gem 'minad-rack-cache', '>= 0.5.2'
     require 'rack/cache'
@@ -140,19 +127,11 @@ if Wiki::Config.rack.esi?
       :verbose     => false,
       :metastore   => "file:#{::File.join(Wiki::Config.cache, 'rack', 'meta')}",
       :entitystore => "file:#{::File.join(Wiki::Config.cache, 'rack', 'entity')}"
-    Wiki::Config.production = true
   end
 end
-
-FileUtils.mkpath Wiki::Config.cache, :mode => 0755
-FileUtils.mkpath ::File.dirname(Wiki::Config.log.file), :mode => 0755
-logger = ::Logger.new(Wiki::Config.log.file)
-logger.level = ::Logger.const_get(Wiki::Config.log.level)
-
-class<< logger; alias :write :<<; end
 
 use Rack::CommonLogger, logger
 use Rack::Encode
 run Wiki::App.new(nil, :logger => logger)
 
-logger.info "Wiki successfully started in #{((Time.now - start_time) * 1000).to_i}ms"
+logger.info "Wiki started in #{((Time.now - start_time) * 1000).to_i}ms (#{Wiki::Config.production? ? 'Production' : 'Development'} mode)"
