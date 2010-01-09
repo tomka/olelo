@@ -22,7 +22,7 @@ end
 Engine.create(:gallery, :priority => 2, :layout => true, :cacheable => true) do
   def accepts?(resource); resource.tree?; end
   def output(context)
-    @page = context[:page].to_i
+    @page = context.params[:curpage].to_i
     @tree = context.tree
     @images = @tree.pages.select {|page| page.mime.mediatype == 'image' }
     haml :gallery, :layout => false

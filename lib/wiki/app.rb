@@ -169,7 +169,7 @@ module Wiki
 
     get '/?:path?/history' do
       @resource = Resource.find!(repository, params[:path])
-      cache_control :etag => @resource.version, :last_modified => @resource.commit.date
+      cache_control :etag => @resource.commit.sha, :last_modified => @resource.commit.date
       haml :history
     end
 

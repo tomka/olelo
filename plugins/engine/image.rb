@@ -22,9 +22,9 @@ Engine.create(:image, :priority => 5, :layout => false, :cacheable => true) do
 
   def output(context)
     page = context.page
-    geometry = context['geometry']
+    geometry = context.params[:geometry]
     if pdf_or_ps?(page)
-      curpage = context['curpage'].to_i + 1
+      curpage = context.params[:curpage].to_i + 1
       cmd = ''
       if page.mime == 'application/x-bzpostscript'
         cmd = 'bunzip2 -c - | '

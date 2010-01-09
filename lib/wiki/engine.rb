@@ -14,19 +14,25 @@ module Wiki
     # variables used by the engines.
     # It is possible for a engine to run sub-engines. For this
     # purpose you create a subcontext which inherits the variables.
-    class Context < HashWithIndifferentAccess
-      attr_reader :resource, :engine, :logger, :request, :response
+    class Context
+      include Hooks
+
+      attr_reader :resource, :engine, :logger, :request,
+                  :response, :parent, :private, :params
 
       alias page resource
       alias tree resource
 
       def initialize(opts = {})
-        super(opts[:params] || {})
         @resource = opts[:resource]
         @engine = opts[:engine]
-        @logger = opts[:logger]
+        @logger = opts[:logger] || Logger.new(nil)
         @request = opts[:request]
         @response = opts[:response]
+        @parent = opts[:parent]
+        @params = opts[:params] || HashWithIndifferentAccess.new
+        @private = opts[:private] || HashWithIndifferentAccess.new
+        invoke_hook(:initialized)
       end
 
       def subcontext(opts = {})
@@ -35,12 +41,16 @@ module Wiki
           :logger => logger,
           :request => request,
           :response => response}.merge(opts)
-        opts[:params] = merge(opts[:params] || {})
+        opts[:params] = params.merge(opts[:params] || {})
+        opts[:private] = private.merge(opts[:private] || {})
+        opts[:parent] = self
         Context.new(opts)
       end
 
       def id
-        Digest::MD5.hexdigest(engine.name + resource.version + inspect)
+        Digest::MD5.hexdigest(engine.name +
+                              resource.id +
+                              params.to_a.sort.inspect)
       end
     end
 

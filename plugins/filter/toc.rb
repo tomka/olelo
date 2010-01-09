@@ -5,7 +5,7 @@ autoload 'Nokogiri', 'nokogiri'
 
 class Toc < Filter
   def filter(content)
-    return content if !context['__TOC__']
+    return content if !context.private[:toc]
     @toc = '<div class="toc">'
     @level = 0
     @doc = Nokogiri::HTML::DocumentFragment.parse(content)
@@ -24,7 +24,7 @@ class Toc < Filter
 
     content = @doc.to_xhtml
 
-    content.gsub!(context['__TOC__']) do
+    content.gsub!(context.private[:toc]) do
       prefix = $`
       count = prefix.scan('<p>').size - prefix.scan('</p>').size
       count > 0 ? '</p>' + @toc + '<p>' : @toc
@@ -62,7 +62,7 @@ class Toc < Filter
 end
 
 Tag.define(:toc, :immediate => true) do |context, attrs, content|
-  context['__TOC__'] ||= "TOC_#{unique_id}"
+  context.private[:toc] ||= "TOC_#{unique_id}"
 end
 
 Filter.register Toc.new(:toc)

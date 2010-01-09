@@ -3,8 +3,8 @@ description  'Footnote support'
 dependencies 'filter/tag'
 
 Tag.define :ref do |context, attrs, content|
-  footnotes = context['__FOOTNOTES__'] ||= []
-  hash = context['__FOOTNOTES_HASH__'] ||= {}
+  footnotes = context.private[:footnotes] ||= []
+  hash = context.private[:footnotes_hash] ||= {}
   name = attrs['name']
   if content.blank?
     raise(ArgumentError, 'Attribute name missing') if name.blank?
@@ -31,6 +31,6 @@ TEMPLATE = %q{
 }
 
 Tag.define :references do |context, attrs, content|
-  @footnotes = context['__FOOTNOTES__']
+  @footnotes = context.private[:footnotes]
   haml TEMPLATE, :layout => false if @footnotes
 end

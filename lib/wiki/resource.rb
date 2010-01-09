@@ -95,8 +95,8 @@ module Wiki
       new?
     end
 
-    # Resource version
-    def version
+    # Resource id
+    def id
       new? ? '' : @object.id
     end
 

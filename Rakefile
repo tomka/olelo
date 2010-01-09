@@ -1,7 +1,7 @@
 require 'rubygems'
 require 'rake'
 
-task :default => %w(test)
+task :default => %w(test:spec)
 
 def shrink_js(t)
   sh "cat #{t.prerequisites.sort.join(' ')} | java -jar tools/yuicompressor*.jar --type js -v /dev/stdin > #{t.name}"

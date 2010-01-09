@@ -2,20 +2,6 @@ author       'Daniel Mendler'
 description  'Support for XML tag soup in wiki text'
 dependencies 'engine/filter'
 
-class Wiki::Engine::Context
-  def tag_recursion=(x)
-    self['__TAG_RECURSION__'] = x
-  end
-
-  def tag_recursion
-    self['__TAG_RECURSION__'] || 0
-  end
-
-  def tag_counter
-    self['__TAG_COUNTER__'] ||= {}
-  end
-end
-
 class Wiki::Tag < Filter
   MAXIMUM_RECURSION = 100
 
@@ -33,8 +19,9 @@ class Wiki::Tag < Filter
   end
 
   def nested_tags(context, content)
-    context.tag_recursion += 1
-    return 'Maximum tag nesting exceeded' if context.tag_recursion > MAXIMUM_RECURSION
+    context.private[:tag_level] ||= 0
+    context.private[:tag_level] += 1
+    return 'Maximum tag nesting exceeded' if context.private[:tag_level] > MAXIMUM_RECURSION
     Parser.new(self, context, content).parse
   end
 
@@ -157,10 +144,11 @@ class Wiki::Tag < Filter
     def process_tag(text)
       opts, method = Wiki::Tag.tags[@name]
 
-      @context.tag_counter[@name] ||= 0
-      @context.tag_counter[@name] += 1
+      tag_counter = @context.private[:tag_counter] ||= {}
+      tag_counter[@name] ||= 0
+      tag_counter[@name] += 1
 
-      if opts[:limit] && @context.tag_counter[@name] > opts[:limit]
+      if opts[:limit] && tag_counter[@name] > opts[:limit]
         @output << "#{@name}: Tag limit exceeded"
       elsif attr = [opts[:requires] || []].flatten.find {|a| !@attrs.include?(a) }
         @output << %{#{@name}: Attribute "#{attr}" is required}

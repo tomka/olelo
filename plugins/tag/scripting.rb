@@ -3,23 +3,28 @@ description  'Scripting tags'
 dependencies 'filter/tag', 'gem:evaluator'
 autoload 'Evaluator', 'evaluator'
 
-class Wiki::Engine::Context
-  def function_table
-    self['__FUNCTION_TABLE__'] ||= {}
-  end
+# Add standard variables
+Wiki::Engine::Context.hook(:initialized) do
+  params['page_name'] = page.name
+  params['page_path'] = page.path
+  params['page_title'] = page.title
+  params['page_version'] = page.commit ? page.commit.sha : ''
+  params['is_current'] = page.current?
+  params['is_discussion'] = page.discussion?
+  params['is_meta'] = page.meta?
 end
 
 Tag.define(:value, :requires => :of, :immediate => true) do |context, attrs, content|
-  Wiki.html_escape(Evaluator.eval(attrs['of'], context))
+  Wiki.html_escape(Evaluator.eval(attrs['of'], context.params))
 end
 
 Tag.define(:calc) do |context, attrs, content|
   code = content.strip.split("\n").map do |line|
     line.strip!
     val = if line =~ /^(\w+)\s*:=?\s*(.*)$/
-      context[$1] = Evaluator.eval($2, context)
+      context.params[$1] = Evaluator.eval($2, context.params)
     else
-      Evaluator.eval(line, context)
+      Evaluator.eval(line, context.params)
     end
     "> #{line}\n#{val}\n"
   end.join
@@ -29,24 +34,26 @@ end
 Tag.define(:def, :requires => :name, :immediate => true) do |context, attrs, content|
   name = attrs['name'].downcase
   if attrs['value']
-    context[name] = Evaluator.eval(attrs['value'], context)
+    context.params[name] = Evaluator.eval(attrs['value'], context.params)
   else
-    context.function_table[name] = [attrs['args'].to_s.split(/\s+/), content]
+    functions = context.private[:functions] ||= {}
+    functions[name] = [attrs['args'].to_s.split(/\s+/), content]
   end
   nil
 end
 
 Tag.define(:call, :requires => :name, :immediate => true) do |context, attrs, content|
   name = attrs['name'].downcase
-  raise(NameError, "Function #{name} not found") if !context.function_table[name]
-  args, content = context.function_table[name]
+  functions = context.private[:functions]
+  raise(NameError, "Function #{name} not found") if !functions || !functions[name]
+  args, content = functions[name]
   args = args.map do |arg|
     raise(NameError, "Argument #{arg} is required") if !attrs[arg]
-    [arg, Evaluator.eval(attrs[arg], context)]
+    [arg, Evaluator.eval(attrs[arg], context.params)]
   end.flatten
   result = nested_tags(context.subcontext(:params => Hash[*args]), content)
   if attrs['result']
-    context[attrs['result']] = result
+    context.params[attrs['result']] = result
     nil
   else
     result
@@ -54,21 +61,26 @@ Tag.define(:call, :requires => :name, :immediate => true) do |context, attrs, co
 end
 
 Tag.define(:include, :requires => :page, :limit => 10) do |context, attrs, content|
-  if page = Page.find(context.page.repository, attrs['page'])
+  path = attrs['page']
+  if !path.begins_with? '/'
+    path = context.resource.page? ? context.resource.path/'..'/path : context.resource.path/path
+  end
+  puts path
+  if page = Page.find(context.resource.repository, path)
     engine = Engine.find(page, attrs['output'])
-    raise(RuntimeError, "No engine found for #{attrs['page']}") if !engine || !engine.layout?
-    engine.output(context.subcontext(:params => attrs.merge('included' => true), :engine => engine, :resource => page))
+    raise(RuntimeError, "No engine found for #{path}") if !engine || !engine.layout?
+    engine.output(context.subcontext(:params => attrs, :engine => engine, :resource => page, :private => {:included => true}))
   else
-    %{<a href="/#{attrs['page']}/new">Create #{attrs['page']}</a>}
+    %{<a href="/#{Wiki.html_escape path}/new">Create #{Wiki.html_escape path}</a>}
   end
 end
 
-Tag.define(:includeonly) do |context, attrs, content|
-  nested_tags(context, content) if context['included']
+Tag.define(:includeonly, :immediate => true) do |context, attrs, content|
+  nested_tags(context, content) if context.private[:included]
 end
 
-Tag.define(:noinclude) do |context, attrs, content|
-  nested_tags(context, content) if !context['included']
+Tag.define(:noinclude, :immediate => true) do |context, attrs, content|
+  nested_tags(context, content) if !context.private[:included]
 end
 
 Tag.define(:for, :requires => [:from, :to], :immediate => true, :limit => 50) do |context, attrs, content|
@@ -91,7 +103,7 @@ Tag.define(:repeat, :requires => :times, :immediate => true, :limit => 50) do |c
 end
 
 Tag.define(:if, :requires => :test, :immediate => true) do |context, attrs, content|
-  if Evaluator.eval(attrs['test'], context)
+  if Evaluator.eval(attrs['test'], context.params)
     nested_tags(context.subcontext, content)
   end
 end

@@ -15,7 +15,7 @@ end
 
 Tag.define(:redirect, :requires => :path) do |context, attrs, content|
   path = resource_path(context.page, :path => attrs[:path])
-  list = (context[:redirect] ||= [])
+  list = (context.params[:redirect] ||= [])
   if list.include?(path)
     "Invalid redirect to #{path}"
   elsif context.page.modified?

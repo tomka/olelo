@@ -4,9 +4,9 @@
 - last = (@page + 1) * per_page
 %p
   - if first > 0
-    %a{:href => resource_path(@tree, :output => 'gallery', :page => @page - 1)} Previous
+    %a{:href => resource_path(@tree, :output => 'gallery', :curpage => @page - 1)} Previous
   - if last < @images.size
-    %a{:href => resource_path(@tree, :output => 'gallery', :page => @page + 1)} Next
+    %a{:href => resource_path(@tree, :output => 'gallery', :curpage => @page + 1)} Next
 - if !@images[first...last].empty?
   %table.thumbs
     - @images[first...last].to_a.each_slice(per_row) do |row|

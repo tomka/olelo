@@ -126,10 +126,6 @@ module Wiki
 
         raise NotFound, :not_found.t(:path => path)
       end
-
-      private
-
-
     end
 
     module ClassMethods
