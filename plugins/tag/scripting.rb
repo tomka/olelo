@@ -57,10 +57,18 @@ Tag.define(:include, :requires => :page, :limit => 10) do |context, attrs, conte
   if page = Page.find(context.page.repository, attrs['page'])
     engine = Engine.find(page, attrs['output'])
     raise(RuntimeError, "No engine found for #{attrs['page']}") if !engine || !engine.layout?
-    engine.output(context.subcontext(:params => attrs, :engine => engine, :resource => page))
+    engine.output(context.subcontext(:params => attrs.merge('included' => true), :engine => engine, :resource => page))
   else
     %{<a href="/#{attrs['page']}/new">Create #{attrs['page']}</a>}
   end
+end
+
+Tag.define(:includeonly) do |context, attrs, content|
+  nested_tags(context, content) if context['included']
+end
+
+Tag.define(:noinclude) do |context, attrs, content|
+  nested_tags(context, content) if !context['included']
 end
 
 Tag.define(:for, :requires => [:from, :to], :immediate => true, :limit => 50) do |context, attrs, content|
@@ -86,10 +94,4 @@ Tag.define(:if, :requires => :test, :immediate => true) do |context, attrs, cont
   if Evaluator.eval(attrs['test'], context)
     nested_tags(context.subcontext, content)
   end
-end
-
-Tag.define(:quiet, :immediate => true) do |context, attrs, content|
-  doc = Hpricot.XML(content)
-  doc.traverse_text { |elem| elem.content = '' }
-  nested_tags(context.subcontext, doc.to_original_html)
 end
