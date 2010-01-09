@@ -96,11 +96,11 @@ $(function() {
         var elem = $('#upload-path'), val, oldpath;
 	if (elem.size() == 1) {
 	    val = elem.val();
-	    oldpath = elem.attr('oldpath') || 'new page';
+	    oldpath = elem.data('oldpath') || 'new page';
 	    if (val.match(new RegExp('^(.*\/)?' + oldpath + '$'))) {
 		val = val.replace(new RegExp(oldpath + '$'), '') + this.value;
 		elem.val(val);
-		elem.attr('oldpath', this.value);
+		elem.data('oldpath', this.value);
 	    }
 	}
     });

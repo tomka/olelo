@@ -15,10 +15,10 @@
 
                 function createChild(data) {
                     var path = data[3],
-                        child = $('<li name="'+data[4]+'" tree="'+ (data[0] ? 1 : 0) + '"><div class="'+
-                                  (data[1] ? 'hitarea collapsed' : 'placeholder')+
+                        child = $('<li><div class="'+(data[1] ? 'hitarea collapsed' : 'placeholder')+
                                   '"><div class="arrow"/><div class="'+data[2]+'"/></div><a href="'+path+'">'+data[4]+'</a></li>'),
                         hitarea = child.children('.hitarea');
+		    child.data('name', data[4]).data('tree', data[0] ? 1 : 0);
                     hitarea.click(function() {
                         if (hitarea.hasClass('collapsed')) {
                             openTree(child, path);
@@ -52,7 +52,7 @@
                         exists[child[4]] = child;
                     });
 		    $('> ul > li', element).each(function() {
-                        var li = $(this), name = li.attr('name');
+                        var li = $(this), name = li.data('name');
 			if (!exists[name])
                             li.remove();
                         else
@@ -62,7 +62,7 @@
 		    $.each(exists, function(name, child) {
                         var inserted = false;
                         $.each(list, function(i, other) {
-			    if ((child[0] && !other.attr('tree')) || (name < other.attr('name') && child[0] == other.attr('tree'))) {
+			    if ((child[0] && !other.data('tree')) || (name < other.data('name') && child[0] == other.data('tree'))) {
                                 inserted = true;
                                 other.before(createChild(child));
                                 return false;
