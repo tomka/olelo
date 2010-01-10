@@ -3,13 +3,11 @@ description  'Support for XML tag soup in wiki text'
 dependencies 'engine/filter'
 
 class Wiki::Tag < Filter
-  MAXIMUM_RECURSION = 100
-
   class << self
     lazy_reader :tags, {}
 
     def define(tag, opts = {}, &block)
-      tags[tag.to_s] = [opts, block.to_method(self)]
+      tags[tag.to_s] = TagInfo.new(block.to_method(self), opts)
     end
   end
 
@@ -21,7 +19,7 @@ class Wiki::Tag < Filter
   def nested_tags(context, content)
     context.private[:tag_level] ||= 0
     context.private[:tag_level] += 1
-    return 'Maximum tag nesting exceeded' if context.private[:tag_level] > MAXIMUM_RECURSION
+    return 'Maximum tag nesting exceeded' if context.private[:tag_level] > MAX_RECURSION
     Parser.new(self, context, content).parse
   end
 
@@ -33,8 +31,17 @@ class Wiki::Tag < Filter
 
   private
 
+  MAX_RECURSION = 100
+  MAX_NESTING = 10
+
+  class TagInfo < Struct.new(:limit, :requires, :immediate, :method)
+    def initialize(method, opts)
+      update(opts.merge(:method => method, :requires => [opts[:requires] || []].flatten))
+    end
+  end
+
   def replace_protected_elements(content)
-    10.times do
+    MAX_NESTING.times do
       break if !content.gsub!(/#{@protection_prefix}(\d+)/) do
         element = @protected_elements[$1.to_i]
         if block_element?(element)
@@ -142,23 +149,23 @@ class Wiki::Tag < Filter
     end
 
     def process_tag(text)
-      opts, method = Wiki::Tag.tags[@name]
+      tag = Wiki::Tag.tags[@name]
 
       tag_counter = @context.private[:tag_counter] ||= {}
       tag_counter[@name] ||= 0
       tag_counter[@name] += 1
 
-      if opts[:limit] && tag_counter[@name] > opts[:limit]
+      if tag.limit && tag_counter[@name] > tag.limit
         @output << "#{@name}: Tag limit exceeded"
-      elsif attr = [opts[:requires] || []].flatten.find {|a| !@attrs.include?(a) }
+      elsif attr = tag.requires.find {|a| !@attrs.include?(a) }
         @output << %{#{@name}: Attribute "#{attr}" is required}
       else
         text = begin
-                 method.bind(@filter).call(@context, @attrs, text).to_s
+                 tag.method.bind(@filter).call(@context, @attrs, text).to_s
                rescue Exception => ex
                  "#{@name}: #{Wiki.html_escape ex.message}"
                end
-        @output << (opts[:immediate] ? text : @filter.add_protected_element(text))
+        @output << (tag.immediate ? text : @filter.add_protected_element(text))
       end
     end
   end

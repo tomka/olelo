@@ -147,6 +147,16 @@ class Object
   end
 end
 
+class Struct
+  def to_hash
+    Hash[*members.zip(values).flatten]
+  end
+
+  def update(attrs = {})
+    attrs.each_pair {|k, v| self[k] = v }
+  end
+end
+
 class String
   # Pluralize string
   def pluralize(count, plural)

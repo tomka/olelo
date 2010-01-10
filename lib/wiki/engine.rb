@@ -14,37 +14,27 @@ module Wiki
     # variables used by the engines.
     # It is possible for a engine to run sub-engines. For this
     # purpose you create a subcontext which inherits the variables.
-    class Context
+    class Context < Struct.new(:resource, :engine, :logger, :request,
+                               :response, :parent, :private, :params)
       include Hooks
-
-      attr_reader :resource, :engine, :logger, :request,
-                  :response, :parent, :private, :params
 
       alias page resource
       alias tree resource
 
-      def initialize(opts = {})
-        @resource = opts[:resource]
-        @engine = opts[:engine]
-        @logger = opts[:logger] || Logger.new(nil)
-        @request = opts[:request]
-        @response = opts[:response]
-        @parent = opts[:parent]
-        @params = opts[:params] || HashWithIndifferentAccess.new
-        @private = opts[:private] || HashWithIndifferentAccess.new
+      def initialize(attrs = {})
+        update(attrs)
+        self.logger  ||= Logger.new(nil)
+        self.params  ||= HashWithIndifferentAccess.new
+        self.private ||= HashWithIndifferentAccess.new
         invoke_hook(:initialized)
       end
 
-      def subcontext(opts = {})
-        opts = {:resource => resource,
-          :engine => engine,
-          :logger => logger,
-          :request => request,
-          :response => response}.merge(opts)
-        opts[:params] = params.merge(opts[:params] || {})
-        opts[:private] = private.merge(opts[:private] || {})
-        opts[:parent] = self
-        Context.new(opts)
+      def subcontext(attrs = {})
+        attrs = to_hash.merge!(attrs)
+        attrs[:params] = params.merge(attrs[:params] || {})
+        attrs[:private] = private.merge(attrs[:private] || {})
+        attrs[:parent] = self
+        Context.new(attrs)
       end
 
       def id

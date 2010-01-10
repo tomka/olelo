@@ -11,10 +11,10 @@ module Wiki
       @groups.include? 'anonymous'
     end
 
-    def initialize(name, email, groups = [])
+    def initialize(name, email, groups = nil)
       @name = name
       @email = email
-      @groups = groups || []
+      @groups = groups.to_a
       @groups << 'user' if !anonymous?
     end
 
