@@ -71,8 +71,8 @@ module Wiki
             html << %{<table class="changes" id="file-#{count}">}
             if opts[:from] && opts[:to]
               html << %{<thead><tr><th><a class="left" href="#{Wiki.html_escape path.urlpath}">#{path}</a>
-<span class="right"><a href="#{Wiki.html_escape((path/'version'/opts[:from]).urlpath)}">#{opts[:from].sha[0..4]}</a> to
-<a href="#{Wiki.html_escape((path/'version'/opts[:to]).urlpath)}">#{opts[:to].sha[0..4]}</a></span></th></tr></thead>}
+<span class="right"><a href="#{Wiki.html_escape((path/'version'/opts[:from].sha[0..4]).urlpath)}">#{opts[:from].sha[0..4]}</a> to
+<a href="#{Wiki.html_escape((path/'version'/opts[:to].sha[0..4]).urlpath)}">#{opts[:to].sha[0..4]}</a></span></th></tr></thead>}
             else
               html << %{<thead><tr><th><a class="left" href="#{Wiki.html_escape path.urlpath}">#{Wiki.html_escape path}</a></th></tr></thead>}
             end
