@@ -11,6 +11,7 @@ en:
   confirmation:           'Confirmation'
   content:                'Content'
   current:                'Current'
+  create_page:            'Create #{page}'
   create_redirect:        'Create redirect'
   date:                   'Date'
   delete:                 'Delete'

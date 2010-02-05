@@ -1,6 +1,7 @@
 title:        'Git-Wiki'
-production:   false
+production:   true
 main_page:    'Home'
+sidebar_page: 'Sidebar'
 external_img: false
 auth:
   service: yamlfile

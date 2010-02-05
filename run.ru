@@ -43,6 +43,7 @@ default_config = {
   :production   => false,
   :locale	=> 'en_US',
   :main_page    => 'Home',
+  :sidebar_page => 'Sidebar',
   :external_img => false,
   :auth => {
     :service => 'yamlfile',
