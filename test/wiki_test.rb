@@ -142,7 +142,7 @@ describe 'wiki' do
       'message' => '测试'
     }
     post(Wiki.uri_escape('/子供を公園/中文'), data)
-    location.should.equal Wiki.uri_unescape('/子供を公園/中文')
+    Wiki.uri_unescape(location).should.equal '/子供を公園/中文'
 
     get Wiki.uri_escape('/子供を公園/中文')
     should.be.ok

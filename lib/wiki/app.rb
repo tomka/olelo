@@ -222,7 +222,7 @@ module Wiki
       haml :edit
     end
 
-    get '/new', '/upload', '/:path/new', '/:path/upload' do
+    get '/?:path?/new', '/?:path?/upload' do
       begin
         if params[:path] && @resource = Resource.find(repository, params[:path])
           return haml(:edit) if @resource.page? && action?(:upload)

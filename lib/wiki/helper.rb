@@ -289,7 +289,7 @@ module Wiki
       if params[:action]
         params[:action] == name.to_s
       else
-        request.path_info.ends_with? '/' + name.to_s
+        Wiki.uri_unescape(request.path_info).ends_with? '/' + name.to_s
       end
     end
 
