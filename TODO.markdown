@@ -1,10 +1,9 @@
 TODO
 ====
 
-- Get rid of alias method chains
 - Documentation
 - Code comments and rdoc generation
-- More specs/unit tests
+- More specs
 - Captcha support
 - Clean up stylesheet
 - Support for branching operations (Maybe not that important for a gui?)
