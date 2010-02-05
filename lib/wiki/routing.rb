@@ -100,25 +100,26 @@ module Wiki
         invoke_hook(:before_routing)
 
         path = Wiki.uri_unescape(@request.path_info)
-        routes = self.class.routes[@request.request_method].to_a
-        routes.each do |name, pattern, keys, method|
+        method = @request.request_method
+        routes = self.class.routes[method]
+        routes.each do |name, pattern, keys|
           if match = pattern.match(path)
-            values = match.captures.to_a
+            captures = match.captures.to_a
             params =
               if keys.any?
-                keys.zip(values).inject({}) do |hash,(k,v)|
+                keys.zip(captures).inject({}) do |hash,(k,v)|
                   hash[k] = v
                   hash
                 end
-              elsif values.any?
-                {'captures' => values}
+              elsif captures.any?
+                {'captures' => captures}
               else
                 {}
               end
             @params = @original_params.merge(params)
             catch(:pass) do
-              with_hooks(:action, @request.request_method.downcase.to_sym, name) do
-                halt(method.arity == 0 ? method.bind(self).call : method.bind(self).call(*values))
+              with_hooks(:action, method.downcase.to_sym, name) do
+                halt send("#{method} #{name}")
               end
             end
           end
@@ -147,7 +148,7 @@ module Wiki
         s = "=== ROUTES ===\n"
         routes.each do |method,list|
           s << "  #{method}:\n"
-          list.each {|x| s << "    #{x[0]} -> #{x[1].source}\n" }
+          list.each {|x,y| s << "    #{x} -> #{y.source}\n" }
         end
         s
       end
@@ -157,8 +158,7 @@ module Wiki
       def compile_route(path, patterns)
         keys = []
         if path.respond_to? :to_str
-          pattern =
-            Regexp.escape(path).gsub(/:(\w+)|\\\?/) do |match|
+          pattern = Regexp.escape(path).gsub(/:(\w+)|\\\?/) do |match|
             if match == '\?'
               '?'
             else
@@ -180,8 +180,13 @@ module Wiki
           patterns = opts[:patterns] ? self.patterns.merge(opts[:patterns]) : self.patterns
           path, pattern, keys = compile_route(path, patterns)
           [methods].flatten.each do |m|
-            ((routes[m] ||= []) << [path, pattern, keys, block.to_method(self)]).last
-            routes[m].uniq!
+            name = "#{m} #{path}"
+            if method_defined?(name)
+              redefine_method(name, &block)
+            else
+              define_method(name, &block)
+              (routes[m] ||= []) << [path, pattern, keys]
+            end
           end
         end
       end

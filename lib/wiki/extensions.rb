@@ -26,6 +26,18 @@ class Module
     module_eval(code)
     made
   end
+
+  def redefine_method(name, &block)
+    if instance_methods(false).any? {|x| x.to_s == name.to_s }
+      method = instance_method(name)
+      mod = Module.new do
+        define_method(name) { method.bind(self).call }
+      end
+      remove_method(name)
+      include(mod)
+    end
+    include(Module.new { define_method(name, &block) })
+  end
 end
 
 class Proc

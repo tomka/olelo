@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 require 'wiki/utils'
-require 'digest/md5'
 
 module Wiki
   module BlockHelper
@@ -209,7 +208,7 @@ module Wiki
         opts[:private] = true
 
         # Special etag for authenticated user
-        opts[:etag] = Digest::MD5.hexdigest("#{@user.name}#{opts[:etag]}") if opts[:etag]
+        opts[:etag] = Wiki.md5("#{@user.name}#{opts[:etag]}") if opts[:etag]
       end
 
       if opts[:etag]

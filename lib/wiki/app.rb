@@ -207,7 +207,7 @@ module Wiki
     get '/?:path?/diff' do
       @resource = Resource.find!(repository, params[:path])
       begin
-        Wiki.forbid('From not selected' => params[:from].blank?, 'To not selected' => params[:to].blank?)
+        Wiki.forbid(:from_missing.t => params[:from].blank?, :to_missing.t => params[:to].blank?)
         @diff = @resource.diff(params[:from], params[:to])
         haml :diff
       rescue StandardError => error
@@ -216,24 +216,17 @@ module Wiki
       end
     end
 
-    get '/:path/edit', '/:path/upload' do
+    get '/:path/edit' do
       @resource = Page.find(repository, params[:path])
-      if !@resource
-        pass if action? :upload # Pass to next handler because /upload is used twice
-        redirect (params[:path]/'new').urlpath
-      end
+      redirect (params[:path]/'new').urlpath if !@resource
       haml :edit
     end
 
     get '/new', '/upload', '/:path/new', '/:path/upload' do
       begin
-        # Redirect to edit for existing pages
-        if resource = Resource.find(repository, params[:path])
-          if resource.tree?
-            params[:path] = "#{params[:path]}/new page"
-          else
-            redirect((params[:path]/'edit').urlpath)
-          end
+        if params[:path] && @resource = Resource.find(repository, params[:path])
+          return haml(:edit) if @resource.page? && action?(:upload)
+          redirect((params[:path]/(@resource.tree? ? 'new page' : 'edit')).urlpath)
         end
         @resource = Page.new(repository, params[:path])
         Wiki.forbid(:reserved_path.t => reserved_path?(params[:path]))
@@ -327,7 +320,7 @@ module Wiki
       path = path.to_s.urlpath
       self.class.routes.any? do |method, routes|
         routes.any? do |name,pattern|
-          name != '/:path' && pattern =~ path
+          name != '/:path' && name != '/' && path =~ /#{pattern.source[0..-2]}/
         end
       end
     end

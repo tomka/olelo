@@ -38,9 +38,7 @@ module Wiki
       end
 
       def id
-        Digest::MD5.hexdigest(engine.name +
-                              resource.id +
-                              params.to_a.sort.inspect)
+        Wiki.md5(engine.name + resource.id + params.to_a.sort.inspect)
       end
     end
 

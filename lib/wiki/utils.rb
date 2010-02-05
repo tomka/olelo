@@ -2,6 +2,8 @@
 require 'wiki/extensions'
 require 'yaml'
 require 'cgi'
+require 'digest/md5'
+require 'digest/sha2'
 
 gem 'haml', '>= 2.2.16'
 require 'haml/helpers'
@@ -222,6 +224,14 @@ module Wiki
 
     def html_unescape(text)
       CGI.unescapeHTML(text.to_s)
+    end
+
+    def md5(s)
+      Digest::MD5.hexdigest(s)
+    end
+
+    def sha256(s)
+      Digest::SHA256.hexdigest(s)
     end
 
     def build_query(params)

@@ -1,6 +1,5 @@
 author      'Daniel Mendler'
 description 'YAML based user storage'
-require     'digest/sha2'
 
 module ::YAML
   autoload 'Store', 'yaml/store'
@@ -57,6 +56,6 @@ User.define_service(:yamlfile) do
   private
 
   def crypt(s)
-    s.blank? ? s : Digest::SHA256.hexdigest(s)
+    s.blank? ? s : Wiki.sha256(s)
   end
 end

@@ -97,7 +97,10 @@ $(function() {
 	if (elem.size() == 1) {
 	    val = elem.val();
 	    oldpath = elem.data('oldpath') || 'new page';
-	    if (val.match(new RegExp('^(.*\/)?' + oldpath + '$'))) {
+            if (val.length == 0) {
+		elem.val(this.value);
+		elem.data('oldpath', this.value);
+            } else if (val.match(new RegExp('^(.*\/)?' + oldpath + '$'))) {
 		val = val.replace(new RegExp(oldpath + '$'), '') + this.value;
 		elem.val(val);
 		elem.data('oldpath', this.value);
