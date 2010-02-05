@@ -42,6 +42,8 @@ default_config = {
   :root         => path,
   :production   => false,
   :locale	=> 'en_US',
+  :main_page    => 'Home',
+  :external_img => false,
   :auth => {
     :service => 'yamlfile',
     :store   => ::File.join(path, '.wiki', 'users.yml'),
@@ -51,7 +53,6 @@ default_config = {
     :default => 'text/x-creole',
     :magic   => true,
   },
-  :main_page    => 'Home',
   :disabled_plugins => [
     'authorization/private_wiki',
     'tagging',

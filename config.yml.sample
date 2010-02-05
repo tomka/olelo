@@ -1,5 +1,7 @@
 title:        'Git-Wiki'
 production:   false
+main_page:    'Home'
+external_img: false
 auth:
   service: yamlfile
   store:   '/home/user/wiki/users.yml'
@@ -7,7 +9,6 @@ cache:        '/home/user/wiki/cache'
 mime:
   magic:   true
   default: 'text/x-creole'
-main_page:    'Home'
 disabled_plugins:
   - authorization/private_wiki
   - filter/orgmode

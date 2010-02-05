@@ -18,8 +18,11 @@ Filter.create :creole do |content|
 
     def make_image(path, title)
       args = title.to_s.split('|')
-      image_path, page_path = path, path
-      if !args.delete('download')
+      if path =~ %r{^(http|ftp)://}
+        return %{<span class="error">External images are not allowed</span>} if !Config.external_img?
+        image_path = path.dup
+        page_path = path.dup
+      else
         geometry = args.find { |x| x =~ /(\d+x)|(x\d+)|(\d+%)/}
         opts = {:path => path, :output => 'image'}
         if geometry
