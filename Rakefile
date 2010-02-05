@@ -37,7 +37,7 @@ end
 file('static/script.js' => Dir.glob('static/script/*.js')) { |t| shrink_js(t) }
 file('plugins/treeview/script.js' => Dir.glob('plugins/treeview/script/*.js')) {|t| shrink_js(t) }
 
-namespace :generate do
+namespace :gen do
   desc('Shrink JS files')
   task :script => %w(static/script.js plugins/treeview/script.js)
 
