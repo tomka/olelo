@@ -60,7 +60,7 @@ module Wiki
             halt(dispatch!)
           end
           @response.status = 302
-          @response['Location'] = Wiki.uri_escape(uri).gsub('%2F', '/')
+          @response['Location'] = Wiki.uri_escape(uri).gsub('%2F', '/').gsub('%3A', ':')
           nil
         end
 
