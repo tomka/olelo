@@ -3,24 +3,25 @@ README
 
 Git-Wiki is a wiki that stores pages in a [Git][] repository.
 
-See the demo installation at <http://git-wiki.kicks-ass.org/>.
+See the demo installation at <http://git.awiki.org/> or <http://git-wiki.kicks-ass.org/>.
 
 Features
 --------
 
 A lot of the features are implemented as plugins.
 
-- History
-- Show diffs
-- Edit page, upload files
-- Section editing
+- Edit, move or delete pages
+- Upload files
+- History (also as RSS/Atom changelog)
 - Plugin system
-- Multiple renderers
-- LaTeX/Graphviz
+- Support for multiple text engines (Creole, Markdown, Textile, ...)
+- Section editing for creole markup
+- Embedded LaTeX/Graphviz graphics
 - Syntax highlighting (embedded code blocks)
-- Image support, SVG support
+- Images can be uploaded
+- Image resizing, SVG to bitmap conversion
 - Auto-generated table of contents (via nokogiri)
-- Templates
+- Templates via include-tag
 - XML tag soup can be used to extend Wiki syntax
 
 Installation
@@ -57,7 +58,7 @@ First, you have to install the [Gem][] dependencies via `gem`:
 
 Then, run the program using the command:
 
-    ./run.ru -smongrel -p4567
+    rackup -smongrel -p4567
 
 Point your web browser at <http://localhost:4567>.
 
@@ -69,11 +70,16 @@ For production purposes, I recommend that you deploy the wiki
 with Mongrel. You can use the WIKI_CONFIG environment variable
 to specify multiple wiki configurations.
 
+I tested other webservers like unicorn, thin and webrick.
+Git-Wiki works with all of them thanks to rack.
+
 Dependencies
 ------------
 
 - [HAML][]
 - [gitrb][]
+- [rack][]
+- [mimemagic][]
 
 ### Optional Dependencies
 
@@ -94,6 +100,7 @@ At least one of these renderers should be installed:
 - [RedCloth][] for Textile rendering
 
 [creole]:http://github.com/minad/creole
+[mimemagic]:http://github.com/minad/mimemagic
 [Gem]:http://rubygems.org
 [Git]:http://www.git-scm.org
 [GitHub]:http://github.com
