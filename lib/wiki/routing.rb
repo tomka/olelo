@@ -9,124 +9,119 @@ module Wiki
 
     def self.included(base)
       base.extend(ClassMethods)
-      base.class_eval do
-        include Hooks
-        include InstanceMethods
+      base.class_eval { include Hooks }
+    end
+
+    attr_reader :params, :response, :request, :env
+
+    def call(env)
+      dup.call!(env)
+    end
+
+    def call!(env)
+      @env      = env
+      @request  = Rack::Request.new(env)
+      @response = Rack::Response.new
+      @params = @original_params = @request.params.with_indifferent_access
+      catch(:forward) do
+        perform!
+        status, header, body = @response.finish
+        return [status, header, @request.head? ? [] : body]
+      end
+      @app ? @app.call(env) : handle_error(NotFound.new('Sub application not set'))
+    end
+
+    def halt(*response)
+      response = response.first if response.length == 1
+      throw :halt, response
+    end
+
+    def redirect(uri); throw :redirect, uri end
+    def pass; throw :pass end
+    def forward; throw :forward end
+
+    private
+
+    def handle_error(ex)
+      @response.status = Rack::Utils.status_code(ex.try(:status) || :internal_server_error)
+      @response.body   = [ex.message]
+      safe_output do
+        invoke_hook(ex.class, ex).to_s
       end
     end
 
-    module InstanceMethods
-      attr_reader :params, :response, :request, :env
-
-      def call(env)
-        dup.call!(env)
-      end
-
-      def call!(env)
-	@env      = env
-        @request  = Rack::Request.new(env)
-        @response = Rack::Response.new
-        @params = @original_params = @request.params.with_indifferent_access
-        catch(:forward) do
-          perform!
-          status, header, body = @response.finish
-          return [status, header, @request.head? ? [] : body]
+    def perform!
+      result = catch(:halt) do
+        uri = catch(:redirect) do
+          halt(dispatch!)
         end
-        @app ? @app.call(env) : handle_error(NotFound.new('Sub application not set'))
+        @response.redirect(Wiki.uri_escape(uri).gsub('%2F', '/').gsub('%3A', ':'))
+        nil
       end
 
-      def halt(*response)
-        response = response.first if response.length == 1
-        throw :halt, response
-      end
-
-      def redirect(uri); throw :redirect, uri end
-      def pass; throw :pass end
-      def forward; throw :forward end
-
-      private
-
-      def handle_error(ex)
-        @response.status = Rack::Utils.status_code(ex.try(:status) || :internal_server_error)
-        @response.body   = [ex.message]
-        safe_output do
-          invoke_hook(ex.class, ex).to_s
-        end
-      end
-
-      def perform!
-        result = catch(:halt) do
-          uri = catch(:redirect) do
-            halt(dispatch!)
-          end
-          @response.redirect(Wiki.uri_escape(uri).gsub('%2F', '/').gsub('%3A', ':'))
-          nil
-        end
-
-        return if !result
-        if result.respond_to?(:to_str)
-          @response.body = [result]
-        elsif result.respond_to?(:to_ary)
-          result = result.to_ary
-          status = result.first
-          if Fixnum === status || Symbol === status
-            @response.status = Rack::Utils.status_code(status)
-            if result.length == 3
-              status, headers, body = result
-              @response.body = body if body
-              @response.headers.merge!(headers) if headers
-            elsif result.length == 2
-              @response.body = result.last
-            else
-              raise TypeError, "#{result.inspect} not supported"
-            end
+      return if !result
+      if result.respond_to?(:to_str)
+        @response.body = [result]
+      elsif result.respond_to?(:to_ary)
+        result = result.to_ary
+        status = result.first
+        if Fixnum === status || Symbol === status
+          @response.status = Rack::Utils.status_code(status)
+          if result.length == 3
+            status, headers, body = result
+            @response.body = body if body
+            @response.headers.merge!(headers) if headers
+          elsif result.length == 2
+            @response.body = result.last
           else
-            @response.body = result
+            raise TypeError, "#{result.inspect} not supported"
           end
-        elsif result.respond_to?(:each)
+        else
           @response.body = result
-        elsif (100...599) === result || Symbol === result
-          @response.status = Rack::Utils.status_code(result)
         end
+      elsif result.respond_to?(:each)
+        @response.body = result
+      elsif (100...599) === result || Symbol === result
+        @response.status = Rack::Utils.status_code(result)
       end
+    end
 
-      def dispatch!
-        route!
-      rescue ::Exception => ex
-        handle_error(ex)
-      end
+    def dispatch!
+      route!
+    rescue ::Exception => ex
+      handle_error(ex)
+    end
 
-      def route!
-        invoke_hook(:before_routing)
+    def route!
+      invoke_hook(:before_routing)
 
-        path = Wiki.uri_unescape(@request.path_info)
-        method = @request.request_method
-        routes = self.class.routes[method]
-        routes.each do |name, pattern, keys|
-          if match = pattern.match(path)
-            captures = match.captures.to_a
-            params =
-              if keys.any?
-                keys.zip(captures).inject({}) do |hash,(k,v)|
-                  hash[k] = v
-                  hash
-                end
-              elsif captures.any?
-                {'captures' => captures}
-              else
-                {}
-              end
-            @params = @original_params.merge(params)
-            catch(:pass) do
-              with_hooks(:action, method.downcase.to_sym, name) do
-                halt send("#{method} #{name}")
-              end
+      path = Wiki.uri_unescape(@request.path_info)
+      method = @request.request_method
+      routes = self.class.routes[method]
+      routes.each do |name, pattern, keys|
+        if match = pattern.match(path)
+          captures = match.captures.to_a
+          params =
+            if keys.any?
+              keys.zip(captures).inject({}) do |hash,(k,v)|
+              hash[k] = v
+              hash
+            end
+            elsif captures.any?
+              {'captures' => captures}
+            else
+              {}
+            end
+          @params = @original_params.merge(params)
+          catch(:pass) do
+            with_hooks(:action, method.downcase.to_sym, name) do
+              halt send("#{method} #{name}")
             end
           end
         end
-
-        raise NotFound, :not_found.t(:path => path)
       end
+
+      raise NotFound, :not_found.t(:path => path)
     end
 
     module ClassMethods

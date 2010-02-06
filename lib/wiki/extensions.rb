@@ -46,10 +46,10 @@ class Proc
     proc = self
     clazz.module_eval do
       define_method(name, proc)
-      return instance_method(name)
+      instance_method(name)
     end
   ensure
-    clazz.module_eval { remove_method(name) rescue nil }
+    clazz.module_eval { remove_method(name) } rescue nil
   end
 end
 

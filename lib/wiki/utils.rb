@@ -122,7 +122,6 @@ module Wiki
   module Hooks
     def self.included(base)
       base.extend(ClassMethods)
-      base.class_eval { include InstanceMethods }
     end
 
     class Result < Array
@@ -131,18 +130,16 @@ module Wiki
       end
     end
 
-    module InstanceMethods
-      def with_hooks(type, *args)
-        result = Result.new
-        result.push *invoke_hook(:"before_#{type}", *args)
-        result << yield
-      ensure
-        result.push *invoke_hook(:"after_#{type}", *args)
-      end
+    def with_hooks(type, *args)
+      result = Result.new
+      result.push *invoke_hook(:"before_#{type}", *args)
+      result << yield
+    ensure
+      result.push *invoke_hook(:"after_#{type}", *args)
+    end
 
-      def invoke_hook(type, *args)
-        self.class.invoke_hook(self, type, *args)
-      end
+    def invoke_hook(type, *args)
+      self.class.invoke_hook(self, type, *args)
     end
 
     module ClassMethods
