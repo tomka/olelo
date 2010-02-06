@@ -9,13 +9,13 @@ class Wiki::App
       with_hooks :page_save, resource do
         resource.write(request.body, :file_uploaded.t(:path => resource.path), @user)
       end
-      halt 200
+      200
     rescue NotFound => ex
       @logger.error ex
-      halt 404
+      404
     rescue StandardError => ex
       @logger.error ex
-      halt 400
+      400
     end
   end
 
@@ -27,17 +27,22 @@ class Wiki::App
       with_hooks :page_save, @resource do
         resource.write(request.body, :file_uploaded.t(:path => resource.path), @user)
       end
-      halt 201
+      201
     rescue NotFound => ex
       @logger.error ex
-      halt 404
+      404
     rescue StandardError => ex
       @logger.error ex
-      halt 400
+      400
     end
   end
 
-  propfind '/:path' do
-    halt 404
-  end
+  # TODO: Implement more methods if they are needed
+  add_route('PROPFIND', '/:path')  { 404 }
+  add_route('PROPPATCH', '/:path') { 400 }
+  add_route('MKCOL', '/:path')     { 400 }
+  add_route('COPY', '/:path')      { 400 }
+  add_route('MOVE', '/:path')      { 400 }
+  add_route('LOCK', '/:path')      { 400 }
+  add_route('UNLOCK', '/:path')    { 400 }
 end

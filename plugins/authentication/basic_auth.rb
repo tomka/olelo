@@ -3,11 +3,6 @@ description 'HTTP basic authentication'
 require 'rack/auth/basic'
 
 class Wiki::App
-  def unauthorized
-    response['WWW-Authenticate'] = 'Basic realm="Wiki"'
-    halt 401
-  end
-
   hook(:auto_login) do
     if !session[:user] && params[:auth]
       auth = Rack::Auth::Basic::Request.new(env)
@@ -17,5 +12,12 @@ class Wiki::App
       unauthorized if !user
       session[:user] = @user = user
     end
+  end
+
+  private
+
+  def unauthorized
+    response['WWW-Authenticate'] = 'Basic realm="Wiki"'
+    halt 401
   end
 end
