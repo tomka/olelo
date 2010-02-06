@@ -9,13 +9,13 @@ class Wiki::App
       with_hooks :page_save, resource do
         resource.write(request.body, :file_uploaded.t(:path => resource.path), @user)
       end
-      200
+      :ok
     rescue NotFound => ex
       @logger.error ex
-      404
+      :not_found
     rescue StandardError => ex
       @logger.error ex
-      400
+      :bad_request
     end
   end
 
@@ -27,22 +27,22 @@ class Wiki::App
       with_hooks :page_save, @resource do
         resource.write(request.body, :file_uploaded.t(:path => resource.path), @user)
       end
-      201
+      :created
     rescue NotFound => ex
       @logger.error ex
-      404
+      :not_found
     rescue StandardError => ex
       @logger.error ex
-      400
+      :bad_request
     end
   end
 
   # TODO: Implement more methods if they are needed
-  add_route('PROPFIND', '/:path')  { 404 }
-  add_route('PROPPATCH', '/:path') { 400 }
-  add_route('MKCOL', '/:path')     { 400 }
-  add_route('COPY', '/:path')      { 400 }
-  add_route('MOVE', '/:path')      { 400 }
-  add_route('LOCK', '/:path')      { 400 }
-  add_route('UNLOCK', '/:path')    { 400 }
+  add_route('PROPFIND', '/:path')  { :not_found }
+  add_route('PROPPATCH', '/:path') { :not_implemented }
+  add_route('MKCOL', '/:path')     { :not_implemented }
+  add_route('COPY', '/:path')      { :not_implemented }
+  add_route('MOVE', '/:path')      { :not_implemented }
+  add_route('LOCK', '/:path')      { :not_implemented }
+  add_route('UNLOCK', '/:path')    { :not_implemented }
 end

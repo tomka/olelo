@@ -4,7 +4,7 @@ require 'wiki/utils'
 module Wiki
   module Routing
     class NotFound < NameError
-      def status; 404 end
+      def status; :not_found end
     end
 
     def self.included(base)
@@ -47,7 +47,7 @@ module Wiki
       private
 
       def handle_error(ex)
-        @response.status = ex.try(:status) || 500
+        @response.status = Rack::Utils.status_code(ex.try(:status) || :internal_server_error)
         @response.body   = [ex.message]
         safe_output do
           invoke_hook(ex.class, ex).to_s
@@ -59,8 +59,7 @@ module Wiki
           uri = catch(:redirect) do
             halt(dispatch!)
           end
-          @response.status = 302
-          @response['Location'] = Wiki.uri_escape(uri).gsub('%2F', '/').gsub('%3A', ':')
+          @response.redirect(Wiki.uri_escape(uri).gsub('%2F', '/').gsub('%3A', ':'))
           nil
         end
 
@@ -69,14 +68,15 @@ module Wiki
           @response.body = [result]
         elsif result.respond_to?(:to_ary)
           result = result.to_ary
-          if Fixnum === result.first
+          status = result.first
+          if Fixnum === status || Symbol === status
+            @response.status = Rack::Utils.status_code(status)
             if result.length == 3
-              @response.status, headers, body = result
+              status, headers, body = result
               @response.body = body if body
               @response.headers.merge!(headers) if headers
             elsif result.length == 2
-              @response.status = result.first
-              @response.body   = result.last
+              @response.body = result.last
             else
               raise TypeError, "#{result.inspect} not supported"
             end
@@ -85,8 +85,8 @@ module Wiki
           end
         elsif result.respond_to?(:each)
           @response.body = result
-        elsif (100...599) === result
-          @response.status = result
+        elsif (100...599) === result || Symbol === result
+          @response.status = Rack::Utils.status_code(result)
         end
       end
 

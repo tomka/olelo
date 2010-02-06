@@ -7,7 +7,7 @@ class Wiki::App
     if !session[:user] && params[:auth]
       auth = Rack::Auth::Basic::Request.new(env)
       unauthorized if !auth.provided?
-      halt 400 if !auth.basic?
+      halt :bad_request if !auth.basic?
       user = User.authenticate(auth.credentials[0], auth.credentials[1]) rescue nil
       unauthorized if !user
       session[:user] = @user = user
@@ -18,6 +18,6 @@ class Wiki::App
 
   def unauthorized
     response['WWW-Authenticate'] = 'Basic realm="Wiki"'
-    halt 401
+    halt :unauthorized
   end
 end
