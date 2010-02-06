@@ -53,7 +53,7 @@ module ::Pygments
   end
 
   def self.find_lexer(name)
-    pattern = lexer_mapping.keys.find {|pattern| File.fnmatch(pattern, name)}
+    pattern = lexer_mapping.keys.find {|p| File.fnmatch(p, name)}
     pattern && lexer_mapping[pattern]
   end
 

@@ -132,10 +132,10 @@ module Wiki
 
     def with_hooks(type, *args)
       result = Result.new
-      result.push *invoke_hook(:"before_#{type}", *args)
+      result.push(*invoke_hook(:"before_#{type}", *args))
       result << yield
     ensure
-      result.push *invoke_hook(:"after_#{type}", *args)
+      result.push(*invoke_hook(:"after_#{type}", *args))
     end
 
     def invoke_hook(type, *args)
@@ -152,7 +152,7 @@ module Wiki
       def invoke_hook(source, type, *args)
         result = Result.new
         while type
-          result.push *hooks[type].to_a.map {|method| method.bind(source).call(*args) }
+          result.push(*hooks[type].to_a.map {|method| method.bind(source).call(*args) })
           break if type == Object || hooks[type]
           type = type.superclass rescue nil
         end

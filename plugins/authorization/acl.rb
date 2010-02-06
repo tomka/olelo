@@ -20,11 +20,11 @@ end
 class Wiki::App
   hook(:after_action) do |method, action|
     if @resource && method == :get
-      @resource.access?(:read, @user) || raise(AccessDenied)
+      @resource.access?(:read, user) || raise(AccessDenied)
     end
   end
 
   hook(:before_page_save) do |resource|
-    resource.access?(:write, @user) || raise(AccessDenied)
+    resource.access?(:write, user) || raise(AccessDenied)
   end
 end

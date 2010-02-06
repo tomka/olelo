@@ -55,7 +55,7 @@ module Wiki
         uri = catch(:redirect) do
           halt(dispatch!)
         end
-        @response.redirect(Wiki.uri_escape(uri).gsub('%2F', '/').gsub('%3A', ':'))
+        @response.redirect uri
         nil
       end
 

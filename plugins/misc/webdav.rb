@@ -7,14 +7,14 @@ class Wiki::App
       return super() if request.form_data?
       resource = Page.find!(repository, params[:path])
       with_hooks :page_save, resource do
-        resource.write(request.body, :file_uploaded.t(:path => resource.path), @user)
+        resource.write(request.body, :file_uploaded.t(:path => resource.path), user)
       end
       :ok
     rescue NotFound => ex
-      @logger.error ex
+      logger.error ex
       :not_found
     rescue StandardError => ex
-      @logger.error ex
+      logger.error ex
       :bad_request
     end
   end
@@ -24,15 +24,15 @@ class Wiki::App
       return super() if request.form_data?
       Wiki.forbid(:reserved_path.t => reserved_path?(params[:path]))
       resource = Page.new(repository, params[:path])
-      with_hooks :page_save, @resource do
-        resource.write(request.body, :file_uploaded.t(:path => resource.path), @user)
+      with_hooks :page_save, resource do
+        resource.write(request.body, :file_uploaded.t(:path => resource.path), user)
       end
       :created
     rescue NotFound => ex
-      @logger.error ex
+      logger.error ex
       :not_found
     rescue StandardError => ex
-      @logger.error ex
+      logger.error ex
       :bad_request
     end
   end

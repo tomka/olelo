@@ -5,8 +5,6 @@ require 'socket'
 require 'securerandom'
 
 class Rack::Request
-  remove_method :ip
-
   # FIXME: Rack bug with HTTP_X_FORWARDED_FOR
   def ip
     if addr = @env['HTTP_X_FORWARDED_FOR']
@@ -24,6 +22,22 @@ class Rack::Request
   # No caching for this request?
   def no_cache?
     env['HTTP_PRAGMA'] == 'no-cache' || env['HTTP_CACHE_CONTROL'].to_s.include?('no-cache')
+  end
+end
+
+class Rack::Response
+  # FIXME: Webrick does not allow unicode uri in redirects
+  def redirect(target, status=302)
+    self.status = status
+    self['Location'] = escape_redirect_target(target)
+  end
+
+  private
+
+  def escape_redirect_target(s)
+    s.gsub(/([^a-zA-Z0-9_.\-\/:?&=]+)/) do
+      '%' + $1.unpack('H2' * $1.bytesize).join('%').upcase
+    end
   end
 end
 
@@ -47,6 +61,7 @@ class Rack::CommonLogger
   end
 end
 
+# Rack::Lint injector
 class Rack::Builder
   module UseLint
     def use(middleware, *args, &block)

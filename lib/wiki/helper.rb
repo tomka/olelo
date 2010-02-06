@@ -106,8 +106,8 @@ module Wiki
         html
       else
         result = '<ul class="files">'
-        files.each do |clazz, path, id|
-          result << %{<li class="#{clazz}"><a href="#file-#{id}">#{Wiki.html_escape path}</a></li>}
+        files.each do |clazz, name, id|
+          result << %{<li class="#{clazz}"><a href="#file-#{id}">#{Wiki.html_escape name}</a></li>}
         end
         result << '</ul>' << html
       end
@@ -168,7 +168,7 @@ module Wiki
     def message(level, *messages)
       session[:messages] ||= []
       messages.flatten.each do |msg|
-        @logger.debug msg
+        @logger.debug(msg) if @logger
 	if msg.respond_to? :messages
           session[:messages] += msg.messages.map { |m| [level, m] }
         elsif msg.respond_to? :message

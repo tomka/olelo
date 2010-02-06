@@ -21,7 +21,7 @@ class Wiki::App
     begin
       send_file App.imaginator.result(params[:name])
     rescue Exception => ex
-      @logger.error ex
+      logger.error ex
       redirect '/_/tag/imaginator_failed.png'
     end
   end

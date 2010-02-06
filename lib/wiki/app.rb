@@ -14,7 +14,16 @@ module Wiki
     include Helper
     include Templates
     patterns :path => PATH_PATTERN, :version => VERSION_PATTERN
-    attr_reader :repository
+    attr_reader :repository, :logger, :user
+
+    def user=(user)
+      @user = user
+      if user && !user.anonymous?
+        session[:user] = user
+      else
+        session.delete(:user)
+      end
+    end
 
     def initialize(app = nil, opts = {})
       @app = app
@@ -22,16 +31,16 @@ module Wiki
 
       I18n.load_locale(File.join(File.dirname(__FILE__), 'locale.yml'))
 
-      @logger.debug 'Opening repository'
+      logger.debug 'Opening repository'
       @repository = Gitrb::Repository.new(:path => Config.git.repository, :create => true,
-                                          :bare => true, :logger => @logger)
+                                          :bare => true, :logger => logger)
 
-      Plugin.logger = @logger
+      Plugin.logger = logger
       Plugin.dir = File.join(Config.root, 'plugins')
       Plugin.load('*')
       Plugin.start
 
-      @logger.debug self.class.dump_routes
+      logger.debug self.class.dump_routes
     end
 
     def dup
@@ -41,6 +50,7 @@ module Wiki
       end
     end
 
+    @plugin_assets = nil
     class<< self
       attr_reader :plugin_assets
 
@@ -69,7 +79,7 @@ module Wiki
     # Executed before each request
     hook(:before_routing) do
       start_timer
-      @logger.debug request.env
+      logger.debug request.env
 
       @user = session[:user]
       if !@user
@@ -98,7 +108,7 @@ module Wiki
     hook(Exception) do |ex|
       cache_control :no_cache => true
       @error = ex
-      @logger.error @error
+      logger.error @error
       haml :error
     end
 
@@ -116,7 +126,7 @@ module Wiki
 
     post '/login' do
       begin
-        session[:user] = @user = User.authenticate(params[:user], params[:password])
+        self.user = User.authenticate(params[:user], params[:password])
 	redirect session.delete(:goto) || '/'
       rescue StandardError => error
         message :error, error
@@ -126,8 +136,8 @@ module Wiki
 
     post '/signup' do
       begin
-        session[:user] = @user = User.create(params[:user], params[:password],
-                                             params[:confirm], params[:email])
+        self.user = User.create(params[:user], params[:password],
+                                params[:confirm], params[:email])
         redirect '/'
       rescue StandardError => error
         message :error, error
@@ -136,7 +146,7 @@ module Wiki
     end
 
     get '/logout' do
-      session[:user] = @user = nil
+      self.user = nil
       redirect '/'
     end
 
@@ -145,14 +155,14 @@ module Wiki
     end
 
     post '/profile' do
-      if !@user.anonymous?
+      if !user.anonymous?
         begin
-          @user.modify do |user|
-            user.change_password(params[:oldpassword], params[:password], params[:confirm]) if !params[:password].blank?
-            user.email = params[:email]
+          user.modify do |u|
+            u.change_password(params[:oldpassword], params[:password], params[:confirm]) if !params[:password].blank?
+            u.email = params[:email]
           end
           message :info, :changes_saved.t
-          session[:user] = @user
+          session[:user] = user
         rescue StandardError => error
           message :error, error
         end
@@ -187,7 +197,7 @@ module Wiki
       begin
         @resource = Resource.find!(repository, params[:path])
         with_hooks(:resource_move, @resource, params[:destination]) do
-          @resource.move(params[:destination], @user, params[:create_redirect])
+          @resource.move(params[:destination], user, params[:create_redirect])
         end
         redirect @resource.path.urlpath
       rescue StandardError => error
@@ -197,9 +207,10 @@ module Wiki
     end
 
     delete '/:path' do
+      pass if reserved_path?(params[:path])
       @resource = Resource.find!(repository, params[:path])
       with_hooks(:resource_delete, @resource) do
-        @resource.delete(@user)
+        @resource.delete(user)
       end
       haml :deleted
     end
@@ -218,7 +229,7 @@ module Wiki
 
     get '/:path/edit' do
       @resource = Page.find(repository, params[:path])
-      redirect (params[:path]/'new').urlpath if !@resource
+      redirect((params[:path]/'new').urlpath) if !@resource
       haml :edit
     end
 
@@ -248,7 +259,7 @@ module Wiki
                                     :params => params,
                                     :request => request,
                                     :response => response,
-                                    :logger => @logger)
+                                    :logger => logger)
         if @engine.layout?
           haml :show
         else
@@ -269,7 +280,7 @@ module Wiki
         Wiki.forbid(:version_conflict.t => @resource.commit.sha != params[:version]) # TODO: Implement conflict diffs
         if action?(:upload) && params[:file]
           with_hooks :page_save, @resource do
-            @resource.write(params[:file][:tempfile], :file_uploaded.t(:path => @resource.path), @user)
+            @resource.write(params[:file][:tempfile], :file_uploaded.t(:path => @resource.path), user)
           end
         elsif action?(:edit) && params[:content]
           with_hooks :page_save, @resource do
@@ -280,7 +291,7 @@ module Wiki
                       else
                         params[:content]
                       end
-            @resource.write(content, params[:message], @user)
+            @resource.write(content, params[:message], user)
           end
         else
           redirect((@resource.path/'edit').urlpath)
@@ -299,11 +310,11 @@ module Wiki
         @resource = Page.new(repository, params[:path])
         if action?(:upload) && params[:file]
           with_hooks :page_save, @resource do
-            @resource.write(params[:file][:tempfile], :file_uploaded.t(:path => @resource.path), @user)
+            @resource.write(params[:file][:tempfile], :file_uploaded.t(:path => @resource.path), user)
           end
         elsif action?(:new)
           with_hooks :page_save, @resource do
-            @resource.write(params[:content], params[:message], @user)
+            @resource.write(params[:content], params[:message], user)
           end
         else
           redirect '/new'

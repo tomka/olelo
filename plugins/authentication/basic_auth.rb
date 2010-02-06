@@ -4,13 +4,13 @@ require 'rack/auth/basic'
 
 class Wiki::App
   hook(:auto_login) do
-    if !session[:user] && params[:auth]
+    if params[:auth] && !user
       auth = Rack::Auth::Basic::Request.new(env)
       unauthorized if !auth.provided?
       halt :bad_request if !auth.basic?
       user = User.authenticate(auth.credentials[0], auth.credentials[1]) rescue nil
       unauthorized if !user
-      session[:user] = @user = user
+      self.user = user
     end
   end
 

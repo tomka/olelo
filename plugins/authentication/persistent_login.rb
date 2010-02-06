@@ -36,21 +36,21 @@ class Wiki::App
   end
 
   hook(:auto_login) do
-    if !session[:user]
+    if !user
       token = request.cookies[TOKEN_NAME]
       if token
         user = get_login_token(token)
-        session[:user] = @user = User.find(user) if user
+        self.user = User.find(user) if user
       end
     end
   end
 
   hook(:after_action) do |method, path|
     if path == '/login'
-      if !@user.anonymous?
+      if !user.anonymous?
         token = SecureRandom.hex
         response.set_cookie(TOKEN_NAME, :value => token, :expires => Time.now + TOKEN_LIFETIME)
-        set_login_token(token, @user.name)
+        set_login_token(token, user.name)
       end
     elsif path == '/logout'
       token = request.cookies[TOKEN_NAME]

@@ -16,7 +16,7 @@ class Wiki::App
   end
 
   hook(:before_routing) do
-    if @user.anonymous?
+    if user.anonymous?
       halt if request.path_info == '/_/sidebar'
       if !public_access?
         session[:goto] = request.path_info if request.path_info !~ %r{^/_/}

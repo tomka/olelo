@@ -26,7 +26,7 @@ class TagStore < YamlPage
   end
 
   def get(id)
-    data[id].to_a
+    data[id].to_a.sort
   end
 
   def get_all
@@ -72,7 +72,7 @@ class Wiki::App
     tag = params[:tag].to_s.strip
     if !tag.blank?
       resource = Resource.find!(repository, params[:path])
-      tag_store.add(resource.path, tag, @user)
+      tag_store.add(resource.path, tag, user)
     end
     redirect resource_path(resource, :purge => 1)
   end
@@ -80,7 +80,7 @@ class Wiki::App
   delete '/tags/:tag' do
     tag = params[:tag].to_s.strip
     resource = Resource.find!(repository, params[:path])
-    tag_store.delete(resource.path, tag, @user)
+    tag_store.delete(resource.path, tag, user)
     redirect resource_path(resource, :purge => 1)
   end
 end

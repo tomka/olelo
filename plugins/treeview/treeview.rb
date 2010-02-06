@@ -30,7 +30,7 @@ class Wiki::App
         [child.tree? ? 1 : 0, child.tree? && !child.children.empty? ? 1 : 0, child.tree? ? 'tree' : 'page' + ext, resource_path(child), child.name]
       end.to_json
     rescue => ex
-      @logger.error ex
+      logger.error ex
       '[]'
     end
   end

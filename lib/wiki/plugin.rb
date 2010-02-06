@@ -45,17 +45,17 @@ module Wiki
           begin
             name = file[(dir.size+1)..-4]
             if !@plugins.include?(name) && enabled?(name)
-              plugin = new(name, file, @logger)
+              plugin = new(name, file, logger)
               plugin.context { plugin.instance_eval(File.read(file), file) }
               I18n.load_locale(file.sub(/\.rb$/, '_locale.yml'))
               I18n.load_locale(File.join(File.dirname(file), 'locale.yml'))
               Templates.paths << File.dirname(file)
               @plugins[name] = plugin
-              @logger.debug("Plugin #{name} successfully loaded")
+              logger.debug("Plugin #{name} successfully loaded")
             end
             result
           rescue Exception => ex
-            @logger.error ex
+            logger.error ex
             false
           end
         end

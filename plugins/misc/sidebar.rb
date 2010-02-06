@@ -11,7 +11,7 @@ class Wiki::App
 
         engine.response(:request => request,
                         :response => response,
-                        :logger => @logger,
+                        :logger => logger,
                         :resource => page,
                         :params => params)
       else
