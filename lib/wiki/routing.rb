@@ -23,6 +23,11 @@ module Wiki
       @request  = Rack::Request.new(env)
       @response = Rack::Response.new
       @params = @original_params = @request.params.with_indifferent_access
+
+      # Interpret everything as utf-8
+      encode(@env)
+      encode(@params)
+
       catch(:forward) do
         perform!
         status, header, body = @response.finish
@@ -41,6 +46,24 @@ module Wiki
     def forward; throw :forward end
 
     private
+
+    def encode(x)
+      case x
+      when Hash
+        x.each { |k,v| x[k] = encode(v) }
+      when Array
+        x.each_with_index {|v,i| x[i] = encode(v) }
+      when String
+        if x.encoding != __ENCODING__
+          x = x.dup if x.frozen?
+          x.force_encoding(__ENCODING__)
+        else
+          x
+        end
+      else
+        x
+      end
+    end
 
     def handle_error(ex)
       @response.status = Rack::Utils.status_code(ex.try(:status) || :internal_server_error)

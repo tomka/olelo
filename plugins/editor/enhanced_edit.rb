@@ -4,9 +4,9 @@ description 'Enhanced edit form with preview and diff'
 class Wiki::App
   hook(:before_edit_form_buttons) do
     %{<input type="checkbox" name="minor" id="minor" value="1"#{params[:minor] ? ' checked="checked"' : ''}/>
-<label for="minor">Minor changes</label><br/>
-<button type="submit" name="preview">#{:preview.t}</button>
-<button type="submit" name="changes">#{:changes.t}</button>}
+      <label for="minor">Minor changes</label><br/>
+      <button type="submit" name="preview" accesskey="p">#{:preview.t}</button>
+      <button type="submit" name="changes" accesskey="c">#{:changes.t}</button>}.unindent
   end
 
   hook(:before_edit_form) do

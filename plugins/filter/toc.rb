@@ -55,8 +55,8 @@ class Toc < Filter
     @count[@level-1] += 1
     headline = elem.children.first ? elem.children.first.inner_text : ''
     section = 'section-' + @count[0..@level-1].join('_') + '_' + headline.strip.gsub(/[^\w]/, '_')
-    @toc << %{<li class="toc#{@level-@offset+1}"><a href="##{section}">\
-<span class="counter">#{@count[@level-1]}</span> #{headline}</a>}
+    @toc << %{<li class="toc#{@level-@offset+1}">
+              <a href="##{section}"><span class="counter">#{@count[@level-1]}</span> #{headline}</a>}.unindent
     elem.inner_html = %{<span class="counter" id="#{section}">#{@count[0..@level-1].join('.')}</span> #{elem.inner_html}}
   end
 end

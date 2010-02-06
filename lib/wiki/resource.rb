@@ -241,7 +241,7 @@ module Wiki
         # Try to encode with the standard wiki encoding utf-8
         # If it is not valid utf-8 we fall back to binary
         c.force_encoding(__ENCODING__)
-        c.force_encoding(Encoding::ASCII_8BIT) if !c.valid_encoding?
+        c.force_encoding(Encoding::BINARY) if !c.valid_encoding?
         if pos
           c[[[0, pos.to_i].max, c.size].min, [0, len.to_i].max]
         else

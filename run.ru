@@ -28,7 +28,6 @@ require 'logger'
 require 'rack/patches'
 require 'rack/relative_redirect'
 require 'rack/remove_cache_buster'
-require 'rack/encode'
 require 'wiki/app'
 
 config_file = if ENV['WIKI_CONFIG']
@@ -133,7 +132,6 @@ if Wiki::Config.rack.esi?
 end
 
 use Rack::CommonLogger, logger
-use Rack::Encode
 run Wiki::App.new(nil, :logger => logger)
 
 logger.info "Wiki started in #{((Time.now - start_time) * 1000).to_i}ms (#{Wiki::Config.production? ? 'Production' : 'Development'} mode)"

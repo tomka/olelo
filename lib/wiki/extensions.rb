@@ -170,6 +170,13 @@ class Struct
 end
 
 class String
+  # Unindent string
+  def unindent
+    result = ''
+    each_line {|line| result << line.lstrip }
+    result
+  end
+
   # Pluralize string
   def pluralize(count, plural)
     "#{count.to_i} " + (count.to_s == '1' ? self : plural)

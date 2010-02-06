@@ -33,7 +33,7 @@ class Encoding
 
   class << self
     ALIASES = {'BINARY'=>'ASCII-8BIT', 'ASCII'=>'US-ASCII'}
-    LIST =  [Encoding::UTF_8, Encoding::ASCII_8BIT, Encoding::US_ASCII]
+    LIST =  [Encoding::UTF_8, Encoding::ASCII_8BIT, Encoding::US_ASCII, Encoding::BINARY]
 
     attr_reader :default_internal, :default_external
     alias find new

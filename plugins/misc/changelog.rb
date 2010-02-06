@@ -5,25 +5,35 @@ autoload 'RSS', 'rss/maker'
 class Wiki::App
   hook(:after_head) do
     if @resource && !@resource.new?
-      %{<link rel="alternate" href="#{(@resource.path/'changelog.rss').urlpath}" type="application/rss+xml" title="Changelog"/>}
+      %{<link rel="alternate" href="/changelog.atom" type="application/atom+xml" title="Sitewide Atom Changelog"/>
+        <link rel="alternate" href="#{(@resource.path/'changelog.atom').urlpath}" type="application/atom+xml" title="Atom Changelog"/>
+        <link rel="alternate" href="/changelog.rss" type="application/rss+xml" title="Sitewide RSS Changelog"/>
+        <link rel="alternate" href="#{(@resource.path/'changelog.rss').urlpath}" type="application/rss+xml" title="RSS Changelog"/>}.unindent
     end
   end
 
-  get '/changelog.rss', '/:path/changelog.rss' do
+  get '/changelog.:format', '/:path/changelog.:format', :patterns => { :format => /rss|atom/ }  do
     resource = Resource.find!(repository, params[:path])
     cache_control :etag => resource.latest_commit.sha, :last_modified => resource.latest_commit.date
 
-    content_type 'application/rss+xml', :charset => 'utf-8'
-    content = RSS::Maker.make('2.0') do |rss|
-      rss.channel.title = Config.title
-      rss.channel.link = request.scheme + '://' +  (request.host + ':' + request.port.to_s)
-      rss.channel.description = Config.title + ' Changelog'
-      rss.items.do_sort = true
+    content_type "application/#{params[:format]}+xml", :charset => 'utf-8'
+    prefix = request.scheme + '://' +  request.host + ':' + request.port.to_s + '/'
+
+    content = RSS::Maker.make(params[:format] == 'rss' ? '2.0' : 'atom') do |feed|
+      feed.channel.generator = 'Git-Wiki'
+      feed.channel.title = Config.title
+      feed.channel.link = prefix + resource.path
+      feed.channel.description = Config.title + ' Changelog'
+      feed.channel.id = prefix + resource.path # atom
+      feed.channel.updated = Time.now
+      feed.channel.author = 'Git-Wiki'
+      feed.items.do_sort = true
       resource.history.each do |commit|
-        i = rss.items.new_item
+        i = feed.items.new_item
         i.title = commit.message
-        i.link = request.scheme + '://' + (request.host + ':' + request.port.to_s)/resource.path/commit.sha
+        i.link = prefix + 'changes'/commit.sha
         i.date = commit.date
+        i.dc_creator = commit.author.name
       end
     end
     content.to_s
