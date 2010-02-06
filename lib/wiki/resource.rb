@@ -257,7 +257,7 @@ module Wiki
 
     # Write page and commit
     def write(content, message, author = nil)
-      if !content.respond_to? :path
+      if !content.respond_to? :read
         content.gsub!("\r\n", "\n")
 	return if @object && @object.data == content
       end
@@ -267,7 +267,7 @@ module Wiki
                   :empty_commit_message.t => message.blank?)
 
       repository.transaction(message, author && author.to_git_user) do
-        content = File.read(content.path) if content.respond_to? :path # FIXME
+        content = content.read if content.respond_to? :read # FIXME
         repository.root[@path] = Gitrb::Blob.new(:data => content)
       end
 

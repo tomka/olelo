@@ -138,11 +138,12 @@ module Wiki
         @patterns.merge!(patterns)
       end
 
-      def get(*paths, &block);    add_route(['GET', 'HEAD'], paths, &block) end
-      def put(*paths, &block);    add_route('PUT',    paths, &block) end
-      def post(*paths, &block);   add_route('POST',   paths, &block) end
-      def delete(*paths, &block); add_route('DELETE', paths, &block) end
-      def head(*paths, &block);   add_route('HEAD',   paths, &block) end
+      def get(*paths, &block);      add_route(['GET', 'HEAD'], paths, &block) end
+      def put(*paths, &block);      add_route('PUT',      paths, &block) end
+      def post(*paths, &block);     add_route('POST',     paths, &block) end
+      def delete(*paths, &block);   add_route('DELETE',   paths, &block) end
+      def head(*paths, &block);     add_route('HEAD',     paths, &block) end
+      def propfind(*paths, &block); add_route('PROPFIND', paths, &block) end
 
       def dump_routes
         s = "=== ROUTES ===\n"

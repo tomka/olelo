@@ -264,11 +264,12 @@ module Wiki
     # Edit form sends put requests
     put '/:path' do
       @resource = Page.find!(repository, params[:path])
+
       begin
         Wiki.forbid(:version_conflict.t => @resource.commit.sha != params[:version]) # TODO: Implement conflict diffs
         if action?(:upload) && params[:file]
           with_hooks :page_save, @resource do
-            @resource.write(params[:file][:tempfile], :file_uploaded.t, @user)
+            @resource.write(params[:file][:tempfile], :file_uploaded.t(:path => @resource.path), @user)
           end
         elsif action?(:edit) && params[:content]
           with_hooks :page_save, @resource do
@@ -298,7 +299,7 @@ module Wiki
         @resource = Page.new(repository, params[:path])
         if action?(:upload) && params[:file]
           with_hooks :page_save, @resource do
-            @resource.write(params[:file][:tempfile], "File #{@resource.path} uploaded", @user)
+            @resource.write(params[:file][:tempfile], :file_uploaded.t(:path => @resource.path), @user)
           end
         elsif action?(:new)
           with_hooks :page_save, @resource do

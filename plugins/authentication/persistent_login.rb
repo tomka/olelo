@@ -36,10 +36,12 @@ class Wiki::App
   end
 
   hook(:auto_login) do
-    token = request.cookies[TOKEN_NAME]
-    if token
-      user = get_login_token(token)
-      session[:user] = @user = User.find(user) if user
+    if !session[:user]
+      token = request.cookies[TOKEN_NAME]
+      if token
+        user = get_login_token(token)
+        session[:user] = @user = User.find(user) if user
+      end
     end
   end
 
