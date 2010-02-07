@@ -332,7 +332,7 @@ module Wiki
       path = path.to_s.urlpath
       self.class.routes.any? do |method, routes|
         routes.any? do |name,pattern|
-          name != '/:path' && name != '/' && path =~ /#{pattern.source[0..-2]}/
+          name != '/:path' && (path =~ pattern || path =~ /#{pattern.source[0..-2]}\//)
         end
       end
     end
