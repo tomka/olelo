@@ -6,6 +6,6 @@ Filter.create :html do |content|
     <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><title>#{context.resource.title}</title></head>
-      <body>#{content}</body>
-    </html>}
+      <body><h1>#{context.resource.title}</h1><div>#{content}</div></body>
+    </html>}.unindent
 end

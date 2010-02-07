@@ -23,6 +23,7 @@ A lot of the features are implemented as plugins.
 - Auto-generated table of contents (via nokogiri)
 - Templates via include-tag
 - XML tag soup can be used to extend Wiki syntax
+- View pages as S5 presentation
 
 Installation
 ------------

@@ -6,7 +6,7 @@ Wiki::App.assets 'data/**/*'
 
 class S5 < XSLT
   def params
-    super.merge(:style => context.params[:style] || 'default_gfx')
+    super.merge(:style => context.params[:style] || 'advanced_gfx')
   end
 
   def stylesheet
