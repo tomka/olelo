@@ -38,12 +38,12 @@ Engine.create(:image, :priority => 5, :layout => false, :cacheable => true) do
         cmd << "gs -sDEVICE=jpeg -sOutputFile=- -dFirstPage=#{curpage} -dLastPage=#{curpage} -r150 -dBATCH  -dNOPAUSE -q - | "
       end
       cmd << 'convert -depth 8 -quality 50 '
-      cmd << " -resize '#{geometry}'" if geometry =~ /^(\d+)?x(\d+)?[%!<>]*$/
+      cmd << " -resize '#{geometry}'" if geometry =~ /^(\d+)?x?(\d+)?[%!<>]*$/
       cmd << ' - JPEG:-'
       convert(page, cmd)
     elsif svg?(page) || geometry
       cmd = 'convert'
-      cmd << " -resize '#{geometry}'" if geometry =~ /^(\d+)?x(\d+)?[%!<>]*$/
+      cmd << " -resize '#{geometry}'" if geometry =~ /^(\d+)?x?(\d+)?[%!<>]*$/
       cmd << ' - '
       cmd << (page.mime.to_s == 'image/jpeg' ? 'JPEG:-' : 'PNG:-')
       convert(page, cmd)

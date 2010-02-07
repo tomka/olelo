@@ -12,6 +12,7 @@ module Wiki
   META_PREFIX = '$'
   DIRECTORY_MIME = MimeMagic.new('inode/directory')
   YAML_MIME = MimeMagic.new('text/x-yaml')
+  YAML_REGEX = /\A([\-\w_]+:[^\r\n]*\r?\n([^\r\n]+\r?\n)*(\r?\n|[^\r\n]*\Z))|(---\r?\n([^\r\n]+\r?\n)*(---|\.\.\.)(\r?\n|\Z))/
 
   # Wiki repository resource
   class Resource
@@ -296,8 +297,8 @@ module Wiki
 
     # Get metadata
     def metadata
-      @metadata ||= if meta? || (mime.text? && content =~ /^---\r?\n/)
-                      hash = YAML.load("#{content}\n") rescue nil
+      @metadata ||= if meta? || (mime.text? && content =~ YAML_REGEX)
+                      hash = YAML.load("#{$&}\n") rescue nil
                       Hash === hash ? hash.with_indifferent_access : {}
                     else
                       super
