@@ -65,7 +65,6 @@ Tag.define(:include, :requires => :page, :limit => 10) do |context, attrs, conte
   if !path.begins_with? '/'
     path = context.resource.page? ? context.resource.path/'..'/path : context.resource.path/path
   end
-  puts path
   if page = Page.find(context.resource.repository, path)
     engine = Engine.find(page, attrs['output'])
     raise(RuntimeError, "No engine found for #{path}") if !engine || !engine.layout?
