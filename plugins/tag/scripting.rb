@@ -66,7 +66,7 @@ Tag.define(:include, :requires => :page, :limit => 10) do |context, attrs, conte
     path = context.resource.page? ? context.resource.path/'..'/path : context.resource.path/path
   end
   if page = Page.find(context.resource.repository, path)
-    engine = Engine.find(page, attrs['output'])
+    engine = Engine.find(page, :name => attrs['output'] || attrs['engine'])
     raise(RuntimeError, "No engine found for #{path}") if !engine || !engine.layout?
     engine.output(context.subcontext(:params => attrs, :engine => engine, :resource => page, :private => {:included => true}))
   else

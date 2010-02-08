@@ -254,7 +254,7 @@ module Wiki
         @resource = Resource.find!(repository, params[:path], params[:version])
         cache_control :etag => @resource.latest_commit.sha, :last_modified => @resource.latest_commit.date
 
-        @engine = Engine.find!(@resource, params[:output] || params[:engine])
+        @engine = Engine.find!(@resource, :name => params[:output] || params[:engine])
         @content = @engine.response(:resource => @resource,
                                     :params => params,
                                     :request => request,

@@ -4,8 +4,8 @@ description 'Basic sidebar implementation'
 class Wiki::App
   get '/_/sidebar' do
     if page = Page.find(repository, Config.sidebar_page)
-      engine = Engine.find(page)
-      if engine && engine.layout?
+      engine = Engine.find(page, :layout => true)
+      if engine
         #cache_control :etag => page.commit.sha, :last_modified => page.latest_commit.date
         cache_control :max_age => 60
 

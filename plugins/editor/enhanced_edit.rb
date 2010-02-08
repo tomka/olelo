@@ -24,8 +24,8 @@ class Wiki::App
 
         page.content = params[:content]
         if page.mime.text?
-          engine = Engine.find!(page)
-          @preview = engine.render(:resource => page, :logger => logger) if engine.layout?
+          engine = Engine.find!(page, :layout => true)
+          @preview = engine.render(:resource => page, :logger => logger) if engine
         end
         halt haml(request.put? ? :edit : :new)
       elsif params[:changes]

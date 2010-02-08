@@ -80,19 +80,19 @@ module Wiki
     # Find appropiate engine for resource. An optional
     # name can be given to claim a specific engine.
     # If no engine is found a exception is raised.
-    def self.find!(resource, name = nil)
-      name ||= resource.metadata[:output] || resource.metadata[:engine] if !resource.meta?
-      engines = name ? @engines[name.to_s] : @engines.values.flatten
-      engine = engines.to_a.sort_by {|a| a.priority }.find { |e| e.accepts? resource }
-      raise(RuntimeError, :engine_not_available.t(:engine => name, :page => resource.path, :mime => resource.mime)) if !engine
+    def self.find!(resource, opts = {})
+      opts[:name] ||= resource.metadata[:output] || resource.metadata[:engine] if !resource.meta?
+      engines = opts[:name] ? @engines[opts[:name].to_s] : @engines.values.flatten
+      engine = engines.to_a.sort_by {|a| a.priority }.find { |e| e.accepts?(resource) && (!opts[:layout] || e.layout?) }
+      raise(RuntimeError, :engine_not_available.t(:engine => opts[:name], :page => resource.path, :mime => resource.mime)) if !engine
       engine.dup
     end
 
     # Find appropiate engine for resource. An optional
     # name can be given to claim a specific engine.
     # If no engine is found nil is returned.
-    def self.find(resource, name = nil)
-      find!(resource, name) rescue nil
+    def self.find(resource, opts = {})
+      find!(resource, opts) rescue nil
     end
 
     # Acceptor should return true if resource would be accepted by this engine.
