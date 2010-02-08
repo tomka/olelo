@@ -13,6 +13,6 @@ class ::XSLT < Filter
     doc = Nokogiri::XML(content)
     # FIXME: quote_params not necessary anymore in nokogiri 1.4.2
     params = Nokogiri::XSLT.quote_params(self.params.to_hash)
-    xslt.transform(doc, params).to_s
+    xslt.apply_to(doc, params)
   end
 end

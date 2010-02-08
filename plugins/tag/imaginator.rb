@@ -31,8 +31,8 @@ def define_tag(type)
   Tag.define type do |context, attrs, content|
     raise(RuntimeError, "Limits exceeded") if content.size > 10240
     name = App.imaginator.enqueue(type, content)
-    alt = Wiki.html_escape content.truncate(30).gsub(/\s+/, ' ')
-    %{<img src="/_/tag/imaginator/#{name}" alt="#{alt}"/>}
+    alt = Wiki.html_escape content
+    %{<img src="/_/tag/imaginator/#{name}" alt="#{alt}" class="#{type}"/>}
   end
 end
 
