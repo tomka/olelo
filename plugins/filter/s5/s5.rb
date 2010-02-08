@@ -6,9 +6,8 @@ Wiki::App.assets 'ui/**/*'
 
 class S5 < XSLT
   def params
-    page = context.page
-    s5 = page.metadata['s5'] || {}
-    super.merge(s5).merge(:style => (context.params[:style] || s5['style'] || 'advanced'))
+    metadata = context.page.metadata
+    super.merge(metadata).merge(:theme => (context.params[:theme] || metadata['theme'] || 'advanced'))
   end
 
   def stylesheet

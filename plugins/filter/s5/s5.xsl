@@ -10,7 +10,7 @@
   <xsl:param name="presdate"/>
   <xsl:param name="author"/>
   <xsl:param name="company"/>
-  <xsl:param name="style"/>
+  <xsl:param name="theme"/>
   <xsl:param name="transitions"/>
   <xsl:param name="fadeDuration"/>
   <xsl:param name="incrDuration"/>
@@ -96,11 +96,11 @@
       <xsl:if test="$audioError"><meta name="audioError" content="{$audioError}"/></xsl:if>
       <xsl:if test="$audioDebug"><meta name="audioDebug" content="{$audioDebug}"/></xsl:if>
       <!-- style sheet links -->
-      <link rel="stylesheet" href="/_/filter/s5/ui/{$style}/slides.css" type="text/css" media="projection" id="slideProj" />
-      <link rel="stylesheet" href="/_/filter/s5/ui/{$style}/outline.css" type="text/css" media="screen" id="outlineStyle" />
-      <link rel="stylesheet" href="/_/filter/s5/ui/{$style}/print.css" type="text/css" media="print" id="slidePrint" />
-      <link rel="stylesheet" href="/_/filter/s5/ui/{$style}/opera.css" type="text/css" media="projection" id="operaFix" />
-      <script src="/_/filter/s5/ui/{$style}/slides.js" type="text/javascript"></script>
+      <link rel="stylesheet" href="/_/filter/s5/ui/{$theme}/slides.css" type="text/css" media="projection" id="slideProj" />
+      <link rel="stylesheet" href="/_/filter/s5/ui/{$theme}/outline.css" type="text/css" media="screen" id="outlineStyle" />
+      <link rel="stylesheet" href="/_/filter/s5/ui/{$theme}/print.css" type="text/css" media="print" id="slidePrint" />
+      <link rel="stylesheet" href="/_/filter/s5/ui/{$theme}/opera.css" type="text/css" media="projection" id="operaFix" />
+      <script src="/_/filter/s5/ui/{$theme}/slides.js" type="text/javascript"></script>
     </xsl:copy>
   </xsl:template>
 
