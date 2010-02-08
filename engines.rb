@@ -12,7 +12,7 @@ engine :creole do
   filter :toc
 end
 
-engine 's5-creole' do
+engine :s5 do
   is_cacheable
   has_priority 2
   accepts 'text/x-creole'
@@ -36,7 +36,7 @@ engine :textile do
   filter :toc
 end
 
-engine 's5-textile' do
+engine :s5 do
   is_cacheable
   has_priority 2
   accepts 'text/x-textile'
@@ -60,7 +60,7 @@ engine :markdown do
   filter :toc
 end
 
-engine 's5-markdown' do
+engine :s5 do
   is_cacheable
   has_priority 2
   accepts 'text/x-markdown'
@@ -84,7 +84,7 @@ engine :maruku do
   filter :toc
 end
 
-engine 's5-maruku' do
+engine :s5 do
   is_cacheable
   has_priority 2
   accepts 'text/x-maruku'

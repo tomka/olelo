@@ -1,6 +1,6 @@
 author       'Daniel Mendler'
 description  'Auto-generated table of contents'
-dependencies 'engine/filter', 'filter/tag', 'gem:nokogiri'
+dependencies 'engine/filter', 'filter/tag', 'gem:nokogiri >= 1.4.1'
 autoload 'Nokogiri', 'nokogiri'
 
 class Toc < Filter

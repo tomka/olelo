@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 require 'spec_setup'
-require 'rack/encode'
 
 Rack::MockRequest::DEFAULT_ENV['REMOTE_ADDR'] = 'localhorst'
 
@@ -62,7 +61,6 @@ describe 'wiki' do
     Wiki::Config.update default_config
 
     @app = Rack::Builder.new do
-      use Rack::Encode
       run Wiki::App.new
     end
   end

@@ -6,6 +6,22 @@
 		xmlns:xs="http://www.w3.org/2001/XMLSchema"
 		exclude-result-prefixes="xhtml xsl xs">
 
+  <xsl:param name="title"/>
+  <xsl:param name="presdate"/>
+  <xsl:param name="author"/>
+  <xsl:param name="company"/>
+  <xsl:param name="style"/>
+  <xsl:param name="transitions"/>
+  <xsl:param name="fadeDuration"/>
+  <xsl:param name="incrDuration"/>
+  <xsl:param name="automatic"/>
+  <xsl:param name="playLoop"/>
+  <xsl:param name="playDelay"/>
+  <xsl:param name="audioSupport"/>
+  <xsl:param name="audioVolume"/>
+  <xsl:param name="audioError"/>
+  <xsl:param name="audioDebug"/>
+
   <xsl:output method="html"
 	      version="1.0"
 	      encoding="UTF-8"
@@ -59,20 +75,32 @@
       <xsl:apply-templates select="@*|node()"/>
       <!-- metadata -->
       <meta name="generator" content="S5" />
-      <meta name="version" content="S5 1.1" />
-      <!--
-	  <meta name="presdate" content="20050728" />
-	  <meta name="author" content="Eric A. Meyer" />
-	  <meta name="company" content="Complex Spiral Consulting" />
-      -->
+      <meta name="version" content="S5 1.3" />
+      <xsl:if test="$presdate"><meta name="presdate" content="{$presdate}"/></xsl:if>
+      <xsl:if test="$author"><meta name="author" content="{$author}"/></xsl:if>
+      <xsl:if test="$company"><meta name="company" content="{$company}"/></xsl:if>
       <!-- configuration parameters -->
       <meta name="defaultView" content="slideshow" />
       <meta name="controlVis" content="hidden" />
+      <!-- configuration transition parameters -->
+      <xsl:if test="$transitions"><meta name="tranSitions" content="{$transitions}"/></xsl:if>
+      <xsl:if test="$fadeDuration"><meta name="fadeDuration" content="{$fadeDuration}"/></xsl:if>
+      <xsl:if test="$incrDuration"><meta name="incrDuration" content="{$incrDuration}"/></xsl:if>
+      <!-- configuration autoplay parameters -->
+      <xsl:if test="$automatic"><meta name="autoMatic" content="{$automatic}"/></xsl:if>
+      <xsl:if test="$playLoop"><meta name="playLoop" content="{$playLoop}"/></xsl:if>
+      <xsl:if test="$playDelay"><meta name="playDelay" content="{$playDelay}"/></xsl:if>
+      <!-- configuration audio parameters -->
+      <xsl:if test="$audioSupport"><meta name="audioSupport" content="{$audioSupport}"/></xsl:if>
+      <xsl:if test="$audioVolume"><meta name="audioVolume" content="{$audioVolume}"/></xsl:if>
+      <xsl:if test="$audioError"><meta name="audioError" content="{$audioError}"/></xsl:if>
+      <xsl:if test="$audioDebug"><meta name="audioDebug" content="{$audioDebug}"/></xsl:if>
       <!-- style sheet links -->
-      <link rel="stylesheet" href="/_/filter/s5/data/ui/{$style}/slides.css" type="text/css" media="projection" id="slideProj" />
-      <link rel="stylesheet" href="/_/filter/s5/data/ui/{$style}/outline.css" type="text/css" media="screen" id="outlineStyle" />
-      <link rel="stylesheet" href="/_/filter/s5/data/ui/{$style}/print.css" type="text/css" media="print" id="slidePrint" />
-      <link rel="stylesheet" href="/_/filter/s5/data/ui/{$style}/opera.css" type="text/css" media="projection" id="operaFix" />
+      <link rel="stylesheet" href="/_/filter/s5/ui/{$style}/slides.css" type="text/css" media="projection" id="slideProj" />
+      <link rel="stylesheet" href="/_/filter/s5/ui/{$style}/outline.css" type="text/css" media="screen" id="outlineStyle" />
+      <link rel="stylesheet" href="/_/filter/s5/ui/{$style}/print.css" type="text/css" media="print" id="slidePrint" />
+      <link rel="stylesheet" href="/_/filter/s5/ui/{$style}/opera.css" type="text/css" media="projection" id="operaFix" />
+      <script src="/_/filter/s5/ui/{$style}/slides.js" type="text/javascript"></script>
     </xsl:copy>
   </xsl:template>
 
@@ -83,14 +111,13 @@
 	<div id="currentSlide"><!-- DO NOT EDIT --></div>
 	<div id="header"></div>
 	<div id="footer">
-	  <h1><xsl:value-of select="$date"/></h1>
+	  <h1><xsl:value-of select="$presdate"/></h1>
 	  <h2><xsl:value-of select="$title"/></h2>
 	</div>
       </div>
       <div class="presentation">
 	<xsl:call-template name="slides"/>
       </div>
-      <script src="/_/filter/s5/data/ui/{$style}/slides.js" type="text/javascript"></script>
     </xsl:copy>
   </xsl:template>
 

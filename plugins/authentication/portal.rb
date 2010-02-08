@@ -1,6 +1,6 @@
 author       'Daniel Mendler'
 description  'Proprietary web portal based user storage'
-dependencies 'gem:nokogiri'
+dependencies 'gem:nokogiri >= 1.4.1'
 
 User.define_service(:portal) do
   autoload 'Nokogiri', 'nokogiri'

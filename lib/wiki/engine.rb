@@ -69,13 +69,12 @@ module Wiki
 
     # Register engine instance
     def self.register(engine)
-      raise(ArgumentError, "Engine '#{engine.name}' already exists") if @engines.key?(engine.name)
-      @engines[engine.name] = engine
+      (@engines[engine.name] ||= []) << engine
     end
 
     # Find all accepting engines for a resource
     def self.find_all(resource)
-      @engines.values.find_all { |e| e.accepts? resource }.sort_by {|a| a.name }
+      @engines.values.flatten.find_all { |e| e.accepts? resource }.sort_by {|a| a.name }
     end
 
     # Find appropiate engine for resource. An optional
@@ -83,14 +82,8 @@ module Wiki
     # If no engine is found a exception is raised.
     def self.find!(resource, name = nil)
       name ||= resource.metadata[:output] || resource.metadata[:engine] if !resource.meta?
-
-      engine = if !name
-        @engines.values.sort_by {|a| a.priority }.find { |e| e.accepts? resource }
-      else
-        e = @engines[name.to_s]
-        e if e && e.accepts?(resource)
-      end
-
+      engines = name ? @engines[name.to_s] : @engines.values.flatten
+      engine = engines.to_a.sort_by {|a| a.priority }.find { |e| e.accepts? resource }
       raise(RuntimeError, :engine_not_available.t(:engine => name, :page => resource.path, :mime => resource.mime)) if !engine
       engine.dup
     end
