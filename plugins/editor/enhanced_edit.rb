@@ -22,11 +22,19 @@ class Wiki::App
       if params[:preview]
         message(:error, :empty_commit_message.t) if params[:message].blank? && !params[:minor]
 
-        page.content = params[:content]
         if page.mime.text?
-          engine = Engine.find!(page, :layout => true)
+          if params[:pos]
+            # We assume that engine stays the same if section is edited
+            engine = Engine.find!(page, :layout => true)
+            page.content = params[:content]
+          else
+            # Whole page edited, assign new content before engine search
+            page.content = params[:content]
+            engine = Engine.find!(page, :layout => true)
+          end
           @preview = engine.render(:resource => page, :logger => logger) if engine
         end
+
         halt haml(request.put? ? :edit : :new)
       elsif params[:changes]
         message(:error, :empty_commit_message.t) if params[:message].blank? && !params[:minor]

@@ -16,9 +16,6 @@ disabled_plugins:
   - tagging
   - editor/markitup
   - misc/filter_benchmark
-  - tag/math-ritex
-  - tag/math-itex2mml
-#  - tag/math-imaginator
 rack:
   rewrite_base: ''
   profiling:    false

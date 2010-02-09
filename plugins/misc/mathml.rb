@@ -3,7 +3,7 @@ description 'MathML utilities'
 
 class ::MathML
   def self.replace_entities(s)
-    s.gsub!(/&\w+;/) do |entity|
+    s.gsub(/&\w+;/) do |entity|
       ENTITIES[entity[1..-2]] || entity
     end
   end
