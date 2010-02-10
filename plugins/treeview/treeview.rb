@@ -4,7 +4,7 @@ dependencies 'misc/sidebar'
 
 class Wiki::App
 
-  hook(:after_head) do
+  hook(:after_style) do
     '<link rel="stylesheet" href="/_/treeview/treeview.css" type="text/css"/>'
   end
 

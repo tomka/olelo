@@ -15,7 +15,7 @@ Wiki::Engine::Context.hook(:initialized) do
 end
 
 Tag.define(:value, :requires => :of, :immediate => true) do |context, attrs, content|
-  Wiki.html_escape(Evaluator.eval(attrs['of'], context.params))
+  Evaluator.eval(attrs['of'], context.params)
 end
 
 Tag.define(:calc) do |context, attrs, content|
@@ -68,7 +68,8 @@ Tag.define(:include, :requires => :page, :limit => 10) do |context, attrs, conte
   if page = Page.find(context.resource.repository, path)
     engine = Engine.find(page, :name => attrs['output'] || attrs['engine'])
     raise(RuntimeError, "No engine found for #{path}") if !engine || !engine.layout?
-    engine.output(context.subcontext(:params => attrs, :engine => engine, :resource => page, :private => {:included => true}))
+    engine.output(context.subcontext(:app => context.app, :params => attrs,
+                                     :engine => engine, :resource => page, :private => {:included => true}))
   else
     %{<a href="/#{Wiki.html_escape path}/new">Create #{Wiki.html_escape path}</a>}
   end

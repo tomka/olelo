@@ -42,20 +42,21 @@ module Wiki
         end.flatten
         return false if files.empty?
         files.inject(true) do |result,file|
+          name = file[(dir.size+1)..-4]
           begin
-            name = file[(dir.size+1)..-4]
             if !@plugins.include?(name) && enabled?(name)
               plugin = new(name, file, logger)
+              @plugins[name] = plugin
               plugin.context { plugin.instance_eval(File.read(file), file) }
               I18n.load_locale(file.sub(/\.rb$/, '_locale.yml'))
               I18n.load_locale(File.join(File.dirname(file), 'locale.yml'))
               Templates.paths << File.dirname(file)
-              @plugins[name] = plugin
               logger.debug("Plugin #{name} successfully loaded")
             end
             result
           rescue Exception => ex
             logger.error ex
+            @plugins.delete(name)
             false
           end
         end

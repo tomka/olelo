@@ -6,7 +6,8 @@ autoload 'Nokogiri', 'nokogiri'
 class Toc < Filter
   def filter(content)
     return content if !context.private[:toc]
-    @toc = '<div class="toc">'
+
+    @toc = ''
     @level = 0
     @doc = Nokogiri::HTML::DocumentFragment.parse(content)
     @count = [0]
@@ -18,20 +19,12 @@ class Toc < Filter
 
     while @level > 0
       @level -= 1
-      @toc << '</li></ul>'
+      @toc << '</li></ol>'
     end
-    @toc << '</div>'
 
-    content = @doc.to_xhtml
+    (@doc/'span[class="toc"]').each {|node| node.swap(@toc) }
 
-    content.gsub!(context.private[:toc]) do
-      prefix = $`
-      count = prefix.scan('<p>').size - prefix.scan('</p>').size
-      count > 0 ? '</p>' + @toc + '<p>' : @toc
-    end
-    content.gsub!(%r{<p>\s*</p>}, '')
-
-    content
+    @doc.to_xhtml
   end
 
   private
@@ -40,7 +33,7 @@ class Toc < Filter
     nr = elem.name[1..1].to_i - @offset
     if nr > @level
       while nr > @level
-        @toc << '<ul>'
+        @toc << (@level == 0 ? '<ol class="toc">' : '<ol>')
         @count[@level] = 0
         @level += 1
         @toc << '<li>' if nr > @level
@@ -48,21 +41,16 @@ class Toc < Filter
     else
       while nr < @level
         @level -= 1
-        @toc << '</li></ul>'
+        @toc << '</li></ol>'
       end
       @toc << '</li>'
     end
     @count[@level-1] += 1
     headline = elem.children.first ? elem.children.first.inner_text : ''
     section = 'section-' + @count[0..@level-1].join('_') + '_' + headline.strip.gsub(/[^\w]/, '_')
-    @toc << %{<li class="toc#{@level-@offset+1}">
-              <a href="##{section}"><span class="counter">#{@count[@level-1]}</span> #{headline}</a>}.unindent
-    elem.inner_html = %{<span class="counter" id="#{section}">#{@count[0..@level-1].join('.')}</span> #{elem.inner_html}}
+    @toc << %{<li class="toc#{@level-@offset+1}"><a href="##{section}">#{headline}</a>}.unindent
+    elem.inner_html = %{<span class="number" id="#{section}">#{@count[0..@level-1].join('.')}</span> #{elem.inner_html}}
   end
-end
-
-Tag.define(:toc, :immediate => true) do |context, attrs, content|
-  context.private[:toc] ||= "TOC_#{unique_id}"
 end
 
 Filter.register Toc.new(:toc)

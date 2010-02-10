@@ -1,6 +1,13 @@
 TODO
 ====
 
+- use proper stylesheet header
+- counting equations for block eqs
+- equation labels
+- blahtex
+- rdoc
+- rollback-function or revert function
+
 - Documentation
 - Code comments and rdoc generation
 - More specs

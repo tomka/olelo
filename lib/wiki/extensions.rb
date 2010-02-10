@@ -31,7 +31,7 @@ class Module
     if instance_methods(false).any? {|x| x.to_s == name.to_s }
       method = instance_method(name)
       mod = Module.new do
-        define_method(name) { method.bind(self).call }
+        define_method(name) {|*args| method.bind(self).call(*args) }
       end
       remove_method(name)
       include(mod)

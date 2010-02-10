@@ -161,33 +161,6 @@ module Wiki
     end
   end
 
-  class Semaphore
-    def initialize(counter = 1)
-      @mutex = Mutex.new
-      @cond = ConditionVariable.new
-      @counter = counter
-    end
-
-    def enter
-      @mutex.synchronize do
-        @cond.wait(@mutex) if (@counter -= 1) < 0
-      end
-    end
-
-    def leave
-      @mutex.synchronize do
-        @cond.signal if (@counter += 1) <= 0
-      end
-    end
-
-    def synchronize
-      enter
-      yield
-    ensure
-      leave
-    end
-  end
-
   class<< self
     def forbid(conds)
       failed = conds.keys.select {|key| conds[key] }

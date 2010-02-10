@@ -140,8 +140,8 @@ class Wiki::FilterEngine < Engine
   end
 end
 
-
 setup do
   file = File.join(Config.root, 'engines.rb')
   FilterEngine::Registrator.new(logger).instance_eval(File.read(file), file)
 end
+

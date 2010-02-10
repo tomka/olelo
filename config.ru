@@ -26,6 +26,7 @@ Encoding.default_external = Encoding::UTF_8
 require 'fileutils'
 require 'logger'
 require 'rack/patches'
+require 'rack/degrade_mime_type'
 require 'rack/relative_redirect'
 require 'rack/remove_cache_buster'
 require 'wiki/app'
@@ -58,9 +59,6 @@ default_config = {
     'tagging',
     'filter/orgmode',
     'misc/filter_benchmark',
-    'tag/math-ritex',
-    'tag/math-itex2mml',
-#   'tag/math-imaginator',
   ],
   :rack => {
     :esi          => true,
@@ -83,13 +81,13 @@ Wiki::Config.load(config_file)
 FileUtils.mkpath Wiki::Config.cache, :mode => 0755
 FileUtils.mkpath ::File.dirname(Wiki::Config.log.file), :mode => 0755
 
-logger = ::Logger.new(Wiki::Config.log.file)
+logger = ::Logger.new(Wiki::Config.log.file, 25, 1024000)
 logger.level = ::Logger.const_get(Wiki::Config.log.level)
 
 use_lint if !Wiki::Config.production?
 
 use(Rack::Config) {|env| env['rack.logger'] = logger }
-
+use Rack::DegradeMimeType
 use Rack::RelativeRedirect
 
 if !Wiki::Config.rack.rewrite_base.blank?
@@ -105,7 +103,6 @@ use Rack::Static, :urls => ['/static'], :root => path
 
 use Rack::RemoveCacheBuster # remove jquery cache buster
 use Rack::Session::Pool
-use Rack::MethodOverride
 
 if Wiki::Config.rack.embed?
   gem 'rack-embed', '>= 0'
@@ -131,7 +128,13 @@ if Wiki::Config.rack.esi?
   end
 end
 
-use Rack::CommonLogger, logger
+class LoggerOutput
+  def initialize(logger); @logger = logger; end
+  def write(text); @logger << text; end
+end
+
+use Rack::MethodOverride
+use Rack::CommonLogger, LoggerOutput.new(logger)
 run Wiki::App.new(nil, :logger => logger)
 
 logger.info "Wiki started in #{((Time.now - start_time) * 1000).to_i}ms (#{Wiki::Config.production? ? 'Production' : 'Development'} mode)"

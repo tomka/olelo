@@ -3,16 +3,16 @@ description 'Filter engine benchmark'
 dependencies 'engine/filter'
 
 class Wiki::Filter
-  def subfilter(content)
+  redefine_method :subfilter do |content|
     start = Time.now
-    result = sub ? sub.call(context, content) : content
-    @runtime -= Time.now - start
+    result = super(content)
+    @runtime += start - Time.now
     result
   end
 
   def call!(content)
-    start = Time.now
     @runtime = 0
+    start = Time.now
     content = filter(content)
     @runtime += Time.now - start
     context.engine.runtimes[name] ||= 0
@@ -22,12 +22,11 @@ class Wiki::Filter
 end
 
 class Wiki::FilterEngine
-  alias original_output output
-
-  def output(context)
-    result = original_output(context)
-    context.logger.info "Benchmark of #{name}"
-    @runtimes.each do |name, runtime|
+  redefine_method :output do |context|
+    start = Time.now
+    result = super(context)
+    context.logger.info "Benchmark of #{name} on #{context.resource.path} - #{((Time.now - start) * 1000).to_i}ms"
+    runtimes.each do |name, runtime|
       context.logger.info "#{name}: #{(runtime * 1000).to_i}ms"
     end
     result

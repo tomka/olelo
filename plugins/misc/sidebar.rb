@@ -9,7 +9,8 @@ class Wiki::App
         #cache_control :etag => page.commit.sha, :last_modified => page.latest_commit.date
         cache_control :max_age => 60
 
-        engine.response(:request => request,
+        engine.response(:app => self,
+	                :request => request,
                         :response => response,
                         :logger => logger,
                         :resource => page,

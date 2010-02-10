@@ -16,7 +16,7 @@ class Renderer
 
     def get_first(renderers)
       renderers.each do |r|
-        r = get_renderer(r)
+        r = get(r)
         return r if r
       end
     end
@@ -40,42 +40,39 @@ end
 
 class ImaginatorRenderer < Renderer
   def load
-    Plugin.load('misc/imaginator')
+    Plugin.load('utils/imaginator')
   end
 
-  def render(code)
-    name = Plugin['misc/imaginator'].imaginator.enqueue('math', code)
-    %{<img src="/_/misc/imaginator/#{name}" alt="#{Wiki.html_escape code}"/>}
+  def render(code, display)
+    name = Plugin['utils/imaginator'].imaginator.enqueue('math', code)
+    %{<img src="/_/utils/imaginator/#{name}" alt="#{Wiki.html_escape code}" class="math #{display}"/>}
   end
 end
 
 class RitexRenderer < Renderer
   def load
-    return false if !Plugin.load('misc/mathml')
     gem 'ritex', '>= 0'
     require 'ritex'
     true
   end
 
-  def render(code)
-    MathML.replace_entities Ritex::Parser.new.parse(code)
+  def render(code, display)
+    Ritex::Parser.new.parse(code)
   end
 end
 
 class ItexRenderer < Renderer
   def load
-    return false if !Plugin.load('misc/mathml')
     require 'open3'
     `itex2MML --version`
   end
 
-  def render(code)
-    output = Open3.popen3('itex2MML --inline') do |stdin, stdout, stderr|
+  def render(code, display)
+    Open3.popen3("itex2MML --#{display == 'block' ? 'display' : 'inline'}") do |stdin, stdout, stderr|
       stdin << code.strip
       stdin.close
       stdout.read
     end
-    MathML.replace_entities(output)
   end
 end
 
@@ -90,6 +87,5 @@ Renderer.registry = {
 Tag.define :math do |context, attrs, code|
   raise(RuntimeError, "Limits exceeded") if code.size > 10240
   mode = attrs['mode'] || context.page.metadata['math'] || 'image'
-  type = attrs['type'] == 'block' ? 'block' : 'inline'
-  %{<div class="math #{attrs['type']}">#{Renderer.choose(mode).render(code)}</div>}
+  Renderer.choose(mode).render(code, attrs['display'] == 'block' ? 'block' : 'inline')
 end

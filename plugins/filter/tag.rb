@@ -163,6 +163,7 @@ class Wiki::Tag < Filter
         text = begin
                  tag.method.bind(@filter).call(@context, @attrs, text).to_s
                rescue Exception => ex
+                 @context.logger.error ex
                  "#{@name}: #{Wiki.html_escape ex.message}"
                end
         @output << (tag.immediate ? text : @filter.add_protected_element(text))

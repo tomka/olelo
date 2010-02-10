@@ -1,3 +1,6 @@
 [submodule "deps/gitrb"]
 	path = deps/gitrb
 	url = git://github.com/minad/gitrb.git
+[submodule "deps/s5-suckless"]
+	path = deps/s5-suckless
+	url = git://github.com/minad/s5-suckless.git

@@ -1,7 +1,7 @@
 author       'Daniel Mendler'
 description  'Syntax highlighting tag'
-dependencies 'filter/tag', 'misc/pygments'
+dependencies 'filter/tag', 'utils/pygments'
 
-Tag.define(:code, :requires => :language) do |context, attrs, content|
-  Pygments.pygmentize(content, :format => attrs['language'])
+Tag.define(:code, :requires => :lang) do |context, attrs, content|
+  context.app.pygmentize(content, attrs['lang'])
 end

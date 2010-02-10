@@ -1,8 +1,10 @@
-!!! 1.1
+:plain
+  <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1 plus MathML 2.0 plus SVG 1.1//EN" "http://www.w3.org/2002/04/xhtml-math-svg/xhtml-math-svg-flat.dtd" >
 %html{:xmlns=>"http://www.w3.org/1999/xhtml", 'xmlns:esi' => 'http://www.edge-delivery.org/esi/1.0'}
   %head
     %title= Wiki::Config.title + ' - ' + include_block(:title)
     = theme_links
+    = include_block :style
     %link{:rel => 'shortcut icon', :href => '/static/images/favicon.png', :type => 'image/png'}
     = include_block :head
   - timemachine = @resource && !@resource.current?

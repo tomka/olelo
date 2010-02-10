@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 require 'wiki/helper'
-require 'wiki/cache'
 
 module Wiki
   # An Engine renders resources
@@ -14,7 +13,7 @@ module Wiki
     # variables used by the engines.
     # It is possible for a engine to run sub-engines. For this
     # purpose you create a subcontext which inherits the variables.
-    class Context < Struct.new(:resource, :engine, :logger, :request,
+    class Context < Struct.new(:app, :resource, :engine, :logger, :request,
                                :response, :parent, :private, :params)
       include Hooks
 
@@ -35,10 +34,6 @@ module Wiki
         attrs[:private] = private.merge(attrs[:private] || {})
         attrs[:parent] = self
         Context.new(attrs)
-      end
-
-      def id
-        Wiki.md5(engine.name + resource.id + params.to_a.sort.inspect)
       end
     end
 
@@ -115,10 +110,7 @@ module Wiki
 
     # Render resource with caching. It should not be overwritten.
     def render(opts)
-      context = Context.new(opts.merge(:engine => self))
-      Cache.cache('engine', context.id,
-                  :disable => context.resource.modified? || !cacheable?,
-                  :update => context.request && context.request.no_cache?) { output(context) }
+      output(Context.new(opts.merge(:engine => self)))
     end
   end
 end

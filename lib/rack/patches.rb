@@ -49,18 +49,6 @@ class Rack::Session::Abstract::ID
   end
 end
 
-class Rack::CommonLogger
-  def initialize(app, logger=nil)
-    @app = app
-    @logger = logger
-    if @logger && !@logger.respond_to?(:write)
-      # FIXME: Rack:CommonLogger needs write method
-      # ruby Logger class does not provide one
-      class << @logger; alias :write :<<; end
-    end
-  end
-end
-
 # Rack::Lint injector
 class Rack::Builder
   module UseLint

@@ -2,10 +2,9 @@ author       'Daniel Mendler'
 description  'Gallery engine'
 
 class Wiki::App
-
   assets 'gallery.css', 'gallery.js'
 
-  hook(:after_head) do
+  hook(:after_style) do
     if @engine && @engine.name == 'gallery'
       '<link rel="stylesheet" href="/_/engine/gallery/gallery.css" type="text/css"/>'
     end

@@ -87,7 +87,7 @@ module Wiki
         @user ||= User.anonymous(request)
       end
 
-      content_type('text/html', :charset => 'utf-8')
+      content_type 'application/xhtml+xml', :charset => 'utf-8'
     end
 
     # Handle 404s
@@ -255,7 +255,8 @@ module Wiki
         cache_control :etag => @resource.latest_commit.sha, :last_modified => @resource.latest_commit.date
 
         @engine = Engine.find!(@resource, :name => params[:output] || params[:engine])
-        @content = @engine.response(:resource => @resource,
+        @content = @engine.response(:app => self,
+	                            :resource => @resource,
                                     :params => params,
                                     :request => request,
                                     :response => response,

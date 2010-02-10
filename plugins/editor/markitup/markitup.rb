@@ -2,8 +2,7 @@ author       'Daniel Mendler'
 description  'Markitup Editor'
 
 class Wiki::App
-
-  hook(:after_head) do
+  hook(:after_style) do
     path = request.path_info
     if path.ends_with?('edit') || path.ends_with?('new') || path.ends_with?('upload')
       '<link rel="stylesheet" href="/_/markitup/src/skins/markitup/style.css" type="text/css"/>' +
