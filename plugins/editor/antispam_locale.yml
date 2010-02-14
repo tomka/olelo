@@ -1,0 +1,5 @@
+en:
+  enter_captcha: 'Please, enter the captcha:'
+  captcha_invalid: Invalid captcha.
+  captcha_valid: Valid captcha.
+  spam_level: 'Spam level #{level}'
