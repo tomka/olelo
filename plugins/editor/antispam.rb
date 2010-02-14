@@ -16,7 +16,7 @@ class SpamEvaluator
   def evaluate
     level = 0
     SpamEvaluator.instance_methods.select {|m| m.to_s.begins_with?('eval_') }.each do |m|
-      level += send(m)
+      level += send(m) || 0
     end
     level.to_i
   end
@@ -27,8 +27,6 @@ class SpamEvaluator
       size = 0
       data.scan(/((http|ftp):\/\/\S+?)(?=([,.?!:;"'\)])?(\s|$))/) { size += $1.size }
       ((size.to_f / data.size) * 300).to_i
-    else
-      0
     end
   end
 

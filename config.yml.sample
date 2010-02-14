@@ -14,7 +14,7 @@ disabled_plugins:
   - authorization/private_wiki
   - filter/orgmode
   - tagging
-  - editor/markitup
+  - editor/antispam
   - misc/filter_benchmark
 rack:
   rewrite_base: ''

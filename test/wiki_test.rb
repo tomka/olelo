@@ -38,10 +38,9 @@ describe 'wiki' do
       :main_page    => 'Home',
       :disabled_plugins => [
         'authorization/private_wiki',
-        'tagging',
         'filter/orgmode',
+	'editor/antispam'
       ],
-      :disabled_plugins => ['authorization/private_wiki'],
       :production => false,
       :rack => {
         :rewrite_base => nil,
@@ -51,14 +50,16 @@ describe 'wiki' do
         :repository => File.join(@test_path, 'repository'),
       },
       :log => {
-        :level => 'INFO',
-        :file  => File.join(@test_path, 'log'),
+        :level => 'DEBUG',
+        :file  => File.expand_path(File.join(@test_path, '..', '..', 'test.log')),
       },
     }
     Wiki::Config.update default_config
 
     @app = Rack::Builder.new do
-      run Wiki::App.new
+      logger = ::Logger.new(Wiki::Config.log.file)
+      logger.level = ::Logger.const_get(Wiki::Config.log.level)
+      run Wiki::App.new(nil, :logger => logger)
     end
   end
 
@@ -137,6 +138,8 @@ describe 'wiki' do
       'message' => '测试'
     }
     post(Wiki.uri_escape('/子供を公園/中文'), data)
+    should.be.redirect
+
     Wiki.uri_unescape(location).should.equal '/子供を公園/中文'
 
     get Wiki.uri_escape('/子供を公園/中文')

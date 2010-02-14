@@ -58,6 +58,7 @@ default_config = {
     'authorization/private_wiki',
     'tagging',
     'filter/orgmode',
+    'editor/antispam',
     'misc/filter_benchmark',
   ],
   :rack => {
