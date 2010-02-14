@@ -76,16 +76,66 @@ class ItexRenderer < Renderer
   end
 end
 
+class BlahtexMLRenderer < Renderer
+  def load
+    require 'open3'
+    `blahtex`
+  end
+
+  def render(code, display)
+    content = Open3.popen3('blahtex --mathml') do |stdin, stdout, stderr|
+      stdin << code.strip
+      stdin.close
+      stdout.read
+    end
+    content =~ %r{<mathml>(.*)</mathml>}m
+    '<mathml xmlns="http://www.w3.org/1998/Math/MathML" display="' + display + '">' + $1.to_s + '</mathml>'
+  end
+end
+
+class BlahtexImageRenderer < Renderer
+  def load
+    require 'open3'
+    `blahtex`
+  end
+
+  def directory
+    @directory ||= begin
+                     dir = File.join(Config.cache, 'blahtex')
+                     FileUtils.mkdir_p dir, :mode => 0755
+                     dir
+                   end
+  end
+
+  def render(code, display)
+    content = Open3.popen3("blahtex --png --png-directory '#{directory}'") do |stdin, stdout, stderr|
+      stdin << code.strip
+      stdin.close
+      stdout.read
+    end
+    content =~ %r{<md5>(.*)</md5>}m
+    %{<img src="/_/tag/math/blahtex/#{$1}.png" alt="#{Wiki.html_escape code}" class="math #{display}"/>}
+  end
+end
+
 Renderer.registry = {
-  'imaginator' => ImaginatorRenderer.new,
-  'itex'       => ItexRenderer.new,
-  'ritex'      => RitexRenderer.new,
-  'image'      => 'imaginator',
-  'mathml'     => %w(itex ritex),
+  'imaginator'   => ImaginatorRenderer.new,
+  'itex'         => ItexRenderer.new,
+  'ritex'        => RitexRenderer.new,
+  'blahtexml'    => BlahtexMLRenderer.new,
+  'blahteximage' => BlahtexImageRenderer.new,
+  'image'        => %w(imaginator blahteximage),
+  'mathml'       => %w(blahtexml itex ritex),
 }
 
 Tag.define :math do |context, attrs, code|
   raise(RuntimeError, "Limits exceeded") if code.size > 10240
   mode = attrs['mode'] || context.page.metadata['math'] || 'image'
   Renderer.choose(mode).render(code, attrs['display'] == 'block' ? 'block' : 'inline')
+end
+
+class Wiki::App
+  get '/_/tag/math/blahtex/:name', :patterns => {:name => '[\w\.]+'} do
+    send_file File.join(Renderer.get('blahteximage').directory, params[:name])
+  end
 end
