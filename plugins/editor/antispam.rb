@@ -102,7 +102,7 @@ class Wiki::App
     end
   end
 
-  hook(:before_page_save) do |page|
+  hook(:before_page_save, -2) do |page|
     if (action?(:new) || action?(:edit)) && !captcha_valid?
       level = SpamEvaluator.new(user, params, @resource).evaluate
       message(:info, :spam_level.t(:level => level)) if !Config.production?

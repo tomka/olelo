@@ -24,7 +24,7 @@ class Wiki::App
     end
   end
 
-  hook(:before_page_save) do |resource|
+  hook(:before_page_save, -1) do |resource|
     resource.access?(:write, user) || raise(AccessDenied)
   end
 end
