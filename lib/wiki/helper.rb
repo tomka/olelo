@@ -93,7 +93,7 @@ module Wiki
             case ch
             when '@'
               html << '</span>' if last
-              html << '</tr></td><tr><td>'
+              html << '</td></tr><tr><td>'
               last = nil
             when /-|\+| /
               html << '</span>' if last && last != ch

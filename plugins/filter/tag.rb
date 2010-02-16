@@ -128,9 +128,12 @@ class Wiki::Tag < Filter
         when /\A<\/([:\-\w]+)>/
           @content = $'
           text << $`
-          stack.pop while !stack.empty? && stack.last != $1
-          stack.pop if !stack.empty?
-          text << $& if !stack.empty?
+          if i = stack.rindex($1.downcase)
+            stack = stack[0...i]
+            text << $& if !stack.empty?
+          else
+            text << $&
+          end
         else
           i = @content.index('<')
           if i == 0
