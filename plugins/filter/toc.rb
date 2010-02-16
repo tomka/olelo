@@ -5,7 +5,7 @@ autoload 'Nokogiri', 'nokogiri'
 
 class Toc < Filter
   def filter(content)
-    return content if !context.private[:toc]
+    return content if !context.page.metadata[:toc]
 
     @toc = ''
     @level = 0
@@ -22,9 +22,7 @@ class Toc < Filter
       @toc << '</li></ol>'
     end
 
-    (@doc/'span[class="toc"]').each {|node| node.swap(@toc) }
-
-    @doc.to_xhtml
+    @toc + @doc.to_xhtml
   end
 
   private
