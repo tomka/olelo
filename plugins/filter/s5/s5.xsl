@@ -6,6 +6,7 @@
 		xmlns:xs="http://www.w3.org/2001/XMLSchema"
 		exclude-result-prefixes="xhtml xsl xs">
 
+  <xsl:param name="s5_path"/>
   <xsl:param name="title"/>
   <xsl:param name="presdate"/>
   <xsl:param name="author"/>
@@ -73,11 +74,25 @@
       <xsl:if test="$author"><meta name="author" content="{$author}"/></xsl:if>
       <xsl:if test="$company"><meta name="company" content="{$company}"/></xsl:if>
       <!-- configuration parameters -->
-      <xsl:if test="$transitions"><meta name="tranSitions" content="{$transitions}"/></xsl:if>
+      <xsl:if test="$transitions"><meta name="transitions" content="{$transitions}"/></xsl:if>
       <xsl:if test="$fadeDuration"><meta name="fadeDuration" content="{$fadeDuration}"/></xsl:if>
       <xsl:if test="$incrDuration"><meta name="incrDuration" content="{$incrDuration}"/></xsl:if>
       <meta name="themes" content="{$themes}"/>
+      <xsl:value-of select="concat('&lt;script src=&quot;', $s5_path, 'ui/common/jquery.js&quot; type=&quot;text/javascript&quot;&gt;&lt;/script&gt;')"
+		    disable-output-escaping="yes"/>
+      <xsl:value-of select="concat('&lt;script src=&quot;', $s5_path, 'ui/common/s5.js&quot; type=&quot;text/javascript&quot;&gt;&lt;/script&gt;')"
+		    disable-output-escaping="yes"/>
     </xsl:copy>
+  </xsl:template>
+
+  <xsl:template name="first-slide">
+    <xsl:for-each select="child::node()[name() != 'h1' and name() != 'h2' and name() != 'h3' and name() != 'h4' and name() != 'h5' and name() != 'h6' and
+			  not(preceding::xhtml:h1|preceding::xhtml:h2|preceding::xhtml:h3|preceding::xhtml:h4|preceding::xhtml:h5|preceding::xhtml:h6)]">
+      <xsl:copy>
+	<xsl:copy-of select="@*"/>
+	<xsl:call-template name="first-slide"/>
+      </xsl:copy>
+    </xsl:for-each>
   </xsl:template>
 
   <xsl:template match="xhtml:body">
@@ -93,15 +108,11 @@
 	<div class="slide">
 	  <h1><xsl:value-of select="$title"/></h1>
 	  <xsl:if test="$author!=''"><h2><xsl:value-of select="$author"/></h2></xsl:if>
-	  <xsl:apply-templates select="*[preceding::xhtml:h1|preceding::xhtml:h2|preceding::xhtml:h3|preceding::xhtml:h4|preceding::xhtml:h5|preceding::xhtml:h6 = null]"/>
+	  <xsl:call-template name="first-slide"/>
 	</div>
 	<xsl:call-template name="slides"/>
       </div>
     </xsl:copy>
-    <xsl:value-of select="'&lt;script src=&quot;/_/filter/s5/ui/common/jquery.js&quot; type=&quot;text/javascript&quot;&gt;&lt;/script&gt;'"
-		  disable-output-escaping="yes"/>
-    <xsl:value-of select="'&lt;script src=&quot;/_/filter/s5/ui/common/s5.js&quot; type=&quot;text/javascript&quot;&gt;&lt;/script&gt;'"
-		  disable-output-escaping="yes"/>
   </xsl:template>
 
 </xsl:stylesheet>

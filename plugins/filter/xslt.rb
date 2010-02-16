@@ -11,7 +11,7 @@ class Wiki::XSLT < Filter
   end
 
   def params
-    { :title => context.resource.title, :path => context.resource.path }.with_indifferent_access
+    context.resource.metadata.merge(:title => context.resource.title, :path => context.resource.path)
   end
 
   def filter(content)

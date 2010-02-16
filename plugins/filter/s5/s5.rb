@@ -2,7 +2,7 @@ author       'Daniel Mendler'
 description  'S5 presentation filter'
 dependencies 'filter/xslt'
 
-Wiki::App.assets 'ui/**/*'
+Wiki::App.assets 'ui/**/*', 'ui/default/*'
 
 class S5 < XSLT
   def initialize
@@ -10,11 +10,10 @@ class S5 < XSLT
   end
 
   def params
-    metadata = context.page.metadata
     themes = Dir.glob(File.join(File.dirname(__FILE__), 'ui', '*')).map {|name| File.basename(name) }
     themes.delete('common')
     themes.delete('default')
-    super.merge(metadata).merge(:themes => themes.join(' '))
+    super.merge(:themes => 'default ' + themes.join(' '), :s5_path => '/_/filter/s5/')
   end
 end
 
