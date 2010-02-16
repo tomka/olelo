@@ -25,22 +25,6 @@ class Rack::Request
   end
 end
 
-class Rack::Response
-  # FIXME: Webrick does not allow unicode uri in redirects
-  def redirect(target, status=302)
-    self.status = status
-    self['Location'] = escape_redirect_target(target)
-  end
-
-  private
-
-  def escape_redirect_target(s)
-    s.gsub(/([^a-zA-Z0-9_.\-\/:?&=]+)/) do
-      '%' + $1.unpack('H2' * $1.bytesize).join('%').upcase
-    end
-  end
-end
-
 class Rack::Session::Abstract::ID
   # FIXME: Secure random
   # http://rack.lighthouseapp.com/projects/22435-rack/tickets/85-securerandom-for-secure-key-generation
