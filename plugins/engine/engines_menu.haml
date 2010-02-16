@@ -1,0 +1,8 @@
+%ul
+  - engines = Wiki::Engine.find_all(@resource)
+  - engines.select {|engine| engine.layout? }.each do |engine|
+    %li{:class => @engine && engine.name == @engine.name ? 'selected': nil}
+      %a{:href => resource_path(@resource, :output => engine.name)}= engine.name
+  - engines.select {|engine| !engine.layout? }.each do |engine|
+    %li.download{:class => @engine && engine.name == @engine.name ? 'selected': nil}
+      %a{:href => resource_path(@resource, :output => engine.name)}= engine.name

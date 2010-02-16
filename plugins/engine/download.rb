@@ -1,5 +1,6 @@
 author      'Daniel Mendler'
 description 'Download engine'
+dependencies 'engine/engine'
 
 Engine.create(:download, :priority => 999, :layout => false) do
   def accepts?(resource); true; end

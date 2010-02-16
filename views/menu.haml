@@ -21,15 +21,8 @@
           %a.action-current{:href=> @resource.path.urlpath, :accesskey=>'c'}= :current.t
     - if !@resource.new?
       %li
-        %a.action-view{:href=> @resource.path.urlpath, :accesskey=>'v'}= :view.t
-        %ul
-          - engines = Wiki::Engine.find_all(@resource)
-          - engines.select {|engine| engine.layout? }.each do |engine|
-            %li{:class => @engine && engine.name == @engine.name ? 'selected': nil}
-              %a{:href => resource_path(@resource, :output => engine.name)}= engine.name
-          - engines.select {|engine| !engine.layout? }.each do |engine|
-            %li.download{:class => @engine && engine.name == @engine.name ? 'selected': nil}
-              %a{:href => resource_path(@resource, :output => engine.name)}= engine.name
+        = render_block(:view_menu) do
+          %a.action-view{:href=> @resource.path.urlpath, :accesskey=>'v'}= :view.t
     %li
       - if @resource.discussion?
         %a.action-page{:href=> (@resource.path/'..'/@resource.name[Wiki::DISCUSSION_PREFIX.length..-1]).urlpath, :accesskey=>'p' }= :page.t

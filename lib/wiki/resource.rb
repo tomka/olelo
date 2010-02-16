@@ -12,7 +12,7 @@ module Wiki
   META_PREFIX = '$'
   DIRECTORY_MIME = MimeMagic.new('inode/directory')
   YAML_MIME = MimeMagic.new('text/x-yaml')
-  YAML_REGEX = /(\A[\-\w_]+:[^\r\n]*\r?\n([^\r\n]+\r?\n)*(\r?\n|[^\r\n]*\Z))|(\A---\r?\n([^\r\n]+\r?\n)*(---|\.\.\.)(\r?\n|\Z))/
+  YAML_REGEX = /(\A[\-\w_]+:.*?(\r?\n\r?\n|(\r?\n)?\Z))|(\A---\r?\n.*?(\r?\n---|\r?\n\.\.\.|\r?\n\r?\n|(\r?\n)?\Z))/m
 
   # Wiki repository resource
   class Resource
@@ -75,7 +75,7 @@ module Wiki
 
       repository.transaction(:resource_moved_to.t(:path => @path, :destination => destination), author && author.to_git_user) do
         repository.root.move(@path, destination)
-        repository.root[@path] = Gitrb::Blob.new(:data => %{<redirect path="#{destination.urlpath}"/>}) if create_redirect
+        repository.root[@path] = Gitrb::Blob.new(:data => "redirect: #{destination.urlpath}") if create_redirect
       end
       @path = destination
       reload
@@ -289,7 +289,7 @@ module Wiki
       @mime ||= if meta?
                   YAML_MIME
                 else
-                  MimeMagic.by_extension(extension) ||
+                  mime = MimeMagic.by_extension(extension) ||
                     (Config.mime.magic && MimeMagic.by_magic(content)) ||
                     MimeMagic.new(Config.mime.default)
                 end
@@ -297,7 +297,7 @@ module Wiki
 
     # Get metadata
     def metadata
-      @metadata ||= if meta? || (mime.text? && content =~ YAML_REGEX)
+      @metadata ||= if meta? || (content =~ YAML_REGEX)
                       hash = YAML.load("#{$&}\n") rescue nil
                       Hash === hash ? hash.with_indifferent_access : {}
                     else

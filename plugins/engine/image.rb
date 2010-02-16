@@ -1,6 +1,6 @@
 author      'Daniel Mendler'
 description 'Image rendering engine'
-dependencies 'utils/semaphore'
+dependencies 'engine/engine', 'utils/semaphore'
 
 cpu_count = `cat /proc/cpuinfo | grep processor | wc -l`.to_i rescue 1
 @semaphore = Semaphore.new(cpu_count)

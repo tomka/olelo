@@ -43,22 +43,25 @@ module Wiki
         return false if files.empty?
         files.inject(true) do |result,file|
           name = file[(dir.size+1)..-4]
-          begin
-            if !@plugins.include?(name) && enabled?(name)
-              plugin = new(name, file, logger)
+          if @plugins.include?(name)
+	    result
+	  elsif !enabled?(name)
+	    false
+	  else
+            begin
+	      plugin = new(name, file, logger)
               @plugins[name] = plugin
               plugin.context { plugin.instance_eval(File.read(file), file) }
               I18n.load_locale(file.sub(/\.rb$/, '_locale.yml'))
               I18n.load_locale(File.join(File.dirname(file), 'locale.yml'))
               Templates.paths << File.dirname(file)
               logger.debug("Plugin #{name} successfully loaded")
+            rescue Exception => ex
+              logger.error ex
+              @plugins.delete(name)
+              false
             end
-            result
-          rescue Exception => ex
-            logger.error ex
-            @plugins.delete(name)
-            false
-          end
+	  end
         end
       end
 
@@ -110,13 +113,6 @@ module Wiki
       Plugin.logger.error ex
       Plugin.logger.error("Plugin #{name} failed to start")
       false
-    end
-
-    # Load specified plugins.
-    # This method can be used to specify optional
-    # dependencies which should be loaded before this plugin.
-    def load(*list)
-      Plugin.load(*list)
     end
 
     # Load specified plugins and fail if

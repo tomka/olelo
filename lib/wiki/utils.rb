@@ -145,14 +145,14 @@ module Wiki
     module ClassMethods
       lazy_reader :hooks, {}
 
-      def hook(type, &block)
-        (hooks[type] ||= []) << block.to_method(self)
+      def hook(type, priority = 0, &block)
+        (hooks[type] ||= []) << [-priority, block.to_method(self)]
       end
 
       def invoke_hook(source, type, *args)
         result = Result.new
         while type
-          result.push(*hooks[type].to_a.map {|method| method.bind(source).call(*args) })
+          result.push(*hooks[type].to_a.sort_by(&:first).map {|priority, method| method.bind(source).call(*args) })
           break if type == Object || hooks[type]
           type = type.superclass rescue nil
         end

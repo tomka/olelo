@@ -184,9 +184,13 @@ module Wiki
     end
 
     def edit_content(page)
-      return params[:content] if params[:content]
-      return :no_text_file.t(:page => page.path, :mime => page.mime) if !page.mime.text?
-      page.content(params[:pos], params[:len])
+      if params[:content]
+        params[:content]
+      elsif page.content.encoding != __ENCODING__ || page.content =~ /[^[:print:]]/
+        :no_text_file.t(:page => page.path, :mime => page.mime)
+      else
+        page.content(params[:pos], params[:len])
+      end
     end
   end
 

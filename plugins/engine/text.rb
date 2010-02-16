@@ -1,5 +1,6 @@
 author      'Daniel Mendler'
 description 'Text engine'
+dependencies 'engine/engine'
 
 # Text engine. Renders text content.
 Engine.create(:text, :priority => 999, :layout => false) do

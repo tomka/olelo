@@ -1,5 +1,6 @@
 author      'Daniel Mendler'
 description 'Enhanced edit form with preview and diff'
+dependencies 'engine/engine'
 
 class Wiki::App
   hook(:before_edit_form_buttons) do

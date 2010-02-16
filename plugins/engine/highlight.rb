@@ -1,6 +1,6 @@
 author       'Daniel Mendler'
 description  'Source code highlighting engine'
-dependencies 'utils/pygments'
+dependencies 'engine/engine', 'utils/pygments'
 
 Engine.create(:highlight, :priority => 2, :layout => true, :cacheable => true) do
   def accepts?(page); Pygments.file_format(page.name) != nil; end

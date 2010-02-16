@@ -1,5 +1,6 @@
 author      'Daniel Mendler'
 description 'Image information engine'
+dependencies 'engine/engine'
 
 Engine.create(:imageinfo, :priority => 1, :layout => true, :cacheable => true) do
   def accepts?(page); page.mime.mediatype == 'image'; end

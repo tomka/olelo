@@ -4,7 +4,6 @@ require 'wiki/routing'
 require 'wiki/resource'
 require 'wiki/helper'
 require 'wiki/user'
-require 'wiki/engine'
 require 'wiki/plugin'
 
 module Wiki
@@ -250,22 +249,11 @@ module Wiki
     get '/?:path?/version/?:version?', '/:path' do
       begin
         pass if reserved_path?(params[:path])
-
         @resource = Resource.find!(repository, params[:path], params[:version])
         cache_control :etag => @resource.latest_commit.sha, :last_modified => @resource.latest_commit.date
-
-        @engine = Engine.find!(@resource, :name => params[:output] || params[:engine])
-        @content = @engine.response(:app => self,
-	                            :resource => @resource,
-                                    :params => params,
-                                    :request => request,
-                                    :response => response,
-                                    :logger => logger)
-        if @engine.layout?
-          haml :show
-        else
-          content_type @engine.mime(@resource).to_s
-          @content
+        with_hooks(:page_show) do
+          @content = @resource.try(:content)
+          halt haml(:show)
         end
       rescue Resource::NotFound
         request.env['wiki.redirect_to_new'] = params[:version].blank?

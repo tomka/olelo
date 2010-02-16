@@ -1,5 +1,6 @@
 author      'Daniel Mendler'
 description 'Filter pipeline engine'
+dependencies 'engine/engine'
 
 class Wiki::Filter
   include PageHelper

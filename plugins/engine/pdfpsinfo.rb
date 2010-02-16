@@ -1,5 +1,6 @@
 author      'Daniel Mendler'
 description 'PDF/PS information engine'
+dependencies 'engine/engine'
 
 Engine.create(:pdfpsinfo, :priority => 1, :layout => true, :cacheable => true) do
   def accepts?(page); page.mime == 'application/pdf' || page.mime.to_s =~ /postscript/; end

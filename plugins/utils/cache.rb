@@ -1,5 +1,6 @@
 author      'Daniel Mendler'
 description 'Cache class'
+dependencies 'engine/engine'
 
 # Cache base class
 class Wiki::Cache

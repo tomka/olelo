@@ -16,7 +16,7 @@ class Wiki::App
                         :resource => page,
                         :params => params)
       else
-        %{<span class="error">#{:no_engine_found.t(:page => page.name)}</span>}
+        %{<span class="error">#{:engine_not_available.t(:page => page.name, :mime => page.mime, :engine => nil)}</span>}
       end
     else
       %{<a href="/#{Config.sidebar_page}/new">#{:create_page.t(:page => Config.sidebar_page)}</a>}
