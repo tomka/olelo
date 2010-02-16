@@ -88,13 +88,17 @@ class Wiki::Tag < Filter
     end
 
     def parse_tag
-      if @content =~ /\A(\s*([:\-\w]+)=("[^"]+"|'[^']+'))+/
+      # Allowed argument formats
+      #   name="value"
+      #   name='value'
+      #   name=value (no space, ' or " allowed in value)
+      if @content =~ /\A(\s*([:\-\w]+)=("[^"]+"|'[^']+'|([^\s'"\/>]|\/[^'"\/>])+))+/
         @content = $'
         @parsed << $&
-        array = $&.scan(/([:\-\w]+)=("[^"]+"|'[^']+')/).map do |a,b|
-          [a, Wiki.html_unescape(b[1...-1])]
-        end.flatten
-        @attrs = Hash[*array].with_indifferent_access
+        attrs = $&
+        attrs = (attrs.scan(/([:\-\w]+)=("[^"]+"|'[^']+')/).map {|a,b| [a, b[1...-1]] } +
+          attrs.scan(/([:\-\w]+)=((?:[^\s'"\/>]|\/[^'"\/>])+)/)).flatten.map {|x| Wiki.html_unescape(x) }
+        @attrs = Hash[*attrs].with_indifferent_access
       else
         @attrs = {}
       end
