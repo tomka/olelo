@@ -4,7 +4,7 @@ def xslt_engine(name, opts = {})
     has_priority 2
     accepts "text/x-#{opts[:markup]}"
     mime opts[:mime]
-    filter :remove_metadata, :math
+    filter :remove_metadata, :remove_comments, :math
     filter :tag do
       filter opts[:markup], :rubypants
     end
@@ -18,7 +18,7 @@ def markup_engine(name, opts = {})
     is_cacheable
     has_priority opts[:priority]
     accepts(opts[:accepts] || "text/x-#{name}")
-    filter :remove_metadata, :math
+    filter :remove_metadata, :remove_comments, :math
     filter :tag do
       filter name, :rubypants
     end
@@ -35,7 +35,7 @@ engine :creole do
   has_priority 1
   accepts 'text/x-creole'
   filter :editsection do
-    filter :remove_metadata, :math
+    filter :remove_metadata, :remove_comments, :math
     filter :tag do
       filter :creole, :rubypants
     end
