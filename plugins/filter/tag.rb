@@ -136,6 +136,7 @@ class Wiki::Tag < Filter
   MAX_RECURSION = 100
   MAX_NESTING = 10
   BLOCK_ELEMENTS = %w(style script address blockquote div h1 h2 h3 h4 h5 h6 ul p ol pre table hr br)
+  BLOCK_ELEMENT_REGEX = /<(#{BLOCK_ELEMENTS.join('|')})/
 
   class TagInfo < Struct.new(:limit, :requires, :immediate, :method)
     def initialize(method, opts)
@@ -176,8 +177,8 @@ class Wiki::Tag < Filter
         element = @protected_elements[$1.to_i]
 
         # Remove unwanted <p>-tags around block-level-elements
-        if BLOCK_ELEMENTS.include?(element)
-          prefix = $`
+        prefix = $`
+        if element =~ BLOCK_ELEMENT_REGEX
           count = prefix.scan('<p>').size - prefix.scan('</p>').size
           count > 0 ? '</p>' + element + '<p>' : element
         else

@@ -297,10 +297,12 @@ module Wiki
 
     # Get metadata
     def metadata
-      @metadata ||= if meta? || (content =~ YAML_REGEX)
-                      hash = YAML.load("#{$&}\n") rescue nil
+      @metadata ||= if content =~ YAML_REGEX
+		      hash = YAML.load("#{$&}\n") rescue nil
                       Hash === hash ? hash.with_indifferent_access : {}
-                    else
+                    elsif meta?
+		      {}
+		    else
                       super
                     end
     end
