@@ -44,7 +44,7 @@ class TagStore < YamlPage
   end
 end
 
-class Wiki::App
+class Wiki::Application
   TAG_STORE = 'tags.yml'
 
   assets '*.png'

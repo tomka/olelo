@@ -9,7 +9,7 @@ require 'wiki/plugin'
 
 module Wiki
   # Main class of the application
-  class App
+  class Application
     include Routing
     include AppHelper
     include Templates

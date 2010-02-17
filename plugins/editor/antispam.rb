@@ -80,7 +80,7 @@ class SpamEvaluator
   end
 end
 
-class Wiki::App
+class Wiki::Application
   hook(:before_edit_form_buttons) do
     %{<br/><label for="recaptcha">#{:captcha.t}</label><br/><div id="recaptcha"></div><br/>} if @show_captcha
   end

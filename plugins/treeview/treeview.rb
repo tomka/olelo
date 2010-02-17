@@ -2,8 +2,7 @@ author       'Daniel Mendler'
 description  'Tree Viewer'
 dependencies 'misc/sidebar'
 
-class Wiki::App
-
+class Wiki::Application
   hook(:after_style) do
     '<link rel="stylesheet" href="/_/treeview/treeview.css" type="text/css"/>'
   end

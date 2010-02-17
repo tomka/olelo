@@ -1,7 +1,8 @@
 author      'Daniel Mendler'
 description 'Basic sidebar implementation'
+dependencies 'engine/engine'
 
-class Wiki::App
+class Wiki::Application
   get '/_/sidebar' do
     if page = Page.find(repository, Config.sidebar_page)
       engine = Engine.find(page, :layout => true)

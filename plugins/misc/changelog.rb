@@ -2,7 +2,7 @@ author      'Daniel Mendler'
 description 'RSS Changelogs'
 autoload 'RSS', 'rss/maker'
 
-class Wiki::App
+class Wiki::Application
   hook(:after_head) do
     if @resource && !@resource.new?
       %{<link rel="alternate" href="/changelog.atom" type="application/atom+xml" title="Sitewide Atom Changelog"/>

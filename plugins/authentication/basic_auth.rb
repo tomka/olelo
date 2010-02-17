@@ -2,7 +2,7 @@ author      'Daniel Mendler'
 description 'HTTP basic authentication'
 require 'rack/auth/basic'
 
-class Wiki::App
+class Wiki::Application
   hook(:auto_login) do
     if params[:auth] && !user
       auth = Rack::Auth::Basic::Request.new(env)

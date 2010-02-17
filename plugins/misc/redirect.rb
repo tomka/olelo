@@ -1,7 +1,7 @@
 author       'Daniel Mendler'
 description  'Support for page redirects'
 
-class Wiki::App
+class Wiki::Application
   hook(:before_content) do
     if params[:redirect]
       links = [params[:redirect]].flatten.map do |link|

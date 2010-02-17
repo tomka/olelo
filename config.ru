@@ -29,7 +29,7 @@ require 'rack/patches'
 require 'rack/degrade_mime_type'
 require 'rack/relative_redirect'
 require 'rack/remove_cache_buster'
-require 'wiki/app'
+require 'wiki/application'
 
 config_file = if ENV['WIKI_CONFIG']
   ENV['WIKI_CONFIG']
@@ -136,6 +136,6 @@ end
 
 use Rack::MethodOverride
 use Rack::CommonLogger, LoggerOutput.new(logger)
-run Wiki::App.new(nil, :logger => logger)
+run Wiki::Application.new(nil, :logger => logger)
 
 logger.info "Wiki started in #{timer.stop.elapsed_ms}ms (#{Wiki::Config.production? ? 'Production' : 'Development'} mode)"

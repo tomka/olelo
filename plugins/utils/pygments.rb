@@ -45,7 +45,7 @@ module Wiki::Pygments
   private_class_method :pre, :lexer_mapping
 end
 
-class Wiki::App
+class Wiki::Application
   assets 'pygments.css'
 
   hook(:after_style) do

@@ -2,7 +2,7 @@ author      'Daniel Mendler'
 description 'Enhanced edit form with preview and diff'
 dependencies 'engine/engine'
 
-class Wiki::App
+class Wiki::Application
   hook(:before_edit_form_buttons) do
     %{<input type="checkbox" name="minor" id="minor" value="1"#{params[:minor] ? ' checked="checked"' : ''}/>
       <label for="minor">Minor changes</label><br/>

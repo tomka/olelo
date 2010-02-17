@@ -1,7 +1,7 @@
 author      'Daniel Mendler'
 description 'System information'
 
-class Wiki::App
+class Wiki::Application
   get '/system' do
     GC.start
     @plugins = Plugin.plugins.sort_by(&:name)

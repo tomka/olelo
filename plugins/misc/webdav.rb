@@ -1,7 +1,7 @@
 author      'Daniel Mendler'
 description 'Simple webdav interface to the wiki files'
 
-class Wiki::App
+class Wiki::Application
   put '/:path' do
     return super() if request.form_data?
     begin

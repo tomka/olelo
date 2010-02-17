@@ -2,7 +2,7 @@ author       'Daniel Mendler'
 description  'S5 presentation filter'
 dependencies 'filter/xslt'
 
-Wiki::App.assets 'ui/**/*', 'ui/default/*'
+Application.assets 'ui/**/*', 'ui/default/*'
 
 class S5 < XSLT
   def initialize

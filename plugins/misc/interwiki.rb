@@ -16,6 +16,6 @@ module Wiki::PageHelper
   end
 end
 
-App.get INTERWIKI_REGEX do
+Application.get INTERWIKI_REGEX do
   redirect(Plugin['misc/interwiki'].interwiki[params[:captures][0]] + params[:captures][1])
 end

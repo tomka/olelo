@@ -1,7 +1,7 @@
 author       'Daniel Mendler'
 description  'Gallery engine'
 
-class Wiki::App
+class Wiki::Application
   assets 'gallery.css', 'gallery.js'
 
   hook(:after_style) do

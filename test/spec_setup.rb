@@ -2,7 +2,7 @@ gem 'bacon', '>= 0'
 gem 'rack-test', '>= 0'
 
 require 'rack/patches'
-require 'wiki/app'
+require 'wiki/application'
 require 'bacon'
 require 'rack/test'
 require 'wiki/resource'

@@ -1,7 +1,7 @@
 author      'Daniel Mendler'
 description 'Disallow anonymous access'
 
-class Wiki::App
+class Wiki::Application
   WHITE_LIST =
     [
      '/login',

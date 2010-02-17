@@ -12,7 +12,7 @@ autoload 'Imaginator', 'imaginator'
   server.add_renderer(:fdp,   Imaginator::Graphviz.new(:cmd => 'fdp'))
 end
 
-class Wiki::App
+class Wiki::Application
   assets 'imaginator_failed.png'
 
   get '/_/utils/imaginator/:name', :name => /[\w\.]+/ do

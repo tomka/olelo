@@ -1,9 +1,8 @@
 author      'Daniel Mendler'
 description 'Basic searching via grep'
 
-class Wiki::App
+class Wiki::Application
   get '/search' do
-
     @matches = {}
 
     repository.git_ls_tree('-r', '--name-only', 'HEAD') do |io|

@@ -17,7 +17,7 @@ class Wiki::AccessDenied < StandardError
   end
 end
 
-class Wiki::App
+class Wiki::Application
   hook(:after_action) do |method, action|
     if @resource && method == :get
       @resource.access?(:read, user) || raise(AccessDenied)

@@ -59,7 +59,7 @@ describe 'wiki' do
     @app = Rack::Builder.new do
       logger = ::Logger.new(Wiki::Config.log.file)
       logger.level = ::Logger.const_get(Wiki::Config.log.level)
-      run Wiki::App.new(nil, :logger => logger)
+      run Wiki::Application.new(nil, :logger => logger)
     end
   end
 
