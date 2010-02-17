@@ -78,7 +78,7 @@ module Wiki
 
     # Executed before each request
     hook(:before_routing) do
-      @timer = Timer.new
+      @timer = Timer.start
       logger.debug request.env
 
       @user = session[:user]

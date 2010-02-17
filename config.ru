@@ -1,15 +1,15 @@
 #!/usr/bin/env rackup
 # -*- coding: utf-8 -*-
 
-start_time = Time.now
+path = ::File.expand_path(::File.dirname(__FILE__))
+$: << ::File.join(path, 'lib')
+Dir[::File.join(path, 'deps', '*', 'lib')].each {|x| $: << x }
+
+require 'wiki/timer'
+timer = Wiki::Timer.start
 
 # Require newest rack
 raise RuntimeError, 'Rack 1.1.0 or newer required' if Rack.version < '1.1'
-
-path = ::File.expand_path(::File.dirname(__FILE__))
-
-$: << ::File.join(path, 'lib')
-Dir[::File.join(path, 'deps', '*', 'lib')].each {|x| $: << x }
 
 require 'rubygems'
 
@@ -59,7 +59,7 @@ default_config = {
     'tagging',
     'filter/orgmode',
     'editor/antispam',
-    'misc/filter_benchmark',
+    'filter/benchmark',
   ],
   :rack => {
     :esi          => true,
@@ -138,4 +138,4 @@ use Rack::MethodOverride
 use Rack::CommonLogger, LoggerOutput.new(logger)
 run Wiki::App.new(nil, :logger => logger)
 
-logger.info "Wiki started in #{((Time.now - start_time) * 1000).to_i}ms (#{Wiki::Config.production? ? 'Production' : 'Development'} mode)"
+logger.info "Wiki started in #{timer.stop.elapsed_ms}ms (#{Wiki::Config.production? ? 'Production' : 'Development'} mode)"

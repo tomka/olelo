@@ -21,16 +21,6 @@ gem 'mimemagic', '>= 0.1.1'
 autoload 'MimeMagic', 'mimemagic'
 
 module Wiki
-  class Timer
-    def initialize
-      @start = Time.now
-    end
-
-    def elapsed
-      ((Time.now - @start) * 1000).to_i
-    end
-  end
-
   class MultiError < StandardError
     attr_accessor :messages
 
