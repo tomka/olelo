@@ -104,6 +104,7 @@ At least one of these renderers should be installed:
 [mimemagic]:http://github.com/minad/mimemagic
 [Gem]:http://rubygems.org
 [Git]:http://www.git-scm.org
+[rack]:http://rack.rubyforge.org/
 [GitHub]:http://github.com
 [GraphViz]:http://www.graphviz.org
 [HAML]:http://haml.hamptoncatlin.com

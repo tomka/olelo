@@ -1,25 +1,19 @@
 TODO
 ====
 
-- use proper stylesheet header
-- counting equations for block eqs
-- equation labels
-- blahtex
-- rdoc
-- rollback-function or revert function
-
+- Equation labels and equation counter
+- RDOC filter/engine
 - Documentation
 - Code comments and rdoc generation
 - More specs
-- Captcha support
 - Clean up stylesheet
-- Support for branching operations (Maybe not that important for a gui?)
-- Implement revert operation
+- Support for branching operations
+- Implement rollback/revert operation
 - Syntax highlighting abstraction which use ultraviolet, coderay or pygments
+- (DONE) Captcha support
 - (DONE) Image support, Image gallery
 - (DONE) More caching where it makes sense
-- (DONE) Wiki installation under subpath (path_info translation could be done
-  via rack middleware, generated links must be adapted)
+- (DONE) Wiki installation under subpath (Rack::Rewrite)
 - (DONE) Switch to grit maybe (grit does not support some things yet, but has native implementation of some git features)
 - (DONE) Cache-control and etag support
 - (DONE) Plugin system
@@ -44,6 +38,5 @@ Known bugs
 - Removed files have a next button for the last existing revision
   because the deletion is registered as commit for the respective file
   (see Page.next_commit)
-- (WORKAROUND, no colspan used) Tablesorter doesn't get the colspan on /history
 - If the page is too far in the past the next button does not work correctly
   (see Page.next_commit)
