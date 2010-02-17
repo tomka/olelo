@@ -20,7 +20,7 @@ class Wiki::Application
       send_file Plugin['utils/imaginator'].imaginator.result(params[:name])
     rescue Exception => ex
       logger.error ex
-      redirect '/_/utils/imaginator_failed.png'
+      `convert -pointsize 16 -background transparent "label:#{ex.message}" PNG:-` rescue nil
     end
   end
 end

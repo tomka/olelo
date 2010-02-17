@@ -17,7 +17,7 @@ class Wiki::Application
       path = resource_path(@resource, :path => metadata[:redirect])
       list = (params[:redirect] ||= [])
       if list.include?(path)
-        raise RuntimeError, "Invalid redirect to #{path}"
+        raise ArgumentError, "Invalid redirect to #{path}"
       else
         list << resource_path(@resource)
         p = params.merge({ :path => metadata[:redirect], 'redirect[]' => list})

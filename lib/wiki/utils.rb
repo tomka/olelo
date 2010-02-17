@@ -102,7 +102,7 @@ module Wiki
       content = if Symbol === name
                   paths = Templates.paths.map {|path| File.join(path, "#{name}.#{type}") }
                   path = paths.find {|p| File.exists?(p) }
-                  raise RuntimeError, "Template #{name} not found" if !path
+                  raise NameError, "Template #{name} not found" if !path
                   File.read(path)
                 else
                   name
@@ -162,10 +162,6 @@ module Wiki
   end
 
   class<< self
-    def error(msg)
-      raise RuntimeError, msg
-    end
-
     def check()
       errors = []
       yield(errors)

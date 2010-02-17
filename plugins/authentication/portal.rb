@@ -17,10 +17,10 @@ User.define_service(:portal) do
     email = (doc/'person/email').text
     name = (doc/'person/user/name').text
     groups = (doc/'person/groups/group/name').to_a.map(&:text)
-    raise if name.blank?
+    raise AuthenticationError if name.blank?
     email = "#{name}@localhost" if email.blank?
     User.new(name, email, groups)
-  rescue => ex
-    raise StandardError, 'Wrong username or password'
+  rescue
+    raise AuthenticationError, 'Wrong username or password'
   end
 end

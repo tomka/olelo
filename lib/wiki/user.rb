@@ -3,6 +3,9 @@ require 'wiki/utils'
 require 'wiki/extensions'
 
 module Wiki
+  class AuthenticationError < SecurityError
+  end
+
   class User
     attr_reader :name, :groups
     attr_accessor :email
@@ -48,7 +51,7 @@ module Wiki
 
     class NullService
       def method_missing(name, *args)
-        raise StandardError, "Authentication service does not support #{name}"
+        raise NotImplementedError, "Authentication service does not support #{name}"
       end
     end
 
@@ -68,7 +71,7 @@ module Wiki
 
       lazy_reader :service do
         serv = @services[Config.auth.service]
-        raise(RuntimeError, "Authentication service #{Config.auth.service} not found") if !serv
+        raise NameError, "Authentication service #{Config.auth.service} not found" if !serv
         serv.new
       end
 

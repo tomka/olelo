@@ -22,7 +22,7 @@ class Renderer
     end
 
     def get(name)
-      renderer = registry[name] || raise(RuntimeError, "Renderer #{name} not found")
+      renderer = registry[name] || raise(NameError, "Renderer #{name} not found")
       if Array === renderer
         get_first(renderer)
       elsif String === renderer
@@ -134,8 +134,12 @@ Tag.define :math do |context, attrs, code|
   Renderer.choose(mode).render(code, attrs['display'] == 'block' ? 'block' : 'inline')
 end
 
-class Wiki::App
+class Wiki::Application
   get '/_/tag/math/blahtex/:name', :name => /[\w\.]+/ do
-    send_file File.join(Renderer.get('blahteximage').directory, params[:name])
+    begin
+      send_file File.join(Renderer.get('blahteximage').directory, params[:name])
+    rescue => ex
+      `convert -pointsize 16 -background transparent "label:#{ex.message}" PNG:-` rescue nil
+    end
   end
 end

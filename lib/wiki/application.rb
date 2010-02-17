@@ -204,7 +204,7 @@ module Wiki
         redirect((params[:path]/(@resource.tree? ? 'new page' : 'edit')).urlpath)
       end
       @resource = Page.new(repository, params[:path])
-      Wiki.error :reserved_path.t if reserved_path?(params[:path])
+      raise RuntimeError, :reserved_path.t if reserved_path?(params[:path])
       haml :new
     end
 
@@ -229,7 +229,7 @@ module Wiki
       @resource = Page.find!(repository, params[:path])
 
       # TODO: Implement conflict diffs
-      Wiki.error :version_conflict.t if @resource.commit.sha != params[:version]
+      raise RuntimeError, :version_conflict.t if @resource.commit.sha != params[:version]
 
       if action?(:upload) && params[:file]
         with_hooks :page_save, @resource do

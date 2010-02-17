@@ -71,7 +71,7 @@ module Wiki
         resource = Resource.find(@repository, destination)
       end
 
-      Wiki.error :already_exists.t(:path => destination) if resource
+      raise RuntimeError, :already_exists.t(:path => destination) if resource
 
       repository.transaction(:resource_moved_to.t(:path => @path, :destination => destination), author && author.to_git_user) do
         repository.root.move(@path, destination)
@@ -213,7 +213,7 @@ module Wiki
     end
 
     def self.check_path(path)
-      Wiki.error :invalid_path.t if !path.blank? && path !~ /^#{PATH_PATTERN}$/
+      raise RuntimeError, :invalid_path.t if !path.blank? && path !~ /^#{PATH_PATTERN}$/
     end
   end
 

@@ -45,10 +45,10 @@ end
 Tag.define(:call, :requires => :name, :immediate => true) do |context, attrs, content|
   name = attrs['name'].downcase
   functions = context.private[:functions]
-  raise(NameError, "Function #{name} not found") if !functions || !functions[name]
+  raise NameError, "Function #{name} not found" if !functions || !functions[name]
   args, content = functions[name]
   args = args.map do |arg|
-    raise(NameError, "Argument #{arg} is required") if !attrs[arg]
+    raise ArgumentError, "Argument #{arg} is required" if !attrs[arg]
     [arg, Evaluator.eval(attrs[arg], context.params)]
   end.flatten
   result = nested_tags(context.subcontext(:params => Hash[*args]), content)
@@ -66,8 +66,8 @@ Tag.define(:include, :requires => :page, :limit => 10) do |context, attrs, conte
     path = context.resource.page? ? context.resource.path/'..'/path : context.resource.path/path
   end
   if page = Page.find(context.resource.repository, path)
-    engine = Engine.find(page, :name => attrs['output'] || attrs['engine'])
-    raise(RuntimeError, "No engine found for #{path}") if !engine || !engine.layout?
+    engine = Engine.find(page, :name => attrs['output'] || attrs['engine'], :layout => true)
+    raise NameError, "No engine found for #{path}" if !engine
     engine.output(context.subcontext(:app => context.app, :params => attrs,
                                      :engine => engine, :resource => page, :private => {:included => true}))
   else
@@ -86,7 +86,7 @@ end
 Tag.define(:for, :requires => [:from, :to], :immediate => true, :limit => 50) do |context, attrs, content|
   to = attrs['to'].to_i
   from = attrs['from'].to_i
-  raise(RuntimeError, "Limits exceeded") if to - from > 10
+  raise RuntimeError, 'Limits exceeded' if to - from > 10
   (from..to).map do |i|
     params = attrs['counter'] ? {attrs['counter'] => i} : {}
     nested_tags(context.subcontext(:params => params), content)
@@ -95,7 +95,7 @@ end
 
 Tag.define(:repeat, :requires => :times, :immediate => true, :limit => 50) do |context, attrs, content|
   n = attrs['times'].to_i
-  raise(RuntimeError, "Limits exceeded") if n > 10
+  raise RuntimeError, 'Limits exceeded' if n > 10
   (1..n).map do |i|
     params = attrs['counter'] ? {attrs['counter'] => i} : {}
     nested_tags(context.subcontext(:params => params), content)

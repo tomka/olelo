@@ -13,7 +13,7 @@ class Wiki::Application
     rescue NotFound => ex
       logger.error ex
       :not_found
-    rescue StandardError => ex
+    rescue Exception => ex
       logger.error ex
       :bad_request
     end
@@ -22,7 +22,7 @@ class Wiki::Application
   post '/:path' do
     return super() if request.form_data?
     begin
-      Wiki.error :reserved_path.t if reserved_path?(params[:path])
+      raise RuntimeError, :reserved_path.t if reserved_path?(params[:path])
       resource = Page.new(repository, params[:path])
       with_hooks :page_save, resource do
         resource.write(request.body, :file_uploaded.t(:path => resource.path), user)
@@ -31,7 +31,7 @@ class Wiki::Application
     rescue NotFound => ex
       logger.error ex
       :not_found
-    rescue StandardError => ex
+    rescue Exception => ex
       logger.error ex
       :bad_request
     end
