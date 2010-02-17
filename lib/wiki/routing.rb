@@ -190,9 +190,8 @@ module Wiki
 
       def add_route(methods, paths, &block)
         paths = [paths].flatten
-        opts = paths.last.is_a?(Hash) ? paths.pop : {}
+        patterns = self.patterns.merge(paths.last.is_a?(Hash) ? paths.pop : {})
         paths.each do |path|
-          patterns = opts[:patterns] ? self.patterns.merge(opts[:patterns]) : self.patterns
           path, pattern, keys = compile_route(path, patterns)
           [methods].flatten.each do |m|
             name = "#{m} #{path}"

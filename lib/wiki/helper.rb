@@ -304,7 +304,7 @@ module Wiki
 
     def self.extended(base)
       base.class_eval do
-        get "/_/:file", :patterns => {:file => /.*/} do
+        get "/_/:file", :file => /.*/ do
           if path = self.class.asset_paths[params[:file]]
             cache_control :last_modified => File.mtime(path), :max_age => :static
             send_file path

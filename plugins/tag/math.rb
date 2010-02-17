@@ -135,7 +135,7 @@ Tag.define :math do |context, attrs, code|
 end
 
 class Wiki::App
-  get '/_/tag/math/blahtex/:name', :patterns => {:name => '[\w\.]+'} do
+  get '/_/tag/math/blahtex/:name', :name => /[\w\.]+/ do
     send_file File.join(Renderer.get('blahteximage').directory, params[:name])
   end
 end

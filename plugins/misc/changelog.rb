@@ -12,7 +12,7 @@ class Wiki::App
     end
   end
 
-  get '/changelog.:format', '/:path/changelog.:format', :patterns => { :format => /rss|atom/ }  do
+  get '/changelog.:format', '/:path/changelog.:format', :format => /rss|atom/  do
     resource = Resource.find!(repository, params[:path])
     cache_control :etag => resource.latest_commit.sha, :last_modified => resource.latest_commit.date
 

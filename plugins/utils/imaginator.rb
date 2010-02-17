@@ -15,7 +15,7 @@ end
 class Wiki::App
   assets 'imaginator_failed.png'
 
-  get '/_/utils/imaginator/:name', :patterns => {:name => '[\w\.]+'} do
+  get '/_/utils/imaginator/:name', :name => /[\w\.]+/ do
     begin
       send_file Plugin['utils/imaginator'].imaginator.result(params[:name])
     rescue Exception => ex
