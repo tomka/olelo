@@ -13,6 +13,8 @@ module Wiki
     include Routing
     include AppHelper
     include Templates
+    extend Assets
+
     patterns :path => PATH_PATTERN, :version => VERSION_PATTERN
     attr_reader :repository, :logger, :user
 
@@ -47,32 +49,6 @@ module Wiki
       super.instance_eval do
         @repository = @repository.dup
         self
-      end
-    end
-
-    @plugin_assets = nil
-    class<< self
-      attr_reader :plugin_assets
-
-      def assets(*files)
-        if !@plugin_assets
-          @plugin_assets = {}
-          get "/_/:file", :patterns => {:file => /.*/} do
-            if path = self.class.plugin_assets[params[:file]]
-              cache_control :last_modified => File.mtime(path), :max_age => :static
-              send_file path
-            else
-              pass
-            end
-          end
-        end
-        name = File.dirname(Plugin.current.name)
-        dir = File.dirname(Plugin.current.file)
-        files.each do |file|
-          Dir.glob(File.join(dir, file)).each do |path|
-            @plugin_assets[name/path[dir.length+1..-1]] = path
-          end
-        end
       end
     end
 
