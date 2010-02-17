@@ -28,7 +28,7 @@ module Wiki
     # Find resource in repository by path and commit version
     def self.find(repository, path, version = nil)
       path = path.to_s.cleanpath
-      forbid_invalid_path(path)
+      check_path(path)
       commit = version ? (String === version ? repository.get_commit(version) : version) : repository.log(1, nil).first
       return nil if !commit
       object = commit.tree[path] rescue nil
@@ -45,7 +45,7 @@ module Wiki
     # Constructor
     def initialize(repository, path, object = nil, commit = nil, current = false)
       path = path.to_s.cleanpath
-      Resource.forbid_invalid_path(path)
+      Resource.check_path(path)
       @repository = repository
       @path = path.cleanpath
       @object = object
@@ -63,7 +63,7 @@ module Wiki
 
     # Move page
     def move(destination, author = nil, create_redirect = false)
-      Resource.forbid_invalid_path(destination)
+      Resource.check_path(destination)
 
       resource = Resource.find(@repository, destination)
       if resource && resource.tree?
@@ -71,7 +71,7 @@ module Wiki
         resource = Resource.find(@repository, destination)
       end
 
-      Wiki.forbid(:already_exists.t(:path => destination) => resource)
+      Wiki.error :already_exists.t(:path => destination) if resource
 
       repository.transaction(:resource_moved_to.t(:path => @path, :destination => destination), author && author.to_git_user) do
         repository.root.move(@path, destination)
@@ -212,8 +212,8 @@ module Wiki
       end
     end
 
-    def self.forbid_invalid_path(path)
-      Wiki.forbid(:invalid_path.t => (!path.blank? && path !~ /^#{PATH_PATTERN}$/))
+    def self.check_path(path)
+      Wiki.error :invalid_path.t if !path.blank? && path !~ /^#{PATH_PATTERN}$/
     end
   end
 
@@ -263,9 +263,10 @@ module Wiki
 	return if @object && @object.data == content
       end
 
-      Wiki.forbid(:no_content.t => content.blank?,
-                  :already_exists.t(:path => @path) => new? && Resource.find(@repository, @path),
-                  :empty_commit_message.t => message.blank?)
+      Wiki.check do |errors|
+        errors << :already_exists.t(:path => @path) if new? && Resource.find(@repository, @path)
+        errors << :empty_commit_message.t if message.blank?
+      end
 
       repository.transaction(message, author && author.to_git_user) do
         content = content.read if content.respond_to? :read # FIXME

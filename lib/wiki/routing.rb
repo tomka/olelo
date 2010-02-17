@@ -76,7 +76,7 @@ module Wiki
     def perform!
       result = catch(:halt) do
         uri = catch(:redirect) do
-          halt(dispatch!)
+          halt(route!)
         end
         @response.redirect uri
         nil
@@ -109,12 +109,6 @@ module Wiki
       end
     end
 
-    def dispatch!
-      route!
-    rescue ::Exception => ex
-      handle_error(ex)
-    end
-
     def route!
       invoke_hook(:before_routing)
 
@@ -145,6 +139,8 @@ module Wiki
       end
 
       raise NotFound, :not_found.t(:path => path)
+    rescue ::Exception => ex
+      handle_error(ex)
     end
 
     module ClassMethods

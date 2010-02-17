@@ -21,15 +21,25 @@ gem 'mimemagic', '>= 0.1.1'
 autoload 'MimeMagic', 'mimemagic'
 
 module Wiki
+  class Timer
+    def initialize
+      @start = Time.now
+    end
+
+    def elapsed
+      ((Time.now - @start) * 1000).to_i
+    end
+  end
+
   class MultiError < StandardError
     attr_accessor :messages
 
-    def initialize(*messages)
+    def initialize(messages)
       @messages = messages
     end
 
     def message
-      @messages.join("\n")
+      @messages.join(', ')
     end
   end
 
@@ -153,7 +163,7 @@ module Wiki
         result = Result.new
         while type
           result.push(*hooks[type].to_a.sort_by(&:first).map {|priority, method| method.bind(source).call(*args) })
-          break if type == Object || hooks[type]
+          break if type == Object
           type = type.superclass rescue nil
         end
         result
@@ -162,9 +172,14 @@ module Wiki
   end
 
   class<< self
-    def forbid(conds)
-      failed = conds.keys.select {|key| conds[key] }
-      raise(Wiki::MultiError, *failed) if !failed.empty?
+    def error(msg)
+      raise RuntimeError, msg
+    end
+
+    def check()
+      errors = []
+      yield(errors)
+      raise MultiError, errors if !errors.empty?
     end
 
     # Like CGI.escape but escapes space not as +

@@ -4,7 +4,7 @@
 - else
   %form{:action => '/profile', :method=>'post'}
     .fieldset
-      = show_messages
+      = flash_messages
       %h2= :change_password.t
       %label{:for=>'oldpassword'}= :old_password.t
       %input{:type=>'password',:name=>'oldpassword',:id=>'oldpassword'}

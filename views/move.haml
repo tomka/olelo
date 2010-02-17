@@ -1,7 +1,7 @@
 - title :move_page.t(:page => @resource.title)
 %form{:action => action_path(@resource.path, :move), :method=>'post'}
   .fieldset
-    = show_messages
+    = flash_messages
     %label{:for=>'destination'}= :destination.t
     %input#destination{:name=>'destination', :type=>'text', :value => @resource.path}
     %br

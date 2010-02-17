@@ -30,8 +30,33 @@ module Wiki
     end
 
     def include_menu
-      blocks.include?(:menu) || menu
+      menu if !blocks.include?(:menu)
       include_block(:menu)
+    end
+  end
+
+  module FlashHelper
+    class Flash < Hash
+      def error(msg); (self[:error] ||= []) << msg; end
+      def warn(msg);  (self[:warn]  ||= []) << msg; end
+      def info(msg);  (self[:info]  ||= []) << msg; end
+    end
+
+    def flash
+      session[:flash] ||= Flash.new
+    end
+
+    def flash_messages
+      if !flash.empty?
+        out = '<ul>'
+        flash.each do |level, list|
+          list.each do |msg|
+            out << %{<li class="#{level}">#{Wiki.html_escape msg}</li>}
+          end
+        end
+        flash.clear
+        out + '</ul>'
+      end
     end
   end
 
@@ -156,33 +181,6 @@ module Wiki
       (path.to_s/action.to_s).urlpath
     end
 
-    def show_messages
-      if session[:messages]
-        out = '<ul>'
-        session[:messages].each do |msg|
-          out << %{<li class="#{msg[0]}">#{Wiki.html_escape msg[1]}</li>}
-        end
-        session.delete(:messages)
-        out + '</ul>'
-      else
-        ''
-      end
-    end
-
-    def message(level, *messages)
-      session[:messages] ||= []
-      messages.flatten.each do |msg|
-        @logger.debug(msg) if @logger
-	if msg.respond_to? :messages
-          session[:messages] += msg.messages.map { |m| [level, m] }
-        elsif msg.respond_to? :message
-          session[:messages] << [level, msg.message]
-        else
-          session[:messages] << [level, msg]
-        end
-      end
-    end
-
     def edit_content(page)
       if params[:content]
         params[:content]
@@ -275,22 +273,17 @@ module Wiki
     end
   end
 
-  module Helper
+  module AppHelper
     include BlockHelper
+    include FlashHelper
     include PageHelper
     include CacheHelper
     include ResponseHelper
 
-    def start_timer
-      @start_time = Time.now
-    end
+    attr_setter :on_error
 
-    def elapsed_time
-      ((Time.now - @start_time) * 1000).to_i
-    end
-
-    def tab_selected(action)
-      action?(action) ? {:class=>'tabs-selected'} : {}
+    def tab(name, &block)
+      "<li#{action?(name) ? ' class="tabs-selected"' : ''}>#{capture_haml(&block)}</li>"
     end
 
     def action?(name)

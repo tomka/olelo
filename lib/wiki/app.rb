@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 require 'logger'
+require 'wiki/timer'
 require 'wiki/routing'
 require 'wiki/resource'
 require 'wiki/helper'
@@ -10,7 +11,7 @@ module Wiki
   # Main class of the application
   class App
     include Routing
-    include Helper
+    include AppHelper
     include Templates
     patterns :path => PATH_PATTERN, :version => VERSION_PATTERN
     attr_reader :repository, :logger, :user
@@ -77,7 +78,7 @@ module Wiki
 
     # Executed before each request
     hook(:before_routing) do
-      start_timer
+      @timer = Timer.new
       logger.debug request.env
 
       @user = session[:user]
@@ -96,10 +97,14 @@ module Wiki
         path = (params[:path]/'new').urlpath
         path += '?' + request.query_string if !request.query_string.blank?
         redirect path
-      else
-        cache_control :no_cache => true
-        @error = ex
-        haml :error
+      end
+    end
+
+    hook(StandardError) do |ex|
+      if on_error
+        @logger.error ex
+        (ex.try(:messages) || [ex.message]).each {|msg| flash.error(msg) }
+        halt haml(on_error)
       end
     end
 
@@ -124,24 +129,16 @@ module Wiki
     end
 
     post '/login' do
-      begin
-        self.user = User.authenticate(params[:user], params[:password])
-	redirect session.delete(:goto) || '/'
-      rescue StandardError => error
-        message :error, error
-        haml :login
-      end
+      on_error :login
+      self.user = User.authenticate(params[:user], params[:password])
+      redirect session.delete(:goto) || '/'
     end
 
     post '/signup' do
-      begin
-        self.user = User.create(params[:user], params[:password],
-                                params[:confirm], params[:email])
-        redirect '/'
-      rescue StandardError => error
-        message :error, error
-        haml :login
-      end
+      on_error :login
+      self.user = User.create(params[:user], params[:password],
+                              params[:confirm], params[:email])
+      redirect '/'
     end
 
     get '/logout' do
@@ -154,17 +151,14 @@ module Wiki
     end
 
     post '/profile' do
+      on_error :profile
       if !user.anonymous?
-        begin
-          user.modify do |u|
-            u.change_password(params[:oldpassword], params[:password], params[:confirm]) if !params[:password].blank?
-            u.email = params[:email]
-          end
-          message :info, :changes_saved.t
-          session[:user] = user
-        rescue StandardError => error
-          message :error, error
+        user.modify do |u|
+          u.change_password(params[:oldpassword], params[:password], params[:confirm]) if !params[:password].blank?
+          u.email = params[:email]
         end
+        flash.info :changes_saved.t
+        session[:user] = user
       end
       haml :profile
     end
@@ -193,16 +187,12 @@ module Wiki
     end
 
     post '/:path/move' do
-      begin
-        @resource = Resource.find!(repository, params[:path])
-        with_hooks(:resource_move, @resource, params[:destination]) do
-          @resource.move(params[:destination], user, params[:create_redirect])
-        end
-        redirect @resource.path.urlpath
-      rescue StandardError => error
-	message :error, error
-        haml :move
+      on_error :move
+      @resource = Resource.find!(repository, params[:path])
+      with_hooks(:resource_move, @resource, params[:destination]) do
+        @resource.move(params[:destination], user, params[:create_redirect])
       end
+      redirect @resource.path.urlpath
     end
 
     delete '/:path' do
@@ -215,15 +205,14 @@ module Wiki
     end
 
     get '/?:path?/diff' do
+      on_error :history
       @resource = Resource.find!(repository, params[:path])
-      begin
-        Wiki.forbid(:from_missing.t => params[:from].blank?, :to_missing.t => params[:to].blank?)
-        @diff = @resource.diff(params[:from], params[:to])
-        haml :diff
-      rescue StandardError => error
-        message :error, error
-        haml :history
+      Wiki.check do |errors|
+        errors << :from_missing.t if params[:from].blank?
+        errors << :to_missing.t  if params[:to].blank?
       end
+      @diff = @resource.diff(params[:from], params[:to])
+      haml :diff
     end
 
     get '/:path/edit' do
@@ -233,16 +222,13 @@ module Wiki
     end
 
     get '/?:path?/new', '/?:path?/upload' do
-      begin
-        if params[:path] && @resource = Resource.find(repository, params[:path])
-          return haml(:edit) if @resource.page? && action?(:upload)
-          redirect((params[:path]/(@resource.tree? ? 'new page' : 'edit')).urlpath)
-        end
-        @resource = Page.new(repository, params[:path])
-        Wiki.forbid(:reserved_path.t => reserved_path?(params[:path]))
-      rescue StandardError => error
-	message :error, error
+      on_error :new
+      if params[:path] && @resource = Resource.find(repository, params[:path])
+        return haml(:edit) if @resource.page? && action?(:upload)
+        redirect((params[:path]/(@resource.tree? ? 'new page' : 'edit')).urlpath)
       end
+      @resource = Page.new(repository, params[:path])
+      Wiki.error :reserved_path.t if reserved_path?(params[:path])
       haml :new
     end
 
@@ -263,56 +249,51 @@ module Wiki
 
     # Edit form sends put requests
     put '/:path' do
+      on_error :edit
       @resource = Page.find!(repository, params[:path])
 
-      begin
-        Wiki.forbid(:version_conflict.t => @resource.commit.sha != params[:version]) # TODO: Implement conflict diffs
-        if action?(:upload) && params[:file]
-          with_hooks :page_save, @resource do
-            @resource.write(params[:file][:tempfile], :file_uploaded.t(:path => @resource.path), user)
-          end
-        elsif action?(:edit) && params[:content]
-          with_hooks :page_save, @resource do
-            content = if params[:pos]
-                        pos = [[0, params[:pos].to_i].max, @resource.content.size].min
-                        len = [0, params[:len].to_i].max
-                        @resource.content(0, pos) + params[:content] + @resource.content(pos + len, @resource.content.size)
-                      else
-                        params[:content]
-                      end
-            @resource.write(content, params[:message], user)
-          end
-        else
-          redirect((@resource.path/'edit').urlpath)
+      # TODO: Implement conflict diffs
+      Wiki.error :version_conflict.t if @resource.commit.sha != params[:version]
+
+      if action?(:upload) && params[:file]
+        with_hooks :page_save, @resource do
+          @resource.write(params[:file][:tempfile], :file_uploaded.t(:path => @resource.path), user)
         end
-        redirect @resource.path.urlpath
-      rescue StandardError => error
-        message :error, error
-        haml :edit
+      elsif action?(:edit) && params[:content]
+        with_hooks :page_save, @resource do
+          content = if params[:pos]
+                      pos = [[0, params[:pos].to_i].max, @resource.content.size].min
+                      len = [0, params[:len].to_i].max
+                      @resource.content(0, pos) + params[:content] + @resource.content(pos + len, @resource.content.size)
+                    else
+                      params[:content]
+                    end
+          @resource.write(content, params[:message], user)
+        end
+      else
+        redirect((@resource.path/'edit').urlpath)
       end
+      redirect @resource.path.urlpath
     end
 
     # New form sends post request
     post '/', '/:path' do
-      begin
-        pass if reserved_path?(params[:path])
-        @resource = Page.new(repository, params[:path])
-        if action?(:upload) && params[:file]
-          with_hooks :page_save, @resource do
-            @resource.write(params[:file][:tempfile], :file_uploaded.t(:path => @resource.path), user)
-          end
-        elsif action?(:new)
-          with_hooks :page_save, @resource do
-            @resource.write(params[:content], params[:message], user)
-          end
-        else
-          redirect '/new'
+      on_error :new
+
+      pass if reserved_path?(params[:path])
+      @resource = Page.new(repository, params[:path])
+      if action?(:upload) && params[:file]
+        with_hooks :page_save, @resource do
+          @resource.write(params[:file][:tempfile], :file_uploaded.t(:path => @resource.path), user)
         end
-        redirect @resource.path.urlpath
-      rescue StandardError => error
-	message :error, error
-        haml :new
+      elsif action?(:new)
+        with_hooks :page_save, @resource do
+          @resource.write(params[:content], params[:message], user)
+        end
+      else
+        redirect '/new'
       end
+      redirect @resource.path.urlpath
     end
 
     private

@@ -53,7 +53,6 @@ en:
   name:                   'Name'
   newer:                  'Newer'
   new_page:               'New Page'
-  no_content:             'No content'
   no_text_file:           '#{page} is not a text file (mime-type #{mime}) and cannot be edited this way.'
   not_found:              '#{path} not found'
   older:                  'Older'

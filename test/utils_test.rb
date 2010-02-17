@@ -58,13 +58,21 @@ describe 'wiki utility methods' do
     ('a'/'x'/'..'/'b'/'c'/'.').should.equal 'a/b/c'
   end
 
-  it 'forbid' do
+  it 'error' do
     lambda do
-      Wiki.forbid('Forbidden' => true)
-    end.should.raise Wiki::MultiError
+      Wiki.error('Forbidden')
+    end.should.raise RuntimeError
+  end
+
+  it 'check' do
+    Wiki.check do |errors|
+      # do nothing
+    end
     lambda do
-      Wiki.forbid('Allowed' => false,
-             'Forbidden' => true)
+      Wiki.check do |errors|
+        errors << 'Error 1'
+        errors << 'Error 2'
+      end
     end.should.raise Wiki::MultiError
   end
 end

@@ -82,9 +82,7 @@ end
 
 class Wiki::App
   hook(:before_edit_form_buttons) do
-    if @show_captcha
-      %{<br/><label for="recaptcha">#{:enter_captcha.t}</label><br/><div id="recaptcha"></div><br/>}
-    end
+    %{<br/><label for="recaptcha">#{:captcha.t}</label><br/><div id="recaptcha"></div><br/>} if @show_captcha
   end
 
   hook(:after_script) do
@@ -105,8 +103,10 @@ class Wiki::App
   hook(:before_page_save, -2) do |page|
     if (action?(:new) || action?(:edit)) && !captcha_valid?
       level = SpamEvaluator.new(user, params, @resource).evaluate
-      message(:info, :spam_level.t(:level => level)) if !Config.production?
+      flash.info :spam_level.t(:level => level) if !Config.production?
       if level >= 100
+        flash.error :empty_commit_message.t if params[:message].blank? && !params[:minor]
+        flash.info :enter_captcha.t
         @show_captcha = true
         halt haml(request.put? ? :edit : :new)
       end
@@ -123,10 +123,10 @@ class Wiki::App
                                      'challenge'  => params[:recaptcha_challenge_field],
                                      'response'   => params[:recaptcha_response_field])
       if response.body.split("\n").first == 'true'
-        message(:info, :captcha_valid.t)
+        flash.info :captcha_valid.t
         true
       else
-        message(:error, :captcha_invalid.t)
+        flash.error :captcha_invalid.t
         false
       end
     end

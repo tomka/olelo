@@ -32,6 +32,6 @@
         Powered by
         %a{:href=>'http://github.com/minad/git-wiki/tree/master'} Git-Wiki
         = include_block :footnote
-        %span.noprint= "| #{:generated_in.t(:ms => elapsed_time)}"
+        %span.noprint= "| #{:generated_in.t(:ms => @timer.elapsed)}"
     %script{:src=>'/static/script.js', :type=>'text/javascript'}
     = include_block :script

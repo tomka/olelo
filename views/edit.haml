@@ -2,14 +2,14 @@
 = render_block(:edit_form) do
   .tabs
     %ul
-      %li{tab_selected(:edit)}
+      = tab :edit do
         %a{:href=>'#tab-edit'}= :edit.t
-      %li{tab_selected(:upload)}
+      = tab :upload do
         %a{:href=>'#tab-upload'}= :upload.t
     %form{:action => @resource.path.urlpath, :method=>'post'}
       #tab-edit.box
         %h2= :edit.t
-        = show_messages if action? :edit
+        = flash_messages if action? :edit
         %input{:type=>'hidden', :name=> '_method', :value=>'put'}
         %input{:type=>'hidden', :name=> 'action',  :value=>'edit'}
         %input{:type=>'hidden', :name=> 'version', :value => @resource.commit}
@@ -33,7 +33,7 @@
         %input{:type=>'hidden', :name=> 'action',  :value=>'upload'}
         %input{:type=>'hidden', :name=> 'version', :value => @resource.commit}
         %h2= :upload_file.t
-        = show_messages if action? :upload
+        = flash_messages if action? :upload
         %label{:for=>'upload-file'}= :file.t
         %input#upload-file{:name=>'file',:type=>'file'}
         %br

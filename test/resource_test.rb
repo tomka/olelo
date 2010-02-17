@@ -7,7 +7,7 @@ describe 'Wiki::Resource' do
   it 'check for path validity' do
     lambda do
       Wiki::Resource.find(@repo, ' spaces ')
-    end.should.raise Wiki::MultiError
+    end.should.raise RuntimeError
     Wiki::Resource.find(@repo, 'spaces in the path').should.equal nil
   end
 
