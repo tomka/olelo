@@ -1,6 +1,16 @@
 // Styleswitcher from http://www.kelvinluck.com/assets/jquery/styleswitch/toggle.html
 // Adapted by Daniel Mendler
 (function($) {
+    $.translations({
+         en: {
+            themes:   'Themes',
+            no_theme: 'No theme'
+         },
+         de: {
+            themes:   'Seitenstile',
+            no_theme: 'Kein Seitenstil'
+         }
+    });
     $.styleswitcher = {
 	set: function(name) {
 	    $('link[rel*=style][title]').each(function() { this.disabled = this.title != name; });
@@ -18,7 +28,7 @@
 	}
     };
     $.fn.styleswitcher = function() {
-	var html = 'Themes: <ul class="styleswitcher"><li><a href="#">none</a></li>', style;
+	var html = $.t('themes') + ': <ul class="styleswitcher"><li><a href="#">' + $.t('no_theme') + '</a></li>', style;
 	$('link[rel*=style][title]').each(function() {
 	    if (this.title != 'default')
 		html += '<li><a href="#">' + this.title + '</a></li>';

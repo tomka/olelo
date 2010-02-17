@@ -11,7 +11,7 @@ class Wiki::Resource
   end
 end
 
-class Wiki::AccessDenied < SecurityError
+class Wiki::AccessDenied < RuntimeError
   def initialize
     super('Access denied')
   end

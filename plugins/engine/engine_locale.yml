@@ -1,2 +1,4 @@
 en:
-  engine_not_available:   'Engine #{engine} is not available for page #{page} with mime-type #{mime}'
+  engine_not_available: 'Engine #{engine} is not available for page #{page} with mime-type #{mime}.'
+de:
+  engine_not_available: 'Engine #{engine} für die Seite #{page} mit dem Mime-Type #{mime} ist nicht verfügbar.'

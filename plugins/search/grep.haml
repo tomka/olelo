@@ -1,8 +1,8 @@
 - menu :new
-- title "Search results for #{html_escape params[:pattern]}"
-= 'match'.pluralize(@matches.length, 'matches')
+- title :search_results.t(:pattern => params[:pattern])
+= :match.t(:count => @matches.length)
 %ul
-  = list_of @matches do |match|
-    %a{:href=>match[0].urlpath}=match[0]
+  = list_of @matches do |path, name, match|
+    %a{:href => path}= name
     %br
-    &=match[1].join("\n").truncate(1000)
+    = match

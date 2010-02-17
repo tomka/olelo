@@ -7,5 +7,5 @@
     |
   Version
   %a.version{:href => resource_path(@resource, :version => @resource.latest_commit), :title => @resource.latest_commit }= @resource.latest_commit.sha[0..4]
-  = "by #{@resource.latest_commit.author.name}, #{date @resource.latest_commit.date}"
+  = "#{:by.t} #{@resource.latest_commit.author.name}, #{date @resource.latest_commit.date}"
 ~ @content

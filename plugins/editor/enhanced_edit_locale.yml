@@ -1,4 +1,6 @@
 en:
   preview: Preview
-  changes: Changes
   minor_changes: Minor Changes
+de:
+  preview: Vorschau
+  minor_changes: Kleine Änderung

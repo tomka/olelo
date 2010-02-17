@@ -1,8 +1,8 @@
 :plain
   <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1 plus MathML 2.0 plus SVG 1.1//EN" "http://www.w3.org/2002/04/xhtml-math-svg/xhtml-math-svg-flat.dtd" >
-%html{:xmlns=>"http://www.w3.org/1999/xhtml", 'xmlns:esi' => 'http://www.edge-delivery.org/esi/1.0'}
+%html{:xmlns=>"http://www.w3.org/1999/xhtml", 'xmlns:esi' => 'http://www.edge-delivery.org/esi/1.0', 'xml:lang' => Wiki::Config.locale }
   %head
-    %title= Wiki::Config.title + ' - ' + include_block(:title)
+    %title&= Wiki::Config.title + ' - ' + include_block(:title)
     = theme_links
     = include_block :style
     %link{:rel => 'shortcut icon', :href => '/static/images/favicon.png', :type => 'image/png'}
@@ -24,7 +24,7 @@
         %esi:include{:src=>'/_/sidebar', :onerror => 'continue'}/
       #content
         = render_block :content do
-          %h1= include_block :title
+          %h1&= include_block :title
           = yield
     #footer
       #themes.noprint

@@ -177,11 +177,6 @@ class String
     result
   end
 
-  # Pluralize string
-  def pluralize(count, plural)
-    "#{count.to_i} " + (count.to_s == '1' ? self : plural)
-  end
-
   # Check if string begins with s
   def begins_with?(s)
     index(s) == 0

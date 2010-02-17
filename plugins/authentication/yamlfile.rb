@@ -21,14 +21,14 @@ User.define_service(:yamlfile) do
   def authenticate(name, password)
     @store.transaction(true) do |store|
       user = store[name]
-      raise AuthenticationError, 'Wrong username or password' if !user || user['password'] != crypt(password)
+      raise AuthenticationError, :wrong_user_or_pw.t if !user || user['password'] != crypt(password)
       User.new(name, user['email'], user['groups'])
     end
   end
 
   def create(user, password)
     @store.transaction do |store|
-      raise RuntimeError, 'User already exists' if store[user.name]
+      raise RuntimeError, :user_already_exists.t(:name => user.name) if store[user.name]
       store[user.name] = {
         'email' => user.email,
         'password' => crypt(password),
@@ -49,7 +49,7 @@ User.define_service(:yamlfile) do
     @store.transaction do |store|
       Wiki.check do |errors|
         errors << 'User not found' if !store[user.name]
-        errors << 'Password is wrong' if crypt(oldpassword) != store[user.name]['password']
+        errors << :wrong_password.t if crypt(oldpassword) != store[user.name]['password']
       end
       store[user.name]['password'] = crypt(password)
     end

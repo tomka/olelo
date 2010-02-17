@@ -1,6 +1,12 @@
 en:
   captcha: 'Captcha:'
   enter_captcha: 'Please enter the captcha.'
-  captcha_invalid: Invalid captcha.
-  captcha_valid: Valid captcha.
+  captcha_invalid: Invalid captcha
+  captcha_valid: Valid captcha
   spam_level: 'Spam level #{level}'
+de:
+  captcha: 'Captcha:'
+  enter_captcha: 'Bitte geben Sie ein Captcha ein.'
+  captcha_invalid: 'Ungültiges Captcha'
+  captcha_valid: 'Gültiges Captcha'
+  spam_level: 'Spam-Level #{level}'

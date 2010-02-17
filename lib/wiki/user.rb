@@ -3,7 +3,7 @@ require 'wiki/utils'
 require 'wiki/extensions'
 
 module Wiki
-  class AuthenticationError < SecurityError
+  class AuthenticationError < RuntimeError
   end
 
   class User
@@ -51,7 +51,7 @@ module Wiki
 
     class NullService
       def method_missing(name, *args)
-        raise NotImplementedError, "Authentication service does not support #{name}"
+        raise NotImplementedError, :auth_unsupported.t(:name => name)
       end
     end
 

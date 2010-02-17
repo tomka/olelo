@@ -1,24 +1,49 @@
 // Toggle date to relative by click
 // Written by Daniel Mendler
 (function($) {
-    $.fn.dateToggler = function() {
-	function timeDistance(to, from) {
-	    var n = Math.floor((to  - from) / 60000)
-	    if (n <= 0) return 'less than a minute';
-	    if (n == 1) return 'a minute';
-	    if (n < 45) return n + ' minutes';
-	    if (n < 90) return ' about 1 hour';
-	    if (n < 1440) return 'about ' + Math.round(n / 60) + ' hours';
-	    if (n < 2880) return '1 day';
-	    if (n < 43200) return Math.round(n / 1440) + ' days';
-	    if (n < 86400) return 'about 1 month';
-	    if (n < 525960) return Math.round(n / 43200) + ' months';
-	    if (n < 1051920) return 'about 1 year';
-	    return 'over ' + Math.round(n / 525960) + ' years';
-	}
+    $.translations({
+         en: {
+              less_than_a_minute_ago: 'less than a minute ago',
+              a_minute_ago:           'a minute ago',
+              n_minutes_ago:          '#{n} minutes ago',
+              one_hour_ago:           '1 hour ago',
+              n_hours_ago:            '#{n} hours ago',
+              one_day_ago:            '1 day ago',
+              n_days_ago:             '#{n} days ago',
+              one_month_ago:          '1 month ago',
+              n_months_ago:           '#{n} months ago',
+              one_year_ago:           '1 year ago',
+              over_n_years_ago:       'over #{n} years ago'
+         },
+         de: {
+              less_than_a_minute_ago: 'vor weniger als einer Minute',
+              a_minute_ago:           'vor einer Minute',
+              n_minutes_ago:          'vor #{n} Minuten',
+              one_hour_ago:           'vor einer Stunde',
+              n_hours_ago:            'vor #{n} Stunden',
+              one_day_ago:            'vor einem Tag',
+              n_days_ago:             'vor #{n} Tagen',
+              one_month_ago:          'vor einem Monat',
+              n_months_ago:           'vor #{n} Monaten',
+              one_year_ago:           'vor einem Jahr',
+              over_n_years_ago:       'vor über #{n} Jahren'
+         }
+    });
 
+    $.fn.dateToggler = function() {
 	function timeAgo(from) {
-	    return timeDistance(new Date().getTime(), new Date(from * 1000)) + ' ago';
+	    var n = Math.floor((new Date().getTime()  - new Date(from * 1000)) / 60000)
+	    if (n <= 0)      return $.t('less_than_a_minute_ago');
+	    if (n == 1)      return $.t('a_minute_ago');
+	    if (n < 45)      return $.t('n_minutes_ago', {n: n});
+	    if (n < 90)      return $.t('one_hour_ago');
+	    if (n < 1440)    return $.t('n_hours_ago', {n: Math.round(n / 60)});
+	    if (n < 2880)    return $.t('one_day_ago');
+	    if (n < 43200)   return $.t('n_days_ago', {n: Math.round(n / 1440)});
+	    if (n < 86400)   return $.t('one_month_ago');
+	    if (n < 525960)  return $.t('n_months_ago', {n: Math.round(n / 43200)});
+	    if (n < 1051920) return $.t('one_year_ago');
+	    return $.t('over_n_years_ago', {n: Math.round(n / 525960)});
 	}
 
 	this.each(function() {

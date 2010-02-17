@@ -21,6 +21,6 @@ User.define_service(:portal) do
     email = "#{name}@localhost" if email.blank?
     User.new(name, email, groups)
   rescue
-    raise AuthenticationError, 'Wrong username or password'
+    raise AuthenticationError, :wrong_user_or_pw.t
   end
 end

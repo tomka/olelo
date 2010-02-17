@@ -13,12 +13,6 @@ describe 'wiki utility methods' do
     42.should.not.be.blank
   end
 
-  it 'pluralize' do
-    'test'.pluralize(0, 'tests').should.equal '0 tests'
-    'test'.pluralize(1, 'tests').should.equal '1 test'
-    'test'.pluralize(3, 'tests').should.equal '3 tests'
-  end
-
   it 'begins_with?' do
     '123456789'.begins_with?('12').should.equal true
     '123456789'.begins_with?('23').should.not.equal true
