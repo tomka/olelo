@@ -21,15 +21,7 @@ Filter.create :editsection do |content|
     content = subfilter(content)
     content.gsub!(/#{prefix}(\d+)/) do |match|
       i = $1.to_i
-      n = i + 1
-      while pos[n + 1] && pos[n][0] > pos[i][0]
-        n += 1
-      end
-      l = if pos[n]
-        pos[n][1] - pos[i][1] - 1
-      else
-        len - pos[i][1]
-      end
+      l = pos[i+1] ? pos[i+1][1] - pos[i][1] - 1 : len - pos[i][1]
       path = action_path(context.page, :edit) + "?pos=#{pos[i][1]}&len=#{l}&message=#{pos[i][3]} edited"
       %{<span class="editlink">[<a href="#{Wiki.html_escape path}" title="Edit section #{Wiki.html_escape pos[i][3]}">Edit</a>]</span>}
     end
