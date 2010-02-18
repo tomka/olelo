@@ -11,7 +11,7 @@ class Wiki::Application
     end
   end
 
-  hook(:before_page_show, 1000) do
+  hook(:before_resource_show, 1000) do
     metadata = @resource.metadata
     if metadata[:redirect]
       path = resource_path(@resource, :path => metadata[:redirect])

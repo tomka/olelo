@@ -12,17 +12,22 @@
                                 translations[lang][key] = t[lang][key];
                 }
         };
-        $.t = function(name, opts) {
+        function lookup(locale, name, args) {
+                var t = translations[locale], s;
+                if (t && (s = t[name])) {
+                        for (var key in args)
+                                s = s.replace(new RegExp('#{' + key + '}', 'g'), args[key]);
+                        return s;
+                }
+        }
+        $.t = function(name, args) {
                 if (!locale) {
                         var html = $('html');
                         locale = html.attr('lang') || html.attr('xml:lang') || 'en';
                 }
-                var t = translations[locale], s;
-                if (t && (s = t[name])) {
-                        for (var key in opts)
-                                s = s.replace(new RegExp('#{' + key + '}', 'g'), opts[key]);
-                        return s;
-                }
-                return '#' + name;
+                var i, s = lookup(locale, name, args);
+                if (!s && (i = locale.indexOf('-')))
+                        s = lookup(locale.substr(0, i), name, args);
+                return s || '#' + name;
          };
 })(jQuery);

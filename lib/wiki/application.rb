@@ -11,7 +11,7 @@ module Wiki
   # Main class of the application
   class Application
     include Routing
-    include AppHelper
+    include ApplicationHelper
     include Templates
     extend Assets
 
@@ -213,7 +213,7 @@ module Wiki
         pass if reserved_path?(params[:path])
         @resource = Resource.find!(repository, params[:path], params[:version])
         cache_control :etag => @resource.latest_commit.sha, :last_modified => @resource.latest_commit.date
-        with_hooks(:page_show) do
+        with_hooks(:resource_show) do
           @content = @resource.try(:content)
           halt haml(:show)
         end

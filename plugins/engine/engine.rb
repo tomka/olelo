@@ -115,7 +115,7 @@ end
 
 # Plug-in the engine subsystem
 class Wiki::Application
-  hook(:before_page_show) do
+  hook(:before_resource_show) do
     @engine = Engine.find!(@resource, :name => params[:output] || params[:engine])
     @content = @engine.response(:app => self,
                                 :resource => @resource,

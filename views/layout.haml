@@ -1,6 +1,7 @@
 :plain
   <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1 plus MathML 2.0 plus SVG 1.1//EN" "http://www.w3.org/2002/04/xhtml-math-svg/xhtml-math-svg-flat.dtd" >
-%html{:xmlns=>"http://www.w3.org/1999/xhtml", 'xmlns:esi' => 'http://www.edge-delivery.org/esi/1.0', 'xml:lang' => Wiki::Config.locale }
+%html{:xmlns=>"http://www.w3.org/1999/xhtml", 'xmlns:esi' => 'http://www.edge-delivery.org/esi/1.0',
+      'xml:lang' => Wiki::Config.locale.sub('_', '-') }
   %head
     %title&= Wiki::Config.title + ' - ' + include_block(:title)
     = theme_links

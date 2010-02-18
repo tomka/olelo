@@ -268,12 +268,13 @@ module Wiki
       end
       response['Content-Length'] ||= File.stat(file).size.to_s
       halt BlockFile.open(file, 'rb')
-    rescue Errno::ENOENT
-      raise NotFound
+    rescue Errno::ENOENT => ex
+      @logger.error(ex) if @logger
+      raise Wiki::Routing::NotFound
     end
   end
 
-  module AppHelper
+  module ApplicationHelper
     include BlockHelper
     include FlashHelper
     include PageHelper
