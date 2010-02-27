@@ -4,6 +4,7 @@ dependencies 'engine/engine', 'utils/semaphore'
 
 cpu_count = `cat /proc/cpuinfo | grep processor | wc -l`.to_i rescue 1
 @semaphore = Semaphore.new(cpu_count)
+def semaphore; @semaphore; end
 
 Engine.create(:image, :priority => 5, :layout => false, :cacheable => true) do
   def svg?(page); page.mime.to_s =~ /svg/; end

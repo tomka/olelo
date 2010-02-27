@@ -79,6 +79,8 @@ jQuery.fn.historyTable = function() {
 // Wiki bootstrap
 // Written by Daniel Mendler
 $(function() {
+    $('#themes').styleswitcher();
+
     $('.tabs').tabs();
 
     $('table.sortable').tablesorter({widgets: ['zebra']});
@@ -110,5 +112,5 @@ $(function() {
 
     $('*[accesskey]').underlineAccessKey();
 
-    $('#themes').styleswitcher();
+    $('div.gist[id]').gist();
 });

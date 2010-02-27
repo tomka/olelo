@@ -88,16 +88,6 @@ module Wiki
       @started = false
     end
 
-    # Access plugin variables
-    def method_missing(name, *args)
-      if args.size == 0 && instance_variable_defined?("@#{name}")
-        metaclass.class_eval { attr_reader(name) }
-        instance_variable_get("@#{name}")
-      else
-        super
-      end
-    end
-
     # Add setup method
     def setup(&block)
       @setup = block

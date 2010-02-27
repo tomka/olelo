@@ -1,8 +1,11 @@
 author      'Daniel Mendler'
 description 'Interwiki support'
 
-@interwiki = YAML.load_file(File.join(Config.root, 'interwiki.yml'))
-INTERWIKI_REGEX = %r{^/?(#{@interwiki.keys.join('|')}):(.+)$}
+def interwiki
+  @interwiki ||= YAML.load_file(File.join(Config.root, 'interwiki.yml'))
+end
+
+INTERWIKI_REGEX = %r{^/?(#{interwiki.keys.join('|')}):(.+)$}
 
 module Wiki::PageHelper
   alias resource_path_without_interwiki resource_path

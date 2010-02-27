@@ -4,7 +4,7 @@ autoload 'Open3', 'open3'
 
 module Wiki::Pygments
   PROGRAM = 'pygmentize'
-  RUN_OPTIONS = '-O encoding=utf8 -O linenos=table -f html -l'
+  RUN_OPTIONS = '-O encoding=utf8 -O linenos=table -O cssclass=pygments -f html -l'
   LOOKUP_OPTIONS = '-L lexer'
 
   def self.pygmentize(text, format)
@@ -57,4 +57,3 @@ class Wiki::Application
     Pygments.pygmentize(code, format)
   end
 end
-

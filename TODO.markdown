@@ -1,6 +1,7 @@
 TODO
 ====
 
+- Possible object injection problem in yaml metadata
 - Equation labels and equation counter
 - RDOC filter/engine
 - Documentation
