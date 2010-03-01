@@ -111,6 +111,4 @@ $(function() {
     });
 
     $('*[accesskey]').underlineAccessKey();
-
-    $('div.gist[id]').gist();
 });

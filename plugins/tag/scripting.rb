@@ -4,7 +4,7 @@ dependencies 'filter/tag', 'gem:evaluator'
 autoload 'Evaluator', 'evaluator'
 
 # Add standard variables
-Wiki::Engine::Context.hook(:initialized) do
+Wiki::Context.hook(:initialized) do
   params['page_name'] = page.name
   params['page_path'] = page.path
   params['page_title'] = page.title

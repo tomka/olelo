@@ -1,40 +1,40 @@
 author       'Daniel Mendler'
 description  'Engine subsystem'
 
+# Engine context
+# A engine context holds the request parameters and other
+# variables used by the engines.
+# It is possible for a engine to run sub-engines. For this
+# purpose you create a subcontext which inherits the variables.
+class Wiki::Context < Struct.new(:app, :resource, :engine, :logger, :request,
+                                 :response, :parent, :private, :params)
+  include Hooks
+
+  alias page resource
+  alias tree resource
+
+  def initialize(attrs = {})
+    update(attrs)
+    self.logger  ||= Logger.new(nil)
+    self.params  ||= HashWithIndifferentAccess.new
+    self.private ||= HashWithIndifferentAccess.new
+    invoke_hook(:initialized)
+  end
+
+  def subcontext(attrs = {})
+    attrs = to_hash.merge!(attrs)
+    attrs[:params] = params.merge(attrs[:params] || {})
+    attrs[:private] = private.merge(attrs[:private] || {})
+    attrs[:parent] = self
+    Context.new(attrs)
+  end
+end
+
 # An Engine renders resources
 # Engines get a resource as input and create text.
 class Wiki::Engine
   include PageHelper
   include Templates
-
-  # Engine context
-  # A engine context holds the request parameters and other
-  # variables used by the engines.
-  # It is possible for a engine to run sub-engines. For this
-  # purpose you create a subcontext which inherits the variables.
-  class Context < Struct.new(:app, :resource, :engine, :logger, :request,
-                             :response, :parent, :private, :params)
-    include Hooks
-
-    alias page resource
-    alias tree resource
-
-    def initialize(attrs = {})
-      update(attrs)
-      self.logger  ||= Logger.new(nil)
-      self.params  ||= HashWithIndifferentAccess.new
-      self.private ||= HashWithIndifferentAccess.new
-      invoke_hook(:initialized)
-    end
-
-    def subcontext(attrs = {})
-      attrs = to_hash.merge!(attrs)
-      attrs[:params] = params.merge(attrs[:params] || {})
-      attrs[:private] = private.merge(attrs[:private] || {})
-      attrs[:parent] = self
-      Context.new(attrs)
-    end
-  end
 
   @engines = {}
 
@@ -101,28 +101,24 @@ class Wiki::Engine
   # Reimplement this method.
   def mime(resource); resource.mime; end
 
-  # Engine response. Reimplement this method
-  # if you want to set response headers for example.
-  def response(opts)
-    render(opts)
-  end
-
-  # Render resource with caching. It should not be overwritten.
-  def render(opts)
-    output(Context.new(opts.merge(:engine => self)))
+  # Render resource with possible caching. It should not be overwritten.
+  def render(context)
+    context.engine = self
+    output(context)
   end
 end
 
 # Plug-in the engine subsystem
 class Wiki::Application
   hook(:before_resource_show) do
+    @context = Context.new(:app => self,
+                           :resource => @resource,
+                           :params => params,
+                           :request => request,
+                           :response => response,
+                           :logger => logger)
     @engine = Engine.find!(@resource, :name => params[:output] || params[:engine])
-    @content = @engine.response(:app => self,
-                                :resource => @resource,
-                                :params => params,
-                                :request => request,
-                                :response => response,
-                                :logger => logger)
+    @content = @engine.render(@context)
     if @engine.layout?
       halt haml(:show)
     else

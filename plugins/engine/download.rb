@@ -5,9 +5,9 @@ dependencies 'engine/engine'
 Engine.create(:download, :priority => 999, :layout => false) do
   def accepts?(resource); true; end
   def mime(resource); resource.tree? ? 'application/zip' : resource.mime; end
-  def response(opts)
-    resource = opts[:resource]
-    response = opts[:response]
+  def output(context)
+    resource = context.resource
+    response = context.response
     if resource.tree?
       file = Tempfile.new('archive').path
       resource.repository.git_archive(resource.commit.sha, nil, '--format=zip', "--prefix=#{resource.safe_name}/", "--output=#{file}")

@@ -14,6 +14,7 @@ class Wiki::Cache
     # The following options can be specified:
     # * :disable Disable caching
     # * :update Force cache update
+    # * :marshal Marshal object before store
     def cache(bucket, key, opts = {}, &block)
       instance.cache(bucket, key, opts, &block)
     end
@@ -24,11 +25,15 @@ class Wiki::Cache
   # The following options can be specified:
   # * :disable Disable caching
   # * :update Force cache update
+  # * :marshal Marshal object before store
   def cache(bucket, key, opts = {}, &block)
     return yield if opts[:disable] || !Config.production?
-    return read(bucket, key) if exist?(bucket, key) && !opts[:update]
+    if exist?(bucket, key) && !opts[:update]
+      content = read(bucket, key)
+      return opts[:marshal] ? Marshal.restore(content) : content
+    end
     content = yield
-    write(bucket, key, content)
+    write(bucket, key, opts[:marshal] ? Marshal.dump(content) : content)
     content
   end
 
@@ -103,11 +108,17 @@ end
 
 # Provide engine with caching
 class Wiki::Engine
-  redefine_method :render do |opts|
-    context = Context.new(opts.merge(:engine => self))
+  redefine_method :render do |context|
+    context.engine = self
     context_id = Wiki.md5(name + context.resource.id + context.params.to_a.sort.inspect)
-    Cache.cache('engine', context_id,
+
+    content, vars = Cache.cache('engine', context_id,
                 :disable => context.resource.modified? || !cacheable?,
-                :update => context.request && context.request.no_cache?) { output(context) }
+                :update => context.request && context.request.no_cache?,
+                :marshal => true) do
+      [output(context), context.private]
+    end
+    context.private = vars
+    content
   end
 end

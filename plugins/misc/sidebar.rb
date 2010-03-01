@@ -10,12 +10,13 @@ class Wiki::Application
         #cache_control :etag => page.commit.sha, :last_modified => page.latest_commit.date
         cache_control :max_age => 60
 
-        engine.response(:app => self,
-	                :request => request,
-                        :response => response,
-                        :logger => logger,
-                        :resource => page,
-                        :params => params)
+        context = Context.new(:app => self,
+                              :request => request,
+                              :response => response,
+                              :logger => logger,
+                              :resource => page,
+                              :params => params)
+        engine.render(context)
       else
         %{<span class="error">#{:engine_not_available.t(:page => page.name, :mime => page.mime, :engine => nil)}</span>}
       end
