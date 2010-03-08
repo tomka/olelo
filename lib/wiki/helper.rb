@@ -65,7 +65,7 @@ module Wiki
       yield
     rescue => ex
       @logger.error(ex) if @logger
-      %{<span class="error">#{ex.message}</span>}
+      %{<span class="error">#{Wiki.html_escape ex.message}</span>}
     end
 
     def theme_links
