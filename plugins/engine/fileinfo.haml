@@ -3,12 +3,13 @@
     %tr
       %td Name
       %td&= @resource.name
-    %tr
-      %td Last modified
-      %td= date @resource.latest_commit.date
-    %tr
-      %td Version
-      %td.version= @resource.latest_commit
+    - if @resource.latest_commit
+      %tr
+        %td Last modified
+        %td= date @resource.latest_commit.date
+      %tr
+        %td Version
+        %td.version= @resource.latest_commit
     %tr
       %td Mime-Type
       %td= @resource.mime
