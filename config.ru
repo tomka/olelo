@@ -29,6 +29,7 @@ require 'rack/patches'
 require 'rack/degrade_mime_type'
 require 'rack/relative_redirect'
 require 'rack/remove_cache_buster'
+require 'rack/static_cache'
 require 'wiki/application'
 
 config_file = if ENV['WIKI_CONFIG']
@@ -99,7 +100,7 @@ if Wiki::Config.rack.deflater?
   use Rack::Deflater
 end
 
-use Rack::Static, :urls => ['/static'], :root => path
+use Rack::StaticCache, :urls => ['/static'], :root => path
 
 use Rack::RemoveCacheBuster # remove jquery cache buster
 use Rack::Session::Pool
