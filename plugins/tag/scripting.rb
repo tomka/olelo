@@ -3,17 +3,6 @@ description  'Scripting tags'
 dependencies 'filter/tag', 'gem:evaluator'
 autoload 'Evaluator', 'evaluator'
 
-# Add standard variables
-Wiki::Context.hook(:initialized) do
-  params['page_name'] = page.name
-  params['page_path'] = page.path
-  params['page_title'] = page.title
-  params['page_version'] = page.commit ? page.commit.sha : ''
-  params['is_current'] = page.current?
-  params['is_discussion'] = page.discussion?
-  params['is_meta'] = page.meta?
-end
-
 Tag.define(:value, :requires => :of, :immediate => true) do |context, attrs, content|
   Evaluator.eval(attrs['of'], context.params)
 end
