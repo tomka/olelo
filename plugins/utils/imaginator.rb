@@ -19,7 +19,7 @@ class Wiki::Application
 
   get '/_/utils/imaginator/:name', :name => /[\w\.]+/ do
     begin
-      send_file Plugin['utils/imaginator'].imaginator.result(params[:name])
+      send_file Plugin.current.imaginator.result(params[:name])
     rescue Exception => ex
       logger.error ex
       `convert -pointsize 16 -background transparent "label:#{ex.message}" PNG:-` rescue nil

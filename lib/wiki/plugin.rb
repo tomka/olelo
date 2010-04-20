@@ -13,9 +13,10 @@ module Wiki
 
       # Current loading plugin
       def current
-        stack = Thread.current[:plugin]
-        raise RuntimeError, 'No plugin context' if !stack || !stack.last
-        stack.last
+        file = Kernel.caller.each do |line|
+          return @plugins[$1] if line =~ %r{^#{@dir}/(.+?)\.rb}
+        end
+        raise RuntimeError, 'No plugin context'
       end
 
       # Get plugin by name
@@ -35,14 +36,13 @@ module Wiki
 
       # Load plugins by name and return a boolean for success
       def load(*list)
-        dir = File.join(Config.root, 'plugins')
         files = list.map do |name|
           name = name.cleanpath
-          Dir.glob(File.join(dir, '**', "#{name}.rb"))
+          Dir.glob(File.join(@dir, '**', "#{name}.rb"))
         end.flatten
         return false if files.empty?
         files.inject(true) do |result,file|
-          name = file[(dir.size+1)..-4]
+          name = file[(@dir.size+1)..-4]
           if @plugins.include?(name)
 	    result
 	  elsif !enabled?(name)
@@ -51,7 +51,7 @@ module Wiki
             begin
 	      plugin = new(name, file, logger)
               @plugins[name] = plugin
-              plugin.context { plugin.instance_eval(File.read(file), file) }
+              plugin.instance_eval(File.read(file), file)
               I18n.load_locale(file.sub(/\.rb$/, '_locale.yml'))
               I18n.load_locale(File.join(File.dirname(file), 'locale.yml'))
               Templates.paths << File.dirname(file)
@@ -96,7 +96,7 @@ module Wiki
     # Start the plugin
     def start
       return true if @started
-      context { instance_eval(&@setup) } if @setup
+      instance_eval(&@setup) if @setup
       Plugin.logger.debug("Plugin #{name} successfully started")
       @started = true
     rescue Exception => ex
@@ -122,12 +122,6 @@ module Wiki
         end
       end
       @dependencies
-    end
-
-    def context
-      (Thread.current[:plugin] ||= []) << self
-      yield
-      Thread.current[:plugin].pop
     end
 
     private_class_method :new

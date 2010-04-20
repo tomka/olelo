@@ -30,25 +30,22 @@ end
 
 # Export variables to engine context
 Wiki::Context.hook(:initialized) do
-  plugin = Plugin['misc/variables']
-  params.merge!(plugin.variables(page, engine))
+  params.merge!(Plugin.current.variables(page, engine))
 end
 
 # Export variables to javascript for client extensions
 class Wiki::Application
   hook(:before_head) do
-    plugin = Plugin['misc/variables']
-    vars = @resource ? params.merge(plugin.variables(@resource, @engine)) : params
+    vars = @resource ? params.merge(Plugin.current.variables(@resource, @engine)) : params
     %{<script type="text/javascript">
-        Wiki = #{plugin.build_json(vars)};
+        Wiki = #{Plugin.current.build_json(vars)};
       </script>}.unindent
   end
 
   get '/_/user' do
-    plugin = Plugin['misc/variables']
     %{<script type="text/javascript">
-      Wiki.user_anonymous = #{plugin.build_json @user.anonymous?};
-      Wiki.user_name = #{plugin.build_json @user.name};
+      Wiki.user_anonymous = #{Plugin.current.build_json @user.anonymous?};
+      Wiki.user_name = #{Plugin.current.build_json @user.name};
     </script>}.unindent + super()
   end
 end

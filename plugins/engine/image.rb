@@ -55,7 +55,7 @@ Engine.create(:image, :priority => 5, :layout => false, :cacheable => true) do
   end
 
   def convert(page, cmd)
-    Plugin['engine/image'].semaphore.synchronize do
+    Plugin.current.semaphore.synchronize do
       require 'open3'
       Open3.popen3(cmd) { |stdin, stdout, stderr|
         stdin << page.content
@@ -65,4 +65,3 @@ Engine.create(:image, :priority => 5, :layout => false, :cacheable => true) do
     end
   end
 end
-
