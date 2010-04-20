@@ -103,7 +103,6 @@ class Wiki::Engine
 
   # Render resource with possible caching. It should not be overwritten.
   def render(context)
-    context.engine = self
     output(context)
   end
 end
@@ -111,14 +110,15 @@ end
 # Plug-in the engine subsystem
 class Wiki::Application
   hook(:before_resource_show) do
-    @context = Context.new(:app => self,
-                           :resource => @resource,
-                           :params => params,
-                           :request => request,
-                           :response => response,
-                           :logger => logger)
     @engine = Engine.find!(@resource, :name => params[:output] || params[:engine])
-    @content = @engine.render(@context)
+    context = Context.new(:app      => self,
+                          :resource => @resource,
+                          :params   => params,
+                          :request  => request,
+                          :response => response,
+                          :logger   => logger,
+                          :engine   => @engine)
+    @content = @engine.render(context)
     if @engine.layout?
       halt haml(:show)
     else

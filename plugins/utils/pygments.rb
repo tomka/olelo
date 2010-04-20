@@ -49,11 +49,11 @@ class Wiki::Application
   assets 'pygments.css'
 
   hook(:after_style) do
-    '<link rel="stylesheet" href="/_/utils/pygments.css" type="text/css"/>' if @context && @context.private[:pygmentize_used]
+    '<link rel="stylesheet" href="/_/utils/pygments.css" type="text/css"/>' if @pygmentize_used
   end
 
   def pygmentize(code, format)
-    @context.private[:pygmentize_used] = true if @context
+    @pygmentize_used = true
     Pygments.pygmentize(code, format)
   end
 end

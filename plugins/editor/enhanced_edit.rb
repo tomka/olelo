@@ -33,8 +33,10 @@ class Wiki::Application
             page.content = params[:content]
             engine = Engine.find!(page, :layout => true)
           end
-          @context = Context.new(:app => self, :resource => page, :logger => logger)
-          @preview = engine.render(@context) if engine
+          if engine
+            context = Context.new(:app => self, :resource => page, :logger => logger, :engine => engine)
+            @preview = engine.render(context)
+          end
         end
 
         halt haml(request.put? ? :edit : :new)
