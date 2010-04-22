@@ -21,9 +21,12 @@ end
 Engine.create(:gallery, :priority => 2, :layout => true, :cacheable => true) do
   def accepts?(resource); resource.tree?; end
   def output(context)
+    per_page = 16
     @page = context.params[:curpage].to_i
     @tree = context.tree
     @images = @tree.pages.select {|page| page.mime.mediatype == 'image' }
+    @pages = @images.size / per_page
+    @images = @images[(@page * per_page) ... ((@page + 1) * per_page)].to_a
     haml :gallery, :layout => false
   end
 end
