@@ -7,8 +7,8 @@ class YamlPage < Page
     (Hash === data ? data : {}).with_indifferent_access
   end
 
-  def write(message, author = nil)
-    super(data.to_hash.to_yaml, message, author)
+  def write(comment, author = nil)
+    super(data.to_hash.to_yaml, comment, author)
   end
 end
 

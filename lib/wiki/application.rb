@@ -244,7 +244,7 @@ module Wiki
                     else
                       params[:content]
                     end
-          @resource.write(content, params[:message], user)
+          @resource.write(content, params[:comment], user)
         end
       else
         redirect((@resource.path/'edit').urlpath)
@@ -264,7 +264,7 @@ module Wiki
         end
       elsif action?(:new)
         with_hooks :page_save, @resource do
-          @resource.write(params[:content], params[:message], user)
+          @resource.write(params[:content], params[:comment], user)
         end
       else
         redirect '/new'

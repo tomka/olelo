@@ -21,7 +21,7 @@ module GitrbHelpers
 
   def create_page(name, content = 'content')
     p = Wiki::Page.new(@repo, name)
-    p.write(content, 'message')
+    p.write(content, 'comment')
   end
 end
 

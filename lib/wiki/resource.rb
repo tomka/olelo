@@ -257,7 +257,7 @@ module Wiki
     end
 
     # Write page and commit
-    def write(content, message, author = nil)
+    def write(content, comment, author = nil)
       if !content.respond_to? :read
         content.gsub!("\r\n", "\n")
 	return if @object && @object.data == content
@@ -265,10 +265,10 @@ module Wiki
 
       Wiki.check do |errors|
         errors << :already_exists.t(:path => @path) if new? && Resource.find(@repository, @path)
-        errors << :empty_commit_message.t if message.blank?
+        errors << :empty_comment.t if comment.blank?
       end
 
-      repository.transaction(message, author && author.to_git_user) do
+      repository.transaction(comment, author && author.to_git_user) do
         content = content.read if content.respond_to? :read # FIXME
         repository.root[@path] = Gitrb::Blob.new(:data => content)
       end

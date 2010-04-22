@@ -49,8 +49,8 @@ class SpamEvaluator
     SpamEvaluator.bad_words.any? {|word| data.index(word) } ? 100 : 0
   end
 
-  def eval_uri_in_message
-    @params[:message].to_s =~ %r{http://} ? 100 : 0
+  def eval_uri_in_comment
+    @params[:comment].to_s =~ %r{http://} ? 100 : 0
   end
 
   def eval_anonymous
@@ -105,7 +105,7 @@ class Wiki::Application
       level = SpamEvaluator.new(user, params, @resource).evaluate
       flash.info :spam_level.t(:level => level) if !Config.production?
       if level >= 100
-        flash.error :empty_commit_message.t if params[:message].blank? && !params[:minor]
+        flash.error :empty_comment.t if params[:comment].blank? && !params[:minor]
         flash.info :enter_captcha.t
         @show_captcha = true
         halt haml(request.put? ? :edit : :new)

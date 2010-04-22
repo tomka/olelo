@@ -21,8 +21,8 @@
         %br
         %textarea#text-content{:name=>'content', :cols=>100, :rows=>20}&= edit_content(@resource)
         %br
-        %label{:for=>'edit-message'}= :message.t
-        %input#edit-message{:type=>'text', :name=>'message', :size => 50, :value => params[:message]}
+        %label{:for=>'edit-comment'}= :comment.t
+        %input#edit-comment{:type=>'text', :name=>'comment', :size => 50, :value => params[:comment]}
         = render_block(:edit_form_buttons) do
           %button{:type=>'submit', :accesskey => 's'}= :save.t
           %button{:type=>'reset', :accesskey => 'r'}= :reset.t

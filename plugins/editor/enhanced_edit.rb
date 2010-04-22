@@ -21,7 +21,7 @@ class Wiki::Application
   hook(:before_page_save) do |page|
     if (action?(:new) || action?(:edit)) && params[:content]
       if params[:preview]
-        flash.error :empty_commit_message.t if params[:message].blank? && !params[:minor]
+        flash.error :empty_comment.t if params[:comment].blank? && !params[:minor]
 
         if page.mime.text?
           if params[:pos]
@@ -41,7 +41,7 @@ class Wiki::Application
 
         halt haml(request.put? ? :edit : :new)
       elsif params[:changes]
-        flash.error :empty_commit_message.t if params[:message].blank? && !params[:minor]
+        flash.error :empty_comment.t if params[:comment].blank? && !params[:minor]
 
         original = Tempfile.new('original')
         original.write(page.content(params[:pos], params[:len]))
@@ -57,7 +57,7 @@ class Wiki::Application
 
 	halt haml(request.put? ? :edit : :new)
       else
-        params[:message] = :minor_changes.t if params[:minor] && params[:message].blank?
+        params[:comment] = :minor_changes.t if params[:minor] && params[:comment].blank?
       end
     end
   end

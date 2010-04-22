@@ -18,8 +18,8 @@
         %br
         %textarea#text-content{:name=>'content', :cols=>100, :rows=>22}&= params[:content]
         %br
-        %label{:for=>'text-message'}= :message.t
-        %input#text-message{:type=>'text', :name=>'message', :value => params[:message], :size => 50}
+        %label{:for=>'text-comment'}= :comment.t
+        %input#text-comment{:type=>'text', :name=>'comment', :value => params[:comment], :size => 50}
         = render_block(:edit_form_buttons) do
           %button{:type=>'submit', :accesskey => 's'}= :save.t
           %button{:type=>'reset', :accesskey => 'r'}= :reset.t

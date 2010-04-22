@@ -108,7 +108,7 @@ describe 'wiki' do
     data = {
       'action' => 'new',
       'content' => 'Content of the Testpage',
-      'message' => 'Commit message'
+      'comment' => 'Comment'
     }
     post('/Testfolder/Testpage', data)
 
@@ -122,7 +122,7 @@ describe 'wiki' do
 
     get '/Testfolder/Testpage/history'
     should.be.ok
-    body.should.include 'Commit message'
+    body.should.include 'Comment'
 
     get '/Testfolder/Testpage/edit'
     should.be.ok
@@ -135,7 +135,7 @@ describe 'wiki' do
     data = {
       'action' => 'new',
       'content' => 'すみませんわかりません',
-      'message' => '测试'
+      'comment' => '测试'
     }
     post(Wiki.uri_escape('/子供を公園/中文'), data)
     should.be.redirect
