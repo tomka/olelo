@@ -92,11 +92,13 @@ use Rack::DegradeMimeType
 use Rack::RelativeRedirect
 
 if !Wiki::Config.rack.rewrite_base.blank?
+  logger.info "Use rack rewrite base=#{Wiki::Config.rack.rewrite_base}"
   require 'rack/rewrite'
   use Rack::Rewrite, :base => Wiki::Config.rack.rewrite_base
 end
 
 if Wiki::Config.rack.deflater?
+  logger.info 'Use rack deflater'
   use Rack::Deflater
 end
 
@@ -106,17 +108,20 @@ use Rack::RemoveCacheBuster # remove jquery cache buster
 use Rack::Session::Pool
 
 if Wiki::Config.rack.embed?
+  logger.info 'Use rack image embedding'
   gem 'rack-embed', '>= 0'
   require 'rack/embed'
   use Rack::Embed, :threaded => true
 end
 
 if Wiki::Config.rack.esi?
+  logger.info 'Use rack esi'
   gem 'minad-rack-esi', '>= 0'
   require 'rack/esi'
   use Rack::ESI
 
   if Wiki::Config.production?
+    logger.info 'Use rack cache'
     # FIXME: Replace with official release
     gem 'minad-rack-cache', '>= 0.5.2'
     require 'rack/cache'
