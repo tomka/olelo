@@ -56,6 +56,7 @@ First, you have to install the [Gem][] dependencies via `gem`:
     gem install imaginator
     gem install evaluator
     gem install rack-embed
+    gem install org-ruby
 
 Then, run the program using the command:
 
@@ -99,13 +100,14 @@ At least one of these renderers should be installed:
   (`creole` Gem from [gemcutter][])
 - [RDiscount][] for Markdown rendering
 - [RedCloth][] for Textile rendering
+- [org-ruby][] for org-mode rendering
 
 [creole]:http://github.com/minad/creole
 [mimemagic]:http://github.com/minad/mimemagic
 [Gem]:http://rubygems.org
 [Git]:http://www.git-scm.org
 [rack]:http://rack.rubyforge.org/
-[GitHub]:http://github.com
+[org-ruby]:http://orgmode.org/worg/org-tutorials/org-ruby.php
 [GraphViz]:http://www.graphviz.org
 [HAML]:http://haml.hamptoncatlin.com
 [nokogiri]:http://nokogiri.org/
