@@ -281,7 +281,7 @@ module Wiki
     include CacheHelper
     include ResponseHelper
 
-    attr_setter :on_error
+    attr_setter :on_error, :redirect_to_new
 
     def tab(name, &block)
       "<li#{action?(name) ? ' class="tabs-selected"' : ''}>#{capture_haml(&block)}</li>"

@@ -55,7 +55,7 @@ module Wiki
     # Executed before each request
     hook(:before_routing) do
       @timer = Timer.start
-      logger.debug request.env
+      logger.debug env
 
       @user = session[:user]
       if !@user
@@ -68,7 +68,7 @@ module Wiki
 
     # Handle 404s
     hook(NotFound) do |ex|
-      if request.env['wiki.redirect_to_new']
+      if redirect_to_new
         # Redirect to create new page if flag is set
         path = (params[:path]/'new').urlpath
         path += '?' + request.query_string if !request.query_string.blank?
@@ -78,7 +78,7 @@ module Wiki
 
     hook(StandardError) do |ex|
       if on_error
-        @logger.error ex
+        logger.error ex
         (ex.try(:messages) || [ex.message]).each {|msg| flash.error(msg) }
         halt render(on_error)
       end
@@ -218,7 +218,7 @@ module Wiki
           halt render(:show)
         end
       rescue Resource::NotFound
-        request.env['wiki.redirect_to_new'] = params[:version].blank?
+        redirect_to_new params[:version].blank?
         pass
       end
     end
