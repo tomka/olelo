@@ -10,7 +10,10 @@ Engine.create(:download, :priority => 999, :layout => false) do
     response = context.response
     if resource.tree?
       file = Tempfile.new('archive').path
-      resource.repository.git_archive(resource.commit.sha, nil, '--format=zip', "--prefix=#{resource.safe_name}/", "--output=#{file}")
+      resource.repository.git_archive('--format=zip',
+                                      "--prefix=#{resource.safe_name}/",
+                                      "--output=#{file}",
+                                      "#{resource.commit.sha}:#{resource.path}")
       response['Content-Disposition'] = 'attachment; filename="%s.zip"' % resource.safe_name
       response['Content-Length'] = File.stat(file).size.to_s
       BlockFile.open(file, 'rb')

@@ -54,18 +54,18 @@ class Wiki::Application
   end
 
   hook(:after_footer) do
-    haml(:tagbox, :layout => false) if @resource && !@resource.new?
+    render(:tagbox, :layout => false) if @resource && !@resource.new?
   end
 
   get '/tags/:tag' do
     @tag = params[:tag]
     @paths = tag_store.find_by_tag(@tag)
-    haml :tag
+    render :tag
   end
 
   get '/tags' do
     @tags = tag_store.get_all
-    haml :tags
+    render :tags
   end
 
   post '/tags/new' do

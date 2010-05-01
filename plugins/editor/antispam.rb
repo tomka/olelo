@@ -108,7 +108,7 @@ class Wiki::Application
         flash.error :empty_comment.t if params[:comment].blank? && !params[:minor]
         flash.info :enter_captcha.t
         @show_captcha = true
-        halt haml(request.put? ? :edit : :new)
+        halt render(request.put? ? :edit : :new)
       end
     end
   end

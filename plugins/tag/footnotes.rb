@@ -32,5 +32,5 @@ TEMPLATE = %q{
 
 Tag.define :references do |context, attrs, content|
   @footnotes = context.private[:footnotes]
-  haml TEMPLATE, :layout => false if @footnotes
+  render TEMPLATE, :layout => false if @footnotes
 end

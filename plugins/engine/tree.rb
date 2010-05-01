@@ -10,6 +10,6 @@ Engine.create(:tree, :priority => 1, :layout => true, :cacheable => true) do
     @tree = context.tree
     @pages = @tree.children.size / per_page
     @children = @tree.children[(@page * per_page) ... ((@page + 1) * per_page)].to_a
-    haml :tree, :layout => false
+    render :tree
   end
 end

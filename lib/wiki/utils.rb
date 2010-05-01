@@ -80,7 +80,7 @@ module Wiki
       lazy_reader :template_cache, {}
     end
 
-    def haml(name, opts = {})
+    def render(name, opts = {})
       output = render_haml(name, opts)
       output = render_haml(:layout, opts) { output } if opts[:layout] != false
       output

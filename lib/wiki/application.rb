@@ -80,7 +80,7 @@ module Wiki
       if on_error
         @logger.error ex
         (ex.try(:messages) || [ex.message]).each {|msg| flash.error(msg) }
-        halt haml(on_error)
+        halt render(on_error)
       end
     end
 
@@ -89,11 +89,11 @@ module Wiki
       cache_control :no_cache => true
       @error = ex
       logger.error @error
-      haml :error
+      render :error
     end
 
     get '/_/user' do
-      haml :user, :layout => false
+      render :user, :layout => false
     end
 
     get '/' do
@@ -101,7 +101,7 @@ module Wiki
     end
 
     get '/login', '/signup' do
-      haml :login
+      render :login
     end
 
     post '/login' do
@@ -123,7 +123,7 @@ module Wiki
     end
 
     get '/profile' do
-      haml :profile
+      render :profile
     end
 
     post '/profile' do
@@ -136,30 +136,30 @@ module Wiki
         flash.info :changes_saved.t
         session[:user] = user
       end
-      haml :profile
+      render :profile
     end
 
     get '/changes/:version' do
       @commit = repository.get_commit(params[:version])
       cache_control :etag => @commit.sha, :last_modified => @commit.date
       @diff = repository.diff(@commit.parent.first && @commit.parent.first.sha, @commit.sha)
-      haml :changes
+      render :changes
     end
 
     get '/?:path?/history' do
       @resource = Resource.find!(repository, params[:path])
       cache_control :etag => @resource.commit.sha, :last_modified => @resource.commit.date
-      haml :history
+      render :history
     end
 
     get '/:path/move' do
       @resource = Resource.find!(repository, params[:path])
-      haml :move
+      render :move
     end
 
     get '/:path/delete' do
       @resource = Resource.find!(repository, params[:path])
-      haml :delete
+      render :delete
     end
 
     post '/:path/move' do
@@ -177,7 +177,7 @@ module Wiki
       with_hooks(:resource_delete, @resource) do
         @resource.delete(user)
       end
-      haml :deleted
+      render :deleted
     end
 
     get '/?:path?/diff' do
@@ -188,24 +188,24 @@ module Wiki
         errors << :to_missing.t  if params[:to].blank?
       end
       @diff = @resource.diff(params[:from], params[:to])
-      haml :diff
+      render :diff
     end
 
     get '/:path/edit' do
       @resource = Page.find(repository, params[:path])
       redirect((params[:path]/'new').urlpath) if !@resource
-      haml :edit
+      render :edit
     end
 
     get '/?:path?/new', '/?:path?/upload' do
       on_error :new
       if params[:path] && @resource = Resource.find(repository, params[:path])
-        return haml(:edit) if @resource.page? && action?(:upload)
+        return render(:edit) if @resource.page? && action?(:upload)
         redirect((params[:path]/(@resource.tree? ? 'new page' : 'edit')).urlpath)
       end
       @resource = Page.new(repository, params[:path])
       raise RuntimeError, :reserved_path.t if reserved_path?(params[:path])
-      haml :new
+      render :new
     end
 
     get '/?:path?/version/?:version?', '/:path' do
@@ -215,7 +215,7 @@ module Wiki
         cache_control :etag => @resource.latest_commit.sha, :last_modified => @resource.latest_commit.date
         with_hooks(:resource_show) do
           @content = @resource.try(:content)
-          halt haml(:show)
+          halt render(:show)
         end
       rescue Resource::NotFound
         request.env['wiki.redirect_to_new'] = params[:version].blank?

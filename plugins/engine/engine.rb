@@ -102,8 +102,14 @@ class Wiki::Engine
   def mime(resource); resource.mime; end
 
   # Render resource with possible caching. It should not be overwritten.
-  def render(context)
+  def cached_output(context)
     output(context)
+  end
+
+  # Add :layout=>false to template rendering
+  def render(name, opts = {})
+    opts[:layout] ||= false
+    super(name, opts)
   end
 end
 
@@ -118,13 +124,13 @@ class Wiki::Application
                           :response => response,
                           :logger   => logger,
                           :engine   => @engine)
-    @content = @engine.render(context)
+    @content = @engine.cached_output(context)
     if @engine.layout?
       if request.xhr?
         content_type 'text/plain'
         halt @content
       else
-        halt haml(:show)
+        halt render(:show)
       end
     else
       content_type @engine.mime(@resource).to_s
@@ -133,6 +139,6 @@ class Wiki::Application
   end
 
   hook(:after_view_menu) do
-    haml :engines_menu, :layout => false
+    render :engines_menu, :layout => false
   end
 end

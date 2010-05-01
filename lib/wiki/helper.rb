@@ -26,7 +26,7 @@ module Wiki
     def title(content = nil, &block);    define_block(:title, content, &block);    end
 
     def menu(*menu)
-      define_block :menu, haml(:menu, :layout => false, :locals => { :menu => menu })
+      define_block :menu, render(:menu, :layout => false, :locals => { :menu => menu })
     end
 
     def include_menu

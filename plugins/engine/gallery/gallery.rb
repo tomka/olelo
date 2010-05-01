@@ -27,6 +27,6 @@ Engine.create(:gallery, :priority => 2, :layout => true, :cacheable => true) do
     @images = @tree.pages.select {|page| page.mime.mediatype == 'image' }
     @pages = @images.size / per_page
     @images = @images[(@page * per_page) ... ((@page + 1) * per_page)].to_a
-    haml :gallery, :layout => false
+    render :gallery
   end
 end

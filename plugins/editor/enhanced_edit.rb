@@ -35,11 +35,11 @@ class Wiki::Application
           end
           if engine
             context = Context.new(:app => self, :resource => page, :logger => logger, :engine => engine)
-            @preview = engine.render(context)
+            @preview = engine.cached_output(context)
           end
         end
 
-        halt haml(request.put? ? :edit : :new)
+        halt render(request.put? ? :edit : :new)
       elsif params[:changes]
         flash.error :empty_comment.t if params[:comment].blank? && !params[:minor]
 
@@ -55,7 +55,7 @@ class Wiki::Application
         @patch = IO.popen("diff -u '#{original.path}' '#{new.path}'", 'rb') {|io| io.read }
         @patch.force_encoding(__ENCODING__)
 
-	halt haml(request.put? ? :edit : :new)
+	halt render(request.put? ? :edit : :new)
       else
         params[:comment] = :minor_changes.t if params[:minor] && params[:comment].blank?
       end

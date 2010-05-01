@@ -108,7 +108,7 @@ end
 
 # Provide engine with caching
 class Wiki::Engine
-  redefine_method :render do |context|
+  redefine_method :cached_output do |context|
     context_id = Wiki.md5(name + context.resource.id + context.params.to_a.sort.inspect)
 
     content, vars = Cache.cache('engine', context_id,

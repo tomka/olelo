@@ -5,7 +5,8 @@
     var img2 = $('#gallery-image2');
     var preloaded = [];
 
-    $('#gallery-thumbs a').click(function() {
+    $('#gallery-thumbs a').click(function(e) {
+	e.preventDefault();
         img2.hide().attr('src', this.href);
         img1.fadeOut('slow');
         img2.fadeIn('slow');

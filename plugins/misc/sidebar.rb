@@ -17,7 +17,7 @@ class Wiki::Application
                               :resource => page,
                               :params   => params,
                               :engine   => engine)
-        engine.render(context)
+        engine.cached_output(context)
       else
         %{<span class="error">#{:engine_not_available.t(:page => page.name, :mime => page.mime, :engine => nil)}</span>}
       end
