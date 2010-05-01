@@ -76,24 +76,23 @@ jQuery.fn.historyTable = function() {
     });
 };
 
+jQuery.fn.zebra = function() {
+    $('tr:even', this).addClass('even');
+    $('tr:odd', this).addClass('odd');
+};
+
 // Wiki bootstrap
 // Written by Daniel Mendler
 $(function() {
     $('#themes').styleswitcher();
-
     $('.tabs').tabs();
-
     $('table.sortable').tablesorter({widgets: ['zebra']});
-
     $('table.history').historyTable();
-
-    $('.zebra tr:even, .history tr:even').addClass('even');
-    $('.zebra tr:odd, .history tr:odd').addClass('odd');
-
-    $('input.placeholder').placeholder();
-
+    $('.zebra').zebra();
     $('.date').dateToggler();
-    $('label, #menu, .tabs > ul').disableSelection();
+    $('input.placeholder').placeholder();
+    $('label, #menu, .tabs > ul, .pagination').disableSelection();
+
     $('#upload-file').change(function() {
         var elem = $('#upload-path'), val, oldpath;
 	if (elem.size() == 1) {
@@ -111,4 +110,13 @@ $(function() {
     });
 
     $('*[accesskey]').underlineAccessKey();
+
+    $('a.ajax-content').live('click', function(e){
+	e.preventDefault();
+	$('#inner_content').load(this.href, function() {
+	    $('#inner_content .zebra').zebra();
+	    $('#inner_content .date').dateToggler();
+	});
+	return false;
+    });
 });

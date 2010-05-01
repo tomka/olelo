@@ -120,7 +120,12 @@ class Wiki::Application
                           :engine   => @engine)
     @content = @engine.render(context)
     if @engine.layout?
-      halt haml(:show)
+      if request.xhr?
+        content_type 'text/plain'
+        halt @content
+      else
+        halt haml(:show)
+      end
     else
       content_type @engine.mime(@resource).to_s
       halt @content

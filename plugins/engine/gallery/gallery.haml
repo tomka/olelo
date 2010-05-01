@@ -6,7 +6,7 @@
         - if i == @page
           %a.current{:href=>'#'}= i + 1
         - else
-          %a{:href => resource_path(@tree, :output => 'gallery', :curpage => i)}= i + 1
+          %a.ajax-content{:href => resource_path(@tree, :output => 'gallery', :curpage => i)}= i + 1
 - if @images.empty?
   = :empty.t
 - else
