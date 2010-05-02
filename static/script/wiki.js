@@ -1,9 +1,3 @@
-jQuery.fn.disableSelection = function() {
-    return this.attr('unselectable', 'on')
-               .css('MozUserSelect', 'none')
-               .bind('selectstart.ui', function() { return false; });
-};
-
 jQuery.fn.historyTable = function() {
     $(this).disableSelection();
     var rows = $('tbody tr', this);
@@ -76,19 +70,14 @@ jQuery.fn.historyTable = function() {
     });
 };
 
-jQuery.fn.zebra = function() {
-    $('tr:even', this).addClass('even');
-    $('tr:odd', this).addClass('odd');
-};
-
 // Wiki bootstrap
 // Written by Daniel Mendler
 $(function() {
     $('#themes').styleswitcher();
     $('.tabs').tabs();
     $('table.sortable').tablesorter({widgets: ['zebra']});
-    $('table.history').historyTable();
-    $('.zebra').zebra();
+    $('#history-table').historyTable();
+    $('.zebra, #history-table, #tree-table').zebra();
     $('.date').dateToggler();
     $('input.placeholder').placeholder();
     $('label, #menu, .tabs > ul, .pagination').disableSelection();
@@ -113,9 +102,9 @@ $(function() {
 
     $('.pagination a').live('click', function(e){
 	e.preventDefault();
-	$('#inner_content').load(this.href, function() {
-	    $('#inner_content .zebra').zebra();
-	    $('#inner_content .date').dateToggler();
+	$('#inner-content').load(this.href, function() {
+	    $('#inner-content .zebra, #inner-content, #history-table, #inner-content, #tree-table').zebra();
+	    $('#inner-content .date').dateToggler();
 	});
 	return false;
     });

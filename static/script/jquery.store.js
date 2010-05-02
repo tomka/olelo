@@ -8,14 +8,14 @@
 		data += part;
 		++i;
 	    }
-	    $.store.data = data.length != 0 ? $.evalJSON(data) : {};
+	    $.store.data = data.length != 0 ? JSON.parse(data) : {};
 	},
 	get: function(name, fallback) {
 	    return $.store.data[name] || fallback;
 	},
 	set: function(name, value) {
 	    $.store.data[name] = value;
-	    var data = $.toJSON($.store.data), blocksize = 1024;
+	    var data = JSON.stringify($.store.data), blocksize = 1024;
 	    for (var i = 0; blocksize * i < data.length; ++i)
 		$.cookie('store' + i, data.substr(i * blocksize, blocksize), { expires: 365*100, path: '/' });
 	}

@@ -1,6 +1,6 @@
 = pagination(@page, @pages, @curpage, :output => 'documentbrowser')
 %p
-  %img#pdf{:src=> resource_path(@page, :output => 'image', :geometry => '600x>', :trim => 1, :curpage => @curpage)}
+  %img#pdf{:src=> resource_path(@page, :output => 'image', :geometry => '480x>', :trim => 1, :curpage => @curpage)}
 = pagination(@page, @pages, @curpage, :output => 'documentbrowser')
 %h3 Information
 %table.zebra
