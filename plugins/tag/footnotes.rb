@@ -21,16 +21,18 @@ Tag.define :ref do |context, attrs, content|
   %{<a class="ref" id="ref#{ref_id}" href="#note#{note_id}">[#{note_id}]</a>}
 end
 
-TEMPLATE = %q{
-%ol
-  - @footnotes.map do |id, note, refs|
-    %li{:id=>"note#{id}"}
-      - refs.each do |ref|
-        %a.backref{:href=>"#ref#{ref}"} &#8593;
-      = note
-}
-
 Tag.define :references do |context, attrs, content|
-  @footnotes = context.private[:footnotes]
-  render TEMPLATE, :layout => false if @footnotes
+  footnotes = context.private[:footnotes]
+  builder do
+    ol {
+      footnotes.each do |id, note, refs|
+        li(:id=>"note#{id}") {
+          refs.each do |ref|
+            a.backref '↑', :href => "#ref#{ref}"
+          end
+          text note
+        }
+      end
+    }
+  end if footnotes
 end

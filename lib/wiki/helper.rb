@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-require 'wiki/utils'
+require 'wiki/util'
 
 module Wiki
   module BlockHelper
@@ -36,6 +36,8 @@ module Wiki
   end
 
   module FlashHelper
+    include Util
+
     class Flash < Hash
       def error(msg); (self[:error] ||= []) << msg; end
       def warn(msg);  (self[:warn]  ||= []) << msg; end
@@ -48,24 +50,65 @@ module Wiki
 
     def flash_messages
       if !flash.empty?
-        out = '<ul>'
-        flash.each do |level, list|
-          list.each do |msg|
-            out << %{<li class="#{level}">#{Wiki.html_escape msg}</li>}
+        builder do
+          ul do
+            flash.each do |level, list|
+              list.each do |msg|
+                li msg, :class => level
+              end
+            end
+            flash.clear
           end
         end
-        flash.clear
-        out + '</ul>'
       end
     end
   end
 
   module PageHelper
+    include Util
+
     def safe_output
       yield
     rescue => ex
       @logger.error(ex) if @logger
-      %{<span class="error">#{Wiki.html_escape ex.message}</span>}
+      builder { span.error ex.message }
+    end
+
+    def pagination(resource, pages, curpage, opts)
+      if pages > 0
+        builder do
+          ul.pagination {
+            if curpage > 0
+              li { a '«', :href => resource_path(resource, opts.merge(:curpage => 0)) }
+              li { a '‹', :href => resource_path(resource, opts.merge(:curpage => curpage - 1)) }
+            end
+            min = curpage - 3
+            max = curpage + 3
+            if min > 0
+              min -= max - pages if max > pages
+            else
+              max -= min if min < 0
+            end
+            max = [max, pages].min
+            min = [min, 0].max
+            li '…' if min != 0
+            (min..max).each do |i|
+              li {
+                if i == curpage
+                  a.current i + 1, :href => '#'
+                else
+                  a i + 1, :href => resource_path(resource, opts.merge(:curpage => i))
+                end
+              }
+            end
+            li '…' if max != pages
+            if curpage < pages
+              li { a '›', :href => resource_path(resource, opts.merge(:curpage => curpage + 1)) }
+              li { a '»', :href => resource_path(resource, opts.merge(:curpage => pages)) }
+            end
+          }
+        end
+      end
     end
 
     def theme_links
@@ -73,7 +116,8 @@ module Wiki
       Dir.glob(File.join(Config.root, 'static', 'themes', '*', 'style.css')).map do |file|
         name = File.basename(File.dirname(file))
         next if name == 'default'
-        %{<link rel="#{name == default ? 'alternate ' : ''}stylesheet" href="/static/themes/#{name}/style.css" type="text/css" title="#{name}"/>}
+        %{<link rel="#{name == default ? 'alternate ' : ''}stylesheet"
+          href="/static/themes/#{name}/style.css" type="text/css" title="#{name}"/>}.unindent
       end.compact.join("\n")
     end
 
@@ -84,7 +128,7 @@ module Wiki
       lines.each do |line|
         case line
         when %r{^diff ([\w\-\s]+?) "?a/(.+?)"? "?b/(.+?)"?$}
-          path = Wiki.backslash_unescape($2)
+          path = unescape_backslash($2)
           count += 1
           header = true
         when /^\+\+\+/
@@ -95,14 +139,14 @@ module Wiki
             html << %{<table class="changes" id="file-#{count}">}
             if opts[:from] && opts[:to]
               html << %{<thead><tr><th>
-                          <a class="left" href="#{Wiki.html_escape path.urlpath}">#{path}</a>
+                          <a class="left" href="#{escape_html path.urlpath}">#{path}</a>
                           <span class="right">
-                            <a href="#{Wiki.html_escape((path/'version'/opts[:from].sha[0..4]).urlpath)}">#{opts[:from].sha[0..4]}</a> to
-                            <a href="#{Wiki.html_escape((path/'version'/opts[:to].sha[0..4]).urlpath)}">#{opts[:to].sha[0..4]}</a>
+                            <a href="#{escape_html((path/'version'/opts[:from].sha[0..4]).urlpath)}">#{opts[:from].sha[0..4]}</a> to
+                            <a href="#{escape_html((path/'version'/opts[:to].sha[0..4]).urlpath)}">#{opts[:to].sha[0..4]}</a>
                           </span>
                          </th></tr></thead>}.unindent
             else
-              html << %{<thead><tr><th><a class="left" href="#{Wiki.html_escape path.urlpath}">#{Wiki.html_escape path}</a></th></tr></thead>}
+              html << %{<thead><tr><th><a class="left" href="#{escape_html path.urlpath}">#{escape_html path}</a></th></tr></thead>}
             end
           else
             html << %{<table class="changes">}
@@ -123,7 +167,7 @@ module Wiki
             when /-|\+| /
               html << '</span>' if last && last != ch
               html << "<span#{{'-' => ' class="minus"', '+' => ' class="plus"'}[ch]}>" if last != ch
-              html << (line.length > 1 ? Wiki.html_escape(line[1..-1]) : '&#160;') << "\n"
+              html << (line.length > 1 ? escape_html(line[1..-1]) : '&#160;') << "\n"
               last = ch
             end
           end
@@ -136,7 +180,7 @@ module Wiki
       else
         result = '<ul class="files">'
         files.each do |clazz, name, id|
-          result << %{<li class="#{clazz}"><a href="#file-#{id}">#{Wiki.html_escape name}</a></li>}
+          result << %{<li class="#{clazz}"><a href="#file-#{id}">#{escape_html name}</a></li>}
         end
         result << '</ul>' << html
       end
@@ -148,17 +192,19 @@ module Wiki
 
     def breadcrumbs(resource)
       path = resource.try(:path) || ''
-      links = [%{<a href="#{Wiki.html_escape resource_path(resource, :path => '/root')}">#{:root_path.t}</a>}]
-      path.split('/').inject('') do |parent,elem|
-        links << %{<a href="#{Wiki.html_escape resource_path(resource, :path => (parent/elem).urlpath)}">#{Wiki.html_escape elem}</a>}
-        parent/elem
+      builder do
+        li.first.breadcrumb(:class => '' == path ? 'last' : '') {
+          a :root_path.t, :href => resource_path(resource, :path => '/root')
+        }
+        path.split('/').inject('') do |parent,elem|
+          li.breadcrumb '/'
+          current = parent/elem
+          li.breadcrumb(:class => current == path ? 'last' : '') {
+            a elem, :href => resource_path(resource, :path => current.urlpath)
+          }
+          current
+        end
       end
-
-      result = []
-      links.each_with_index do |link,i|
-        result << %{<li class="breadcrumb#{i==0 ? ' first' : ''}#{i==links.size-1 ? ' last' : ''}">#{link}</li>}
-      end
-      result.join(%{<li class="breadcrumb">/</li>})
     end
 
     def resource_path(resource, opts = {})
@@ -172,7 +218,7 @@ module Wiki
         path = resource.path
       end
       path = (version.blank? ? path : path/'version'/version).urlpath
-      path << '?' << Wiki.build_query(opts) if !opts.empty?
+      path << '?' << build_query(opts) if !opts.empty?
       path
     end
 
@@ -193,6 +239,8 @@ module Wiki
   end
 
   module CacheHelper
+    include Util
+
     # Cache control for resource
     def cache_control(opts)
       return if !Config.production?
@@ -214,7 +262,7 @@ module Wiki
         opts[:private] = true
 
         # Special etag for authenticated user
-        opts[:etag] = Wiki.md5("#{@user.name}#{opts[:etag]}") if opts[:etag]
+        opts[:etag] = md5("#{@user.name}#{opts[:etag]}") if opts[:etag]
       end
 
       if opts[:etag]
@@ -291,7 +339,7 @@ module Wiki
       if params[:action]
         params[:action] == name.to_s
       else
-        Wiki.uri_unescape(request.path_info).ends_with? '/' + name.to_s
+        unescape(request.path_info).ends_with? '/' + name.to_s
       end
     end
 

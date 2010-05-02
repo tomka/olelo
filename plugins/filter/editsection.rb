@@ -23,7 +23,7 @@ Filter.create :editsection do |content|
       i = $1.to_i
       l = pos[i+1] ? pos[i+1][1] - pos[i][1] - 1 : len - pos[i][1]
       path = action_path(context.page, :edit) + "?pos=#{pos[i][1]}&len=#{l}&comment=#{pos[i][3]} edited"
-      %{<span class="editlink">[<a href="#{Wiki.html_escape path}" title="Edit section #{Wiki.html_escape pos[i][3]}">Edit</a>]</span>}
+      %{<span class="editlink">[<a href="#{escape_html path}" title="Edit section #{escape_html pos[i][3]}">Edit</a>]</span>}
     end
     content
   end

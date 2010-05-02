@@ -47,7 +47,7 @@ User.define_service(:yamlfile) do
 
   def change_password(user, oldpassword, password)
     @store.transaction do |store|
-      Wiki.check do |errors|
+      check do |errors|
         errors << 'User not found' if !store[user.name]
         errors << :wrong_password.t if crypt(oldpassword) != store[user.name]['password']
       end
@@ -58,6 +58,6 @@ User.define_service(:yamlfile) do
   private
 
   def crypt(s)
-    s.blank? ? s : Wiki.sha256(s)
+    s.blank? ? s : sha256(s)
   end
 end

@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
-require 'wiki/utils'
+require 'wiki/util'
 
 module Wiki
   # Wiki plugin system
   class Plugin
+    include Util
+
     @plugins = {}
+    @failed = []
     @dir = ''
     @logger = nil
 
@@ -29,6 +32,11 @@ module Wiki
         @plugins.values
       end
 
+      # Get failed plugins
+      def failed
+        @failed
+      end
+
       # Start plugins
       def start
         @plugins.each_value {|plugin| plugin.start }
@@ -43,7 +51,7 @@ module Wiki
         return false if files.empty?
         files.inject(true) do |result,file|
           name = file[(@dir.size+1)..-4]
-          if @plugins.include?(name)
+          if @failed.include?(name) || @plugins.include?(name)
 	    result
 	  elsif !enabled?(name)
 	    false
@@ -57,6 +65,7 @@ module Wiki
               Templates.paths << File.dirname(file)
               logger.debug("Plugin #{name} successfully loaded")
             rescue Exception => ex
+              @failed << name
               logger.error ex
               @plugins.delete(name)
               false

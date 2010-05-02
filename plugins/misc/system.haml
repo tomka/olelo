@@ -12,15 +12,6 @@
     %td Memory usage:
     %td #{@memory} MiB
 %h2 Plugins
-Disabled Plugins:
-- if @disabled_plugins.empty?
-  None
-- else
-  %ul
-    = list_of(Wiki::Config.disabled_plugins) do |plugin|
-      = plugin
-%br
-Installed Plugins:
 %table.sortable.full
   %thead
     %tr
@@ -35,3 +26,19 @@ Installed Plugins:
         %td&= plugin.author
         %td&= plugin.description
         %td&= plugin.dependencies.join(', ')
+    - @disabled_plugins.each do |plugin|
+      %tr
+        %td
+          &= plugin
+          (disabled)
+        %td unknown
+        %td unknown
+        %td unknown
+    - @failed_plugins.each do |plugin|
+      %tr
+        %td
+          &= plugin
+          (failed)
+        %td unknown
+        %td unknown
+        %td unknown

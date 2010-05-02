@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-require 'wiki/utils'
+require 'wiki/util'
+require 'wiki/hooks'
 
 module Wiki
   module Routing
@@ -112,7 +113,7 @@ module Wiki
     def route!
       invoke_hook(:before_routing)
 
-      path = Wiki.uri_unescape(@request.path_info)
+      path = unescape(@request.path_info)
       method = @request.request_method
       routes = self.class.routes[method]
       routes.each do |name, pattern, keys|

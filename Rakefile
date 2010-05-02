@@ -39,7 +39,7 @@ file('plugins/treeview/script.js' => Dir.glob('plugins/treeview/script/*.js')) {
 
 namespace :gen do
   desc('Shrink JS files')
-  task :script => %w(static/script.js plugins/treeview/script.js)
+  task :js => %w(static/script.js plugins/treeview/script.js)
 
   desc('Compile CSS files')
   task :css => %w(static/themes/blue/style.css plugins/treeview/treeview.css plugins/utils/pygments.css plugins/engine/gallery/gallery.css)

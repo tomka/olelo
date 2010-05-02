@@ -5,7 +5,8 @@ class Wiki::Application
   get '/system' do
     GC.start
     @plugins = Plugin.plugins.sort_by(&:name)
-    @disabled_plugins = Array === Config.disabled_plugins ? Config.disabled_plugins : []
+    @failed_plugins = Plugin.failed.sort
+    @disabled_plugins = Config.disabled_plugins.to_a.sort
     @memory = `ps -o rss= -p #{Process.pid}`.to_i / 1024
     render :system
   end

@@ -5,6 +5,7 @@ autoload 'Creole', 'creole'
 
 class WikiCreoleParser < Creole
   include PageHelper
+  include Util
 
   def initialize(page)
     super()
@@ -31,15 +32,15 @@ class WikiCreoleParser < Creole
       image_path = resource_path(@page, opts)
       page_path = resource_path(@page, :path => path)
     end
-    image_path = Wiki.html_escape(image_path)
-    page_path = Wiki.html_escape(page_path)
+    image_path = escape_html(image_path)
+    page_path = escape_html(page_path)
     nolink = args.delete('nolink')
     box = args.delete('box')
-    alt = Wiki.html_escape(args[0] ? args[0] : path)
+    alt = escape_html(args[0] ? args[0] : path)
     if nolink
       %{<img src="#{image_path}" alt="#{alt}"/>}
     elsif box
-      caption = args[0] ? %{<span class="caption">#{Wiki.html_escape args[0]}</span>} : ''
+      caption = args[0] ? %{<span class="caption">#{escape_html args[0]}</span>} : ''
       %{<span class="img"><a href="#{page_path}"><img src="#{image_path}" alt="#{alt}"/>#{caption}</a></span>}
     else
       %{<a href="#{page_path}" class="img"><img src="#{image_path}" alt="#{alt}"/></a>}

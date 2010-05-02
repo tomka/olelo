@@ -5,6 +5,7 @@ Rack::MockRequest::DEFAULT_ENV['REMOTE_ADDR'] = 'localhorst'
 
 class Bacon::Context
   include Rack::Test::Methods
+  include Wiki::Util
 
   attr_reader :app
 
@@ -137,21 +138,21 @@ describe 'wiki' do
       'content' => 'すみませんわかりません',
       'comment' => '测试'
     }
-    post(Wiki.uri_escape('/子供を公園/中文'), data)
+    post(escape('/子供を公園/中文'), data)
     should.be.redirect
 
-    Wiki.uri_unescape(location).should.equal '/子供を公園/中文'
+    unescape(location).should.equal '/子供を公園/中文'
 
-    get Wiki.uri_escape('/子供を公園/中文')
+    get escape('/子供を公園/中文')
     should.be.ok
 
-    get Wiki.uri_escape('/子供を公園/中文/history')
+    get escape('/子供を公園/中文/history')
     should.be.ok
 
-    get Wiki.uri_escape('/子供を公園/中文/edit')
+    get escape('/子供を公園/中文/edit')
     should.be.ok
 
-    get Wiki.uri_escape('/子供を公園/中文/upload')
+    get escape('/子供を公園/中文/upload')
     should.be.ok
   end
 end

@@ -1,12 +1,5 @@
 - per_row = 4
-- if @pages > 0
-  %p
-    %ul.pagination
-      = list_of(0..@pages) do |i|
-        - if i == @page
-          %a.current{:href=>'#'}= i + 1
-        - else
-          %a.ajax-content{:href => resource_path(@tree, :output => 'gallery', :curpage => i)}= i + 1
+= pagination(@tree, @pages, @curpage, :output => 'gallery')
 - if @images.empty?
   = :empty.t
 - else
@@ -20,3 +13,4 @@
             %a{:href=>image_path}
               %img{:src=>thumb_path, :alt=>''}
   #gallery-screen
+= pagination(@tree, @pages, @curpage, :output => 'gallery')

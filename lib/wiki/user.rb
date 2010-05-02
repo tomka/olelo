@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-require 'wiki/utils'
+require 'wiki/util'
 require 'wiki/extensions'
 
 module Wiki
@@ -7,6 +7,7 @@ module Wiki
   end
 
   class User
+    include Util
     attr_reader :name, :groups
     attr_accessor :email
 
@@ -41,7 +42,7 @@ module Wiki
     end
 
     def validate
-      Wiki.check do |errors|
+      check do |errors|
         errors << :invalid_email.t if email !~ /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\Z/i
         errors << :invalid_name.t  if name !~ /[\w.\-+_]+/
       end
@@ -50,6 +51,8 @@ module Wiki
     @services = {}
 
     class NullService
+      include Util
+
       def method_missing(name, *args)
         raise NotImplementedError, :auth_unsupported.t(:name => name)
       end
@@ -57,7 +60,7 @@ module Wiki
 
     class<< self
       def validate_password(password, confirm)
-        Wiki.check do |errors|
+        check do |errors|
           errors << :passwords_do_not_match.t if password != confirm
           errors << :empty_password.t if password.blank?
         end

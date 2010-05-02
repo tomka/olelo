@@ -1,6 +1,7 @@
 author      'Daniel Mendler'
 description 'Image rendering engine'
 dependencies 'engine/engine', 'utils/semaphore'
+require 'open3'
 
 cpu_count = `cat /proc/cpuinfo | grep processor | wc -l`.to_i rescue 1
 @semaphore = Semaphore.new(cpu_count)
@@ -25,26 +26,31 @@ Engine.create(:image, :priority => 5, :layout => false, :cacheable => true) do
   def output(context)
     page = context.page
     geometry = context.params[:geometry]
+    trim = context.params[:trim]
     if pdf_or_ps?(page)
       curpage = context.params[:curpage].to_i + 1
-      cmd = ''
-      if page.mime == 'application/x-bzpostscript'
-        cmd = 'bunzip2 -c - | '
-      elsif page.mime == 'application/x-gzpostscript'
-        cmd = 'gunzip -c - | '
-      end
+      cmd = case page.mime.to_s
+            when /bz/
+              'bunzip2 | '
+            when /gz/
+              'gunzip | '
+            else
+              ''
+            end
       if ps?(page)
         cmd << "psselect -p#{curpage} /dev/stdin /dev/stdout | "
-        cmd << "gs -sDEVICE=jpeg -sOutputFile=- -r150 -dBATCH  -dNOPAUSE -q - | "
+        cmd << "gs -sDEVICE=jpeg -sOutputFile=- -r200 -dBATCH -dNOPAUSE -q - | "
       else
-        cmd << "gs -sDEVICE=jpeg -sOutputFile=- -dFirstPage=#{curpage} -dLastPage=#{curpage} -r150 -dBATCH  -dNOPAUSE -q - | "
+        cmd << "gs -sDEVICE=jpeg -sOutputFile=- -dFirstPage=#{curpage} -dLastPage=#{curpage} -r200 -dBATCH -dNOPAUSE -q - | "
       end
       cmd << 'convert -depth 8 -quality 50 '
+      cmd << ' -trim' if trim
       cmd << " -resize '#{geometry}'" if geometry =~ /^(\d+)?x?(\d+)?[%!<>]*$/
       cmd << ' - JPEG:-'
       convert(page, cmd)
-    elsif svg?(page) || geometry
+    elsif svg?(page) || geometry || trim
       cmd = 'convert'
+      cmd << ' -trim' if trim
       cmd << " -resize '#{geometry}'" if geometry =~ /^(\d+)?x?(\d+)?[%!<>]*$/
       cmd << ' - '
       cmd << (page.mime.to_s == 'image/jpeg' ? 'JPEG:-' : 'PNG:-')
@@ -56,7 +62,6 @@ Engine.create(:image, :priority => 5, :layout => false, :cacheable => true) do
 
   def convert(page, cmd)
     Plugin.current.semaphore.synchronize do
-      require 'open3'
       Open3.popen3(cmd) { |stdin, stdout, stderr|
         stdin << page.content
         stdin.close

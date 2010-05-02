@@ -41,7 +41,7 @@ end
 default_config = {
   :title        => 'Git-Wiki',
   :root         => path,
-  :production   => false,
+  :production   => true,
   :locale	=> 'en_US',
   :main_page    => 'Home',
   :sidebar_page => 'Sidebar',

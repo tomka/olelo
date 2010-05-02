@@ -6,7 +6,7 @@ Engine.create(:imageinfo, :priority => 1, :layout => true, :cacheable => true) d
   def accepts?(page); page.mime.mediatype == 'image'; end
   def output(context)
     require 'open3'
-    @resource = context.page
+    @page = context.page
     identify = Open3.popen3("identify -format '%m %h %w' -") { |stdin, stdout, stderr|
       stdin << context.page.content
       stdin.close

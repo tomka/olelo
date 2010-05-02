@@ -3,6 +3,8 @@ description  'Support for XML tag soup in wiki text'
 dependencies 'engine/filter'
 
 class TagSoupParser
+  include Util
+
   def initialize(tags, content)
     @content = content
     @tags = tags
@@ -41,7 +43,7 @@ class TagSoupParser
       @parsed << $&
       attrs = $&
       attrs = (attrs.scan(/([:\-\w]+)=("[^"]+"|'[^']+')/).map {|a,b| [a, b[1...-1]] } +
-               attrs.scan(/([:\-\w]+)=((?:[^\s'"\/>]|\/[^'"\/>])+)/)).flatten.map {|x| Wiki.html_unescape(x) }
+               attrs.scan(/([:\-\w]+)=((?:[^\s'"\/>]|\/[^'"\/>])+)/)).flatten.map {|x| unescape_html(x) }
       @attrs = Hash[*attrs].with_indifferent_access
       else
       @attrs = {}
@@ -159,7 +161,7 @@ class Wiki::Tag < Filter
                tag.method.bind(self).call(context, attrs, content).to_s
              rescue Exception => ex
                context.logger.error ex
-               "#{name}: #{Wiki.html_escape ex.message}"
+               "#{name}: #{escape_html ex.message}"
              end
       if tag.immediate
         content
@@ -195,5 +197,5 @@ end
 Filter.register Tag.new(:tag)
 
 Tag.define :nowiki do |context, attrs, content|
-  Wiki.html_escape(content)
+  escape_html(content)
 end

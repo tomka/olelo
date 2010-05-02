@@ -6,6 +6,7 @@ require 'wiki/resource'
 require 'wiki/helper'
 require 'wiki/user'
 require 'wiki/plugin'
+require 'wiki/templates'
 
 module Wiki
   # Main class of the application
@@ -13,6 +14,7 @@ module Wiki
     include Routing
     include ApplicationHelper
     include Templates
+    include Util
     extend Assets
 
     patterns :path => PATH_PATTERN, :version => VERSION_PATTERN
@@ -183,7 +185,7 @@ module Wiki
     get '/?:path?/diff' do
       on_error :history
       @resource = Resource.find!(repository, params[:path])
-      Wiki.check do |errors|
+      check do |errors|
         errors << :from_missing.t if params[:from].blank?
         errors << :to_missing.t  if params[:to].blank?
       end

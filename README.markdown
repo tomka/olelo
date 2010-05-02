@@ -20,7 +20,7 @@ A lot of the features are implemented as plugins.
 - Syntax highlighting (embedded code blocks)
 - Images can be uploaded
 - Image resizing, SVG to bitmap conversion
-- Auto-generated table of contents (via nokogiri)
+- Auto-generated table of contents
 - Templates via include-tag
 - XML tag soup can be used to extend Wiki syntax
 - View pages as S5 presentation
@@ -36,6 +36,7 @@ First, you have to install the [Gem][] dependencies via `gem`:
     gem install mimemagic
     gem install haml
     gem install rack
+    gem install nokogiri
     gem install mongrel --source http://gems.rubyinstaller.org
 
     # other rack-esi implementations should also work
@@ -48,7 +49,6 @@ First, you have to install the [Gem][] dependencies via `gem`:
 
 ### Optional:
 
-    gem install nokogiri
     gem install rdiscount
     gem install RedCloth
     gem install maruku
@@ -78,6 +78,7 @@ Git-Wiki works with all of them thanks to rack.
 Dependencies
 ------------
 
+- [nokogiri][]
 - [HAML][]
 - [gitrb][]
 - [rack][]
@@ -85,7 +86,6 @@ Dependencies
 
 ### Optional Dependencies
 
-- [nokogiri][] for auto-generated table of contents
 - [imaginator][] for [LaTeX][]/[GraphViz][] output
   (`imaginator` Gem from [gemcutter][])
 - [Pygments][] for syntax highlighting

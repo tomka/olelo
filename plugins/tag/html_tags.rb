@@ -42,7 +42,7 @@ HTML_TAGS = {
 
 HTML_TAGS.each do |name, allowed|
   Tag.define(name) do |context, attrs, content|
-    attrs = attrs.select {|k| allowed.include? k }.map {|k,v| %{#{k}="#{Wiki.html_escape v}"} }.join(' ')
+    attrs = attrs.select {|k| allowed.include? k }.map {|k,v| %{#{k}="#{escape_html v}"} }.join(' ')
     "<#{name}#{attrs.blank? ? '' : ' '+attrs}>#{subfilter(nested_tags(context, content))}</#{name}>"
   end
 end

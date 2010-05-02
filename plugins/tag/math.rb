@@ -3,6 +3,8 @@ description  'LaTeX rendering (math tags)'
 dependencies 'filter/tag'
 
 class Renderer
+  include Util
+
   def initialize
     @loaded = false
   end
@@ -45,7 +47,7 @@ class ImaginatorRenderer < Renderer
 
   def render(code, display)
     name = Plugin['utils/imaginator'].imaginator.enqueue('math', code)
-    %{<img src="/_/utils/imaginator/#{name}" alt="#{Wiki.html_escape code}" class="math #{display}"/>}
+    %{<img src="/_/utils/imaginator/#{name}" alt="#{escape_html code}" class="math #{display}"/>}
   end
 end
 
@@ -114,7 +116,7 @@ class BlahtexImageRenderer < Renderer
       stdout.read
     end
     content =~ %r{<md5>(.*)</md5>}m
-    %{<img src="/_/tag/math/blahtex/#{$1}.png" alt="#{Wiki.html_escape code}" class="math #{display}"/>}
+    %{<img src="/_/tag/math/blahtex/#{$1}.png" alt="#{escape_html code}" class="math #{display}"/>}
   end
 end
 

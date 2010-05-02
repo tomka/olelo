@@ -8,7 +8,7 @@ class Wiki::Application
     repository.git_ls_tree('-r', '--name-only', 'HEAD') do |io|
       while !io.eof?
         line = repository.set_encoding(io.readline)
-	line = Wiki.backslash_unescape(line)
+	line = unescape_backslash(line)
         if line =~ /#{params[:pattern]}/i
           matches[line] ||= ''
         end
@@ -18,7 +18,7 @@ class Wiki::Application
     repository.git_grep('-z', '-e', params[:pattern], '-i', repository.branch) do |io|
       while !io.eof?
         line = repository.set_encoding(io.readline)
-	line = Wiki.backslash_unescape(line)
+	line = unescape_backslash(line)
         if line =~ /(.*)\:(.*)\0(.*)/
           (matches[$2] ||= '') << $3
         end
@@ -32,6 +32,6 @@ class Wiki::Application
   private
 
   def emphasize(s)
-    Wiki.html_escape(s.truncate(800)).gsub(/(#{params[:pattern]})/i, '<span style="background: #FAA">\1</span>')
+    escape_html(s.truncate(800)).gsub(/(#{params[:pattern]})/i, '<span style="background: #FAA">\1</span>')
   end
 end

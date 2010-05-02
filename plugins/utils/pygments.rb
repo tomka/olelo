@@ -3,6 +3,8 @@ description 'Pygments syntax highlighter'
 autoload 'Open3', 'open3'
 
 module Wiki::Pygments
+  include Util
+
   PROGRAM = 'pygmentize'
   RUN_OPTIONS = '-O encoding=utf8 -O linenos=table -O cssclass=pygments -f html -l'
   LOOKUP_OPTIONS = '-L lexer'
@@ -23,7 +25,7 @@ module Wiki::Pygments
   end
 
   def self.pre(text)
-    "<pre>#{Wiki.html_escape(text.strip)}</pre>"
+    "<pre>#{escape_html(text.strip)}</pre>"
   end
 
   def self.lexer_mapping

@@ -17,7 +17,7 @@ Tag.define(:calc) do |context, attrs, content|
     end
     "> #{line}\n#{val}\n"
   end.join
-  "<pre>#{Wiki.html_escape code}</pre>"
+  "<pre>#{escape_html code}</pre>"
 end
 
 Tag.define(:def, :requires => :name, :immediate => true) do |context, attrs, content|
@@ -60,7 +60,7 @@ Tag.define(:include, :requires => :page, :limit => 10) do |context, attrs, conte
     engine.output(context.subcontext(:app => context.app, :params => attrs,
                                      :engine => engine, :resource => page, :private => {:included => true}))
   else
-    %{<a href="/#{Wiki.html_escape path}/new">Create #{Wiki.html_escape path}</a>}
+    %{<a href="/#{escape_html path}/new">Create #{escape_html path}</a>}
   end
 end
 

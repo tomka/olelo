@@ -1,3 +1,8 @@
+= pagination(@page, @pages, @curpage, :output => 'documentbrowser')
+%p
+  %img#pdf{:src=> resource_path(@page, :output => 'image', :geometry => '600x>', :trim => 1, :curpage => @curpage)}
+= pagination(@page, @pages, @curpage, :output => 'documentbrowser')
+%h3 Information
 %table.zebra
   %tbody
     %tr
@@ -10,9 +15,6 @@
       %tr
         %td Version
         %td.version= @page.latest_commit
-    %tr
-      %td Mime-Type
-      %td= @page.mime
     %tr
       %td Download
       %td

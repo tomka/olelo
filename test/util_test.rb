@@ -1,5 +1,5 @@
 require 'wiki/extensions'
-require 'wiki/utils'
+require 'wiki/util'
 
 describe 'wiki utility methods' do
   it 'blank?' do
@@ -53,11 +53,11 @@ describe 'wiki utility methods' do
   end
 
   it 'check' do
-    Wiki.check do |errors|
+    Wiki::Util.check do |errors|
       # do nothing
     end
     lambda do
-      Wiki.check do |errors|
+      Wiki::Util.check do |errors|
         errors << 'Error 1'
         errors << 'Error 2'
       end

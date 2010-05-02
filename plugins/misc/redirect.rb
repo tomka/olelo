@@ -4,10 +4,16 @@ description  'Support for page redirects'
 class Wiki::Application
   hook(:before_content) do
     if params[:redirect]
-      links = [params[:redirect]].flatten.map do |link|
-        %{<a href="#{Wiki.html_escape action_path(link, :edit)}">#{Wiki.html_escape link.cleanpath}</a>}
-      end.join(' &#8594; ')
-    "<p>Redirected from #{links} &#8594; \xE2\xA6\xBF</p>"
+      builder do
+        p_ {
+          text 'Redirected from '
+          [params[:redirect]].flatten.each do |link|
+            a link.cleanpath, :href => action_path(link, :edit)
+            text ' → '
+          end
+          text '◉'
+        }
+      end
     end
   end
 

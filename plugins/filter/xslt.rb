@@ -1,7 +1,6 @@
 author       'Daniel Mendler'
 description  'Basic XSLT filter'
-dependencies 'engine/filter', 'gem:nokogiri >= 1.4.1'
-autoload 'Nokogiri', 'nokogiri'
+dependencies 'engine/filter'
 
 class Wiki::XSLT < Filter
   def initialize(name, path)

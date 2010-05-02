@@ -1,10 +1,4 @@
-- if @pages > 0
-  %ul.pagination
-    = list_of(0..@pages) do |i|
-      - if i == @page
-        %a.current{:href=>'#'}= i + 1
-      - else
-        %a.ajax-content{:href => resource_path(@tree, :output => 'tree', :curpage => i)}= i + 1
+= pagination(@tree, @pages, @curpage, :output => 'tree')
 %table.tree.zebra
   %thead
     %tr
@@ -34,3 +28,4 @@
             %a.action-history{:href=>action_path(child, :history), :title => :history.t}= :history.t
             %a.action-move{:href=>action_path(child, :move), :title => :move.t}= :move.t
             %a.action-delete{:href=>action_path(child, :delete), :title => :delete.t}= :delete.t
+= pagination(@tree, @pages, @curpage, :output => 'tree')

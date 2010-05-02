@@ -16,6 +16,8 @@ module Wiki
 
   # Wiki repository resource
   class Resource
+    include Util
+
     # Raised if resource is not found in the repository
     class NotFound < Routing::NotFound
       def initialize(path)
@@ -263,7 +265,7 @@ module Wiki
 	return if @object && @object.data == content
       end
 
-      Wiki.check do |errors|
+      check do |errors|
         errors << :already_exists.t(:path => @path) if new? && Resource.find(@repository, @path)
         errors << :empty_comment.t if comment.blank?
       end

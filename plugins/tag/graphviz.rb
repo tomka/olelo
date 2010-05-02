@@ -6,8 +6,7 @@ def define_tag(type)
   Tag.define type do |context, attrs, content|
     raise(RuntimeError, 'Limits exceeded') if content.size > 10240
     name = Plugin['utils/imaginator'].imaginator.enqueue(type, content)
-    alt = Wiki.html_escape content
-    %{<img src="/_/utils/imaginator/#{name}" alt="#{alt}" class="#{type}"/>}
+    %{<img src="/_/utils/imaginator/#{name}" alt="#{escape_html content}" class="#{type}"/>}
   end
 end
 

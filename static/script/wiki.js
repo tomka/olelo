@@ -111,7 +111,7 @@ $(function() {
 
     $('*[accesskey]').underlineAccessKey();
 
-    $('a.ajax-content').live('click', function(e){
+    $('.pagination a').live('click', function(e){
 	e.preventDefault();
 	$('#inner_content').load(this.href, function() {
 	    $('#inner_content .zebra').zebra();

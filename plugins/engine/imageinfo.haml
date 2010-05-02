@@ -1,25 +1,25 @@
 %p
-  %a{:href => resource_path(@resource, :output => 'image') }
-    %img{:src=> resource_path(@resource, :output => 'image', :geometry => '640x480>'), :alt=>@resource.name}
+  %a{:href => resource_path(@page, :output => 'image') }
+    %img{:src=> resource_path(@page, :output => 'image', :geometry => '640x480>'), :alt=>@page.name}
 %h3 General
 %table.zebra
   %tbody
     %tr
       %td Name
-      %td&= @resource.name
+      %td&= @page.name
     %tr
       %td Format
       %td= @format
     %tr
       %td Geometry
       %td= @geometry
-    - if @resource.latest_commit
+    - if @page.latest_commit
       %tr
         %td Last modified
-        %td= date @resource.latest_commit.date
+        %td= date @page.latest_commit.date
       %tr
         %td Version
-        %td.version= @resource.latest_commit
+        %td.version= @page.latest_commit
 - if @exif
   %h3 Exif
   %table.zebra
