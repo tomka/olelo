@@ -1,4 +1,4 @@
-// Underline text in elements. Useful for accesskeys.
+// Underline text in elements. Especially useful for accesskeys.
 // Written by Daniel Mendler
 (function($) {
     $.extend($.fn, {

@@ -1,9 +1,9 @@
 (function($) {
     $('#gallery-screen').html('<img id="gallery-image1"/><img id="gallery-image2"/>');
 
-    var img1 = $('#gallery-image1');
-    var img2 = $('#gallery-image2');
-    var preloaded = [];
+    var img1 = $('#gallery-image1'),
+        img2 = $('#gallery-image2'),
+	preloaded = [];
 
     $('#gallery-thumbs a').click(function(e) {
 	e.preventDefault();

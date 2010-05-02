@@ -2,7 +2,7 @@ author       'Daniel Mendler'
 description  'Gallery engine'
 
 class Wiki::Application
-  assets 'gallery.css', 'gallery.js'
+  assets 'gallery.css', 'script.js'
 
   hook(:after_style) do
     if @engine && @engine.name == 'gallery'
@@ -12,7 +12,7 @@ class Wiki::Application
 
   hook(:after_script) do
     if @engine && @engine.name == 'gallery'
-      '<script src="/_/engine/gallery/gallery.js" type="text/javascript"></script>'
+      '<script src="/_/engine/gallery/script.js" type="text/javascript"></script>'
     end
   end
 

@@ -1,4 +1,4 @@
-// Placeholder functionality for input fields
+// Placeholder text for input fields
 // Written by Daniel Mendler
 jQuery.fn.placeholder = function() {
     this.focus(function() {

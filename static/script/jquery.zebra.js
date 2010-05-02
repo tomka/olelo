@@ -1,4 +1,4 @@
-// Zebra tables
+// Table row striping
 // Written by Daniel Mendler
 jQuery.fn.zebra = function() {
     $('tr:even', this).addClass('even');

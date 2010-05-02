@@ -1,4 +1,4 @@
-// Toggle date to relative by click
+// Toggle between date and relative time by click
 // Written by Daniel Mendler
 (function($) {
     $.translations({

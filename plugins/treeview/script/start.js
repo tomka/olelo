@@ -1,3 +1,4 @@
+// Add treeview translations
 $.translations({
     en: {
       menu: 'Menu',
@@ -9,6 +10,7 @@ $.translations({
     },
 });
 
+// Start tree view
 $(function() {
     sidebar = $('#sidebar');
     sidebar.html('<div id="treeview-tabs"><ul><li class="tabs-selected"><a href="#sidebar-menu">' + $.t('menu') +
