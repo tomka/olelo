@@ -4,6 +4,7 @@ require 'wiki/i18n'
 require 'cgi'
 require 'digest/md5'
 require 'digest/sha2'
+require 'open3'
 
 gem 'nokogiri', '>= 1.4.1'
 autoload 'Nokogiri', 'nokogiri'
@@ -105,5 +106,29 @@ module Wiki
         end
       end.join('&')
     end
+
+    def shell_filter(cmd, data)
+      Open3.popen3(cmd) do |stdin, stdout, stderr|
+        begin
+          output = ''
+          len = 0
+          while len < data.length
+            begin
+              len += stdin.write_nonblock data[len..-1]
+            rescue Errno::EAGAIN
+            end
+            begin
+              output << stdout.read_nonblock(0xFFFF)
+            rescue Errno::EAGAIN
+            end
+          end
+        rescue Errno::EPIPE
+        end
+        stdin.close
+        output << stdout.read
+        output
+      end
+    end
+
   end
 end

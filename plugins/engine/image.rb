@@ -1,7 +1,6 @@
 author      'Daniel Mendler'
 description 'Image rendering engine'
 dependencies 'engine/engine', 'utils/semaphore'
-require 'open3'
 
 cpu_count = `cat /proc/cpuinfo | grep processor | wc -l`.to_i rescue 1
 @semaphore = Semaphore.new(cpu_count)
@@ -62,11 +61,7 @@ Engine.create(:image, :priority => 5, :layout => false, :cacheable => true) do
 
   def convert(page, cmd)
     Plugin.current.semaphore.synchronize do
-      Open3.popen3(cmd) { |stdin, stdout, stderr|
-        stdin << page.content
-        stdin.close
-        stdout.read
-      }
+      shell_filter(cmd, page.content)
     end
   end
 end

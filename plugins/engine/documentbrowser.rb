@@ -8,19 +8,15 @@ Engine.create(:documentbrowser, :priority => 1, :layout => true, :cacheable => t
   def output(context)
     @page = context.page
     @pages = 0
+    content = @page.content
     if @page.mime == 'application/pdf'
-      while @page.content =~ %r{^/Count\s+(\d+)$}
+      content.scan %r{^/Count\s+(\d+)$} do
         @pages += $1.to_i
       end
       @pages -= 1
     else
-      content = @page.content
       if @page.mime.to_s =~ /(gz|bz)/
-        content = Open3.popen3($1 == 'gz' ? 'gunzip' : 'bunzip2') { |stdin, stdout, stderr|
-          stdin << content
-          stdin.close
-          stdout.read
-        }
+        content = shell_filter($1 == 'gz' ? 'gunzip -c' : 'bunzip2 -c', content)
       end
       @pages = $1.to_i - 1 if content =~ /^%%Pages:\s+(\d+)$/
     end

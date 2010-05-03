@@ -1,6 +1,5 @@
 author      'Daniel Mendler'
 description 'Pygments syntax highlighter'
-autoload 'Open3', 'open3'
 
 module Wiki::Pygments
   include Util
@@ -11,11 +10,7 @@ module Wiki::Pygments
 
   def self.pygmentize(text, format)
     return pre(text) if lexer_mapping.empty? || !format
-    content = Open3.popen3("#{PROGRAM} #{RUN_OPTIONS} '#{format}'") { |stdin, stdout, stderr|
-      stdin << text
-      stdin.close
-      stdout.read
-    }
+    content = shell_filter("#{PROGRAM} #{RUN_OPTIONS} '#{format}'", text)
     content.blank? ? pre(text) : content
   end
 

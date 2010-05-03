@@ -65,31 +65,21 @@ end
 
 class ItexRenderer < Renderer
   def load
-    require 'open3'
     `itex2MML --version`
   end
 
   def render(code, display)
-    Open3.popen3("itex2MML --#{display == 'block' ? 'display' : 'inline'}") do |stdin, stdout, stderr|
-      stdin << code.strip
-      stdin.close
-      stdout.read
-    end
+    shell_filter("itex2MML --#{display == 'block' ? 'display' : 'inline'}", code.strip)
   end
 end
 
 class BlahtexMLRenderer < Renderer
   def load
-    require 'open3'
     `blahtex`
   end
 
   def render(code, display)
-    content = Open3.popen3('blahtex --mathml') do |stdin, stdout, stderr|
-      stdin << code.strip
-      stdin.close
-      stdout.read
-    end
+    content = shell_filter('blahtex --mathml', code.strip)
     content =~ %r{<mathml>(.*)</mathml>}m
     '<mathml xmlns="http://www.w3.org/1998/Math/MathML" display="' + display + '">' + $1.to_s + '</mathml>'
   end
@@ -97,7 +87,6 @@ end
 
 class BlahtexImageRenderer < Renderer
   def load
-    require 'open3'
     `blahtex`
   end
 
@@ -110,11 +99,7 @@ class BlahtexImageRenderer < Renderer
   end
 
   def render(code, display)
-    content = Open3.popen3("blahtex --png --png-directory '#{directory}'") do |stdin, stdout, stderr|
-      stdin << code.strip
-      stdin.close
-      stdout.read
-    end
+    content = shell_filter("blahtex --png --png-directory '#{directory}'", code.strip)
     content =~ %r{<md5>(.*)</md5>}m
     %{<img src="/_/tag/math/blahtex/#{$1}.png" alt="#{escape_html code}" class="math #{display}"/>}
   end
