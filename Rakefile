@@ -4,8 +4,8 @@ require 'rake'
 task :default => %w(test:spec)
 
 def shrink_js(t)
-  sh "cat #{t.prerequisites.sort.join(' ')} | java -jar tools/yuicompressor*.jar --type js -v /dev/stdin > #{t.name}"
-  #sh "java -jar tools/compiler.jar --compilation_level ADVANCED_OPTIMIZATIONS #{t.prerequisites.sort.map {|x| "--js #{x}" }.join(' ')} > #{t.name}"
+  #sh "cat #{t.prerequisites.sort.join(' ')} | java -jar tools/yuicompressor*.jar --type js -v /dev/stdin > #{t.name}"
+  sh "java -jar tools/google-compiler*.jar --dev_mode EVERY_PASS --compilation_level SIMPLE_OPTIMIZATIONS #{t.prerequisites.sort.map {|x| "--js #{x}" }.join(' ')} > #{t.name}"
 end
 
 def sass(file)

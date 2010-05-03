@@ -7,7 +7,7 @@ $.translations({
     de: {
       menu: 'Menü',
       tree: 'Baumansicht'
-    },
+    }
 });
 
 // Start tree view
