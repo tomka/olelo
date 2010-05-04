@@ -16,7 +16,7 @@ module Wiki
 
       # Current loading plugin
       def current
-        file = Kernel.caller.each do |line|
+        file = caller.each do |line|
           return @plugins[$1] if line =~ %r{^#{@dir}/(.+?)\.rb}
         end
         raise RuntimeError, 'No plugin context'

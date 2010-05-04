@@ -28,7 +28,6 @@ require 'logger'
 require 'rack/patches'
 require 'rack/degrade_mime_type'
 require 'rack/relative_redirect'
-require 'rack/remove_cache_buster'
 require 'rack/static_cache'
 require 'wiki/application'
 
@@ -104,7 +103,6 @@ end
 
 use Rack::StaticCache, :urls => ['/static'], :root => path
 
-use Rack::RemoveCacheBuster # remove jquery cache buster
 use Rack::Session::Pool
 
 if Wiki::Config.rack.embed?

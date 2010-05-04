@@ -14,7 +14,7 @@
     $.styleswitcher = {
 	set: function(name) {
 	    $('link[rel*=style][title]').each(function() { this.disabled = this.title != name; });
-	    $.store.set('style', name);
+	    $.jStorage.set('style', name);
 	},
 	toggle: function() {
 	    var links = $('link[rel*=style][title]').get(), i;
@@ -39,7 +39,7 @@
 	    $.styleswitcher.set($(this).text());
 	    return false;
 	});
-	style = $.store.get('style');
+	style = $.jStorage.get('style');
 	if (style)
 	    $.styleswitcher.set(style);
     };

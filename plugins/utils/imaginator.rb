@@ -15,8 +15,6 @@ def imaginator
 end
 
 class Wiki::Application
-  assets 'imaginator_failed.png'
-
   get '/_/utils/imaginator/:name', :name => /[\w\.]+/ do
     begin
       send_file Plugin.current.imaginator.result(params[:name])

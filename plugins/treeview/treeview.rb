@@ -22,7 +22,7 @@ class Wiki::Application
 
       content_type 'application/json', :charset => 'utf-8'
       tree = Tree.find!(repository, params[:dir], params[:version])
-      cache_control :max_age => 3600, :s_maxage => 0, :proxy_revalidate => true, :etag => tree.latest_commit.id, :last_modified => tree.latest_commit.date
+      cache_control :etag => tree.latest_commit.id, :last_modified => tree.latest_commit.date
 
       tree.children.map do |child|
         ext = !child.page? || child.extension.empty? ? '' : " file-type-#{child.extension.downcase}"
@@ -30,7 +30,7 @@ class Wiki::Application
       end.to_json
     rescue => ex
       logger.error ex
-      '[]'
+      [Rack::Utils.status_code(ex.try(:status) || :internal_server_error), ['[]']]
     end
   end
 end
