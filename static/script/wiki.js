@@ -100,12 +100,10 @@ $(function() {
 
     $('*[accesskey]').underlineAccessKey();
 
-    $('.pagination a').live('click', function(e){
-	e.preventDefault();
-	$('#inner-content').load(this.href, function() {
-	    $('#inner-content .zebra, #inner-content, #history-table, #inner-content, #tree-table').zebra();
-	    $('#inner-content .date').dateToggler();
-	});
-	return false;
+    $('.pagination a').pagination('#page');
+    $('#page').bind('pageLoaded', function() {
+        $('.zebra, #history-table, #tree-table', this).zebra();
+	$('.date', this).dateToggler();
     });
+    return false;
 });
