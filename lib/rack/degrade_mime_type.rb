@@ -7,7 +7,7 @@ module Rack
 
     def call(env)
       status, header, body = @app.call(env)
-      if header['Content-Type'] =~ %r{application/xhtml+xml} &&
+      if header['Content-Type'] =~ %r{application/xhtml\+xml} &&
           !env['HTTP_ACCEPT'].to_s.split(',').map(&:strip).include?('application/xhtml+xml')
         header['Content-Type'] = 'text/html'
       end
