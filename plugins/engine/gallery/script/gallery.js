@@ -1,4 +1,4 @@
-(function($) {
+(function() {
     var preloaded = [];
     function preloadImage(src) {
         var preload = document.createElement('img');
@@ -28,5 +28,4 @@
 
     $('#page').bind('pageLoaded', initGallery);
     initGallery();
-})(jQuery);
-
+})();

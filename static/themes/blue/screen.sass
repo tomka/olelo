@@ -66,9 +66,11 @@ ul.pagination
       line-height: 1.5em
       +rounded
       color:   #000
-      &:active, &.current
+      &:active, &.current, &.loading
         background: #DDF
         border-style: inset
+      &.loading
+        background: #DDF url(images/loading.gif) repeat
 
 table
   +box-shadow

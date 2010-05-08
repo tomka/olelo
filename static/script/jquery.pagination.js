@@ -6,6 +6,7 @@
     $.fn.pagination = function(page) {
         $(this).live('click', function(e) {
             e.preventDefault();
+            $(this).addClass('loading');
             var href = this.href;
             $(page).load(href, function() {
                 $(page).trigger('pageLoaded', [href]);

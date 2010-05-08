@@ -72,7 +72,7 @@ jQuery.fn.historyTable = function() {
 
 // Wiki bootstrap
 // Written by Daniel Mendler
-$(function() {
+(function() {
     $('#themes').styleswitcher();
     $('.tabs').tabs();
     $('table.sortable').tablesorter({widgets: ['zebra']});
@@ -100,10 +100,9 @@ $(function() {
 
     $('*[accesskey]').underlineAccessKey();
 
-    $('.pagination a').pagination('#page');
+    $('.pagination a:not(.current)').pagination('#page');
     $('#page').bind('pageLoaded', function() {
         $('.zebra, #history-table, #tree-table', this).zebra();
 	$('.date', this).dateToggler();
     });
-    return false;
-});
+})();
