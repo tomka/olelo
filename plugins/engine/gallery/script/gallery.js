@@ -12,8 +12,7 @@
 
         $('#gallery-screen').append(img1).append(img2);
 
-	$('#gallery-thumbs a').click(function(e) {
-            e.preventDefault();
+	$('#gallery-thumbs a').click(function() {
             img2.hide().attr('src', this.href);
             img1.fadeOut('slow');
             img2.fadeIn('slow');

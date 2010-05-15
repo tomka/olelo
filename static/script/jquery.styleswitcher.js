@@ -34,8 +34,8 @@
 		html += '<li><a href="#">' + this.title + '</a></li>';
 	});
 	html += '</ul>';
-	$(this).html(html);
-	$('.styleswitcher li a').click(function() {
+	this.html(html);
+	$('.styleswitcher > li > a').click(function() {
 	    $.styleswitcher.set($(this).text());
 	    return false;
 	});

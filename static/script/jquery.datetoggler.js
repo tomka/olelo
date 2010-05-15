@@ -50,8 +50,11 @@
 	    var elem = $(this);
 	    var text = elem.text();
 	    var match = elem.attr('class').match(/epoch-(\d+)/);
-	    if (match)
-	        elem.click(function() { elem.html(elem.text() == text ? timeAgo(match[1]) : text); }).click();
+	    if (match) {
+	        elem.click(function() {
+		    elem.html(elem.text() == text ? timeAgo(match[1]) : text);
+		}).click();
+	    }
 	});
     };
 })(jQuery);

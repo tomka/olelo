@@ -1,9 +1,7 @@
 jQuery.fn.historyTable = function() {
-    $(this).disableSelection();
+    this.disableSelection();
     var rows = $('tbody tr', this);
     rows.mousedown(function(event) {
-        event.preventDefault();
-
 	var from = $(this),
             offset = from.offset(),
             to = null;
