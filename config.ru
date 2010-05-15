@@ -9,7 +9,7 @@ require 'wiki/timer'
 timer = Wiki::Timer.start
 
 # Require newest rack
-raise RuntimeError, 'Rack 1.1.0 or newer required' if Rack.version < '1.1'
+raise 'Rack 1.1.0 or newer required' if Rack.version < '1.1'
 
 require 'rubygems'
 
@@ -24,12 +24,11 @@ end
 Encoding.default_external = Encoding::UTF_8
 
 require 'fileutils'
-require 'logger'
 require 'rack/patches'
 require 'rack/degrade_mime_type'
 require 'rack/relative_redirect'
 require 'rack/static_cache'
-require 'wiki/application'
+require 'wiki'
 
 config_file = if ENV['WIKI_CONFIG']
   ENV['WIKI_CONFIG']
@@ -38,22 +37,30 @@ else
 end
 
 default_config = {
-  :title        => 'Git-Wiki',
-  :root         => path,
-  :production   => true,
-  :locale	=> 'en_US',
-  :main_page    => 'Home',
-  :sidebar_page => 'Sidebar',
-  :external_img => false,
-  :auth => {
-    :service => 'yamlfile',
-    :store   => ::File.join(path, '.wiki', 'users.yml'),
+  :title           => 'Git-Wiki',
+  :app_path        => path,
+  :production      => true,
+  :locale	   => 'en_US',
+  :root_path       => 'Root',
+  :main_page       => 'Home',
+  :sidebar_page    => 'Sidebar',
+  :external_images => false,
+  :namespaces => {
+    :discussion => 'Discussion:',
+    :metadata   => 'Metadata:',
+  },
+  :authentication => {
+    :service  => :yamlfile,
+    :yamlfile => {
+      :store  => ::File.join(path, '.wiki', 'users.yml'),
+    },
   },
   :cache => ::File.join(path, '.wiki', 'cache'),
-  :mime => {
-    :default => 'text/x-creole',
-    :magic   => true,
-  },
+  :mime => [
+    'extension',
+    'content',
+    'text/x-creole',
+  ],
   :disabled_plugins => [
     'authorization/private_wiki',
     'tagging',
@@ -61,13 +68,16 @@ default_config = {
     'filter/benchmark',
   ],
   :rack => {
-    :esi          => true,
-    :embed        => false,
-    :rewrite_base => nil,
     :deflater     => true,
+    :embed        => false,
+    :esi          => true,
+    :rewrite_base => nil,
   },
-  :git => {
-    :repository => ::File.join(path, '.wiki', 'repository'),
+  :repository => {
+    :type  => :git,
+    :git => {
+      :path => ::File.join(path, '.wiki', 'repository'),
+    },
   },
   :log => {
     :level => 'INFO',

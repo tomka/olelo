@@ -1,245 +1,200 @@
 # -*- coding: utf-8 -*-
-require 'wiki/routing'
-require 'wiki/config'
-
-gem 'gitrb', '>= 0.0.2'
-require 'gitrb'
-
 module Wiki
-  PATH_PATTERN = '[^\s](?:.*[^\s]+)?'
-  VERSION_PATTERN = '([A-Fa-f0-9]{5,40}|[\w\-\.]+)([\^~](\d+)?)*'
-  DISCUSSION_PREFIX = '@'
-  META_PREFIX = '$'
-  DIRECTORY_MIME = MimeMagic.new('inode/directory')
-  YAML_MIME = MimeMagic.new('text/x-yaml')
-  YAML_REGEX = /(\A[\-\w_]+:.*?(\r?\n\r?\n|(\r?\n)?\Z))|(\A---\r?\n.*?(\r?\n---|\r?\n\.\.\.|\r?\n\r?\n|(\r?\n)?\Z))/m
+  # Raised if resource is not found in the repository
+  class ObjectNotFound < Routing::NotFound
+    def initialize(id)
+      super(id)
+    end
+  end
 
-  # Wiki repository resource
+  class Version < Struct.new(:id, :author, :date, :comment, :parents)
+    def self.find(id)
+      Repository.instance.find_version(id)
+    end
+
+    def self.find!(id)
+      find(id) || raise(ObjectNotFound, path)
+    end
+
+    def short
+      Version.short(id)
+    end
+
+    def self.short(id)
+      Repository.instance.short_version(id)
+    end
+
+    def self.diff(from, to)
+      Repository.instance.diff(from, to)
+    end
+
+    def to_s
+      id
+    end
+
+    def ==(other)
+      other.to_s == id
+    end
+  end
+
+  Diff = Struct.new(:from, :to, :patch)
+
   class Resource
     include Util
 
-    # Raised if resource is not found in the repository
-    class NotFound < Routing::NotFound
-      def initialize(path)
-        super(:not_found.t(:path => path), path)
-      end
+    PATH_PATTERN = '[^\s](?:.*[^\s]+)?'
+    PATH_REGEXP  = /^#{PATH_PATTERN}$/
+
+    attr_reader :path, :tree_version
+    question_reader :current
+
+    def initialize(path, tree_version = nil, current = true)
+      @path = path.to_s.cleanpath
+      @tree_version = tree_version
+      @current = current
+      @next_version = @previous_version = @version = nil
     end
 
-    attr_reader :repository, :path, :commit
+    def self.transaction(comment, user = nil, &block)
+      raise :empty_comment.t if comment.blank?
+      Repository.instance.transaction(comment, user, &block)
+    end
 
-    # Find resource in repository by path and commit version
-    def self.find(repository, path, version = nil)
+    def self.find(path, tree_version = nil)
       path = path.to_s.cleanpath
       check_path(path)
-      commit = version ? (String === version ? repository.get_commit(version) : version) : repository.log(1, nil).first
-      return nil if !commit
-      object = commit.tree[path] rescue nil
-      object && (self != Resource ? self.type == object.type && new(repository, path, object, commit, !version) :
-                 object.type == 'blob' && Page.new(repository, path, object, commit, !version) ||
-                 object.type == 'tree' && Tree.new(repository, path, object, commit, !version)) || nil
+      Repository.instance.find_resource(path, tree_version, Resource == self ? nil : self)
     end
 
-    # Find resource but raise not found exceptions
-    def self.find!(repository, path, version = nil)
-      find(repository, path, version) || raise(NotFound, path)
+    def self.find!(path, tree_version = nil)
+      find(path, tree_version) || raise(ObjectNotFound, path)
     end
 
-    # Constructor
-    def initialize(repository, path, object = nil, commit = nil, current = false)
-      path = path.to_s.cleanpath
-      Resource.check_path(path)
-      @repository = repository
-      @path = path.cleanpath
-      @object = object
-      @commit = commit
-      @current = current
-      reload
+    def next_version
+      init_versions
+      @next_version
     end
 
-    # Delete page
-    def delete(author = nil)
-      repository.transaction(:resource_deleted.t(:path => @path), author && author.to_git_user) do
-        repository.root.delete(@path)
-      end
+    def previous_version
+      init_versions
+      @previous_version
     end
 
-    # Move page
-    def move(destination, author = nil, create_redirect = false)
+    def version
+      init_versions
+      @version
+    end
+
+    def history
+      @history ||= Repository.instance.history(self)
+    end
+
+    def move(destination)
+      destination = destination.to_s.cleanpath
       Resource.check_path(destination)
-
-      resource = Resource.find(@repository, destination)
-      if resource && resource.tree?
-        destination = destination/name
-        resource = Resource.find(@repository, destination)
-      end
-
-      raise RuntimeError, :already_exists.t(:path => destination) if resource
-
-      repository.transaction(:resource_moved_to.t(:path => @path, :destination => destination), author && author.to_git_user) do
-        repository.root.move(@path, destination)
-        repository.root[@path] = Gitrb::Blob.new(:data => "redirect: #{destination.urlpath}") if create_redirect
-      end
-      @path = destination
-      reload
+      check_modifiable
+      Repository.instance.move(self, destination)
     end
 
-    # Reload cached data
-    def reload
-      @prev_commit = @latest_commit = @history = nil
+    def delete
+      check_modifiable
+      Repository.instance.delete(self)
     end
 
-    # Newly created resource, not yet in repository
+    def diff(from, to)
+      Repository.instance.diff(from, to, path)
+    end
+
+    def page?
+      Page === self
+    end
+
+    def tree?
+      Tree === self
+    end
+
     def new?
-      !@object
+      !tree_version
     end
 
-    # Modified resource, not yet saved
     def modified?
       new?
     end
 
-    # Resource id
-    def id
-      new? ? '' : @object.id
+    def namespace
+      if page?
+        tmp = name
+        Config.namespaces.each do |namespace, prefix|
+          return namespace.to_sym if tmp.begins_with?(prefix)
+        end
+      end
+      nil
     end
 
-    # Browsing current tree?
-    def current?
-      @current || new?
+    def namespace_path(ns = nil)
+      n = namespace
+      n == ns ? @path : (@path/'..'/(namespace_prefix(ns) + name[namespace_prefix(n).length..-1]))
     end
 
-    # Discussion page
-    def discussion?
-      page? && name.begins_with?(DISCUSSION_PREFIX)
-    end
-
-    # Metadata page
-    def meta?
-      page? && name.begins_with?(META_PREFIX)
-    end
-
-    def discussion_path
-      path/"../#{DISCUSSION_PREFIX}#{name}"
-    end
-
-    def meta_path
-      path/"../#{META_PREFIX}#{name}"
-    end
-
-    # Latest commit of this resource
-    def latest_commit
-      init_commits
-      @latest_commit
-    end
-
-    # History of this resource. It is truncated
-    # to 30 entries.
-    def history
-      @history ||= @repository.log(30, nil, path)
-    end
-
-    # Previous commit this resource was changed
-    def prev_commit
-      init_commits
-      @prev_commit
-    end
-
-    # Next commit was changed
-    def next_commit
-      h = history
-      h.each_index { |i| return (i != 0 && h[i - 1]) if h[i].date <= @commit.date }
-      h.last # FIXME. Does not work correctly if history is too short
-    end
-
-    # Type shortcuts
-    def page?; self.class == Page; end
-    def tree?; self.class == Tree; end
-
-    # Resource name
-    def name
-      i = path.rindex('/')
-      name = i ? path[i+1..-1] : path
-    end
-
-    # Resource name without extension
-    def name_without_extension
-      tmp = name
-      i = tmp.index('.')
-      i ? tmp[0...i] : tmp
-    end
-
-    # Page title
     def title
-      if meta?
-        name = name_without_extension
-        name = name[META_PREFIX.length..-1]
-        :metadata_of.t(:name => name.blank? ? :root_path.t : name)
-      elsif discussion?
-        name = name_without_extension
-        name = name[DISCUSSION_PREFIX.length..-1]
-        :discussion_of.t(:name => name.blank? ? :root_path.t : name)
+      ns = namespace
+      if ns
+        :"#{ns}_title".t(:name => name[namespace_prefix(ns).length..-1])
       else
-        name = metadata['title'] || name_without_extension
-        name.blank? ? :root_path.t : name
+        metadata[:title] || name
       end
     end
 
-    # Safe name
+    def name
+      i = path.rindex('/')
+      name = i ? path[i+1..-1] : (path.blank? ? Config.root_path : path)
+    end
+
     def safe_name
-      n = name
-      n = 'root' if n.blank?
-      n.gsub(/[^\w.\-_]/, '_')
+      name.gsub(/[^\w.\-_]/, '_')
     end
 
-    # Diff of this resource
-    def diff(from, to)
-      @repository.diff(from, to, path)
+    def committed(path, tree_version)
+      @path = path
+      @tree_version = tree_version
+      @metadata = @version = @next_version = @previous_version = @history = nil
     end
 
-    # Get metadata
     def metadata
-      @metadata ||= begin
-                      page = Page.find(@repository, meta_path, commit)
-                      page ? page.metadata : {}
-                    end
+      @metadata ||= Page.find(namespace_path(:metadata), version).try(:metadata) || {}
     end
 
     protected
 
-    def init_commits
-      if !@latest_commit
-        commits = @repository.log(2, @commit, @path)
-        @prev_commit = commits[1]
-        @latest_commit = commits[0]
+    def check_modifiable
+      raise 'Tree not current' if !current?
+    end
+
+    def namespace_prefix(ns)
+      if ns
+        Config.namespaces[ns] || raise("Invalid namespace #{ns}")
+      else
+        ''
+      end
+    end
+
+    def init_versions
+      if !@version && @tree_version
+        @previous_version, @version, @next_version = Repository.instance.version(self)
       end
     end
 
     def self.check_path(path)
-      raise RuntimeError, :invalid_path.t if !path.blank? && path !~ /^#{PATH_PATTERN}$/
+      raise :invalid_path.t if (!path.blank? && path !~ PATH_REGEXP) || Config.namespaces.any? {|ns, prefix| prefix == path}
     end
   end
 
-  # Page resource in repository
   class Page < Resource
-    def self.type
-      'blob'
-    end
+    YAML_MIME = MimeMagic.new('text/x-yaml')
+    YAML_REGEXP = /(\A[\-\w_]+:.*?(\r?\n\r?\n|(\r?\n)?\Z))|(\A---\r?\n.*?(\r?\n---|\r?\n\.\.\.|\r?\n\r?\n|(\r?\n)?\Z))/m
 
-    # Reload cached data
-    def reload
-      super
-      @content = @metadata = nil
-    end
-
-    # Set page content for preview
-    def content=(content)
-      @mime = @metadata = nil
-      @content = content
-    end
-
-    # Page content
     def content(pos = nil, len = nil)
-      c = @content || (@object && @object.data)
+      c = @content || saved_content
       if c
         # Try to encode with the standard wiki encoding utf-8
         # If it is not valid utf-8 we fall back to binary
@@ -253,94 +208,107 @@ module Wiki
       end
     end
 
-    # Check if there is no unsaved content
+    def content=(content)
+      @mime = @metadata = nil
+      @content = content
+    end
+
+    def write(content)
+      if String === content
+        content.gsub!("\r\n", "\n")
+        return if saved_content == content
+      end
+
+      raise :already_exists.t(:path => path) if new? && Resource.find(path)
+      Repository.instance.write(self, content)
+    end
+
+    def committed(path, tree_version)
+      super
+      @saved_content = @content = @mime = nil
+    end
+
     def modified?
       new? || @content
     end
 
-    # Write page and commit
-    def write(content, comment, author = nil)
-      if !content.respond_to? :read
-        content.gsub!("\r\n", "\n")
-	return if @object && @object.data == content
-      end
-
-      check do |errors|
-        errors << :already_exists.t(:path => @path) if new? && Resource.find(@repository, @path)
-        errors << :empty_comment.t if comment.blank?
-      end
-
-      repository.transaction(comment, author && author.to_git_user) do
-        content = content.read if content.respond_to? :read # FIXME
-        repository.root[@path] = Gitrb::Blob.new(:data => content)
-      end
-
-      reload
-      @commit = repository.log(1, nil).first
-      @object = @commit.tree[@path] || raise(NotFound, path)
-      @current = true
-    end
-
-    # Page extension
     def extension
       i = path.index('.')
       i ? path[i+1..-1] : ''
     end
 
-    # Detect mime type by extension, by content or use default mime type
     def mime
-      @mime ||= if meta?
-                  YAML_MIME
-                else
-                  mime = MimeMagic.by_extension(extension) ||
-                    (Config.mime.magic && MimeMagic.by_magic(content)) ||
-                    MimeMagic.new(Config.mime.default)
-                end
+      if !@mime
+        if namespace == :metadata
+          @mime = YAML_MIME
+        else
+          Config.mime.any? do |mime|
+            @mime = case mime
+                    when 'extension'
+                      MimeMagic.by_extension(extension)
+                    when 'content', 'magic'
+                      MimeMagic.by_magic(content)
+                    else
+                      MimeMagic.new(mime)
+                    end
+          end
+        end
+      end
+      @mime
     end
 
-    # Get metadata
     def metadata
-      @metadata ||= if content =~ YAML_REGEX
-		      hash = YAML.load("#{$&}\n") rescue nil
-                      Hash === hash ? hash.with_indifferent_access : {}
-                    elsif meta?
+      @metadata ||= if content =~ YAML_REGEXP
+		      (YAML.load("#{$&}\n") rescue nil).try(:with_indifferent_access) || {}
+                    elsif namespace == :metadata
 		      {}
 		    else
                       super
                     end
     end
+
+    private
+
+    def saved_content
+      return nil if new?
+      @saved_content ||= Repository.instance.read(self)
+    end
   end
 
-  # Tree resource in repository
   class Tree < Resource
-    def self.type
-      'tree'
+    def children(*namespaces)
+      @children ||= Repository.instance.children(self).sort_by {|x| "#{x.tree? ? 0 : 1}#{x.name}" }
+      namespaces << nil if namespaces.empty?
+      @children.select {|child| namespaces.include?(child.namespace) }
     end
 
-    # Reload cached data
-    def reload
-      super
-      @pages = @trees = @metadata = nil
-    end
-
-    # Get all children
-    def children
-      trees + pages
-    end
-
-    def pages
-      @pages ||= @object.select {|name, child| child.type == 'blob' }.map {|name, child|
-        Page.new(repository, path/name, child, commit, current?) }.select {|page| !page.discussion? && !page.meta? }
-    end
-
-    def trees
-      @trees ||= @object.select {|name, child| child.type == 'tree' }.map {|name, child|
-        Tree.new(repository, path/name, child, commit, current?) }
-    end
-
-    # Directory mime type
     def mime
       DIRECTORY_MIME
+    end
+
+    def committed(path, tree_version)
+      super
+      @children = nil
+    end
+
+    private
+
+    DIRECTORY_MIME = MimeMagic.new('inode/directory')
+  end
+
+  class Repository
+    include Util
+    extend ClassRegistry
+
+    class << self
+      attr_writer :instance
+      def instance
+        @instance ||= find(Config.repository.type).new(Config.repository[Config.repository.type])
+      end
+    end
+
+    def short_version(version)
+      version
     end
   end
 end

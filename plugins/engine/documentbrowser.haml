@@ -8,13 +8,13 @@
     %tr
       %td Name
       %td&= @page.name
-    - if @page.latest_commit
+    - if @page.version
       %tr
         %td Last modified
-        %td= date @page.latest_commit.date
+        %td= date @page.version.date
       %tr
         %td Version
-        %td.version= @page.latest_commit
+        %td.version= @page.version
     %tr
       %td Download
       %td

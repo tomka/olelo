@@ -5,7 +5,7 @@ autoload 'SecureRandom', 'securerandom'
 
 class Wiki::Application
   TOKEN_LIFETIME = 24*60*60*365
-  TOKEN_NAME = 'git_wiki_token'
+  TOKEN_NAME = 'wiki.token'
 
   lazy_reader(:login_tokens) { PStore.new(File.join(Wiki::Config.cache, 'tokens.pstore')) }
 

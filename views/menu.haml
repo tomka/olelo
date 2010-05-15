@@ -5,31 +5,31 @@
   - if @resource && !@resource.current?
     %li.noborder
       = :version.t
-      %span.version{:title => @resource.commit}
-        = @resource.commit.sha[0..4]
+      %span.version{:title => @resource.tree_version}
+        = @resource.tree_version.short
 %ul.wiki
   - if @resource
     - if menu.include?(:version)
-      - if @resource.prev_commit
+      - if @resource.previous_version
         %li
-          %a.action-older{:href=>resource_path(@resource, :version => @resource.prev_commit), :accesskey=>'o'}= :older.t
-      - if @resource.next_commit
-        %li
-          %a.action-newer{:href=>resource_path(@resource, :version => @resource.next_commit), :accesskey=>'n'}= :newer.t
+          %a.action-older{:href=>resource_path(@resource, :version => @resource.previous_version), :accesskey=>'o'}= :older.t
       - if !@resource.current?
         %li
           %a.action-current{:href=> @resource.path.urlpath, :accesskey=>'c'}= :current.t
+      - if @resource.next_version
+        %li
+          %a.action-newer{:href=>resource_path(@resource, :version => @resource.next_version), :accesskey=>'n'}= :newer.t
     - if !@resource.new?
       %li
         = render_block(:view_menu) do
           %a.action-view{:href=> @resource.path.urlpath, :accesskey=>'v'}= :view.t
     %li
-      - if @resource.discussion?
-        %a.action-page{:href=> (@resource.path/'..'/@resource.name[Wiki::DISCUSSION_PREFIX.length..-1]).urlpath, :accesskey=>'p' }= :page.t
-      - elsif @resource.meta?
-        %a.action-page{:href=> (@resource.path/'..'/@resource.name[Wiki::META_PREFIX.length..-1]).urlpath, :accesskey=>'p' }= :page.t
+      - if @resource.namespace == :discussion
+        %a.action-page{:href=> @resource.namespace_path.urlpath, :accesskey=>'p' }= :page.t
+      - elsif @resource.namespace == :metadata
+        %a.action-page{:href=> @resource.namespace_path.urlpath, :accesskey=>'p' }= :page.t
       - else
-        %a.action-discuss{:href=> @resource.discussion_path.urlpath, :accesskey=>'d' }= :discuss.t
+        %a.action-discuss{:href=> @resource.namespace_path(:discussion).urlpath, :accesskey=>'d' }= :discuss.t
     - if !@resource.new?
       %li
         - if @resource.page?
@@ -44,9 +44,9 @@
               %a.action-move{:href=> action_path(@resource, :move) }= :move.t
             %li
               %a.action-delete{:href=> action_path(@resource, :delete) }= :delete.t
-          - if !@resource.meta?
+          - if @resource.namespace != :metadata
             %li
-              %a.action-metadata{:href=> action_path(@resource.meta_path, :edit) }= :metadata.t
+              %a.action-metadata{:href=> action_path(@resource.namespace_path(:metadata), :edit) }= :metadata.t
       %li
         %a.action-history{:href=>action_path(@resource, :history), :accesskey=>'h'}= :history.t
   - else

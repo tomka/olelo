@@ -3,9 +3,9 @@
 - footnote do
   |
   %span.noprint
-    %a{:href=> resource_path(@resource, :version => @resource.latest_commit) }= :permalink.t
+    %a{:href=> resource_path(@resource, :version => @resource.version) }= :permalink.t
     |
-  Version
-  %a.version{:href => resource_path(@resource, :version => @resource.latest_commit), :title => @resource.latest_commit }= @resource.latest_commit.sha[0..4]
-  = "#{:by.t} #{@resource.latest_commit.author.name}, #{date @resource.latest_commit.date}"
+  = :version.t
+  %a.version{:href => resource_path(@resource, :version => @resource.version), :title => @resource.version }= @resource.version.short
+  = "#{:by.t} #{@resource.version.author.name}, #{date @resource.version.date}"
 ~ @content

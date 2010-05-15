@@ -1,24 +1,10 @@
 # -*- coding: utf-8 -*-
-require 'wiki/config'
-
-gem 'haml', '>= 2.2.16'
-require 'haml/helpers'
-module Haml::Helpers
-  # Remove stupid deprecated helper
-  remove_method :puts
-end
-
-module Haml
-  autoload 'Engine', 'haml/engine'
-  autoload 'Util', 'haml/util'
-end
-
 module Wiki
   module Templates
     HAML_OPTIONS = { :format => :xhtml, :attr_wrapper  => '"', :ugly => true }
 
     class << self
-      lazy_reader(:paths) { [File.join(Config.root, 'views')] }
+      lazy_reader(:paths) { [File.join(Config.app_path, 'views')] }
       lazy_reader :template_cache, {}
     end
 

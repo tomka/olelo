@@ -1,13 +1,4 @@
 # -*- coding: utf-8 -*-
-require 'logger'
-require 'wiki/timer'
-require 'wiki/routing'
-require 'wiki/resource'
-require 'wiki/helper'
-require 'wiki/user'
-require 'wiki/plugin'
-require 'wiki/templates'
-
 module Wiki
   # Main class of the application
   class Application
@@ -17,8 +8,8 @@ module Wiki
     include Util
     extend Assets
 
-    patterns :path => PATH_PATTERN, :version => VERSION_PATTERN
-    attr_reader :repository, :logger, :user
+    patterns :path => Resource::PATH_PATTERN
+    attr_reader :logger, :user
 
     def user=(user)
       @user = user
@@ -33,29 +24,29 @@ module Wiki
       @app = app
       @logger = opts[:logger] || Logger.new(nil)
 
+      String.root_path = Config.root_path
+
       I18n.load_locale(File.join(File.dirname(__FILE__), 'locale.yml'))
 
-      logger.debug 'Opening repository'
-      @repository = Gitrb::Repository.new(:path => Config.git.repository, :create => true,
-                                          :bare => true, :logger => logger)
+      # Load locales for loaded plugins
+      # Add plugin path to template paths
+      Plugin.hook(:loaded) do
+        I18n.load_locale(file.sub(/\.rb$/, '_locale.yml'))
+        I18n.load_locale(File.join(File.dirname(file), 'locale.yml'))
+        Templates.paths << File.dirname(file)
+      end
 
       Plugin.logger = logger
-      Plugin.dir = File.join(Config.root, 'plugins')
+      Plugin.disabled = Config.disabled_plugins
+      Plugin.dir = File.join(Config.app_path, 'plugins')
       Plugin.load('*')
       Plugin.start
 
       logger.debug self.class.dump_routes
     end
 
-    def dup
-      super.instance_eval do
-        @repository = @repository.dup
-        self
-      end
-    end
-
     # Executed before each request
-    hook(:before_routing) do
+    hook(:before_request) do
       @timer = Timer.start
       logger.debug env
 
@@ -66,6 +57,11 @@ module Wiki
       end
 
       content_type 'application/xhtml+xml', :charset => 'utf-8'
+    end
+
+    # Purge memory cache after request
+    hook(:after_request) do
+      Repository.instance.clean_cache
     end
 
     # Handle 404s
@@ -142,49 +138,54 @@ module Wiki
     end
 
     get '/changes/:version' do
-      @commit = repository.get_commit(params[:version])
-      cache_control :etag => @commit.sha, :last_modified => @commit.date
-      @diff = repository.diff(@commit.parent.first && @commit.parent.first.sha, @commit.sha)
+      @version = Version.find!(params[:version])
+      cache_control :etag => @version, :last_modified => @version.date
+      @diff = Version.diff(@version.parents.first, @version)
       render :changes
     end
 
     get '/?:path?/history' do
-      @resource = Resource.find!(repository, params[:path])
-      cache_control :etag => @resource.commit.sha, :last_modified => @resource.commit.date
+      @resource = Resource.find!(params[:path])
+      cache_control :etag => @resource.version, :last_modified => @resource.version.date
       render :history
     end
 
     get '/:path/move' do
-      @resource = Resource.find!(repository, params[:path])
+      @resource = Resource.find!(params[:path])
       render :move
     end
 
     get '/:path/delete' do
-      @resource = Resource.find!(repository, params[:path])
+      @resource = Resource.find!(params[:path])
       render :delete
     end
 
     post '/:path/move' do
       on_error :move
-      @resource = Resource.find!(repository, params[:path])
-      with_hooks(:resource_move, @resource, params[:destination]) do
-        @resource.move(params[:destination], user, params[:create_redirect])
+      Resource.transaction(:resource_moved_to.t(:path => params[:path].cleanpath, :destination => params[:destination].cleanpath), user) do
+        @resource = Resource.find!(params[:path])
+        with_hooks(:resource_move, @resource, params[:destination]) do
+          @resource.move(params[:destination])
+          Page.new(@resource.path).write("redirect: #{destination.urlpath}") if params[:create_redirect]
+        end
       end
       redirect @resource.path.urlpath
     end
 
     delete '/:path' do
       pass if reserved_path?(params[:path])
-      @resource = Resource.find!(repository, params[:path])
-      with_hooks(:resource_delete, @resource) do
-        @resource.delete(user)
+      Resource.transaction(:resource_deleted.t(:path => params[:path].cleanpath), user) do
+        @resource = Resource.find!(params[:path])
+        with_hooks(:resource_delete, @resource) do
+          @resource.delete
+        end
       end
       render :deleted
     end
 
     get '/?:path?/diff' do
       on_error :history
-      @resource = Resource.find!(repository, params[:path])
+      @resource = Resource.find!(params[:path])
       check do |errors|
         errors << :from_missing.t if params[:from].blank?
         errors << :to_missing.t  if params[:to].blank?
@@ -194,32 +195,32 @@ module Wiki
     end
 
     get '/:path/edit' do
-      @resource = Page.find(repository, params[:path])
+      @resource = Page.find(params[:path])
       redirect((params[:path]/'new').urlpath) if !@resource
       render :edit
     end
 
     get '/?:path?/new', '/?:path?/upload' do
       on_error :new
-      if params[:path] && @resource = Resource.find(repository, params[:path])
+      if params[:path] && @resource = Resource.find(params[:path])
         return render(:edit) if @resource.page? && action?(:upload)
         redirect((params[:path]/(@resource.tree? ? 'new page' : 'edit')).urlpath)
       end
-      @resource = Page.new(repository, params[:path])
-      raise RuntimeError, :reserved_path.t if reserved_path?(params[:path])
+      @resource = Page.new(params[:path])
+      raise :reserved_path.t if reserved_path?(params[:path])
       render :new
     end
 
     get '/?:path?/version/?:version?', '/:path' do
       begin
         pass if reserved_path?(params[:path])
-        @resource = Resource.find!(repository, params[:path], params[:version])
-        cache_control :etag => @resource.latest_commit.sha, :last_modified => @resource.latest_commit.date
+        @resource = Resource.find!(params[:path], params[:version])
+        cache_control :etag => @resource.version, :last_modified => @resource.version.date
         with_hooks(:resource_show) do
           @content = @resource.try(:content)
           halt render(:show)
         end
-      rescue Resource::NotFound
+      rescue ObjectNotFound
         redirect_to_new params[:version].blank?
         pass
       end
@@ -228,28 +229,33 @@ module Wiki
     # Edit form sends put requests
     put '/:path' do
       on_error :edit
-      @resource = Page.find!(repository, params[:path])
+
+      @resource = Page.find!(params[:path])
 
       # TODO: Implement conflict diffs
-      raise RuntimeError, :version_conflict.t if @resource.commit.sha != params[:version]
+      raise :version_conflict.t if @resource.version.to_s != params[:version]
 
       if action?(:upload) && params[:file]
         with_hooks :page_save, @resource do
-          @resource.write(params[:file][:tempfile], :file_uploaded.t(:path => @resource.path), user)
+          Resource.transaction(:file_uploaded.t(:path => params[:path].cleanpath), user) do
+            @resource.write(params[:file][:tempfile])
+          end
         end
       elsif action?(:edit) && params[:content]
         with_hooks :page_save, @resource do
-          content = if params[:pos]
-                      pos = [[0, params[:pos].to_i].max, @resource.content.size].min
-                      len = [0, params[:len].to_i].max
-                      @resource.content(0, pos) + params[:content] + @resource.content(pos + len, @resource.content.size)
-                    else
-                      params[:content]
-                    end
-          @resource.write(content, params[:comment], user)
+          Resource.transaction(params[:comment], user) do
+            content = if params[:pos]
+                        pos = [[0, params[:pos].to_i].max, @resource.content.size].min
+                        len = [0, params[:len].to_i].max
+                        @resource.content(0, pos) + params[:content] + @resource.content(pos + len, @resource.content.size)
+                      else
+                        params[:content]
+                      end
+            @resource.write(content)
+          end
         end
       else
-        redirect((@resource.path/'edit').urlpath)
+        redirect((params[:path]/'edit').urlpath)
       end
       redirect @resource.path.urlpath
     end
@@ -259,18 +265,25 @@ module Wiki
       on_error :new
 
       pass if reserved_path?(params[:path])
-      @resource = Page.new(repository, params[:path])
+
+      @resource = Page.new(params[:path])
+
       if action?(:upload) && params[:file]
         with_hooks :page_save, @resource do
-          @resource.write(params[:file][:tempfile], :file_uploaded.t(:path => @resource.path), user)
+          Resource.transaction(:file_uploaded.t(:path => @resource.path), user) do
+            @resource.write(params[:file][:tempfile])
+          end
         end
       elsif action?(:new)
         with_hooks :page_save, @resource do
-          @resource.write(params[:content], params[:comment], user)
+          Resource.transaction(params[:comment], user) do
+            @resource.write(params[:content])
+          end
         end
       else
         redirect '/new'
       end
+
       redirect @resource.path.urlpath
     end
 

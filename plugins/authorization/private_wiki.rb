@@ -15,7 +15,7 @@ class Wiki::Application
     WHITE_LIST.any? {|pattern| request.path_info =~ /^#{pattern}$/ }
   end
 
-  hook(:before_routing) do
+  hook(:before_request) do
     if user.anonymous?
       halt if request.path_info == '/_/sidebar'
       if !public_access?

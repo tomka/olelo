@@ -109,7 +109,7 @@ end
 # Provide engine with caching
 class Wiki::Engine
   redefine_method :cached_output do |context|
-    context_id = md5(name + context.resource.id + context.params.to_a.sort.inspect)
+    context_id = md5(name + context.resource.path + context.resource.version.to_s + context.params.to_a.sort.inspect)
 
     content, vars = Cache.cache('engine', context_id,
                 :disable => context.resource.modified? || !cacheable?,

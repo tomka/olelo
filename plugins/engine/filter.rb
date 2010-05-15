@@ -51,8 +51,7 @@ class Wiki::Filter
   end
 
   class Builder
-    def initialize(logger)
-      @logger = logger
+    def initialize
       @filter = @last_filter = nil
     end
 
@@ -67,11 +66,11 @@ class Wiki::Filter
             @last_filter = @filter = filter
           end
         else
-          @logger.warn "Filter #{name} not available"
+          Plugin.current.logger.warn "Filter #{name} not available"
         end
       end
       if block
-        filter = Filter::Builder.new(@logger).build(&block)
+        filter = Filter::Builder.new.build(&block)
         if @last_filter
           @last_filter.sub = filter
         else
@@ -108,8 +107,8 @@ class Wiki::FilterEngine < Engine
   end
 
   class Builder < Filter::Builder
-    def initialize(name, logger)
-      super(logger)
+    def initialize(name)
+      super()
       @name = name
       @config = {}
     end
@@ -128,21 +127,16 @@ class Wiki::FilterEngine < Engine
   end
 
   class Registrator
-    def initialize(logger)
-      @logger = logger
-    end
-
     def engine(name, &block)
-      Engine.register(Builder.new(name, @logger).build(&block))
-      @logger.debug "Filter engine #{name} successfully created"
+      Engine.register(Builder.new(name).build(&block))
+      Plugin.current.logger.debug "Filter engine #{name} successfully created"
     rescue Exception => ex
-      @logger.error ex
+      Plugin.current.logger.error ex
     end
   end
 end
 
 setup do
-  file = File.join(Config.root, 'engines.rb')
-  FilterEngine::Registrator.new(logger).instance_eval(File.read(file), file)
+  file = File.join(Config.app_path, 'engines.rb')
+  FilterEngine::Registrator.new.instance_eval(File.read(file), file)
 end
-

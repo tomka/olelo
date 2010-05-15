@@ -1,17 +1,4 @@
 # -*- coding: utf-8 -*-
-require 'wiki/extensions'
-require 'wiki/i18n'
-require 'cgi'
-require 'digest/md5'
-require 'digest/sha2'
-require 'open3'
-
-gem 'nokogiri', '>= 1.4.1'
-autoload 'Nokogiri', 'nokogiri'
-
-gem 'mimemagic', '>= 0.1.1'
-autoload 'MimeMagic', 'mimemagic'
-
 module Wiki
   class MultiError < StandardError
     attr_accessor :messages
@@ -22,6 +9,18 @@ module Wiki
 
     def message
       @messages.join(', ')
+    end
+  end
+
+  module ClassRegistry
+    lazy_reader :registry, {}
+
+    def register(name, klass)
+      registry[name.to_s] = klass
+    end
+
+    def find(name)
+      registry[name.to_s] || raise(NameError, "Implementation #{name} for #{self.name} not found")
     end
   end
 

@@ -1,26 +1,41 @@
-title:        'Git-Wiki'
-production:   true
-main_page:    'Home'
-sidebar_page: 'Sidebar'
-external_img: false
-auth:
-  service: yamlfile
-  store:   '/home/user/wiki/users.yml'
-cache:        '/home/user/wiki/cache'
+title:           'Git-Wiki'
+locale:          'en_US'
+production:      true
+main_page:       'Home'
+sidebar_page:    'Sidebar'
+external_images: false
+namespaces:
+  discussion:    Discussion:
+  metadata:      Metadata:
+authentication:
+  service:       yamlfile
+  yamlfile:
+    store:       '/home/user/wiki/users.yml'
+  portal:
+    url:         'http://portal.test.com/'
+cache:           '/home/user/wiki/cache'
 mime:
-  magic:   true
-  default: 'text/x-creole'
+  - extension
+  - content
+  - text/x-creole
 disabled_plugins:
   - authorization/private_wiki
-  - filter/orgmode
   - tagging
   - editor/antispam
   - filter/benchmark
 rack:
-  rewrite_base: ''
-  profiling:    false
+  deflater:      true
+  embed:         false
+  esi:           true
+  rewrite_base:  ''
 log:
-  level:     INFO
-  file:      '/home/user/wiki/log'
-git:
-  repository:   '/home/user/wiki/repository'
+  level:         INFO
+  file:          '/home/user/wiki/log'
+antispam:
+  recaptcha:
+    public:      public key
+    private:     private key
+repository:
+  type:          git
+  git:
+    path:        '/home/user/wiki/repository'

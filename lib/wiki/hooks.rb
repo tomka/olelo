@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-require 'wiki/extensions'
-
 module Wiki
   module Hooks
     def self.included(base)

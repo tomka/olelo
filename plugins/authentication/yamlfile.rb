@@ -5,10 +5,10 @@ module ::YAML
   autoload 'Store', 'yaml/store'
 end
 
-User.define_service(:yamlfile) do
-  def initialize
-    FileUtils.mkdir_p File.dirname(Config.auth.store), :mode => 0755
-    @store = ::YAML::Store.new(Config.auth.store)
+class YamlfileService < User::Service
+  def initialize(config)
+    FileUtils.mkdir_p File.dirname(config.store), :mode => 0755
+    @store = ::YAML::Store.new(config.store)
   end
 
   def find(name)
@@ -28,7 +28,7 @@ User.define_service(:yamlfile) do
 
   def create(user, password)
     @store.transaction do |store|
-      raise RuntimeError, :user_already_exists.t(:name => user.name) if store[user.name]
+      raise :user_already_exists.t(:name => user.name) if store[user.name]
       store[user.name] = {
         'email' => user.email,
         'password' => crypt(password),
@@ -61,3 +61,5 @@ User.define_service(:yamlfile) do
     s.blank? ? s : sha256(s)
   end
 end
+
+User::Service.register :yamlfile, YamlfileService

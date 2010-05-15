@@ -4,10 +4,10 @@ dependencies 'engine/engine'
 
 class Wiki::Application
   get '/_/sidebar' do
-    if page = Page.find(repository, Config.sidebar_page)
+    if page = Page.find(Config.sidebar_page)
       engine = Engine.find(page, :layout => true)
       if engine
-        #cache_control :etag => page.commit.sha, :last_modified => page.latest_commit.date
+        #cache_control :etag => page.version, :last_modified => page.version.date
         cache_control :max_age => 60
 
         context = Context.new(:app      => self,

@@ -54,7 +54,7 @@ Tag.define(:include, :requires => :page, :limit => 10) do |context, attrs, conte
   if !path.begins_with? '/'
     path = context.resource.page? ? context.resource.path/'..'/path : context.resource.path/path
   end
-  if page = Page.find(context.resource.repository, path)
+  if page = Page.find(path)
     engine = Engine.find(page, :name => attrs['output'] || attrs['engine'], :layout => true)
     raise NameError, "No engine found for #{path}" if !engine
     engine.output(context.subcontext(:app => context.app, :params => attrs,
@@ -75,7 +75,7 @@ end
 Tag.define(:for, :requires => [:from, :to], :immediate => true, :limit => 50) do |context, attrs, content|
   to = attrs['to'].to_i
   from = attrs['from'].to_i
-  raise RuntimeError, 'Limits exceeded' if to - from > 10
+  raise 'Limits exceeded' if to - from > 10
   (from..to).map do |i|
     params = attrs['counter'] ? {attrs['counter'] => i} : {}
     nested_tags(context.subcontext(:params => params), content)
@@ -84,7 +84,7 @@ end
 
 Tag.define(:repeat, :requires => :times, :immediate => true, :limit => 50) do |context, attrs, content|
   n = attrs['times'].to_i
-  raise RuntimeError, 'Limits exceeded' if n > 10
+  raise 'Limits exceeded' if n > 10
   (1..n).map do |i|
     params = attrs['counter'] ? {attrs['counter'] => i} : {}
     nested_tags(context.subcontext(:params => params), content)

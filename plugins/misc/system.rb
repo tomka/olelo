@@ -6,7 +6,7 @@ class Wiki::Application
     GC.start
     @plugins = Plugin.plugins.sort_by(&:name)
     @failed_plugins = Plugin.failed.sort
-    @disabled_plugins = Config.disabled_plugins.to_a.sort
+    @disabled_plugins = Plugin.disabled.sort
     @memory = `ps -o rss= -p #{Process.pid}`.to_i / 1024
     render :system
   end

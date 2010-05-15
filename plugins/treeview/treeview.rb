@@ -21,8 +21,8 @@ class Wiki::Application
       require 'json'
 
       content_type 'application/json', :charset => 'utf-8'
-      tree = Tree.find!(repository, params[:dir], params[:version])
-      cache_control :etag => tree.latest_commit.id, :last_modified => tree.latest_commit.date
+      tree = Tree.find!(params[:dir], params[:version])
+      cache_control :etag => tree.version, :last_modified => tree.version.date
 
       tree.children.map do |child|
         ext = !child.page? || child.extension.empty? ? '' : " file-type-#{child.extension.downcase}"

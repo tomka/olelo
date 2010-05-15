@@ -2,6 +2,9 @@ author      'Daniel Mendler'
 description 'Anti-Spam'
 require 'net/http'
 
+RECAPTCHA_PUBLIC = Config.antispam.recaptcha.public
+RECAPTCHA_PRIVATE = Config.antispam.recaptcha.private
+
 class SpamEvaluator
   def self.bad_words
     @bad_words ||= File.read(File.join(File.dirname(__FILE__), 'antispam.words')).split("\n")
@@ -90,7 +93,7 @@ class Wiki::Application
       %{<script type="text/javascript"  src="https://api-secure.recaptcha.net/js/recaptcha_ajax.js"></script>
         <script type="text/javascript">
           $(function() {
-            Recaptcha.create('#{Config.recaptcha.public}',
+            Recaptcha.create('#{RECAPTCHA_PUBLIC}',
               'recaptcha', {
               theme: 'clean',
               callback: Recaptcha.focus_response_field
@@ -116,13 +119,16 @@ class Wiki::Application
   private
 
   def captcha_valid?
-    if params[:recaptcha_challenge_field] && params[:recaptcha_response_field]
+    if Time.now.to_i < session[:antispam_timeout].to_i
+      true
+    elsif params[:recaptcha_challenge_field] && params[:recaptcha_response_field]
       response = Net::HTTP.post_form(URI.parse('http://api-verify.recaptcha.net/verify'),
-                                     'privatekey' => Config.recaptcha.private,
+                                     'privatekey' => RECAPTCHA_PRIVATE,
                                      'remoteip'   => request.ip,
                                      'challenge'  => params[:recaptcha_challenge_field],
                                      'response'   => params[:recaptcha_response_field])
       if response.body.split("\n").first == 'true'
+        session[:antispam_timeout] = Time.now.to_i + 600
         flash.info :captcha_valid.t
         true
       else

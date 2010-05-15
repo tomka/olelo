@@ -39,5 +39,3 @@ Known bugs
 - Removed files have a next button for the last existing revision
   because the deletion is registered as commit for the respective file
   (see Page.next_commit)
-- If the page is too far in the past the next button does not work correctly
-  (see Page.next_commit)

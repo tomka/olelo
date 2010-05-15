@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# Separate file to allow accurate measurement of start time
 module Wiki
   class Timer
     def initialize
@@ -14,14 +13,14 @@ module Wiki
 
     # Start or restart timer
     def start
-      raise RuntimeError if @start
+      raise 'Timer has already been started' if @start
       @start = Time.now if !@start
       self
     end
 
     # Stop timer
     def stop
-      raise RuntimeError if !@start
+      raise 'Timer has already been stopped' if !@start
       @elapsed += Time.now - @start
       @start = nil
       self
@@ -29,7 +28,7 @@ module Wiki
 
     # Elapsed seconds
     def elapsed_sec
-      raise RuntimeError if @start
+      raise 'Timer is running' if @start
       @elapsed
     end
 

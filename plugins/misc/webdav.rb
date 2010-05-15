@@ -5,9 +5,9 @@ class Wiki::Application
   put '/:path' do
     return super() if request.form_data?
     begin
-      resource = Page.find!(repository, params[:path])
-      with_hooks :page_save, resource do
-        resource.write(request.body, :file_uploaded.t(:path => resource.path), user)
+      page = Page.find!(params[:path])
+      with_hooks :page_save, page do
+        page.write(request.body, :file_uploaded.t(:path => page.path), user)
       end
       :ok
     rescue NotFound => ex
@@ -22,10 +22,10 @@ class Wiki::Application
   post '/:path' do
     return super() if request.form_data?
     begin
-      raise RuntimeError, :reserved_path.t if reserved_path?(params[:path])
-      resource = Page.new(repository, params[:path])
-      with_hooks :page_save, resource do
-        resource.write(request.body, :file_uploaded.t(:path => resource.path), user)
+      raise :reserved_path.t if reserved_path?(params[:path])
+      page = Page.new(params[:path])
+      with_hooks :page_save, page do
+        page.write(request.body, :file_uploaded.t(:path => page.path), user)
       end
       :created
     rescue NotFound => ex

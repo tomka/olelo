@@ -1,16 +1,36 @@
 - title 'System Information'
 - menu :new
-%h2 General
+%h2 Runtime
 %table
   %tr
     %td Ruby version:
-    %td= RUBY_VERSION
+    %td&= RUBY_VERSION
+  %tr
+    %td Memory usage:
+    %td #{@memory} MiB
+%h2 Configuration
+%table
   %tr
     %td Production mode:
     %td= Wiki::Config.production?
   %tr
-    %td Memory usage:
-    %td #{@memory} MiB
+    %td Repository backend:
+    %td&= Wiki::Config.repository.type
+  %tr
+    %td Authentication backend:
+    %td&= Wiki::Config.authentication.service
+  %tr
+    %td Locale
+    %td&= Wiki::Config.locale
+  %tr
+    %td External images enabled
+    %td&= Wiki::Config.external_images?
+  %tr
+    %td Namespace prefix
+    %td&= Wiki::Config.namespaces.to_hash.map {|name, prefix| "#{name}: #{prefix}" }.join(', ')
+  %tr
+    %td Mime type detection order
+    %td&= Wiki::Config.mime.join(', ')
 %h2 Plugins
 %table.sortable.full
   %thead

@@ -24,7 +24,7 @@ Engine.create(:gallery, :priority => 2, :layout => true, :cacheable => true) do
     per_page = 16
     @curpage = context.params[:curpage].to_i
     @tree = context.tree
-    @images = @tree.pages.select {|page| page.mime.mediatype == 'image' }
+    @images = @tree.children.select {|page| page.page? && page.mime.mediatype == 'image' }
     @pages = @images.size / per_page
     @images = @images[(@curpage * per_page) ... ((@curpage + 1) * per_page)].to_a
     render :gallery

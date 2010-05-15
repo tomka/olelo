@@ -1,25 +1,25 @@
 # -*- coding: utf-8 -*-
-require 'wiki/util'
-
 module Wiki
   # Wiki plugin system
   class Plugin
     include Util
+    include Hooks
 
     @plugins = {}
     @failed = []
+    @disabled = []
     @dir = ''
     @logger = nil
 
     class<< self
-      attr_accessor :dir, :logger
+      attr_accessor :dir, :logger, :disabled
 
       # Current loading plugin
       def current
         file = caller.each do |line|
           return @plugins[$1] if line =~ %r{^#{@dir}/(.+?)\.rb}
         end
-        raise RuntimeError, 'No plugin context'
+        raise 'No plugin context'
       end
 
       # Get plugin by name
@@ -45,8 +45,7 @@ module Wiki
       # Load plugins by name and return a boolean for success
       def load(*list)
         files = list.map do |name|
-          name = name.cleanpath
-          Dir.glob(File.join(@dir, '**', "#{name}.rb"))
+          Dir.glob(File.join(@dir, '**', "#{name.cleanpath}.rb"))
         end.flatten
         return false if files.empty?
         files.inject(true) do |result,file|
@@ -60,10 +59,8 @@ module Wiki
 	      plugin = new(name, file, logger)
               @plugins[name] = plugin
               plugin.instance_eval(File.read(file), file)
-              I18n.load_locale(file.sub(/\.rb$/, '_locale.yml'))
-              I18n.load_locale(File.join(File.dirname(file), 'locale.yml'))
-              Templates.paths << File.dirname(file)
               logger.debug("Plugin #{name} successfully loaded")
+              plugin.invoke_hook(:loaded)
             rescue Exception => ex
               @failed << name
               logger.error ex
@@ -79,7 +76,7 @@ module Wiki
         paths = name.split(File::SEPARATOR)
         paths.inject(nil) do |path, x|
           path = path ? File.join(path, x) : x
-          return false if Config.disabled_plugins.to_a.include?(path)
+          return false if disabled.include?(path)
           path
         end
         true
@@ -108,6 +105,7 @@ module Wiki
       instance_eval(&@setup) if @setup
       Plugin.logger.debug("Plugin #{name} successfully started")
       @started = true
+      invoke_hook(:started)
     rescue Exception => ex
       Plugin.logger.error ex
       Plugin.logger.error("Plugin #{name} failed to start")
@@ -127,13 +125,12 @@ module Wiki
           version = dep.length > 1 ? dep[1..-1].join(' ') : '>= 0'
           gem name, version
         else
-          raise(RuntimeError, "Could not load dependency #{dep} for #{name}") if !Plugin.load(dep)
+          raise "Could not load dependency #{dep} for #{name}" if !Plugin.load(dep)
         end
       end
       @dependencies
     end
 
     private_class_method :new
-
   end
 end

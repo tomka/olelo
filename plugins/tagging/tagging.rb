@@ -7,22 +7,22 @@ class YamlPage < Page
     (Hash === data ? data : {}).with_indifferent_access
   end
 
-  def write(comment, author = nil)
-    super(data.to_hash.to_yaml, comment, author)
+  def write
+    super(data.to_hash.to_yaml)
   end
 end
 
 class TagStore < YamlPage
-  def add(id, tag, author)
+  def add(id, tag)
     (data[id] ||= []) << tag
     data[id].uniq!
-    write(:id_tagged_as.t(:id => id, :tag => tag), author)
+    write
   end
 
-  def delete(id, tag, author)
+  def delete(id, tag)
     data[id].delete(tag) if data[id]
     data.delete(id) if data[id].blank?
-    write(:tag_deleted.t(:tag => tag, :id => id), author)
+    write
   end
 
   def get(id)
@@ -50,7 +50,7 @@ class Wiki::Application
   assets '*.png'
 
   lazy_reader :tag_store do
-    TagStore.find(repository, TAG_STORE) || TagStore.new(repository, TAG_STORE)
+    TagStore.find(TAG_STORE) || TagStore.new(TAG_STORE)
   end
 
   hook(:after_footer) do
@@ -70,17 +70,19 @@ class Wiki::Application
 
   post '/tags/new' do
     tag = params[:tag].to_s.strip
-    if !tag.blank?
-      resource = Resource.find!(repository, params[:path])
-      tag_store.add(resource.path, tag, user)
+    Resource.transaction(:tag_added.t(:path => params[:path].cleanpath, :tag => tag), user) do
+      @resource = Resource.find!(params[:path])
+      tag_store.add(@resource.path, tag) if !tag.blank?
     end
-    redirect resource_path(resource, :purge => 1)
+    redirect resource_path(@resource, :purge => 1)
   end
 
   delete '/tags/:tag' do
     tag = params[:tag].to_s.strip
-    resource = Resource.find!(repository, params[:path])
-    tag_store.delete(resource.path, tag, user)
-    redirect resource_path(resource, :purge => 1)
+    Resource.transaction(:tag_deleted.t(:path => params[:path].cleanpath, :tag => tag), user) do
+      @resource = Resource.find!(params[:path])
+      tag_store.delete(@resource.path, tag)
+    end
+    redirect resource_path(@resource, :purge => 1)
   end
 end

@@ -14,7 +14,7 @@ class Wiki::Application
     if @preview
       %{<div class="preview">#{@preview}</div>}
     elsif @patch
-      format_changes(@patch)
+      format_patch(@patch)
     end
   end
 

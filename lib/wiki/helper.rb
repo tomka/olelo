@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-require 'wiki/util'
-
 module Wiki
   module BlockHelper
     lazy_reader(:blocks) { Hash.with_indifferent_access('') }
@@ -112,8 +110,8 @@ module Wiki
     end
 
     def theme_links
-      default = File.basename(File.dirname(File.readlink(File.join(Config.root, 'static', 'themes', 'default'))))
-      Dir.glob(File.join(Config.root, 'static', 'themes', '*', 'style.css')).map do |file|
+      default = File.basename(File.dirname(File.readlink(File.join(Config.app_path, 'static', 'themes', 'default'))))
+      Dir.glob(File.join(Config.app_path, 'static', 'themes', '*', 'style.css')).map do |file|
         name = File.basename(File.dirname(file))
         next if name == 'default'
         %{<link rel="#{name == default ? 'alternate ' : ''}stylesheet"
@@ -121,7 +119,7 @@ module Wiki
       end.compact.join("\n")
     end
 
-    def format_changes(patch, opts = {})
+    def format_patch(patch, opts = {})
       lines = patch.split("\n")
       html, path, header, last = '', nil, true, nil
       files, count = [], 0
@@ -141,8 +139,8 @@ module Wiki
               html << %{<thead><tr><th>
                           <a class="left" href="#{escape_html path.urlpath}">#{path}</a>
                           <span class="right">
-                            <a href="#{escape_html((path/'version'/opts[:from].sha[0..4]).urlpath)}">#{opts[:from].sha[0..4]}</a> to
-                            <a href="#{escape_html((path/'version'/opts[:to].sha[0..4]).urlpath)}">#{opts[:to].sha[0..4]}</a>
+                            <a href="#{escape_html((path/'version'/opts[:from]).urlpath)}">#{opts[:from].short}</a> to
+                            <a href="#{escape_html((path/'version'/opts[:to]).urlpath)}">#{opts[:to].short}</a>
                           </span>
                          </th></tr></thead>}.unindent
             else
@@ -194,7 +192,7 @@ module Wiki
       path = resource.try(:path) || ''
       builder do
         li.first.breadcrumb(:class => '' == path ? 'last' : '') {
-          a :root_path.t, :href => resource_path(resource, :path => '/root')
+          a Wiki::Config.root_path, :href => resource_path(resource, :path => '/'.urlpath)
         }
         path.split('/').inject('') do |parent,elem|
           li.breadcrumb '/'
@@ -208,8 +206,7 @@ module Wiki
     end
 
     def resource_path(resource, opts = {})
-      version = opts.delete(:version) || (resource && !resource.current? && resource.commit) || ''
-      version = version.try(:sha) || version
+      version = opts.delete(:version) || (resource && !resource.current? && resource.tree_version) || ''
       if path = opts.delete(:path)
         if !path.begins_with? '/'
           path = resource.page? ? resource.path/'..'/path : resource.path/path
@@ -267,7 +264,7 @@ module Wiki
 
       if opts[:etag]
         value = '"%s"' % opts.delete(:etag)
-        response['ETag'] = value
+        response['ETag'] = value.to_s
         response['Last-Modified'] = last_modified if last_modified
         if etags = env['HTTP_IF_NONE_MATCH']
           etags = etags.split(/\s*,\s*/)

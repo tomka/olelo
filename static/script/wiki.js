@@ -19,12 +19,12 @@ jQuery.fn.historyTable = function() {
 	$(document).bind('mouseup.history', function() {
 	    stop();
 	    if (to) {
-	        var toSha = to.attr('id').substr(7),
-	            fromSha = from.attr('id').substr(7),
+	        var toVersion = to.attr('id').substr(8),
+	            fromVersion = from.attr('id').substr(8),
                     path = location.pathname;
-	        if (toSha != fromSha) {
+	        if (toVersion != fromVersion) {
 		    path = path.substr(0, path.length - 7);
-	            location.href = path + 'diff?from=' + fromSha + '&to=' + toSha;
+	            location.href = path + 'diff?from=' + fromVersion + '&to=' + toVersion;
 		}
             }
             return true;

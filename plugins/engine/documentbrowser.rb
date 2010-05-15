@@ -1,7 +1,6 @@
 author      'Daniel Mendler'
 description 'Document browser engine'
 dependencies 'engine/engine'
-require 'open3'
 
 Engine.create(:documentbrowser, :priority => 1, :layout => true, :cacheable => true) do
   def accepts?(page); page.mime == 'application/pdf' || page.mime.to_s =~ /postscript/; end
@@ -10,7 +9,7 @@ Engine.create(:documentbrowser, :priority => 1, :layout => true, :cacheable => t
     @pages = 0
     content = @page.content
     if @page.mime == 'application/pdf'
-      content.scan %r{^/Count\s+(\d+)$} do
+      content.scan %r{/Type\s*/Pages.*?/Count\s*(\d+)}m do
         @pages += $1.to_i
       end
       @pages -= 1

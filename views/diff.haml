@@ -4,15 +4,9 @@
     %tr
       %td= :from.t
       %td
-        %a.version{:href=>resource_path(@resource, :version => @diff.from)}= @diff.from.sha[0..4]
+        %a.version{:href=>resource_path(@resource, :version => @diff.from)}= @diff.from.short
     %tr
       %td= :to.t
       %td
-        %a.version{:href=>resource_path(@resource, :version => @diff.to)}= @diff.to.sha[0..4]
-    %tr
-      %td= :deletions.t
-      %td= @diff.deletions
-    %tr
-      %td= :insertions.t
-      %td= @diff.insertions
-%p~ format_changes(@diff.patch, :from => @diff.from, :to => @diff.to)
+        %a.version{:href=>resource_path(@resource, :version => @diff.to)}= @diff.to.short
+%p~ format_patch(@diff.patch, :from => @diff.from, :to => @diff.to)

@@ -16,8 +16,8 @@ class Wiki::Context < Struct.new(:app, :resource, :engine, :logger, :request,
   def initialize(attrs = {})
     update(attrs)
     self.logger  ||= Logger.new(nil)
-    self.params  ||= HashWithIndifferentAccess.new
-    self.private ||= HashWithIndifferentAccess.new
+    self.params  ||= Hash.with_indifferent_access
+    self.private ||= Hash.with_indifferent_access
     invoke_hook(:initialized)
   end
 
@@ -75,7 +75,7 @@ class Wiki::Engine
   # name can be given to claim a specific engine.
   # If no engine is found a exception is raised.
   def self.find!(resource, opts = {})
-    opts[:name] ||= resource.metadata[:output] || resource.metadata[:engine] if !resource.meta?
+    opts[:name] ||= resource.metadata[:output] || resource.metadata[:engine] if !resource.namespace != :metadata
     engines = opts[:name] ? @engines[opts[:name].to_s] : @engines.values.flatten
     engine = engines.to_a.sort_by {|a| a.priority }.find { |e| e.accepts?(resource) && (!opts[:layout] || e.layout?) }
     raise(RuntimeError, :engine_not_available.t(:engine => opts[:name], :page => resource.path, :mime => resource.mime)) if !engine

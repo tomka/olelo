@@ -19,7 +19,7 @@ class WikiCreoleParser < Creole
   def make_image(path, title)
     args = title.to_s.split('|')
     if path =~ %r{^(http|ftp)://}
-      return %{<span class="error">External images are not allowed</span>} if !Config.external_img?
+      return %{<span class="error">External images are not allowed</span>} if !Config.external_images?
       image_path = path.dup
       page_path = path.dup
     else

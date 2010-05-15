@@ -1,24 +1,18 @@
-- title :changes_of.t(:version => @commit)
+- title :changes_of.t(:version => @version)
 %table.zebra
   %tbody
     %tr
       %td= :comment.t
-      %td&= @commit.message
+      %td&= @version.comment
     %tr
       %td= :author.t
-      %td= @commit.author.name
+      %td= @version.author.name
     %tr
       %td= :date.t
-      %td= date @commit.date
-    %tr
-      %td= :deletions.t
-      %td= @diff.deletions
-    %tr
-      %td= :insertions.t
-      %td= @diff.insertions
+      %td= date @version.date
     %tr
       %td= :parents.t
       %td
-        - @commit.parent.each do |parent|
-          %a{:href=> ('changes'/parent.sha).urlpath }= parent.sha[0..4]
-~ format_changes(@diff.patch, :from => @diff.from, :to => @diff.to)
+        - @version.parents.each do |parent|
+          %a{:href=> ('changes'/parent).urlpath }= Wiki::Version.short(parent)
+~ format_patch(@diff.patch, :from => @diff.from, :to => @diff.to)

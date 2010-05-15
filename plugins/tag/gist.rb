@@ -2,7 +2,7 @@ author       'Daniel Mendler'
 description  'Embed github gists'
 dependencies 'filter/tag'
 require      'net/http'
-require      'json'
+autoload 'JSON', 'json'
 
 class Wiki::Application
   hook(:after_style) do

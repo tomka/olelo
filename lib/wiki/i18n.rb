@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-require 'wiki/config'
-
 module Wiki
   module I18n
     @locale = Hash.with_indifferent_access

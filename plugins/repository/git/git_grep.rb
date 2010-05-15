@@ -1,13 +1,16 @@
 author      'Daniel Mendler'
-description 'Basic searching via grep'
+description 'Searching via git-grep'
+dependencies 'repository/git/git'
 
 class Wiki::Application
   get '/search' do
     matches = {}
 
-    repository.git_ls_tree('-r', '--name-only', 'HEAD') do |io|
+    git = Repository.instance.git
+
+    git.git_ls_tree('-r', '--name-only', 'HEAD') do |io|
       while !io.eof?
-        line = repository.set_encoding(io.readline)
+        line = git.set_encoding(io.readline)
 	line = unescape_backslash(line)
         if line =~ /#{params[:pattern]}/i
           matches[line] ||= ''
@@ -15,9 +18,9 @@ class Wiki::Application
       end
     end
 
-    repository.git_grep('-z', '-e', params[:pattern], '-i', repository.branch) do |io|
+    git.git_grep('-z', '-e', params[:pattern], '-i', repository.branch) do |io|
       while !io.eof?
-        line = repository.set_encoding(io.readline)
+        line = git.set_encoding(io.readline)
 	line = unescape_backslash(line)
         if line =~ /(.*)\:(.*)\0(.*)/
           (matches[$2] ||= '') << $3
@@ -26,7 +29,7 @@ class Wiki::Application
     end rescue nil # git-grep returns 1 if nothing is found
 
     @matches = matches.map {|k, v| [k.urlpath, emphasize(k), emphasize(v)] }
-    render :grep
+    render :git_grep
   end
 
   private

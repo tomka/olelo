@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-require 'spec_setup'
+require 'helper'
 
 Rack::MockRequest::DEFAULT_ENV['REMOTE_ADDR'] = 'localhorst'
 
@@ -27,39 +27,50 @@ describe 'wiki' do
     @test_path = File.expand_path(File.join(File.dirname(__FILE__), '.test'))
 
     default_config = {
-      :title        => 'Git-Wiki',
-      :root         => File.expand_path(File.join(File.dirname(__FILE__), '..')),
-      :store        => File.join(@test_path, 'store.yml'),
-      :cache        => File.join(@test_path, 'cache'),
-      :locale       => 'en',
-      :mime => {
-        :default => 'text/x-creole',
-        :magic => true,
+      :title           => 'Git-Wiki',
+      :app_path        => File.expand_path(File.join(File.dirname(__FILE__), '..')),
+      :production      => true,
+      :locale	   => 'en_US',
+      :root_path       => 'Root',
+      :main_page       => 'Home',
+      :sidebar_page    => 'Sidebar',
+      :external_images => false,
+      :namespaces => {
+        :discussion => 'Discussion:',
+        :metadata   => 'Metadata:',
       },
-      :main_page    => 'Home',
+      :authentication => {
+        :service  => :yamlfile,
+        :yamlfile => {
+          :store  => File.join(@test_path, 'users.yml'),
+        },
+      },
+      :cache => File.join(@test_path, 'cache'),
+      :mime => [
+                'extension',
+                'content',
+                'text/x-creole',
+               ],
       :disabled_plugins => [
-        'authorization/private_wiki',
-        'filter/orgmode',
-	'editor/antispam'
-      ],
-      :production => false,
-      :rack => {
-        :rewrite_base => nil,
-        :profiling    => false,
-      },
-      :git => {
-        :repository => File.join(@test_path, 'repository'),
-      },
-      :log => {
-        :level => 'DEBUG',
-        :file  => File.expand_path(File.join(@test_path, '..', '..', 'test.log')),
-      },
+                            'authorization/private_wiki',
+                            'tagging',
+                            'editor/antispam',
+                            'filter/benchmark',
+                           ],
+      :repository => {
+        :type  => :git,
+        :git => {
+          :path => File.expand_path(File.join(@test_path, 'repository')),
+        },
+      }
     }
-    Wiki::Config.update default_config
+
+    Wiki::Config.update(default_config)
+    Wiki::Repository.instance = nil
+
+    logger = Logger.new(File.expand_path(File.join(File.dirname(__FILE__), '..', 'test.log')))
 
     @app = Rack::Builder.new do
-      logger = ::Logger.new(Wiki::Config.log.file)
-      logger.level = ::Logger.const_get(Wiki::Config.log.level)
       run Wiki::Application.new(nil, :logger => logger)
     end
   end

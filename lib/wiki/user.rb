@@ -1,7 +1,4 @@
 # -*- coding: utf-8 -*-
-require 'wiki/util'
-require 'wiki/extensions'
-
 module Wiki
   class AuthenticationError < RuntimeError
   end
@@ -24,18 +21,14 @@ module Wiki
 
     def change_password(oldpassword, password, confirm)
       User.validate_password(password, confirm)
-      User.service.change_password(self, oldpassword, password)
-    end
-
-    def to_git_user
-      Gitrb::User.new(name, email)
+      service.change_password(self, oldpassword, password)
     end
 
     def modify(&block)
       copy = dup
       block.call(copy)
       validate
-      User.service.update(copy)
+      service.update(copy)
       instance_variables.each do |name|
         instance_variable_set(name, copy.instance_variable_get(name))
       end
@@ -48,10 +41,9 @@ module Wiki
       end
     end
 
-    @services = {}
-
-    class NullService
+    class Service
       include Util
+      extend ClassRegistry
 
       def method_missing(name, *args)
         raise NotImplementedError, :auth_unsupported.t(:name => name)
@@ -59,23 +51,15 @@ module Wiki
     end
 
     class<< self
+      def service
+        @service ||= Service.find(Config.authentication.service).new(Config.authentication[Config.authentication.service])
+      end
+
       def validate_password(password, confirm)
         check do |errors|
           errors << :passwords_do_not_match.t if password != confirm
           errors << :empty_password.t if password.blank?
         end
-      end
-
-      def define_service(name, &block)
-        service = Class.new(NullService)
-        service.class_eval(&block)
-        @services[name.to_s] = service
-      end
-
-      lazy_reader :service do
-        serv = @services[Config.auth.service]
-        raise NameError, "Authentication service #{Config.auth.service} not found" if !serv
-        serv.new
       end
 
       def anonymous(request)

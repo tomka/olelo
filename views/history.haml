@@ -9,12 +9,12 @@
       %th= :author.t
       %th= :date.t
   %tbody
-    - @resource.history.each do |commit|
-      %tr{:id =>"commit-#{commit}"}
+    - @resource.history.each do |version|
+      %tr{:id =>"version-#{version}"}
         %td
-          %a{:href=>resource_path(@resource, :version => commit)}&= commit.message.truncate(30)
+          %a{:href=>resource_path(@resource, :version => version)}&= version.comment.truncate(30)
           (
-          %a{:href=> ('changes'/commit).urlpath }<>= :changes.t
+          %a{:href=> ('changes'/version).urlpath }<>= :changes.t
           )
-        %td&= commit.author.name
-        %td= date commit.date
+        %td&= version.author.name
+        %td= date version.date

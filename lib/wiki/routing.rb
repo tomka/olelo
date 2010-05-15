@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
-require 'wiki/util'
-require 'wiki/hooks'
-
 module Wiki
   module Routing
     class NotFound < NameError
-      def status; :not_found end
+      def initialize(path)
+        super(:not_found.t(:id => path), path)
+      end
+
+      def status
+        :not_found
+      end
     end
 
     def self.included(base)
@@ -30,11 +33,11 @@ module Wiki
       encode(@params)
 
       catch(:forward) do
-        perform!
+        with_hooks(:request) { perform! }
         status, header, body = @response.finish
         return [status, header, @request.head? ? [] : body]
       end
-      @app ? @app.call(env) : handle_error(NotFound.new('Sub application not set'))
+      @app ? @app.call(env) : error!(NotFound.new(@request.path_info))
     end
 
     def halt(*response)
@@ -66,7 +69,7 @@ module Wiki
       end
     end
 
-    def handle_error(ex)
+    def error!(ex)
       @response.status = Rack::Utils.status_code(ex.try(:status) || :internal_server_error)
       @response.body   = [ex.message]
       safe_output do
@@ -77,7 +80,7 @@ module Wiki
     def perform!
       result = catch(:halt) do
         uri = catch(:redirect) do
-          halt(route!)
+          route!
         end
         @response.redirect uri
         nil
@@ -111,8 +114,6 @@ module Wiki
     end
 
     def route!
-      invoke_hook(:before_routing)
-
       path = unescape(@request.path_info)
       method = @request.request_method
       routes = self.class.routes[method]
@@ -139,9 +140,9 @@ module Wiki
         end
       end
 
-      raise NotFound, :not_found.t(:path => path)
+      raise NotFound, path
     rescue ::Exception => ex
-      handle_error(ex)
+      halt error!(ex)
     end
 
     module ClassMethods
