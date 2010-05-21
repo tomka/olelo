@@ -50,26 +50,25 @@
  *
  */
 
-(function($){
-	if(!$ || !($.toJSON || Object.toJSON || window.JSON)){
+(function($) {
+	if(!$ || !($.toJSON || Object.toJSON || window.JSON))
 		throw new Error("jQuery, MooTools or Prototype needs to be loaded before jStorage!");
-	}
 
 	var
-		/* This is the object, that holds the cached values */
-		_storage = {},
+                // This is the object, that holds the cached values
+		storage = {},
 
-		/* Actual browser storage (localStorage or globalStorage['domain']) */
-		_storage_service = {jStorage:"{}"},
+		// Actual browser storage (localStorage or globalStorage['domain']) */
+		storageService = null,
 
-		/* DOM element for older IE versions, holds userData behavior */
-		_storage_elm = null,
+		// DOM element for older IE versions, holds userData behavior */
+		storageElement = null,
 
-		/* function to encode objects to JSON strings */
-		json_encode = $.toJSON || Object.toJSON || (window.JSON && (JSON.encode || JSON.stringify)),
+		// function to encode objects to JSON strings
+		jsonEncode = $.toJSON || Object.toJSON || (window.JSON && (JSON.encode || JSON.stringify)),
 
-		/* function to decode objects from JSON strings */
-		json_decode = $.evalJSON || (window.JSON && (JSON.decode || JSON.parse)) || function(str){
+                // function to decode objects from JSON strings
+		jsonDecode = $.evalJSON || (window.JSON && (JSON.decode || JSON.parse)) || function(str) {
 			return String(str).evalJSON();
 		};
 
@@ -80,49 +79,52 @@
 	 * or userData behavior and behaves accordingly.
 	 * @returns undefined
 	 */
-	function _init(){
-		/* Check if browser supports localStorage */
-		if(window.localStorage){
-			try {
-				_storage_service = window.localStorage;
-			} catch(E0) {/* Firefox fails when touching localStorage and cookies are disabled */}
-		}
-		/* Check if browser supports globalStorage */
-		else if(window.globalStorage){
-			try {
-				_storage_service = window.globalStorage[window.location.hostname];
-			} catch(E1) {/* Firefox fails when touching localStorage and cookies are disabled */}
-		}
-		/* Check if browser supports userData behavior */
-		else {
-			_storage_elm = document.createElement('link');
-			if(_storage_elm.addBehavior){
+	function init() {
+                try {
+                        if (window.localStorage)
+                                storageService = window.localStorage;
+                        else if (window.globalStorage)
+                                storageService = window.globalStorage[window.location.hostname];
+                } catch (e) {
+                        // Firefox fails when touching localStorage/globalStorage and cookies are disabled
+                }
 
-				/* Use a DOM element to act as userData storage */
-				_storage_elm.style.behavior = 'url(#default#userData)';
+		// Check if browser supports userData behavior
+                if (!storageService) {
+			storageElement = document.createElement('link');
+			if (storageElement.addBehavior) {
 
-				/* userData element needs to be inserted into the DOM! */
-				document.getElementsByTagName('head')[0].appendChild(_storage_elm);
+				// Use a DOM element to act as userData storage
+				storageElement.style.behavior = 'url(#default#userData)';
 
-				_storage_elm.load("jStorage");
+				// userData element needs to be inserted into the DOM!
+				document.getElementsByTagName('head')[0].appendChild(storageElement);
+
+				storageElement.load("jStorage");
 				var data = "{}";
 				try{
-					data = _storage_elm.getAttribute("jStorage");
-				}catch(E2){}
-				_storage_service.jStorage = data;
-			}else{
-				_storage_elm = null;
+					data = storageElement.getAttribute("jStorage");
+				} catch (e) {
+                                }
+				storageService.jStorage = data;
+			} else {
+				storageElement = null;
 				return;
 			}
 		}
 
-		/* if jStorage string is retrieved, then decode it */
-		if(_storage_service.jStorage){
-			try{
-				_storage = json_decode(String(_storage_service.jStorage));
-			}catch(E3){_storage_service.jStorage = "{}";}
-		}else{
-			_storage_service.jStorage = "{}";
+                if (!storageService)
+                        storageService = { jStorage: "{}" };
+
+		// if jStorage string is retrieved, then decode it
+		if (storageService.jStorage) {
+			try {
+				storage = jsonDecode(String(storageService.jStorage));
+			} catch (e) {
+                                storageService.jStorage = "{}";
+                        }
+		} else {
+			storageService.jStorage = "{}";
 		}
 	}
 
@@ -130,31 +132,31 @@
 	 * This functions provides the "save" mechanism to store the jStorage object
 	 * @returns undefined
 	 */
-	function _save(){
-		try{
-			_storage_service.jStorage = json_encode(_storage);
+	function save() {
+		try {
+			storageService.jStorage = jsonEncode(storage);
 			// If userData is used as the storage engine, additional
-			if(_storage_elm) {
-				_storage_elm.setAttribute("jStorage",_storage_service.jStorage);
-				_storage_elm.save("jStorage");
+			if (storageElement) {
+				storageElement.setAttribute("jStorage",storageService.jStorage);
+				storageElement.save("jStorage");
 			}
-		}catch(E4){/* probably cache is full, nothing is saved this way*/}
+		} catch (e) {
+                        // probably cache is full, nothing is saved this way
+                }
 	}
 
 	/**
 	 * Function checks if a key is set and is string or numberic
 	 */
-	function _checkKey(key){
-		if(!key || (typeof key != "string" && typeof key != "number")){
+	function checkKey(key){
+		if (!key || (typeof key != "string" && typeof key != "number"))
 			throw new TypeError('Key name must be string or numeric');
-		}
-		return true;
 	}
 
 	////////////////////////// PUBLIC INTERFACE /////////////////////////
 
 	$.jStorage = {
-		/* Version number */
+		// Version number
 		version: "0.1.3",
 
 		/**
@@ -167,9 +169,9 @@
 		 * @returns the used value
 		 */
 		set: function(key, value){
-			_checkKey(key);
-			_storage[key] = value;
-			_save();
+			checkKey(key);
+			storage[key] = value;
+			save();
 			return value;
 		},
 
@@ -181,10 +183,9 @@
 		 * @returns the key value, default value or <null>
 		 */
 		get: function(key, def){
-			_checkKey(key);
-			if(key in _storage){
-				return _storage[key];
-			}
+			checkKey(key);
+			if (key in storage)
+				return storage[key];
 			return typeof(def) == 'undefined' ? null : def;
 		},
 
@@ -195,10 +196,10 @@
 		 * @returns true if key existed or false if it didn't
 		 */
 		deleteKey: function(key){
-			_checkKey(key);
-			if(key in _storage){
-				delete _storage[key];
-				_save();
+			checkKey(key);
+			if (key in storage){
+				delete storage[key];
+				save();
 				return true;
 			}
 			return false;
@@ -206,36 +207,34 @@
 
 		/**
 		 * Deletes everything in cache.
-		 *
-		 * @returns true
 		 */
 		flush: function(){
-			_storage = {};
-			_save();
+			storage = {};
+			save();
 			/*
 			 * Just to be sure - andris9/jStorage#3
 			 */
 			if (window.localStorage){
-				try{
+				try {
 					localStorage.clear();
-				}catch(E5){}
+				} catch (e) {
+                                }
 			}
-			return true;
 		},
 
 		/**
-		 * Returns a read-only copy of _storage
+		 * Returns a read-only copy of storage
 		 *
 		 * @returns Object
 		*/
 		storageObj: function(){
 			function F() {}
-			F.prototype = _storage;
+			F.prototype = storage;
 			return new F();
 		}
 	};
 
 	// Initialize jStorage
-	_init();
+	init();
 
 })(window.jQuery || window.$);
