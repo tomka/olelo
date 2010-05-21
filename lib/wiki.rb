@@ -14,17 +14,8 @@ autoload 'Nokogiri', 'nokogiri'
 gem 'mimemagic', '>= 0.1.1'
 autoload 'MimeMagic', 'mimemagic'
 
-gem 'haml', '>= 2.2.16'
-require 'haml/helpers'
-module Haml::Helpers
-  # Remove stupid deprecated helper
-  remove_method :puts
-end
-
-module Haml
-  autoload 'Engine', 'haml/engine'
-  autoload 'Util', 'haml/util'
-end
+gem 'haml', '>= 3.0.4'
+autoload 'Haml', 'haml'
 
 require 'wiki/extensions'
 require 'wiki/util'

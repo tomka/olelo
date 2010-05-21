@@ -1,14 +1,14 @@
 en:
   tags:        'Tags'
   tag_title:   'Tag #{tag}'
-  tag_added:   '#{id} tagged as #{tag}'
+  tag_added:   '#{path} tagged as #{tag}'
   tag_deleted: 'Tag #{tag} deleted from #{id}'
   add:         'Add'
   new_tag:     'New Tag'
 de:
   tags:        'Tags'
   tag_title:   'Tag #{tag}'
-  tag_added:   '#{id} getaggt als #{tag}'
+  tag_added:   '#{path} getaggt als #{tag}'
   tag_deleted: 'Tag #{tag} gelöscht von #{id}'
   add:         'Hinzufügen'
   new_tag:     'Neues Tag'
