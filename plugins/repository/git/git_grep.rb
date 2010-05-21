@@ -18,7 +18,7 @@ class Wiki::Application
       end
     end
 
-    git.git_grep('-z', '-e', params[:pattern], '-i', repository.branch) do |io|
+    git.git_grep('-z', '-i', '-e', params[:pattern], git.branch) do |io|
       while !io.eof?
         line = git.set_encoding(io.readline)
 	line = unescape_backslash(line)

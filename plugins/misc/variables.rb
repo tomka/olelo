@@ -5,16 +5,16 @@ require      'json'
 
 def variables(page, engine)
   vars = {
-    'page_name'              => page.name,
-    'page_path'              => page.path,
-    'page_namespace'         => page.namespace,
-    'page_title'             => page.title,
-    'page_version'           => page.version.to_s,
-    'page_next_versions'     => page.next_version.to_s,
-    'page_previous_versions' => page.previous_version.to_s,
-    'page_type'              => page.tree? ? 'tree' : 'page',
-    'page_mime'              => page.mime.to_s,
-    'page_current'           => page.current? }
+    'page_name'             => page.name,
+    'page_path'             => page.path,
+    'page_namespace'        => page.namespace,
+    'page_title'            => page.title,
+    'page_version'          => page.version.to_s,
+    'page_next_version'     => page.next_version.to_s,
+    'page_previous_version' => page.previous_version.to_s,
+    'page_type'             => page.tree? ? 'tree' : 'page',
+    'page_mime'             => page.mime.to_s,
+    'page_current'          => page.current? }
   if engine
     vars.merge!({
       'engine_name'      => engine.name,

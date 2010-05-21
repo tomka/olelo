@@ -50,7 +50,7 @@ module Wiki
     end
 
     def load(file)
-      load!(file) rescue false
+      load!(file) if File.file?(file)
     end
 
     def load!(file)

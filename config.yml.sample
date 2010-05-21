@@ -5,8 +5,8 @@ main_page:       'Home'
 sidebar_page:    'Sidebar'
 external_images: false
 namespaces:
-  discussion:    Discussion:
-  metadata:      Metadata:
+  discussion:    'Discussion:'
+  metadata:      'Metadata:'
 authentication:
   service:       yamlfile
   yamlfile:

@@ -161,7 +161,7 @@ module Wiki
     end
 
     def metadata
-      @metadata ||= Page.find(namespace_path(:metadata), version).try(:metadata) || {}
+      @metadata ||= Page.find(namespace_path(:metadata), tree_version).try(:metadata) || {}
     end
 
     protected

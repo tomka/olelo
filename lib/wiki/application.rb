@@ -166,7 +166,7 @@ module Wiki
         @resource = Resource.find!(params[:path])
         with_hooks(:resource_move, @resource, params[:destination]) do
           @resource.move(params[:destination])
-          Page.new(@resource.path).write("redirect: #{destination.urlpath}") if params[:create_redirect]
+          Page.new(@resource.path).write("redirect: #{params[:destination].urlpath}") if params[:create_redirect]
         end
       end
       redirect @resource.path.urlpath

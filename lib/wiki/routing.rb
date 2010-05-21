@@ -80,7 +80,7 @@ module Wiki
     def perform!
       result = catch(:halt) do
         uri = catch(:redirect) do
-          route!
+          with_hooks(:routing) { route! }
         end
         @response.redirect uri
         nil
