@@ -27,33 +27,30 @@
 /**
  * USAGE:
  *
- * jStorage requires Prototype, MooTools or jQuery! If jQuery is used, then
- * jQuery-JSON (http://code.google.com/p/jquery-json/) is also needed.
- * (jQuery-JSON needs to be loaded BEFORE jStorage!)
+ * jStorage requires JSON.parse and JSON.stringify. These
+ * methods are provided by the browser or by
+ * http://www.json.org/json2.js.
  *
  * Methods:
  *
  * -set(key, value)
- * $.jStorage.set(key, value) -> saves a value
+ * jStorage.set(key, value) -> saves a value
  *
  * -get(key[, default])
- * value = $.jStorage.get(key [, default]) ->
+ * value = jStorage.get(key [, default]) ->
  *    retrieves value if key exists, or default if it doesn't
  *
- * -deleteKey(key)
- * $.jStorage.deleteKey(key) -> removes a key from the storage
+ * -remove(key)
+ * jStorage.remove(key) -> removes a key from the storage
  *
  * -flush()
- * $.jStorage.flush() -> clears the cache
+ * jStorage.flush() -> clears the cache
  *
  * <value> can be any JSON-able value, including objects and arrays.
  *
  */
 
-(function($) {
-	if(!$ || !($.toJSON || Object.toJSON || window.JSON))
-		throw new Error("jQuery, MooTools or Prototype needs to be loaded before jStorage!");
-
+(function() {
 	var
                 // This is the object, that holds the cached values
 		storage = {},
@@ -62,15 +59,7 @@
 		storageService = null,
 
 		// DOM element for older IE versions, holds userData behavior */
-		storageElement = null,
-
-		// function to encode objects to JSON strings
-		jsonEncode = $.toJSON || Object.toJSON || (window.JSON && (JSON.encode || JSON.stringify)),
-
-                // function to decode objects from JSON strings
-		jsonDecode = $.evalJSON || (window.JSON && (JSON.decode || JSON.parse)) || function(str) {
-			return String(str).evalJSON();
-		};
+                storageElement = null;
 
 	////////////////////////// PRIVATE METHODS ////////////////////////
 
@@ -100,10 +89,10 @@
 				// userData element needs to be inserted into the DOM!
 				document.getElementsByTagName('head')[0].appendChild(storageElement);
 
-				storageElement.load("jStorage");
-				var data = "{}";
+				storageElement.load('jStorage');
+				var data = '{}';
 				try{
-					data = storageElement.getAttribute("jStorage");
+					data = storageElement.getAttribute('jStorage');
 				} catch (e) {
                                 }
 				storageService.jStorage = data;
@@ -114,17 +103,17 @@
 		}
 
                 if (!storageService)
-                        storageService = { jStorage: "{}" };
+                        storageService = { jStorage: '{}' };
 
 		// if jStorage string is retrieved, then decode it
 		if (storageService.jStorage) {
 			try {
-				storage = jsonDecode(String(storageService.jStorage));
+				storage = JSON.parse(storageService.jStorage);
 			} catch (e) {
-                                storageService.jStorage = "{}";
+                                storageService.jStorage = '{}';
                         }
 		} else {
-			storageService.jStorage = "{}";
+			storageService.jStorage = '{}';
 		}
 	}
 
@@ -134,11 +123,11 @@
 	 */
 	function save() {
 		try {
-			storageService.jStorage = jsonEncode(storage);
+			storageService.jStorage = JSON.stringify(storage);
 			// If userData is used as the storage engine, additional
 			if (storageElement) {
-				storageElement.setAttribute("jStorage",storageService.jStorage);
-				storageElement.save("jStorage");
+				storageElement.setAttribute('jStorage',storageService.jStorage);
+				storageElement.save('jStorage');
 			}
 		} catch (e) {
                         // probably cache is full, nothing is saved this way
@@ -148,17 +137,14 @@
 	/**
 	 * Function checks if a key is set and is string or numberic
 	 */
-	function checkKey(key){
-		if (!key || (typeof key != "string" && typeof key != "number"))
+	function checkKey(key) {
+		if (typeof key != 'string' && typeof key != 'number')
 			throw new TypeError('Key name must be string or numeric');
 	}
 
 	////////////////////////// PUBLIC INTERFACE /////////////////////////
 
-	$.jStorage = {
-		// Version number
-		version: "0.1.3",
-
+	var jStorage = {
 		/**
 		 * Sets a key's value.
 		 *
@@ -190,12 +176,12 @@
 		},
 
 		/**
-		 * Deletes a key from cache.
+		 * Removes a key from cache.
 		 *
-		 * @param {String} key - Key to delete.
+		 * @param {String} key - Key to remove.
 		 * @returns true if key existed or false if it didn't
 		 */
-		deleteKey: function(key){
+		remove: function(key){
 			checkKey(key);
 			if (key in storage){
 				delete storage[key];
@@ -220,21 +206,12 @@
 				} catch (e) {
                                 }
 			}
-		},
-
-		/**
-		 * Returns a read-only copy of storage
-		 *
-		 * @returns Object
-		*/
-		storageObj: function(){
-			function F() {}
-			F.prototype = storage;
-			return new F();
 		}
 	};
 
 	// Initialize jStorage
 	init();
 
-})(window.jQuery || window.$);
+        // Expose api
+        window.jStorage = jStorage;
+})();

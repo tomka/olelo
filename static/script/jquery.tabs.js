@@ -14,12 +14,12 @@
 	    $(this).parent().addClass('tabs-selected');
 	    $(this.tabName).show();
 	    if (store)
-		$.jStorage.set(store, this.tabName);
+		jStorage.set(store, this.tabName);
 	    return false;
 	});
 
 	if (store) {
-	    var name = $.jStorage.get(store);
+	    var name = jStorage.get(store);
 	    if (name)
 		selected = $("ul:first > li > a[href='" + name + "']", this);
 	}
