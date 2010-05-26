@@ -3,7 +3,7 @@ description 'HTTP basic authentication'
 require 'rack/auth/basic'
 
 class Wiki::Application
-  hook(:auto_login) do
+  hook :auto_login do
     if params[:auth] && !user
       auth = Rack::Auth::Basic::Request.new(env)
       unauthorized if !auth.provided?

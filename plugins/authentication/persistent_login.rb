@@ -35,7 +35,7 @@ class Wiki::Application
     end
   end
 
-  hook(:auto_login) do
+  hook :auto_login do
     if !user
       token = request.cookies[TOKEN_NAME]
       if token
@@ -45,7 +45,7 @@ class Wiki::Application
     end
   end
 
-  hook(:after_action) do |method, path|
+  after :action do |method, path|
     if path == '/login'
       if !user.anonymous?
         token = SecureRandom.hex

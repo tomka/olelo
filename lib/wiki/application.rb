@@ -30,14 +30,14 @@ module Wiki
 
       # Load locales for loaded plugins
       # Add plugin path to template paths
-      Plugin.hook(:loaded) do
+      Plugin.after :load do
         I18n.load_locale(file.sub(/\.rb$/, '_locale.yml'))
         I18n.load_locale(File.join(File.dirname(file), 'locale.yml'))
         Templates.paths << File.dirname(file)
       end
 
       Plugin.logger = logger
-      Plugin.disabled = Config.disabled_plugins
+      Plugin.disabled = Config.disabled_plugins.to_a
       Plugin.dir = File.join(Config.app_path, 'plugins')
       Plugin.load('*')
       Plugin.start
@@ -46,7 +46,7 @@ module Wiki
     end
 
     # Executed before each request
-    hook(:before_request) do
+    before :request do
       @timer = Timer.start
       logger.debug env
 
@@ -60,12 +60,12 @@ module Wiki
     end
 
     # Purge memory cache after request
-    hook(:after_request) do
+    after :request do
       Repository.instance.clean_cache
     end
 
     # Handle 404s
-    hook(NotFound) do |ex|
+    hook NotFound do |ex|
       if redirect_to_new
         # Redirect to create new page if flag is set
         path = (params[:path]/'new').urlpath
@@ -74,7 +74,7 @@ module Wiki
       end
     end
 
-    hook(StandardError) do |ex|
+    hook StandardError do |ex|
       if on_error
         logger.error ex
         (ex.try(:messages) || [ex.message]).each {|msg| flash.error(msg) }
@@ -83,7 +83,7 @@ module Wiki
     end
 
     # Show wiki error page
-    hook(Exception) do |ex|
+    hook Exception do |ex|
       cache_control :no_cache => true
       @error = ex
       logger.error @error
@@ -164,7 +164,7 @@ module Wiki
       on_error :move
       Resource.transaction(:resource_moved_to.t(:path => params[:path].cleanpath, :destination => params[:destination].cleanpath), user) do
         @resource = Resource.find!(params[:path])
-        with_hooks(:resource_move, @resource, params[:destination]) do
+        with_hooks(:move, @resource, params[:destination]) do
           @resource.move(params[:destination])
           Page.new(@resource.path).write("redirect: #{params[:destination].urlpath}") if params[:create_redirect]
         end
@@ -176,7 +176,7 @@ module Wiki
       pass if reserved_path?(params[:path])
       Resource.transaction(:resource_deleted.t(:path => params[:path].cleanpath), user) do
         @resource = Resource.find!(params[:path])
-        with_hooks(:resource_delete, @resource) do
+        with_hooks(:delete, @resource) do
           @resource.delete
         end
       end
@@ -216,7 +216,7 @@ module Wiki
         pass if reserved_path?(params[:path])
         @resource = Resource.find!(params[:path], params[:version])
         cache_control :etag => @resource.version, :last_modified => @resource.version.date
-        with_hooks(:resource_show) do
+        with_hooks(:show) do
           @content = @resource.try(:content)
           halt render(:show)
         end
@@ -236,13 +236,13 @@ module Wiki
       raise :version_conflict.t if @resource.version.to_s != params[:version]
 
       if action?(:upload) && params[:file]
-        with_hooks :page_save, @resource do
+        with_hooks :save, @resource do
           Resource.transaction(:file_uploaded.t(:path => params[:path].cleanpath), user) do
             @resource.write(params[:file][:tempfile])
           end
         end
       elsif action?(:edit) && params[:content]
-        with_hooks :page_save, @resource do
+        with_hooks :save, @resource do
           Resource.transaction(params[:comment], user) do
             content = if params[:pos]
                         pos = [[0, params[:pos].to_i].max, @resource.content.size].min
@@ -269,13 +269,13 @@ module Wiki
       @resource = Page.new(params[:path])
 
       if action?(:upload) && params[:file]
-        with_hooks :page_save, @resource do
+        with_hooks :save, @resource do
           Resource.transaction(:file_uploaded.t(:path => @resource.path), user) do
             @resource.write(params[:file][:tempfile])
           end
         end
       elsif action?(:new)
-        with_hooks :page_save, @resource do
+        with_hooks :save, @resource do
           Resource.transaction(params[:comment], user) do
             @resource.write(params[:content])
           end

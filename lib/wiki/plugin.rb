@@ -57,10 +57,11 @@ module Wiki
 	  else
             begin
 	      plugin = new(name, file, logger)
-              @plugins[name] = plugin
-              plugin.instance_eval(File.read(file), file)
-              logger.debug("Plugin #{name} successfully loaded")
-              plugin.invoke_hook(:loaded)
+              plugin.with_hooks :load do
+                @plugins[name] = plugin
+                plugin.instance_eval(File.read(file), file)
+                logger.debug("Plugin #{name} successfully loaded")
+              end
             rescue Exception => ex
               @failed << name
               logger.error ex
@@ -102,13 +103,14 @@ module Wiki
     # Start the plugin
     def start
       return true if @started
-      instance_eval(&@setup) if @setup
-      Plugin.logger.debug("Plugin #{name} successfully started")
-      @started = true
-      invoke_hook(:started)
+      with_hooks :start do
+        instance_eval(&@setup) if @setup
+        @started = true
+        logger.debug("Plugin #{name} successfully started")
+      end
     rescue Exception => ex
-      Plugin.logger.error ex
-      Plugin.logger.error("Plugin #{name} failed to start")
+      logger.error ex
+      logger.error("Plugin #{name} failed to start")
       false
     end
 

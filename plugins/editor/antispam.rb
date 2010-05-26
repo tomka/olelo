@@ -84,11 +84,11 @@ class SpamEvaluator
 end
 
 class Wiki::Application
-  hook(:before_edit_form_buttons) do
+  before :edit_form_buttons do
     %{<br/><label for="recaptcha">#{:captcha.t}</label><br/><div id="recaptcha"></div><br/>} if @show_captcha
   end
 
-  hook(:after_script) do
+  after :script do
     if @show_captcha
       %{<script type="text/javascript"  src="https://api-secure.recaptcha.net/js/recaptcha_ajax.js"></script>
         <script type="text/javascript">
@@ -103,7 +103,7 @@ class Wiki::Application
     end
   end
 
-  hook(:before_page_save, -2) do |page|
+  before(:save, -2) do |page|
     if (action?(:new) || action?(:edit)) && !captcha_valid?
       level = SpamEvaluator.new(user, params, @resource).evaluate
       flash.info :spam_level.t(:level => level) if !Config.production?

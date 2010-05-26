@@ -18,13 +18,13 @@ class Wiki::AccessDenied < RuntimeError
 end
 
 class Wiki::Application
-  hook(:after_action) do |method, action|
+  after :action do |method, action|
     if @resource && method == :get
       @resource.access?(:read, user) || raise(AccessDenied)
     end
   end
 
-  hook(:before_page_save, -1) do |resource|
+  before(:save, -1) do |resource|
     resource.access?(:write, user) || raise(AccessDenied)
   end
 end

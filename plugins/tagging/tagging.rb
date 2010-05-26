@@ -53,7 +53,7 @@ class Wiki::Application
     TagStore.find(TAG_STORE) || TagStore.new(TAG_STORE)
   end
 
-  hook(:after_footer) do
+  after :footer do
     render(:tagbox, :layout => false) if @resource && !@resource.new?
   end
 

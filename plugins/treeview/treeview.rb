@@ -3,11 +3,11 @@ description  'Tree Viewer'
 dependencies 'misc/sidebar'
 
 class Wiki::Application
-  hook(:after_style) do
+  after :style do
     '<link rel="stylesheet" href="/_/treeview/treeview.css" type="text/css"/>'
   end
 
-  hook(:after_script) do
+  after :script do
     '<script src="/_/treeview/script.js" type="text/javascript"></script>'
   end
 

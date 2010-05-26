@@ -3,14 +3,14 @@ description 'Enhanced edit form with preview and diff'
 dependencies 'engine/engine'
 
 class Wiki::Application
-  hook(:before_edit_form_buttons) do
+  before :edit_form_buttons do
     %{<input type="checkbox" name="minor" id="minor" value="1"#{params[:minor] ? ' checked="checked"' : ''}/>
       <label for="minor">#{:minor_changes.t}</label><br/>
       <button type="submit" name="preview" accesskey="p">#{:preview.t}</button>
       <button type="submit" name="changes" accesskey="c">#{:changes.t}</button>}.unindent
   end
 
-  hook(:before_edit_form) do
+  before :edit_form do
     if @preview
       %{<div class="preview">#{@preview}</div>}
     elsif @patch
@@ -18,7 +18,7 @@ class Wiki::Application
     end
   end
 
-  hook(:before_page_save) do |page|
+  before :save do |page|
     if (action?(:new) || action?(:edit)) && params[:content]
       if params[:preview]
         flash.error :empty_comment.t if params[:comment].blank? && !params[:minor]

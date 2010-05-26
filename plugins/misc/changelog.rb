@@ -3,7 +3,7 @@ description 'RSS Changelogs'
 autoload 'RSS', 'rss/maker'
 
 class Wiki::Application
-  hook(:after_head) do
+  after :head do
     if @resource && !@resource.new?
       %{<link rel="alternate" href="/changelog.atom" type="application/atom+xml" title="Sitewide Atom Changelog"/>
         <link rel="alternate" href="#{(@resource.path/'changelog.atom').urlpath}" type="application/atom+xml" title="Atom Changelog"/>

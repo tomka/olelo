@@ -6,7 +6,7 @@ class Wiki::Application
     return super() if request.form_data?
     begin
       page = Page.find!(params[:path])
-      with_hooks :page_save, page do
+      with_hooks :save, page do
         page.write(request.body, :file_uploaded.t(:path => page.path), user)
       end
       :ok
@@ -24,7 +24,7 @@ class Wiki::Application
     begin
       raise :reserved_path.t if reserved_path?(params[:path])
       page = Page.new(params[:path])
-      with_hooks :page_save, page do
+      with_hooks :save, page do
         page.write(request.body, :file_uploaded.t(:path => page.path), user)
       end
       :created

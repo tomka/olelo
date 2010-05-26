@@ -2,7 +2,7 @@ author       'Daniel Mendler'
 description  'Support for page redirects'
 
 class Wiki::Application
-  hook(:before_content) do
+  before :content do
     if params[:redirect]
       builder do
         p_ {
@@ -17,7 +17,7 @@ class Wiki::Application
     end
   end
 
-  hook(:before_resource_show, 1000) do
+  before(:show, 1000) do
     metadata = @resource.metadata
     if metadata[:redirect]
       path = resource_path(@resource, :path => metadata[:redirect])

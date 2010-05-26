@@ -45,7 +45,7 @@ end
 class Wiki::Application
   assets 'pygments.css'
 
-  hook(:after_style) do
+  after :style do
     '<link rel="stylesheet" href="/_/utils/pygments.css" type="text/css"/>' if @pygmentize_used
   end
 

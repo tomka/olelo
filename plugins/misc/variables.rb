@@ -36,7 +36,7 @@ end
 
 # Export variables to javascript for client extensions
 class Wiki::Application
-  hook(:before_head) do
+  before :head do
     vars = @resource ? params.merge(Plugin.current.variables(@resource, @engine)) : params
     %{<script type="text/javascript">
         Wiki = #{Plugin.current.build_json(vars)};

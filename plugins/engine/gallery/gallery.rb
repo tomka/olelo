@@ -4,13 +4,13 @@ description  'Gallery engine'
 class Wiki::Application
   assets 'gallery.css', 'script.js'
 
-  hook(:after_style) do
+  after :style do
     if @engine && @engine.name == 'gallery'
       '<link rel="stylesheet" href="/_/engine/gallery/gallery.css" type="text/css"/>'
     end
   end
 
-  hook(:after_script) do
+  after :script do
     if @engine && @engine.name == 'gallery'
       '<script src="/_/engine/gallery/script.js" type="text/javascript"></script>'
     end

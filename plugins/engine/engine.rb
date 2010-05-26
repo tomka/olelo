@@ -115,7 +115,7 @@ end
 
 # Plug-in the engine subsystem
 class Wiki::Application
-  hook(:before_resource_show) do
+  before :show do
     @engine = Engine.find!(@resource, :name => params[:output] || params[:engine])
     context = Context.new(:app      => self,
                           :resource => @resource,
@@ -138,7 +138,7 @@ class Wiki::Application
     end
   end
 
-  hook(:after_view_menu) do
+  after :view_menu do
     render :engines_menu, :layout => false
   end
 end

@@ -13,14 +13,20 @@ module Wiki
 
     def with_hooks(type, *args)
       result = Result.new
-      result.push(*invoke_hook(:"before_#{type}", *args))
+      result.push(*invoke_hook("before #{type}", *args))
       result << yield
     ensure
-      result.push(*invoke_hook(:"after_#{type}", *args))
+      result.push(*invoke_hook("after #{type}", *args))
     end
 
     def invoke_hook(type, *args)
-      self.class.invoke_hook(self, type, *args)
+      result = Result.new
+      while type
+        result.push(*self.class.hooks[type].to_a.sort_by(&:first).map {|priority, method| method.bind(self).call(*args) })
+        break if type == Object
+        type = Class === type ? type.superclass : nil
+      end
+      result
     end
 
     module ClassMethods
@@ -30,14 +36,12 @@ module Wiki
         (hooks[type] ||= []) << [-priority, block.to_method(self)]
       end
 
-      def invoke_hook(source, type, *args)
-        result = Result.new
-        while type
-          result.push(*hooks[type].to_a.sort_by(&:first).map {|priority, method| method.bind(source).call(*args) })
-          break if type == Object
-          type = type.superclass rescue nil
-        end
-        result
+      def before(type, priority = 0, &block)
+        hook("before #{type}", priority, &block)
+      end
+
+      def after(type, priority = 0, &block)
+        hook("after #{type}", priority, &block)
       end
     end
   end

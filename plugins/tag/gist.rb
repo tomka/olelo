@@ -5,7 +5,7 @@ require      'net/http'
 autoload 'JSON', 'json'
 
 class Wiki::Application
-  hook(:after_style) do
+  after :style do
     '<link rel="stylesheet" href="http://gist.github.com/stylesheets/gist/embed.css" type="text/css"/>' if @gist_used
   end
 
