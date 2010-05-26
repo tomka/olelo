@@ -78,6 +78,8 @@ class GitRepository < Repository
   end
 
   def write(resource, content)
+    # FIXME: Gitrb should handle files directly
+    content = content.read if content.respond_to? :read
     git.root[resource.path] = Gitrb::Blob.new(:data => content)
     current_transaction << proc {|tree_version| resource.committed(resource.path, tree_version) }
   end
