@@ -74,7 +74,7 @@ class Hash
     end
 
     alias_method :regular_writer, :[]=
-      alias_method :regular_update, :update
+    alias_method :regular_update, :update
 
     def []=(key, value)
       regular_writer(convert_key(key), value)

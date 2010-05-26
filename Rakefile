@@ -77,13 +77,13 @@ file 'doc/api/index.html' => FileList['**/*.rb'] do |f|
   sh "rdoc -o doc/api --title 'Git-Wiki Documentation' --inline-source --format=html #{f.prerequisites.join(' ')}"
 end
 
-namespace('notes') do
-  task('todo')      do; system('ack TODO');      end
-  task('fixme')     do; system('ack FIXME');     end
-  task('hack')      do; system('ack HACK');      end
-  task('warning')   do; system('ack WARNING');   end
-  task('important') do; system('ack IMPORTANT'); end
+namespace :notes do
+  task :todo      do; system('ack T''ODO');      end
+  task :fixme     do; system('ack F''IXME');     end
+  task :hack      do; system('ack H''ACK');      end
+  task :warning   do; system('ack W''ARNING');   end
+  task :important do; system('ack I''MPORTANT'); end
 end
 
 desc 'Show annotations'
-task('notes' => %w(notes:todo notes:fixme notes:hack notes:warning notes:important))
+task :notes => %w(notes:todo notes:fixme notes:hack notes:warning notes:important)

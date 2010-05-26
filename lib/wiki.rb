@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 
 require 'logger'
-require 'cgi'
+require 'cgi/util'
 require 'digest/md5'
 require 'digest/sha2'
 require 'open3'
 
 autoload 'YAML', 'yaml'
 
-gem 'nokogiri', '>= 1.4.1'
+gem 'nokogiri', '>= 1.4.2'
 autoload 'Nokogiri', 'nokogiri'
 
 gem 'mimemagic', '>= 0.1.1'

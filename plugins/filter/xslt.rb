@@ -14,10 +14,8 @@ class Wiki::XSLT < Filter
   end
 
   def filter(content)
-    doc = Nokogiri::XML(content)
-    # FIXME: quote_params not necessary anymore in nokogiri 1.4.2
-    params = Nokogiri::XSLT.quote_params(self.params.to_hash)
-    @xslt.apply_to(doc, params)
+    @xslt.apply_to(Nokogiri::XML(content),
+                   Nokogiri::XSLT.quote_params(self.params.to_hash))
   end
 end
 
