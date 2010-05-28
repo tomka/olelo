@@ -11,7 +11,7 @@ autoload 'YAML', 'yaml'
 gem 'nokogiri', '>= 1.4.2'
 autoload 'Nokogiri', 'nokogiri'
 
-gem 'mimemagic', '>= 0.1.1'
+gem 'mimemagic', '>= 0.1.4'
 autoload 'MimeMagic', 'mimemagic'
 
 gem 'haml', '>= 3.0.4'

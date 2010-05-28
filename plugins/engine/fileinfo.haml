@@ -1,19 +1,19 @@
 %table.zebra
   %tbody
     %tr
-      %td Name
+      %td&= :name.t
       %td&= @page.name
     - if @page.version
       %tr
-        %td Last modified
+        %td&= :last_modified.t
         %td= date @page.version.date
       %tr
-        %td Version
+        %td&= :version.t
         %td.version= @page.version
     %tr
-      %td Mime-Type
-      %td= @page.mime
+      %td&= :type.t
+      %td #{@page.mime.comment} (#{@page.mime})
     %tr
-      %td Download
+      %td&= :download.t
       %td
         %a{:href=> resource_path(@page, :output => 'download')} Download File

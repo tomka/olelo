@@ -19,7 +19,7 @@ class Wiki::Application
                               :engine   => engine)
         engine.cached_output(context)
       else
-        %{<span class="error">#{:engine_not_available.t(:page => page.name, :mime => page.mime, :engine => nil)}</span>}
+        %{<span class="error">#{:engine_not_available.t(:page => page.name, :type => "#{page.mime.comment} (#{page.mime})", :engine => nil)}</span>}
       end
     else
       %{<a href="/#{Config.sidebar_page}/new">#{:create_page.t(:page => Config.sidebar_page)}</a>}

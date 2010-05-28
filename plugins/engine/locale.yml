@@ -1,0 +1,18 @@
+en:
+  download: 'Download'
+  engine_not_available: 'Engine #{engine} is not available for page #{page} with type #{type}.'
+  entry: 'Entry'
+  exif: 'EXIF Information'
+  geometry: 'Geometry'
+  information: 'Information'
+  type: 'Type'
+  value: 'Wert'
+de:
+  download: 'Herunterladen'
+  engine_not_available: 'Engine #{engine} für die Seite #{page} mit dem Typ #{type} ist nicht verfügbar.'
+  entry: 'Eintrag'
+  exif: 'EXIF-Information'
+  geometry: 'Geometrie'
+  information: 'Information'
+  type: 'Typ'
+  value: 'Wert'

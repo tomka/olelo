@@ -2,20 +2,23 @@
 %p
   %img#pdf{:src=> resource_path(@page, :output => 'image', :geometry => '480x>', :trim => 1, :curpage => @curpage)}
 = pagination(@page, @pages, @curpage, :output => 'documentbrowser')
-%h3 Information
+%h3&= :information.t
 %table.zebra
   %tbody
     %tr
-      %td Name
+      %td&= :name.t
       %td&= @page.name
     - if @page.version
       %tr
-        %td Last modified
+        %td&= :last_modified.t
         %td= date @page.version.date
       %tr
-        %td Version
+        %td&= :version.t
         %td.version= @page.version
     %tr
-      %td Download
+      %td&= :type.t
+      %td #{@page.mime.comment} (#{@page.mime})
+    %tr
+      %td&= :download.t
       %td
         %a{:href=> resource_path(@page, :output => 'download')} Download File

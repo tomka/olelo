@@ -10,20 +10,28 @@ class Wiki::Application
 
     git.git_ls_tree('-r', '--name-only', 'HEAD') do |io|
       while !io.eof?
-        line = git.set_encoding(io.readline)
-	line = unescape_backslash(line)
-        if line =~ /#{params[:pattern]}/i
-          matches[line] ||= ''
+        begin
+          line = git.set_encoding(io.readline)
+          line = unescape_backslash(line)
+          if line =~ /#{params[:pattern]}/i
+            matches[line] ||= ''
+          end
+        rescue => ex
+          logger.error ex
         end
       end
     end
 
     git.git_grep('-z', '-i', '-e', params[:pattern], git.branch) do |io|
       while !io.eof?
-        line = git.set_encoding(io.readline)
-	line = unescape_backslash(line)
-        if line =~ /(.*)\:(.*)\0(.*)/
-          (matches[$2] ||= '') << $3
+        begin
+          line = git.set_encoding(io.readline)
+          line = unescape_backslash(line)
+          if line =~ /(.*)\:(.*)\0(.*)/
+            (matches[$2] ||= '') << $3
+          end
+        rescue => ex
+          logger.error ex
         end
       end
     end rescue nil # git-grep returns 1 if nothing is found

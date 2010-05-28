@@ -1,32 +1,32 @@
 %p
   %a{:href => resource_path(@page, :output => 'image') }
     %img{:src=> resource_path(@page, :output => 'image', :geometry => '640x480>'), :alt=>@page.name}
-%h3 General
+%h3&= :information.t
 %table.zebra
   %tbody
     %tr
-      %td Name
+      %td&= :name.t
       %td&= @page.name
     %tr
-      %td Format
-      %td= @format
+      %td&= :type.t
+      %td&= @type
     %tr
-      %td Geometry
-      %td= @geometry
+      %td&= :geometry.t
+      %td&= @geometry
     - if @page.version
       %tr
-        %td Last modified
+        %td&= :last_modified.t
         %td= date @page.version.date
       %tr
-        %td Version
-        %td.version= @page.version
+        %td&= :version.t
+        %td.version&= @page.version
 - if @exif
-  %h3 Exif
+  %h3&= :exif.t
   %table.zebra
     %thead
       %tr
-        %th Entry
-        %th Value
+        %th&= :entry.t
+        %th&= :value.t
     %tbody
       - @exif.each do |key, value|
         %tr

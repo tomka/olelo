@@ -78,7 +78,9 @@ class Wiki::Engine
     opts[:name] ||= resource.metadata[:output] || resource.metadata[:engine] if resource.namespace != :metadata
     engines = opts[:name] ? @engines[opts[:name].to_s] : @engines.values.flatten
     engine = engines.to_a.sort_by {|a| a.priority }.find { |e| e.accepts?(resource) && (!opts[:layout] || e.layout?) }
-    raise(RuntimeError, :engine_not_available.t(:engine => opts[:name], :page => resource.path, :mime => resource.mime)) if !engine
+    raise(RuntimeError, :engine_not_available.t(:engine => opts[:name],
+                                                :page => resource.path,
+                                                :type => "#{resource.mime.comment} (#{resource.mime})")) if !engine
     engine.dup
   end
 
