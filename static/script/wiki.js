@@ -73,7 +73,6 @@ jQuery.fn.historyTable = function() {
 (function() {
     $('#themes').styleswitcher();
     $('.tabs').tabs();
-    $('table.sortable').tablesorter({widgets: ['zebra']});
     $('#history-table').historyTable();
     $('.zebra, #history-table, #tree-table').zebra();
     $('.date').dateToggler();

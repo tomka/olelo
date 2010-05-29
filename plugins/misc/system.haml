@@ -1,7 +1,7 @@
 - title 'System Information'
 - menu :new
 %h2 Runtime
-%table
+%table.zebra
   %tr
     %td Ruby version:
     %td&= RUBY_VERSION
@@ -9,7 +9,7 @@
     %td Memory usage:
     %td #{@memory} MiB
 %h2 Configuration
-%table
+%table.zebra
   %tr
     %td Production mode:
     %td= Wiki::Config.production?
@@ -32,7 +32,7 @@
     %td Mime type detection order
     %td&= Wiki::Config.mime.join(', ')
 %h2 Plugins
-%table.sortable.full
+%table.zebra.full
   %thead
     %tr
       %th Name
