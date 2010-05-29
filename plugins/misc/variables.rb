@@ -26,7 +26,11 @@ def variables(page, engine)
 end
 
 def build_json(vars)
-  vars.to_json.gsub('<', '&lt;').gsub('>', '&gt;')
+  vars = vars.to_json
+  vars.gsub!('&', '&amp;')
+  vars.gsub!('<', '&lt;')
+  vars.gsub!('>', '&gt;')
+  vars
 end
 
 # Export variables to engine context

@@ -48,5 +48,6 @@ xslt_engine :latex, :markup => :creole, :xslt => 'xhtml2latex.xsl', :mime => 'te
 
 markup_engine :textile
 markup_engine :markdown
+markup_engine :kramdown_html, :accepts => 'text/x-markdown'
 markup_engine :maruku, :priority => 2, :accepts => 'text/x-markdown|text/x-maruku'
 markup_engine :orgmode, :priority => 1
