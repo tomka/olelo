@@ -11,14 +11,8 @@ timer = Wiki::Timer.start
 # Require newest rack
 raise 'Rack 1.1.0 or newer required' if Rack.version < '1.1'
 
-require 'rubygems'
-
-# Load ruby 1.8 compatibility gem
-if RUBY_VERSION < '1.9'
-  # will soon be moved to gem
-  # gem 'compatibility', '>= 0'
-  require 'compatibility'
-end
+# Load ruby 1.8 compatibility library
+require 'compatibility' if RUBY_VERSION < '1.9'
 
 # We want to read all text data as UTF-8
 Encoding.default_external = Encoding::UTF_8
@@ -117,21 +111,17 @@ use Rack::Session::Pool
 
 if Wiki::Config.rack.embed?
   logger.info 'Use rack image embedding'
-  gem 'rack-embed', '>= 0'
   require 'rack/embed'
   use Rack::Embed, :threaded => true
 end
 
 if Wiki::Config.rack.esi?
   logger.info 'Use rack esi'
-  gem 'minad-rack-esi', '>= 0'
   require 'rack/esi'
   use Rack::ESI
 
   if Wiki::Config.production?
     logger.info 'Use rack cache'
-    # FIXME: Replace with official release
-    gem 'minad-rack-cache', '>= 0.5.2'
     require 'rack/cache'
     require 'rack/purge'
     use Rack::Purge

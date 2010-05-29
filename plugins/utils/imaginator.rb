@@ -1,7 +1,6 @@
 author       'Daniel Mendler'
 description  'LaTeX/Graphviz image renderer'
-dependencies 'gem:imaginator'
-autoload 'Imaginator', 'imaginator'
+require 'imaginator'
 
 def imaginator
   @imaginator ||= Imaginator.new("drbunix://#{Config.cache}/imaginator.sock", File.join(Config.cache, 'imaginator')) do |server|

@@ -3,7 +3,7 @@ description 'Image information engine'
 dependencies 'engine/engine'
 
 Engine.create(:imageinfo, :priority => 1, :layout => true, :cacheable => true) do
-  def accepts?(page); page.mime.mediatype == 'image'; end
+  def accepts?(page); page.mime.image?; end
   def output(context)
     @page = context.page
     identify = shell_filter("identify -format '%m %h %w' -", context.page.content).split(' ')

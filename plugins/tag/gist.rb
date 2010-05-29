@@ -1,8 +1,8 @@
 author       'Daniel Mendler'
 description  'Embed github gists'
 dependencies 'filter/tag'
-require      'net/http'
-autoload 'JSON', 'json'
+require      'open-uri'
+require      'json'
 
 class Wiki::Application
   after :style do
@@ -11,14 +11,10 @@ class Wiki::Application
 
   def gist(id)
     if id =~ /^\d+$/
-      response = Net::HTTP.start('gist.github.com', 80) {|http| http.get("/#{id}.json") }
-      if Net::HTTPSuccess === response
-        @gist_used = true
-        gist = JSON.parse(response.body)
-        gist['div']
-      else
-        response.error!
-      end
+      body = open("http://gist.github.com/#{id}.json").read
+      @gist_used = true
+      gist = JSON.parse(body)
+      gist['div']
     else
       raise ArgumentError, 'Invalid gist id'
     end

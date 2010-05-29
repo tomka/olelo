@@ -53,7 +53,6 @@ end
 
 class RitexRenderer < Renderer
   def load
-    gem 'ritex', '>= 0'
     require 'ritex'
     true
   end
@@ -91,11 +90,7 @@ class BlahtexImageRenderer < Renderer
   end
 
   def directory
-    @directory ||= begin
-                     dir = File.join(Config.cache, 'blahtex')
-                     FileUtils.mkdir_p dir, :mode => 0755
-                     dir
-                   end
+    @directory ||= File.join(Config.cache, 'blahtex').tap {|dir| FileUtils.mkdir_p dir, :mode => 0755 }
   end
 
   def render(code, display)

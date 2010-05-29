@@ -40,11 +40,7 @@ module Wiki
       base.extend(Util)
     end
 
-    def self.method_added(name)
-      instance_eval do
-        module_function(name)
-      end
-    end
+    extend self
 
     def check
       errors = []

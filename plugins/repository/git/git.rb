@@ -1,6 +1,5 @@
 author      'Daniel Mendler'
 description 'Git repository backend'
-dependencies 'gem:gitrb >= 0.0.9'
 require 'gitrb'
 
 class Gitrb::Diff

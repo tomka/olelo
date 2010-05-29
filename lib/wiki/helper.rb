@@ -110,11 +110,11 @@ module Wiki
     end
 
     def theme_links
-      default = File.basename(File.dirname(File.readlink(File.join(Config.app_path, 'static', 'themes', 'default'))))
+      default = File.basename(File.readlink(File.join(Config.app_path, 'static', 'themes', 'default')))
       Dir.glob(File.join(Config.app_path, 'static', 'themes', '*', 'style.css')).map do |file|
         name = File.basename(File.dirname(file))
         next if name == 'default'
-        %{<link rel="#{name == default ? 'alternate ' : ''}stylesheet"
+        %{<link rel="#{name == default ? '' : 'alternate '}stylesheet"
           href="/static/themes/#{name}/style.css" type="text/css" title="#{name}"/>}.unindent
       end.compact.join("\n")
     end

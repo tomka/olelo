@@ -120,15 +120,7 @@ module Wiki
       @dependencies ||= []
       @dependencies += list
       list.each do |dep|
-        if dep =~ /^gem:\s*(.*)\s*$/
-          dep = $1.split(/\s+/)
-          raise(ArgumentError, 'Invalid gem specification') if dep.length < 1
-          name = dep[0]
-          version = dep.length > 1 ? dep[1..-1].join(' ') : '>= 0'
-          gem name, version
-        else
-          raise "Could not load dependency #{dep} for #{name}" if !Plugin.load(dep)
-        end
+        raise "Could not load dependency #{dep} for #{name}" if !Plugin.load(dep)
       end
       @dependencies
     end

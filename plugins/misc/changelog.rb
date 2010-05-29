@@ -1,6 +1,6 @@
 author      'Daniel Mendler'
 description 'RSS Changelogs'
-autoload 'RSS', 'rss/maker'
+require 'rss/maker'
 
 class Wiki::Application
   after :head do

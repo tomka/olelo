@@ -1,6 +1,3 @@
-gem 'bacon', '>= 0'
-gem 'rack-test', '>= 0'
-
 require 'rack/patches'
 require 'wiki'
 require 'bacon'

@@ -5,17 +5,10 @@ require 'cgi/util'
 require 'digest/md5'
 require 'digest/sha2'
 require 'open3'
-
-autoload 'YAML', 'yaml'
-
-gem 'nokogiri', '>= 1.4.2'
-autoload 'Nokogiri', 'nokogiri'
-
-gem 'mimemagic', '>= 0.1.4'
-autoload 'MimeMagic', 'mimemagic'
-
-gem 'haml', '>= 3.0.4'
-autoload 'Haml', 'haml'
+require 'yaml'
+require 'nokogiri'
+require 'mimemagic'
+require 'haml'
 
 require 'wiki/extensions'
 require 'wiki/util'

@@ -41,8 +41,7 @@ module Wiki
     end
 
     def halt(*response)
-      response = response.first if response.length == 1
-      throw :halt, response
+      throw :halt, response.length == 1 ? response.first : response
     end
 
     def redirect(uri); throw :redirect, uri end
@@ -108,7 +107,7 @@ module Wiki
         end
       elsif result.respond_to?(:each)
         @response.body = result
-      elsif (100...599) === result || Symbol === result
+      elsif Fixnum === result || Symbol === result
         @response.status = Rack::Utils.status_code(result)
       end
     end
@@ -150,15 +149,13 @@ module Wiki
 
       def patterns(patterns = nil)
         @patterns ||= Hash.with_indifferent_access
-        return @patterns if !patterns
-        @patterns.merge!(patterns)
+        patterns ? @patterns.merge!(patterns) : @patterns
       end
 
       def get(*paths, &block);    add_route(['GET', 'HEAD'], paths, &block) end
       def put(*paths, &block);    add_route('PUT',    paths, &block) end
       def post(*paths, &block);   add_route('POST',   paths, &block) end
       def delete(*paths, &block); add_route('DELETE', paths, &block) end
-      def head(*paths, &block);   add_route('HEAD',   paths, &block) end
 
       def dump_routes
         s = "=== ROUTES ===\n"

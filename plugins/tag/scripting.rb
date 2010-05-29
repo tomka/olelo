@@ -1,7 +1,7 @@
 author       'Daniel Mendler'
 description  'Scripting tags'
-dependencies 'filter/tag', 'gem:evaluator'
-autoload 'Evaluator', 'evaluator'
+dependencies 'filter/tag'
+require      'evaluator'
 
 Tag.define(:value, :requires => :of, :immediate => true) do |context, attrs, content|
   Evaluator.eval(attrs['of'], context.params)

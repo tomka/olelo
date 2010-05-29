@@ -10,7 +10,7 @@ Engine.create(:image, :priority => 5, :layout => false, :cacheable => true) do
   def svg?(page); page.mime.to_s =~ /svg/; end
   def ps?(page); page.mime.to_s =~ /postscript/; end
   def pdf_or_ps?(page); page.mime == 'application/pdf' || ps?(page); end
-  def accepts?(page); page.mime.mediatype == 'image' || pdf_or_ps?(page); end
+  def accepts?(page); page.mime.image? || pdf_or_ps?(page); end
 
   def mime(page)
     if pdf_or_ps?(page)

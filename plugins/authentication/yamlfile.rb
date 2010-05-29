@@ -1,9 +1,6 @@
 author      'Daniel Mendler'
 description 'YAML based user storage'
-
-module ::YAML
-  autoload 'Store', 'yaml/store'
-end
+require 'yaml/store'
 
 class YamlfileService < User::Service
   def initialize(config)

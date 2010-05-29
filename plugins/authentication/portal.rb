@@ -1,17 +1,14 @@
 author       'Daniel Mendler'
 description  'Proprietary web portal based user storage'
-
+require      'open-uri'
+require      'openssl'
 
 class PortalService < User::Service
-  autoload 'OpenSSL', 'openssl'
-
   def initialize(config)
     @url = config.url
   end
 
   def authenticate(name, password)
-    require 'open-uri'
-
     xml = open(@url,
                :ssl_verify_mode => OpenSSL::SSL::VERIFY_NONE,
                :http_basic_authentication => [name, password]).read
