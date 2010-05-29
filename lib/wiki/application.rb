@@ -48,6 +48,11 @@ module Wiki
     # Executed before each request
     before :request do
       @timer = Timer.start
+
+      # Set request ip as progname
+      @logger = logger.dup
+      logger.progname = request.ip
+
       logger.debug env
 
       @user = session[:user]
