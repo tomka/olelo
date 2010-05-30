@@ -7,15 +7,6 @@ class Module
     end
   end
 
-  def lazy_reader(name, value = nil, &block)
-    method = block && block.to_method(self)
-    define_method(name) do
-      instance_variable_set("@#{name}", method ? method.bind(self).call : value) if !instance_variable_defined?("@#{name}")
-      metaclass.class_eval { attr_reader(name) }
-      instance_variable_get("@#{name}")
-    end
-  end
-
   # From facets
   def attr_setter(*args)
     code, made = '', []

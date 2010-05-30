@@ -302,8 +302,8 @@ module Wiki
 
     class << self
       attr_writer :instance
-      lazy_reader :instance do
-        self[Config.repository.type].new(Config.repository[Config.repository.type])
+      def instance
+        @instance ||= self[Config.repository.type].new(Config.repository[Config.repository.type])
       end
     end
 

@@ -145,7 +145,9 @@ module Wiki
     end
 
     module ClassMethods
-      lazy_reader :routes, {}
+      def routes
+        @routes ||= {}
+      end
 
       def patterns(patterns = nil)
         @patterns ||= Hash.with_indifferent_access

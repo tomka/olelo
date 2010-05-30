@@ -51,8 +51,8 @@ module Wiki
     end
 
     class<< self
-      lazy_reader :service do
-        Service[Config.authentication.service].new(Config.authentication[Config.authentication.service])
+      def service
+        @service ||= Service[Config.authentication.service].new(Config.authentication[Config.authentication.service])
       end
 
       def validate_password(password, confirm)

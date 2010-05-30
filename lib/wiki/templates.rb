@@ -4,8 +4,13 @@ module Wiki
     HAML_OPTIONS = { :format => :xhtml, :attr_wrapper  => '"', :ugly => true }
 
     class << self
-      lazy_reader :paths, []
-      lazy_reader :cache, {}
+      def paths
+        @paths ||= []
+      end
+
+      def cache
+        @cache ||= {}
+      end
     end
 
     def render(name, opts = {})

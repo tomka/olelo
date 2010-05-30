@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 module Wiki
   module BlockHelper
-    lazy_reader(:blocks) { Hash.with_indifferent_access('') }
+    def blocks
+      @blocks ||= Hash.with_indifferent_access('')
+    end
 
     def define_block(name, content = nil, &block)
       blocks[name] = block ? capture_haml(&block) : content
@@ -346,8 +348,6 @@ module Wiki
   end
 
   module Assets
-    lazy_reader :asset_paths, {}
-
     def self.extended(base)
       base.class_eval do
         get "/_/:file", :file => /.*/ do
@@ -359,6 +359,10 @@ module Wiki
           end
         end
       end
+    end
+
+    def asset_paths
+      @asset_paths ||= {}
     end
 
     def assets(*files)

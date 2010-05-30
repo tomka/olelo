@@ -7,7 +7,9 @@ class Wiki::Application
   TOKEN_LIFETIME = 24*60*60*365
   TOKEN_NAME = 'wiki.token'
 
-  lazy_reader(:login_tokens) { PStore.new(File.join(Wiki::Config.cache, 'tokens.pstore')) }
+  def login_tokens
+    @login_tokens ||= PStore.new(File.join(Wiki::Config.cache, 'tokens.pstore'))
+  end
 
   def get_login_token(token)
     login_tokens.transaction(true) do |store|

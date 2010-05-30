@@ -6,7 +6,9 @@ dependencies 'engine/engine'
 class Wiki::Cache
   class<< self
     # Accessor for the default cache instance
-    lazy_reader(:instance) { Disk.new(Config.cache) }
+    def instance
+      @instance ||= Disk.new(Config.cache)
+    end
 
     # Block around cacheable return value belonging to
     # a <i>bucket<i>, identified by a <i>key</i>. The

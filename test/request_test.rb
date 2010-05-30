@@ -22,7 +22,7 @@ class Bacon::Context
   end
 end
 
-describe 'wiki' do
+describe 'requests' do
   before do
     @test_path = File.expand_path(File.join(File.dirname(__FILE__), '.test'))
 
@@ -120,7 +120,7 @@ describe 'wiki' do
     data = {
       'action' => 'new',
       'content' => 'Content of the Testpage',
-      'comment' => 'Comment'
+      'comment' => 'My Comment'
     }
     post('/Testfolder/Testpage', data)
 
@@ -134,7 +134,7 @@ describe 'wiki' do
 
     get '/Testfolder/Testpage/history'
     should.be.ok
-    body.should.include 'Comment'
+    body.should.include 'My Comment'
 
     get '/Testfolder/Testpage/edit'
     should.be.ok

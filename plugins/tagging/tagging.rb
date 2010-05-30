@@ -2,9 +2,11 @@ author      'Daniel Mendler'
 description 'Tagging support'
 
 class YamlPage < Page
-  lazy_reader :data do
-    data = YAML.load(content + "\n") rescue nil
-    (Hash === data ? data : {}).with_indifferent_access
+  def data
+    @data ||= begin
+                data = YAML.load(content + "\n") rescue nil
+                (Hash === data ? data : {}).with_indifferent_access
+              end
   end
 
   def write
@@ -49,8 +51,8 @@ class Wiki::Application
 
   assets '*.png'
 
-  lazy_reader :tag_store do
-    TagStore.find(TAG_STORE) || TagStore.new(TAG_STORE)
+  def tag_store
+    @tag_store ||= TagStore.find(TAG_STORE) || TagStore.new(TAG_STORE)
   end
 
   after :footer do

@@ -30,7 +30,9 @@ module Wiki
     end
 
     module ClassMethods
-      lazy_reader :hooks, {}
+      def hooks
+        @hooks ||= {}
+      end
 
       def hook(type, priority = 0, &block)
         (hooks[type] ||= []) << [-priority, block.to_method(self)]

@@ -13,7 +13,9 @@ module Wiki
   end
 
   module ClassRegistry
-    lazy_reader :registry, {}
+    def registry
+      @registry ||= {}
+    end
 
     def register(name, klass)
       name = name.to_s
