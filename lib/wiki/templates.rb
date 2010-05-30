@@ -4,8 +4,8 @@ module Wiki
     HAML_OPTIONS = { :format => :xhtml, :attr_wrapper  => '"', :ugly => true }
 
     class << self
-      lazy_reader(:paths) { [File.join(Config.app_path, 'views')] }
-      lazy_reader :template_cache, {}
+      lazy_reader :paths, []
+      lazy_reader :cache, {}
     end
 
     def render(name, opts = {})
@@ -25,7 +25,7 @@ module Wiki
     def load_template(type, name, opts)
       if Config.production?
         id = [type,name,opts]
-        return Templates.template_cache[id] if Templates.template_cache[id]
+        return Templates.cache[id] if Templates.cache[id]
       end
 
       paths = Templates.paths.map {|path| File.join(path, "#{name}.#{type}") }
@@ -37,7 +37,7 @@ module Wiki
 
       if Config.production?
         id = [type,name,opts]
-        Templates.template_cache[id] = template
+        Templates.cache[id] = template
       end
 
       template

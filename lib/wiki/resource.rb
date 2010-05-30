@@ -46,7 +46,7 @@ module Wiki
     PATH_REGEXP  = /^#{PATH_PATTERN}$/
 
     attr_reader :path, :tree_version
-    question_reader :current
+    attr_reader? :current
 
     def initialize(path, tree_version = nil, current = true)
       @path = path.to_s.cleanpath
@@ -302,8 +302,8 @@ module Wiki
 
     class << self
       attr_writer :instance
-      def instance
-        @instance ||= self[Config.repository.type].new(Config.repository[Config.repository.type])
+      lazy_reader :instance do
+        self[Config.repository.type].new(Config.repository[Config.repository.type])
       end
     end
 

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 class Module
   # Generate accessor method with question mark
-  def question_reader(*attrs)
+  def attr_reader?(*attrs)
     attrs.each do |a|
       module_eval %{ def #{a}?; !!@#{a}; end }
     end

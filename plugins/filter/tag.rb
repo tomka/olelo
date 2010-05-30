@@ -107,18 +107,16 @@ class TagSoupParser
 end
 
 class Wiki::Tag < Filter
-  class << self
-    lazy_reader :tags, {}
+  @@tags = {}
 
-    def define(tag, opts = {}, &block)
-      tags[tag.to_s] = TagInfo.new(block.to_method(self), opts)
-    end
+  def self.define(tag, opts = {}, &block)
+    @@tags[tag.to_s] = TagInfo.new(block.to_method(self), opts)
   end
 
   def nested_tags(context, content)
     @tag_level += 1
     return 'Maximum tag nesting exceeded' if @tag_level > MAX_RECURSION
-    result = TagSoupParser.new(Wiki::Tag.tags, content).parse do |name, attrs, text|
+    result = TagSoupParser.new(@@tags, content).parse do |name, attrs, text|
       process_tag(name, attrs, text, context)
     end
     @tag_level -= 1
@@ -147,8 +145,7 @@ class Wiki::Tag < Filter
   end
 
   def process_tag(name, attrs, content, context)
-    tag = Wiki::Tag.tags[name]
-
+    tag = @@tags[name]
     @tag_counter[name] ||= 0
     @tag_counter[name] += 1
 

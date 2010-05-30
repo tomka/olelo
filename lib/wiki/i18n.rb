@@ -5,7 +5,7 @@ module Wiki
     @loaded = []
 
     class << self
-      def load_locale(path)
+      def load(path)
         if !@loaded.include?(path) && File.file?(path)
           locale = YAML.load_file(path)
           @locale.update(locale[$1] || {}) if Config.locale =~ /^(\w+)(_|-)/

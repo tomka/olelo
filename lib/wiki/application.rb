@@ -26,13 +26,14 @@ module Wiki
 
       String.root_path = Config.root_path
 
-      I18n.load_locale(File.join(File.dirname(__FILE__), 'locale.yml'))
+      Templates.paths << File.join(Config.app_path, 'views')
+      I18n.load(File.join(File.dirname(__FILE__), 'locale.yml'))
 
       # Load locales for loaded plugins
       # Add plugin path to template paths
       Plugin.after :load do
-        I18n.load_locale(file.sub(/\.rb$/, '_locale.yml'))
-        I18n.load_locale(File.join(File.dirname(file), 'locale.yml'))
+        I18n.load(file.sub(/\.rb$/, '_locale.yml'))
+        I18n.load(File.join(File.dirname(file), 'locale.yml'))
         Templates.paths << File.dirname(file)
       end
 

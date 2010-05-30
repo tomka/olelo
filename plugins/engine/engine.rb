@@ -52,7 +52,7 @@ class Wiki::Engine
   end
 
   attr_reader :name, :priority, :options
-  question_reader :layout, :cacheable
+  attr_reader? :layout, :cacheable
 
   # Create engine class. This is sugar to create and
   # register an engine class in one step.

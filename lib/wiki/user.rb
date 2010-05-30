@@ -21,14 +21,14 @@ module Wiki
 
     def change_password(oldpassword, password, confirm)
       User.validate_password(password, confirm)
-      service.change_password(self, oldpassword, password)
+      User.service.change_password(self, oldpassword, password)
     end
 
     def modify(&block)
       copy = dup
       block.call(copy)
       validate
-      service.update(copy)
+      User.service.update(copy)
       instance_variables.each do |name|
         instance_variable_set(name, copy.instance_variable_get(name))
       end
@@ -46,13 +46,13 @@ module Wiki
       extend ClassRegistry
 
       def method_missing(name, *args)
-        raise NotImplementedError, :auth_unsupported.t(:name => name)
+        raise AuthenticationError, :auth_unsupported.t(:name => name)
       end
     end
 
     class<< self
-      def service
-        @service ||= Service[Config.authentication.service].new(Config.authentication[Config.authentication.service])
+      lazy_reader :service do
+        Service[Config.authentication.service].new(Config.authentication[Config.authentication.service])
       end
 
       def validate_password(password, confirm)
