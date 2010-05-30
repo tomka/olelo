@@ -172,7 +172,7 @@ module Wiki
 
     def namespace_prefix(ns)
       if ns
-        Config.namespaces[ns] || raise("Invalid namespace #{ns}")
+        Config.namespaces[ns] || raise("Invalid namespace '#{ns}'")
       else
         ''
       end
@@ -303,7 +303,7 @@ module Wiki
     class << self
       attr_writer :instance
       def instance
-        @instance ||= find(Config.repository.type).new(Config.repository[Config.repository.type])
+        @instance ||= self[Config.repository.type].new(Config.repository[Config.repository.type])
       end
     end
 

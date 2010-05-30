@@ -8,7 +8,8 @@ class Wiki::Filter
   end
 
   def call!(content)
-    @timer = context.engine.timers[name] ||= Timer.new
+    match = Filter.registry.find {|name, klass| klass == self.class }
+    @timer = context.engine.timers[match ? match[0] : self.class.name] ||= Timer.new
     content = @timer.measure { filter(content) }
     post ? post.call(context, content) : content
   end

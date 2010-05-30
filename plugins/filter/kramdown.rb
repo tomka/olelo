@@ -3,10 +3,7 @@ description  'Kramdown markdown converter'
 dependencies 'engine/filter'
 require      'kramdown'
 
-Filter.create :kramdown_html do |content|
-  Kramdown::Document.new(content).to_html
-end
-
-Filter.create :kramdown_latex do |content|
-  Kramdown::Document.new(content).to_latex
+Filter.create :kramdown do |content|
+  doc = Kramdown::Document.new(content)
+  options[:latex] ? doc.to_latex : doc.to_html
 end

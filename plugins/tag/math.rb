@@ -24,7 +24,7 @@ class Renderer
     end
 
     def get(name)
-      renderer = registry[name] || raise(NameError, "Renderer #{name} not found")
+      renderer = registry[name] || raise("Renderer #{name} not found")
       if Array === renderer
         get_first(renderer)
       elsif String === renderer
@@ -35,7 +35,7 @@ class Renderer
     end
 
     def choose(name)
-      get(name) || get_first(registry.keys) || raise(RuntimeError, 'No renderer found')
+      get(name) || get_first(registry.keys) || raise('No renderer found')
     end
   end
 end
@@ -111,7 +111,7 @@ Renderer.registry = {
 }
 
 Tag.define :math do |context, attrs, code|
-  raise(RuntimeError, "Limits exceeded") if code.size > 10240
+  raise('Limits exceeded') if code.size > 10240
   mode = attrs['mode'] || context.page.metadata['math'] || 'image'
   Renderer.choose(mode).render(code, attrs['display'] == 'block' ? 'block' : 'inline')
 end

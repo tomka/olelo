@@ -16,11 +16,13 @@ module Wiki
     lazy_reader :registry, {}
 
     def register(name, klass)
-      registry[name.to_s] = klass
+      name = name.to_s
+      raise(ArgumentError, "Implementation '#{name}' already exists for '#{self.name}'") if registry.key?(name)
+      registry[name] = klass
     end
 
-    def find(name)
-      registry[name.to_s] || raise(NameError, "Implementation #{name} for #{self.name} not found")
+    def[](name)
+      registry[name.to_s] || raise(NameError, "Implementation '#{name}' for '#{self.name}' not found")
     end
   end
 

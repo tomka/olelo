@@ -50,4 +50,4 @@ class Toc < Filter
   end
 end
 
-Filter.register Toc.new(:toc)
+Filter.register :toc, Toc

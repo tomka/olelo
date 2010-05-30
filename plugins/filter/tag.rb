@@ -194,7 +194,7 @@ class Wiki::Tag < Filter
 
 end
 
-Filter.register Tag.new(:tag)
+Filter.register :tag, Tag
 
 Tag.define :nowiki do |context, attrs, content|
   escape_html(content)

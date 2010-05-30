@@ -43,14 +43,15 @@ class Wiki::Engine
   # * layout: Engine output should be wrapped in HTML layout (Not used for download/image engines for example)
   # * cacheable: Engine output can be cached
   # * priority: Engine priority. The engine with the lowest priority will be used for a resource.
-  def initialize(name, opts)
+  def initialize(name, options)
     @name = name.to_s
-    @layout = !!opts[:layout]
-    @cacheable = !!opts[:cacheable]
-    @priority = (opts[:priority] || 99).to_i
+    @layout = !!options[:layout]
+    @cacheable = !!options[:cacheable]
+    @priority = (options[:priority] || 99).to_i
+    @options = options
   end
 
-  attr_reader :name, :priority
+  attr_reader :name, :priority, :options
   question_reader :layout, :cacheable
 
   # Create engine class. This is sugar to create and
@@ -78,9 +79,9 @@ class Wiki::Engine
     opts[:name] ||= resource.metadata[:output] || resource.metadata[:engine] if resource.namespace != :metadata
     engines = opts[:name] ? @engines[opts[:name].to_s] : @engines.values.flatten
     engine = engines.to_a.sort_by {|a| a.priority }.find { |e| e.accepts?(resource) && (!opts[:layout] || e.layout?) }
-    raise(RuntimeError, :engine_not_available.t(:engine => opts[:name],
-                                                :page => resource.path,
-                                                :type => "#{resource.mime.comment} (#{resource.mime})")) if !engine
+    raise(:engine_not_available.t(:engine => opts[:name],
+                                  :page => resource.path,
+                                  :type => "#{resource.mime.comment} (#{resource.mime})")) if !engine
     engine.dup
   end
 
@@ -108,7 +109,7 @@ class Wiki::Engine
     output(context)
   end
 
-  # Add :layout=>false to template rendering
+  # Add :layout=>false to template rendering (included from Template module)
   def render(name, opts = {})
     opts[:layout] ||= false
     super(name, opts)

@@ -5,17 +5,16 @@ dependencies 'engine/engine'
 class Wiki::Filter
   include PageHelper
   include Templates
+  extend ClassRegistry
 
-  @filters = {}
-
-  attr_reader :name
+  attr_reader :options
   attr_accessor :context, :sub, :post
 
-  def initialize(name)
-    @name = name.to_s
+  def initialize(options)
     @context = nil
     @sub = nil
     @post = nil
+    @options = options
   end
 
   def subfilter(content)
@@ -33,64 +32,63 @@ class Wiki::Filter
     post ? post.call(context, content) : content
   end
 
-  def self.register(filter)
-    raise(ArgumentError, "Filter #{filter.name} already exists") if @filters.key?(filter.name)
-    @filters[filter.name] = filter
-  end
-
   def self.create(name, &block)
     filter = Class.new(Filter)
     filter.class_eval { define_method(:filter, &block) }
-    register filter.new(name)
-  end
-
-  def self.get(name)
-    name = name.to_s
-    Plugin.load("filter/#{name}")
-    @filters.include?(name) && @filters[name].dup
+    register(name, filter)
   end
 
   class Builder
-    def initialize
-      @filter = @last_filter = nil
+    def initialize(name)
+      @name = name
+      @filter = []
     end
 
-    def filter(*filters, &block)
-      filters.each do |name|
-        filter = Filter.get(name)
-        if filter
-          if @last_filter
-            @last_filter.post = filter
-            @last_filter = @last_filter.post
-          else
-            @last_filter = @filter = filter
-          end
-        else
-          Plugin.current.logger.warn "Filter #{name} not available"
-        end
-      end
-      if block
-        filter = Filter::Builder.new.build(&block)
-        if @last_filter
-          @last_filter.sub = filter
-        else
-          @last_filter = @filter = filter
-        end
-      end
+    def filter(name, options = nil, &block)
+      add(name, false, options, &block)
+    end
+
+    def filter!(name, options = nil, &block)
+      add(name, true, options, &block)
+    end
+
+    def method_missing(name, options = nil, &block)
+      name = name.to_s
+      name.ends_with?('!') ? filter!(name[0..-2], options, &block) : filter(name, options, &block)
     end
 
     def build(&block)
       instance_eval(&block)
-      @filter
+      @filter.first
+    end
+
+    private
+
+    def add(name, mandatory, options = nil, &block)
+      filter = Filter[name] rescue nil
+      if filter
+        filter = filter.new((options || {}).with_indifferent_access)
+        @filter.last.post = filter if @filter.last
+        @filter << filter
+        filter.sub = Filter::Builder.new(@name).build(&block) if block
+      else
+        if mandatory
+          raise "Engine '#{@name}' not created because mandatory filter '#{name}' is not available"
+        else
+          Plugin.current.logger.warn "Optional filter '#{name}' not available"
+        end
+        @filter << Filter::Builder.new(@name).build(&block) if block
+      end
+      self
     end
   end
 end
 
 class Wiki::FilterEngine < Engine
-  def initialize(name, config, filter)
-    super(name, config)
-    @accepts = config[:accepts]
-    @mime = config[:mime]
+  def initialize(name, options, filter)
+    super(name, options)
+    @accepts = options[:accepts]
+    @mime = options[:mime]
     @filter = filter
   end
 
@@ -106,30 +104,34 @@ class Wiki::FilterEngine < Engine
     @filter.call(context, context.page.content.dup)
   end
 
-  class Builder < Filter::Builder
+  class Builder
     def initialize(name)
-      super()
       @name = name
-      @config = {}
+      @options = {}
     end
 
     def build(&block)
       instance_eval(&block)
-      raise(RuntimeError, "No filters defined for engine #{name}") if !@filter
-      FilterEngine.new(@name, @config, @filter)
+      raise("No filters defined for engine '#{name}'") if !@filter
+      FilterEngine.new(@name, @options, @filter)
     end
 
-    def mime(mime);         @config[:mime] = mime;       end
-    def accepts(accepts);   @config[:accepts] = accepts; end
-    def needs_layout;       @config[:layout] = true;     end
-    def has_priority(prio); @config[:priority] = prio;   end
-    def is_cacheable;       @config[:cacheable] = true;  end
+    def filter(&block)
+      @filter = Filter::Builder.new(@name).build(&block)
+      self
+    end
+
+    def mime(mime);         @options[:mime] = mime;       self; end
+    def accepts(accepts);   @options[:accepts] = accepts; self; end
+    def needs_layout;       @options[:layout] = true;     self; end
+    def has_priority(prio); @options[:priority] = prio;   self; end
+    def is_cacheable;       @options[:cacheable] = true;  self; end
   end
 
   class Registrator
     def engine(name, &block)
       Engine.register(Builder.new(name).build(&block))
-      Plugin.current.logger.debug "Filter engine #{name} successfully created"
+      Plugin.current.logger.debug "Filter engine '#{name}' successfully created"
     rescue Exception => ex
       Plugin.current.logger.error ex
     end

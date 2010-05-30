@@ -3,9 +3,9 @@ description  'Basic XSLT filter'
 dependencies 'engine/filter'
 
 class Wiki::XSLT < Filter
-  def initialize(name, path)
-    super(name)
-    content = File.read(File.join(File.dirname(__FILE__), path))
+  def initialize(options)
+    super
+    content = File.read(File.join(File.dirname(__FILE__), options[:stylesheet]))
     @xslt   = Nokogiri::XSLT(content)
   end
 
@@ -19,10 +19,4 @@ class Wiki::XSLT < Filter
   end
 end
 
-Filter.metaclass.redefine_method :get do |name|
-  if name.to_s =~ /\.xsl$/
-    XSLT.new(name, name)
-  else
-    super(name)
-  end
-end
+Filter.register :xslt, Wiki::XSLT

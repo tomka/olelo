@@ -5,8 +5,8 @@ dependencies 'filter/xslt'
 Application.assets 'ui/**/*', 'ui/default/*'
 
 class S5 < XSLT
-  def initialize
-    super(:s5, 's5/s5.xsl')
+  def initialize(options)
+    super(:stylesheet => 's5/s5.xsl')
   end
 
   def params
@@ -17,4 +17,4 @@ class S5 < XSLT
   end
 end
 
-Filter.register S5.new
+Filter.register :s5, S5

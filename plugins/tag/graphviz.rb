@@ -4,7 +4,7 @@ dependencies 'filter/tag', 'utils/imaginator'
 
 def define_tag(type)
   Tag.define type do |context, attrs, content|
-    raise(RuntimeError, 'Limits exceeded') if content.size > 10240
+    raise 'Limits exceeded' if content.size > 10240
     name = Plugin['utils/imaginator'].imaginator.enqueue(type, content)
     %{<img src="/_/utils/imaginator/#{name}" alt="#{escape_html content}" class="#{type}"/>}
   end
