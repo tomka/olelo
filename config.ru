@@ -62,6 +62,7 @@ default_config = {
     'filter/benchmark',
   ],
   :rack => {
+    :blacklist    => [],
     :deflater     => true,
     :embed        => false,
     :esi          => true,
@@ -89,6 +90,11 @@ logger = ::Logger.new(Wiki::Config.log.file, 25, 1024000)
 logger.level = ::Logger.const_get(Wiki::Config.log.level)
 
 use_lint if !Wiki::Config.production?
+
+if !Wiki::Config.rack.blacklist.empty?
+  require 'rack/blacklist'
+  use Rack::Blacklist, :blacklist => Wiki::Config.rack.blacklist
+end
 
 use(Rack::Config) {|env| env['rack.logger'] = logger }
 use Rack::DegradeMimeType

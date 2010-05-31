@@ -28,6 +28,7 @@ rack:
   embed:         false
   esi:           true
   rewrite_base:  ''
+  blacklist:     []
 log:
   level:         INFO
   file:          '/home/user/wiki/log'
