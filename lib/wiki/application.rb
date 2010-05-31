@@ -47,7 +47,7 @@ module Wiki
     end
 
     # Executed before each request
-    before :request do
+    before :routing do
       @timer = Timer.start
 
       # Set request ip as progname
