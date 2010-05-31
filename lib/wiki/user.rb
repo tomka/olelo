@@ -43,7 +43,7 @@ module Wiki
 
     class Service
       include Util
-      extend ClassRegistry
+      extend Factory
 
       def method_missing(name, *args)
         raise AuthenticationError, :auth_unsupported.t(:name => name)

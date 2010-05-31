@@ -298,7 +298,7 @@ module Wiki
 
   class Repository
     include Util
-    extend ClassRegistry
+    extend Factory
 
     class << self
       attr_writer :instance

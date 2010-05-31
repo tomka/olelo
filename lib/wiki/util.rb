@@ -12,7 +12,7 @@ module Wiki
     end
   end
 
-  module ClassRegistry
+  module Factory
     def registry
       @registry ||= {}
     end

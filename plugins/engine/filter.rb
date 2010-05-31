@@ -5,7 +5,7 @@ dependencies 'engine/engine'
 class Wiki::Filter
   include PageHelper
   include Templates
-  extend ClassRegistry
+  extend Factory
 
   attr_reader :options
   attr_accessor :context, :sub, :post

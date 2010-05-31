@@ -5,7 +5,7 @@ module Wiki
 
     class << self
       def paths
-        @paths ||= []
+        @paths ||= Set.new
       end
 
       def cache
@@ -28,10 +28,8 @@ module Wiki
     end
 
     def load_template(type, name, opts)
-      if Config.production?
-        id = [type,name,opts]
-        return Templates.cache[id] if Templates.cache[id]
-      end
+      id = [type,name,opts].to_s
+      return Templates.cache[id] if Config.production? && Templates.cache[id]
 
       paths = Templates.paths.map {|path| File.join(path, "#{name}.#{type}") }
       path = paths.find {|p| File.exists?(p) }
@@ -39,12 +37,7 @@ module Wiki
       content = File.read(path)
 
       template = yield(content, opts)
-
-      if Config.production?
-        id = [type,name,opts]
-        Templates.cache[id] = template
-      end
-
+      Templates.cache[id] = template if Config.production?
       template
     end
   end
