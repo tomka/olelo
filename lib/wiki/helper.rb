@@ -229,8 +229,8 @@ module Wiki
     def edit_content(page)
       if params[:content]
         params[:content]
-      elsif page.content.encoding != __ENCODING__ || page.content =~ /[^[:print:]]/
-        :no_text_file.t(:page => page.path, :type => "#{page.mime.comment} (#{page.mime})")
+      elsif page.content =~ /[^[:print:][:space:]]/ || (page.content.respond_to?(:encoding) && page.content.encoding != __ENCODING__)
+	:no_text_file.t(:page => page.path, :type => "#{page.mime.comment} (#{page.mime})")
       else
         page.content(params[:pos], params[:len])
       end

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 require 'logger'
-require 'cgi/util'
+require 'cgi'
 require 'digest/md5'
 require 'digest/sha2'
 require 'open3'
@@ -11,6 +11,7 @@ require 'nokogiri'
 require 'mimemagic'
 require 'haml'
 
+require 'wiki/compatibility'
 require 'wiki/extensions'
 require 'wiki/util'
 require 'wiki/i18n'

@@ -13,15 +13,15 @@ describe 'Wiki::Hooks' do
   end
 
   it 'should provide #hook' do
-    @hooks_test.methods.should.include :hook
+    @hooks_test.should.respond_to :hook
   end
 
   it 'should provide #before' do
-    @hooks_test.methods.should.include :before
+    @hooks_test.should.respond_to :before
   end
 
   it 'should provide #after' do
-    @hooks_test.methods.should.include :after
+    @hooks_test.should.respond_to :after
   end
 
   it 'should invoke hooks' do

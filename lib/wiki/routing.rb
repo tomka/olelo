@@ -29,8 +29,10 @@ module Wiki
       @params = @original_params = @request.params.with_indifferent_access
 
       # Interpret everything as utf-8
-      encode(@env)
-      encode(@params)
+      if ''.respond_to? :encoding
+        encode(@env)
+        encode(@params)
+      end
 
       catch(:forward) do
         with_hooks(:request) { perform! }

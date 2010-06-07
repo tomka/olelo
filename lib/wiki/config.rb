@@ -5,6 +5,7 @@ module Wiki
 
     attr_reader :base, :hash
     alias to_hash hash
+    undef_method :type if RUBY_VERSION < '1.9'
 
     def initialize(hash = nil, base = nil)
       @hash = {}
@@ -29,13 +30,11 @@ module Wiki
       i = key.index('.')
       if i
         child(key[0...i]).set(key[i+1..-1], value)
+      elsif Hash === value
+        child(key).update(value)
       else
-        if Hash === value
-          child(key).update(value)
-        else
-          create_accessor(key)
-          hash[key] = value
-        end
+        create_accessor(key)
+        hash[key] = value
       end
     end
 

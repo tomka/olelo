@@ -53,7 +53,7 @@ class Wiki::Application
 
         # Read in binary mode and fix encoding afterwards
         @patch = IO.popen("diff -u '#{original.path}' '#{new.path}'", 'rb') {|io| io.read }
-        @patch.force_encoding(__ENCODING__)
+        @patch.force_encoding(__ENCODING__) if @patch.respond_to? :force_encoding
 
 	halt render(request.put? ? :edit : :new)
       else

@@ -61,16 +61,27 @@ module Wiki
 
     # Like CGI.unescape but does not unescape +
     def unescape(s)
-      enc = s.encoding
-      s.gsub(/((?:%[0-9a-fA-F]{2})+)/) do
-        [$1.delete('%')].pack('H*').force_encoding(enc)
+      if s.respond_to? :encoding
+        enc = s.encoding
+        s.gsub(/((?:%[0-9a-fA-F]{2})+)/) do
+          [$1.delete('%')].pack('H*').force_encoding(enc)
+        end
+      else
+        s.gsub(/((?:%[0-9a-fA-F]{2})+)/) do
+          [$1.delete('%')].pack('H*')
+        end
       end
     end
 
     def unescape_backslash(s)
-      enc = s.encoding
-      s.gsub(/\\([0-7]{3})/) { $1.to_i(8).chr.force_encoding(enc) }.
-        gsub(/\\x([\da-f]{2})/i) { $1.to_i(16).chr.force_encoding(enc) }
+      if s.respond_to? :encoding
+        enc = s.encoding
+        s.gsub(/\\([0-7]{3})/) { $1.to_i(8).chr.force_encoding(enc) }.
+          gsub(/\\x([\da-f]{2})/i) { $1.to_i(16).chr.force_encoding(enc) }
+      else
+        s.gsub(/\\([0-7]{3})/) { $1.to_i(8).chr }.
+          gsub(/\\x([\da-f]{2})/i) { $1.to_i(16).chr }
+      end
     end
 
     def escape_html(text)
@@ -124,7 +135,11 @@ module Wiki
         rescue Errno::EPIPE
         end
         stdin.close
-        output << stdout.read
+        begin
+	  output << stdout.read
+        rescue Errno::EAGAIN
+          retry
+        end
         output
       end
     end

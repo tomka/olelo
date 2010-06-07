@@ -11,11 +11,8 @@ timer = Wiki::Timer.start
 # Require newest rack
 raise 'Rack 1.1.0 or newer required' if Rack.version < '1.1'
 
-# Load ruby 1.8 compatibility library
-require 'compatibility' if RUBY_VERSION < '1.9'
-
 # We want to read all text data as UTF-8
-Encoding.default_external = Encoding::UTF_8
+Encoding.default_external = Encoding::UTF_8 if ''.respond_to? :encoding
 
 require 'fileutils'
 require 'rack/patches'
