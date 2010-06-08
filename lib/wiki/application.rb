@@ -203,6 +203,7 @@ module Wiki
     get '/:path/edit' do
       @resource = Page.find(params[:path])
       redirect((params[:path]/'new').urlpath) if !@resource
+      flash.warn :warn_binary.t(:page => @resource.path, :type => "#{@resource.mime.comment} (#{@resource.mime})") if @resource.content =~ /[^[:print:][:space:]]/
       render :edit
     end
 

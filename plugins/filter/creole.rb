@@ -23,7 +23,7 @@ class WikiCreoleParser < Creole
       image_path = path.dup
       page_path = path.dup
     else
-      geometry = args.find { |x| x =~ /(\d+x)|(x\d+)|(\d+%)/}
+      geometry = args.grep(/(\d+x)|(x\d+)|(\d+%)/).first
       opts = {:path => path, :output => 'image'}
       if geometry
         args.delete(geometry)

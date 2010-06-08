@@ -53,7 +53,7 @@ en:
   name:                   'Name'
   newer:                  'Newer'
   new_page:               'New Page'
-  no_text_file:           '#{page} is a #{type} and cannot be edited like a text file.'
+  error_binary:           '#{page} is a binary #{type} and cannot be edited like a text file.'
   not_found:              '#{id} not found'
   older:                  'Older'
   old_password:           'Old password'
@@ -84,6 +84,7 @@ en:
   version:                'Version'
   version_conflict:       'Version conflict detected'
   view:                   'View'
+  warn_binary:            '#{page} is a #{type} and seems to be a binary file.'
   wrong_user_or_pw:       'Wrong username or password'
   wrong_password:         'Wrong password'
 de:
