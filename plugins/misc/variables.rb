@@ -25,14 +25,6 @@ def variables(page, engine)
   vars
 end
 
-def build_json(vars)
-  vars = vars.to_json
-  vars.gsub!('&', '&amp;')
-  vars.gsub!('<', '&lt;')
-  vars.gsub!('>', '&gt;')
-  vars
-end
-
 # Export variables to engine context
 Wiki::Context.hook(:initialized) do
   params.merge!(Plugin.current.variables(page, engine))
@@ -43,14 +35,14 @@ class Wiki::Application
   before :head do
     vars = @resource ? params.merge(Plugin.current.variables(@resource, @engine)) : params
     %{<script type="text/javascript">
-        Wiki = #{Plugin.current.build_json(vars)};
+        Wiki = #{escape_json(vars.to_json)};
       </script>}.unindent
   end
 
   get '/_/user' do
     %{<script type="text/javascript">
-      Wiki.user_anonymous = #{Plugin.current.build_json @user.anonymous?};
-      Wiki.user_name = #{Plugin.current.build_json @user.name};
+      Wiki.user_anonymous = #{escape_json(@user.anonymous?.to_json)};
+      Wiki.user_name = #{escape_json(@user.name.to_json)};
     </script>}.unindent + super()
   end
 end

@@ -84,12 +84,18 @@ module Wiki
       end
     end
 
-    def escape_html(text)
-      CGI.escapeHTML(text.to_s)
+    def escape_html(s)
+      CGI.escapeHTML(s.to_s)
     end
 
-    def unescape_html(text)
-      CGI.unescapeHTML(text.to_s)
+    def unescape_html(s)
+      CGI.unescapeHTML(s.to_s)
+    end
+
+    JSON_ESCAPE = { '&' => '\u0026', '>' => '\u003E', '<' => '\u003C' }
+
+    def escape_json(s)
+      s.to_s.gsub(/[&><]/) { |x| JSON_ESCAPE[x] }
     end
 
     def md5(s)

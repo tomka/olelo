@@ -30,6 +30,10 @@ describe 'Wiki::Util' do
     Wiki::Util.unescape_html('&lt;').should.equal '<'
   end
 
+  it 'should have #escape_json' do
+    Wiki::Util.escape_json('a&b<c>').should.equal 'a\u0026b\u003Cc\u003E'
+  end
+
   it 'should have xml #builder' do
     Wiki::Util.builder do
       entry {
