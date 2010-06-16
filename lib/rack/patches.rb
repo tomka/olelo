@@ -5,15 +5,6 @@ require 'socket'
 require 'securerandom'
 
 class Rack::Request
-  # FIXME: Rack bug with HTTP_X_FORWARDED_FOR
-  def ip
-    if addr = @env['HTTP_X_FORWARDED_FOR']
-      addr.split(',').grep(/\d\./).first.strip
-    else
-      @env['REMOTE_ADDR']
-    end
-  end
-
   # Remote host name
   def remote_host
     @remote_host ||= Socket.gethostbyaddr(ip.split('.').map(&:to_i).pack('C*')).first rescue nil
