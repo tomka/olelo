@@ -20,7 +20,7 @@ body
   font-family: Georgia, serif
   color: #0b3e71
   margin: 1em 0 0.5em 0
-  border-bottom = !border
+  border-bottom: $border
   line-height: 1.2em
 
 +headlines
@@ -76,7 +76,7 @@ table
   +box-shadow
   border-collapse: collapse
   border-spacing: 0
-  border = !border
+  border: $border
   margin: 0 0 1em 0
   tr
     background: #FFF
@@ -90,7 +90,7 @@ table
           display: block
     th
       background: #CCC
-      border-bottom = !border
+      border-bottom: $border
       font-variant: small-caps
     &.even
       background: #DDF
@@ -102,7 +102,7 @@ a
   &.img
     background: transparent
   span.img &
-    border = !border
+    border: $border
     float: right
     text-align: center
     color: #000
@@ -141,7 +141,7 @@ hr
   font-family: "Bitstream Vera Mono", monospace
 
 pre
-  border = !border
+  border: $border
   padding: 0.2em
   background: #FFF
   min-width: 60%
@@ -156,18 +156,18 @@ table.full, #history-table, #tree-table
 .history-draggable
   background-color: #F99
 
-=action-icon(!name)
-  .action-#{!name}
+=action-icon($name)
+  .action-#{$name}
     text-indent: -1000px
-    background: url(images/actions/#{!name}.png) no-repeat top left
+    background: url(images/actions/#{$name}.png) no-repeat top left
     float: left
     width: 16px
     height: 16px
     overflow: hidden
 
-=file-type(!type)
-  .file-type-#{!type}:before
-    content: url(images/filetypes/#{!type}.png) "\00a0"
+=file-type($type)
+  .file-type-#{$type}:before
+    content: url(images/filetypes/#{$type}.png) "\00a0"
 
 #tree-table
   .actions
@@ -219,7 +219,7 @@ form
     float:		left
     margin:		0.3em 0.5em 0.3em 0
     padding:		2px
-    border		= !border
+    border:             $border
     background:		#FFF
     color:              #333
     &:focus
@@ -278,14 +278,14 @@ table input
   +rounded
   +box-shadow
   padding: 1em
-  border = !border
+  border: $border
 
 .box, .fieldset
   +rounded
   +box-shadow
   clear: both
   display: block
-  border = !border
+  border: $border
   padding: 0.5em 1em
   margin: 1em 0
   overflow: hidden
@@ -312,7 +312,7 @@ table input
       margin: 0 0 0 4px
       height: 1.7em
       line-height: 1.7em
-      border = !border
+      border: $border
       color: #333
       &.tabs-selected > a
         +rounded-tl
@@ -336,7 +336,7 @@ table input
 
 .toc
   background: #FFF
-  border = !border
+  border: $border
   padding: 0.5em 2.5em
   margin: 1em 0
   ul

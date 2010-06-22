@@ -1,14 +1,14 @@
 @import ../lib/horizontal-list.sass
 @import constants.sass
 
-=menu-action(!name)
-  &.action-#{!name}:before
-    content: url(images/actions/#{!name}.png) "\00a0"
+=menu-action($name)
+  &.action-#{$name}:before
+    content: url(images/actions/#{$name}.png) "\00a0"
 
 #menu
   height: 1.7em
-  border-top = !border
-  border-bottom = !border
+  border-top: $border
+  border-bottom: $border
   font-variant: small-caps
   ul
     +list-bar
@@ -16,7 +16,7 @@
     &.wiki
       float: right
       li
-        border-left = !border
+        border-left: $border
         border-right: none
     li
       +reset-box-model
@@ -24,7 +24,7 @@
       float: left
       height: 1.7em
       line-height: 1.7em
-      border-right = !border
+      border-right: $border
       color: #333
       &.selected a:before
         content: '\2022\00a0'
@@ -41,7 +41,7 @@
         &.first a
           padding-left: 1em
         &.last
-          border-right = !border
+          border-right: $border
           a
             padding-right: 1em
       a
@@ -55,6 +55,8 @@
           content: "\00ab\00a0"
         &.action-newer:after
           content: "\00a0\00bb"
+        //&.root:before
+          content: url(images/actions/home.png) "\00a0"
         +menu-action("home")
         +menu-action("new")
         +menu-action("edit")
@@ -70,12 +72,12 @@
         z-index: 20
         display: none
         position: absolute
-        border-top = !border
+        border-top: $border
         margin-left: -1px
         li
           background: #FFF
           clear: both
-          border = !border !important
+          border: $border !important
           border-top: none !important
           width: 100%
       &:hover>ul

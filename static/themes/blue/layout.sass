@@ -1,7 +1,7 @@
 @import constants.sass
 
 #header
-  background = !header_bg
+  background: $header_bg
   padding-left: 0.5em
   clear: both
   height: 3em
@@ -17,8 +17,8 @@
 
 #info
   float: right
-  border = !border
-  background = !light_bg
+  border: $border
+  background: $light_bg
   padding: 0.3em
   margin: 0.65em 0.65em 0 0.65em
 
@@ -41,7 +41,7 @@ html, body
   display: block
   overflow: hidden
   padding-right: 7em
-  padding-left = !sidebar_width
+  padding-left: $sidebar_width
   background: url(images/container_bg.png) top left repeat-y
   z-index: 10
 
@@ -56,10 +56,10 @@ html, body
 #sidebar
   background: #EEF
   position: relative
-  width = !sidebar_width
+  width: $sidebar_width
   float: left
   padding-bottom: 3.5em
-  margin-left = -!sidebar_width
+  margin-left: -$sidebar_width
   font-variant: small-caps
   h1, h2, h3, h4, h5, h6
     font-size: 140%
