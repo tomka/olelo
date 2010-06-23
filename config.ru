@@ -24,7 +24,7 @@ require 'wiki'
 config_file = if ENV['WIKI_CONFIG']
   ENV['WIKI_CONFIG']
 else
-  ::File.join(path, 'config.yml')
+  ::File.join(path, 'config', 'config.yml')
 end
 
 default_config = {

@@ -30,7 +30,6 @@ Installation
 
 First, you have to install the [Gem][] dependencies via `gem`:
 
-    gem sources -a http://gemcutter.org
     gem install creole
     gem install gitrb
     gem install mimemagic
@@ -73,12 +72,12 @@ Configuration
 -------------
 
 You might want to deploy the wiki on a server and want to tweak some settings.
-The default wiki configuration is in the file config.yml. You can specify
+The default wiki configuration is in the file config/config.yml. You can specify
 a different file via the environment variable WIKI_CONFIG.
 
     export WIKI_CONFIG=/home/user/wiki_config.yml
 
-A documented example configuration is found at config.yml.sample.
+A documented example configuration is found at config/config.yml.sample.
 
 Dependencies
 ------------

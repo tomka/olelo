@@ -139,6 +139,6 @@ class Wiki::FilterEngine < Engine
 end
 
 setup do
-  file = File.join(Config.app_path, 'engines.rb')
+  file = File.join(Config.app_path, 'config', 'engines.rb')
   FilterEngine::Registrator.new.instance_eval(File.read(file), file)
 end

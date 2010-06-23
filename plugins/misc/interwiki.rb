@@ -2,7 +2,7 @@ author      'Daniel Mendler'
 description 'Interwiki support'
 
 def interwiki
-  @interwiki ||= YAML.load_file(File.join(Config.app_path, 'interwiki.yml'))
+  @interwiki ||= YAML.load_file(File.join(Config.app_path, 'config', 'interwiki.yml'))
 end
 
 INTERWIKI_REGEX = %r{^/?(#{interwiki.keys.join('|')}):(.+)$}
