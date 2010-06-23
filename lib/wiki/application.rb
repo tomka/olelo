@@ -26,8 +26,11 @@ module Wiki
 
       String.root_path = Config.root_path
 
-      Templates.paths << File.join(Config.app_path, 'views')
+      I18n.locale = Config.locale
       I18n.load(File.join(File.dirname(__FILE__), 'locale.yml'))
+
+      Templates.enable_caching if Config.production?
+      Templates.paths << File.join(Config.app_path, 'views')
 
       # Load locales for loaded plugins
       # Add plugin path to template paths

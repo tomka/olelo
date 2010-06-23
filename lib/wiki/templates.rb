@@ -4,12 +4,14 @@ module Wiki
     HAML_OPTIONS = { :format => :xhtml, :attr_wrapper  => '"', :ugly => true }
 
     class << self
-      def paths
-        @paths ||= Set.new
+      attr_reader :cache
+
+      def enable_caching
+        @cache = {}
       end
 
-      def cache
-        @cache ||= {}
+      def paths
+        @paths ||= Set.new
       end
     end
 
@@ -29,7 +31,7 @@ module Wiki
 
     def load_template(type, name, opts)
       id = [type,name,opts].to_s
-      return Templates.cache[id] if Config.production? && Templates.cache[id]
+      return Templates.cache[id] if Templates.cache && Templates.cache[id]
 
       paths = Templates.paths.map {|path| File.join(path, "#{name}.#{type}") }
       path = paths.find {|p| File.exists?(p) }
@@ -37,7 +39,7 @@ module Wiki
       content = File.read(path)
 
       template = yield(content, opts)
-      Templates.cache[id] = template if Config.production?
+      Templates.cache[id] = template if Templates.cache
       template
     end
   end

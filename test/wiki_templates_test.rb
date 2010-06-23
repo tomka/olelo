@@ -1,4 +1,3 @@
-require 'wiki/config'
 require 'wiki/templates'
 
 class Bacon::Context
@@ -7,7 +6,7 @@ end
 
 describe 'Wiki::Templates' do
   before do
-    Wiki::Config.set('production', true)
+    Wiki::Templates.enable_caching
     Wiki::Templates.paths << File.dirname(__FILE__)
   end
 
