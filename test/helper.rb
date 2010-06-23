@@ -12,6 +12,7 @@ module TestHelper
   end
 
   def create_repository
+    String.root_path = 'root'
     Wiki::Repository.instance = nil
     Wiki::Config.set('repository.type', 'git')
     Wiki::Config.set('repository.git.path', File.expand_path(File.join(File.dirname(__FILE__), '.test')))
@@ -20,6 +21,7 @@ module TestHelper
   end
 
   def destroy_repository
+    String.root_path = nil
     FileUtils.rm_rf(Wiki::Config.repository.git.path)
   end
 

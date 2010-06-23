@@ -124,9 +124,9 @@ module Wiki
           params =
             if keys.any?
               keys.zip(captures).inject({}) do |hash,(k,v)|
-              hash[k] = v
-              hash
-            end
+                hash[k] = v
+                hash
+              end
             elsif captures.any?
               {'captures' => captures}
             else

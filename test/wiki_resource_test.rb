@@ -11,9 +11,13 @@ describe 'Wiki::Resource' do
     Wiki::Resource.find('spaces in the path').should.equal nil
   end
 
-  it 'find root with correct type' do
+  it 'should have no root before the first page is created' do
     Wiki::Resource.find('').should.equal nil
+    create_page('Home')
+    Wiki::Resource.find('').should.be.an.instance_of Wiki::Tree
+  end
 
+  it 'find root with correct type' do
     create_page('Home')
 
     Wiki::Resource.find('').should.be.an.instance_of Wiki::Tree

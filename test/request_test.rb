@@ -8,18 +8,6 @@ class Bacon::Context
   include Wiki::Util
 
   attr_reader :app
-
-  def should
-    last_response.should
-  end
-
-  def method_missing(name, *args, &block)
-    if last_response && last_response.respond_to?(name)
-      last_response.send(name, *args, &block)
-    else
-      super
-    end
-  end
 end
 
 describe 'requests' do
@@ -30,11 +18,12 @@ describe 'requests' do
       :title           => 'Git-Wiki',
       :app_path        => File.expand_path(File.join(File.dirname(__FILE__), '..')),
       :production      => true,
-      :locale	   => 'en_US',
+      :locale	       => 'en_US',
       :root_path       => 'Root',
-      :main_page       => 'Home',
+      :index_page      => 'Index',
       :sidebar_page    => 'Sidebar',
       :external_images => false,
+      :cache           => File.join(@test_path, 'cache'),
       :namespaces => {
         :discussion => 'Discussion:',
         :metadata   => 'Metadata:',
@@ -45,7 +34,6 @@ describe 'requests' do
           :store  => File.join(@test_path, 'users.yml'),
         },
       },
-      :cache => File.join(@test_path, 'cache'),
       :mime => [
                 'extension',
                 'content',
@@ -80,40 +68,40 @@ describe 'requests' do
     @app = nil
   end
 
-  it 'should redirect /' do
+  it 'should have empty repository' do
     get '/'
-    should.be.redirect
-    location.should.equal '/Home'
+    last_response.should.be.redirect
+    last_response.location.should.equal '/new'
   end
 
   it 'should show login page' do
     get '/login'
-    should.be.ok
-    body.should.include '<form action="/signup" method="post">'
-    body.should.include '<form action="/login" method="post">'
+    last_response.should.be.ok
+    last_response.body.should.include '<form action="/signup" method="post">'
+    last_response.body.should.include '<form action="/login" method="post">'
   end
 
   it 'should show to /new' do
     get '/not-existing/new'
-    should.be.ok
+    last_response.should.be.ok
   end
 
   it 'should redirect to /new' do
     get '/not-existing'
-    should.be.redirect
-    location.should.equal '/not-existing/new'
+    last_response.should.be.redirect
+    last_response.location.should.equal '/not-existing/new'
 
     get '/not-existing/edit'
-    should.be.redirect
-    location.should.equal '/not-existing/new'
+    last_response.should.be.redirect
+    last_response.location.should.equal '/not-existing/new'
   end
 
   it 'should not redirect to /new' do
     get '/not-existing/history'
-    should.be.not_found
+    last_response.should.be.not_found
 
     get '/not-existing/diff'
-    should.be.not_found
+    last_response.should.be.not_found
   end
 
   it 'should create page' do
@@ -124,23 +112,26 @@ describe 'requests' do
     }
     post('/Testfolder/Testpage', data)
 
-    should.be.redirect
-    location.should.equal '/Testfolder/Testpage'
+    last_response.should.be.redirect
+    last_response.location.should.equal '/Testfolder/Testpage'
+
+    get '/'
+    last_response.should.be.ok
 
     get '/Testfolder/Testpage'
-    should.be.ok
-    body.should.include '<h1>Testpage</h1>'
-    body.should.include 'Content of the Testpage'
+    last_response.should.be.ok
+    last_response.body.should.include '<h1>Testpage</h1>'
+    last_response.body.should.include 'Content of the Testpage'
 
     get '/Testfolder/Testpage/history'
-    should.be.ok
-    body.should.include 'My Comment'
+    last_response.should.be.ok
+    last_response.body.should.include 'My Comment'
 
     get '/Testfolder/Testpage/edit'
-    should.be.ok
+    last_response.should.be.ok
 
     get '/Testfolder/Testpage/upload'
-    should.be.ok
+    last_response.should.be.ok
   end
 
   it 'should create page with special characters' do
@@ -150,20 +141,20 @@ describe 'requests' do
       'comment' => '测试'
     }
     post(escape('/子供を公園/中文'), data)
-    should.be.redirect
+    last_response.should.be.redirect
 
-    unescape(location).should.equal '/子供を公園/中文'
+    unescape(last_response.location).should.equal '/子供を公園/中文'
 
     get escape('/子供を公園/中文')
-    should.be.ok
+    last_response.should.be.ok
 
     get escape('/子供を公園/中文/history')
-    should.be.ok
+    last_response.should.be.ok
 
     get escape('/子供を公園/中文/edit')
-    should.be.ok
+    last_response.should.be.ok
 
     get escape('/子供を公園/中文/upload')
-    should.be.ok
+    last_response.should.be.ok
   end
 end

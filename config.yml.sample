@@ -1,42 +1,128 @@
+# config.yml.sample
+# Wiki configuration example with default settings
+
+##################################################
+# Main configuration
+
+# Wiki title displayed at the top of the page
 title:           'Git-Wiki'
+
+# Default locale
+# Examples: en, en_US, de_DE
 locale:          'en_US'
+
+# Set this to false to put the wiki to debugging mode.
+# Debugging mode disables caching and enables exception backtraces.
 production:      true
-main_page:       'Home'
+
+# Path of the root directory.
+# Example: /Root is mapped to /
+root_path:       'Root'
+
+# Index pages are displayed instead of a directory view by default.
+# This configures the name of the index pages.
+# Examples: / displays the contents of /Index, /Directory displays the contents of /Directory/Index
+index_page:      'Index'
+
+# Page used for the sidebar. This can be a path.
 sidebar_page:    'Sidebar'
+
+# Allow embedding of external images.
 external_images: false
+
+# Namespace configuration
+# These prefixes are used for discussion and metadata pages.
 namespaces:
   discussion:    'Discussion:'
   metadata:      'Metadata:'
+
+# Caching directory
+cache:           '/home/user/wiki/cache'
+
+##################################################
+# Authentication backend configuration
+
 authentication:
+  # Select a authentication service which is configured below.
+  # Currently supported are: yamlfile, portal and stack.
   service:       yamlfile
+  # Configure the yamlfile backend.
+  # The yaml file backend stores the users in a simple yaml file.
   yamlfile:
+    # Path to yaml file
     store:       '/home/user/wiki/users.yml'
+  # Configure the portal backend.
+  # The portal backend uses a REST-API to access user data.
   portal:
     url:         'http://portal.test.com/'
-cache:           '/home/user/wiki/cache'
+  # Stack backend which accesses multiple backends in the following order.
+  stack:
+    - yamlfile
+    - portal
+
+##################################################
+# Mime detection order
+# Possible values are extension, content/magic and a specific mime type
+# You can configure the wiki default mime type here
+# and select the default wiki text this way.
+
 mime:
   - extension
   - content
+  # Use creole as last resort.
+  # You can configure the wiki default mime type here!
+  # Use text/x-creole for Creole Wikitext, text/x-markdown for Markdown,
+  # text/x-maruku for Markdown/Maruku, text/x-textile for Textile, text/x-orgmode for Emacs Org Mode
   - text/x-creole
+
+##################################################
+# List of disabled plugins by name.
+# You can disable whole plugin directories.
+
 disabled_plugins:
   - authorization/private_wiki
   - tagging
   - editor/antispam
   - filter/benchmark
+
+##################################################
+# Rack middleware configurations
+
 rack:
+  # Use the deflater to compress data (Rack::Deflater)
   deflater:      true
+  # Use the image embedder (Rack::Embed in rack-embed)
   embed:         false
+  # Use edge-side-includes (Rack::ESI in minad-rack-esi)
   esi:           true
+  # Use a different base directory as root to support installation in user homes
   rewrite_base:  ''
+  # Specify a list of blacklisted ips which cannot post data
   blacklist:     []
+
+##################################################
+# Logging configuration
+
 log:
   level:         INFO
   file:          '/home/user/wiki/log'
+
+##################################################
+# Antispam configuration.
+# Specify recaptcha public/private key
+
 antispam:
   recaptcha:
     public:      public key
     private:     private key
+
+##################################################
+# Repository configuration
+
 repository:
+  # Specify type of repository
   type:          git
+  # Configuration git repository type
   git:
+    # Path to bare (!) git repository
     path:        '/home/user/wiki/repository'

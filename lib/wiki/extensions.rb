@@ -161,7 +161,6 @@ class Struct
 end
 
 class String
-  @root_path = 'root'
   class << self
     attr_accessor :root_path
   end
@@ -187,20 +186,20 @@ class String
   def cleanpath
     names = split('/').reject(&:blank?)
     # /root_path maps to /
-    names.delete_at(0) if names[0] == String.root_path
+    names.delete_at(0) if String.root_path && names[0] == String.root_path
     i = 0
     while i < names.length
       case names[i]
       when '..'
         names.delete_at(i)
-        if i>0
+        if i > 0
           names.delete_at(i-1)
-          i-=1
+          i -= 1
         end
       when '.'
         names.delete_at(i)
       else
-        i+=1
+        i += 1
       end
     end
     names.join('/')
@@ -209,7 +208,7 @@ class String
   # Convert string to url path
   def urlpath
     path = cleanpath
-    path.blank? ? '/' + String.root_path : '/' + path
+    '/' << (path.blank? ? String.root_path : path)
   end
 
   # Truncate string and add omission

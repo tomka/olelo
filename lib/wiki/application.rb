@@ -100,10 +100,6 @@ module Wiki
       render :user, :layout => false
     end
 
-    get '/' do
-      redirect Config.main_page.urlpath
-    end
-
     get '/login', '/signup' do
       render :login
     end
@@ -227,7 +223,7 @@ module Wiki
           @content = @resource.try(:content)
           halt render(:show)
         end
-      rescue ObjectNotFound
+      rescue ObjectNotFound => ex
         redirect_to_new params[:version].blank?
         pass
       end
@@ -300,7 +296,7 @@ module Wiki
       path = path.to_s.urlpath
       self.class.routes.any? do |method, routes|
         routes.any? do |name,pattern|
-          name != '/:path' && (path =~ pattern || path =~ /#{pattern.source[0..-2]}\//)
+          name != '/' && name != '/:path' && (path =~ pattern || path =~ /#{pattern.source[0..-2]}\//)
         end
       end
     end

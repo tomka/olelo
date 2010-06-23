@@ -2,6 +2,7 @@ require 'wiki/extensions'
 
 describe 'String extensions' do
   before { String.root_path = 'root' }
+  after { String.root_path = nil }
 
   it 'should have unindent' do
     %{a

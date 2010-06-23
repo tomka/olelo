@@ -42,7 +42,7 @@ module Wiki
   class Resource
     include Util
 
-    PATH_PATTERN = '[^\s](?:.*[^\s]+)?'
+    PATH_PATTERN = '(?:[^\s](?:.*[^\s]+)?)?'
     PATH_REGEXP  = /^#{PATH_PATTERN}$/
 
     attr_reader :path, :tree_version
@@ -185,7 +185,7 @@ module Wiki
     end
 
     def self.check_path(path)
-      raise :invalid_path.t if (!path.blank? && path !~ PATH_REGEXP) || Config.namespaces.any? {|ns, prefix| prefix == path}
+      raise :invalid_path.t if path !~ PATH_REGEXP || Config.namespaces.any? {|ns, prefix| prefix == path}
     end
   end
 

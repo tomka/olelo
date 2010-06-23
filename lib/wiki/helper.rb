@@ -194,7 +194,7 @@ module Wiki
       path = resource.try(:path) || ''
       builder do
         li.first.breadcrumb(:class => '' == path ? 'last' : '') {
-          a Wiki::Config.root_path, :href => resource_path(resource, :path => '/'.urlpath)
+          a Wiki::Config.root_path, :accesskey=>'z', :class => 'root', :href => resource_path(resource, :path => '/')
         }
         path.split('/').inject('') do |parent,elem|
           li.breadcrumb '/'
@@ -286,10 +286,10 @@ module Wiki
 
       response['Cache-Control'] = opts.map do |k, v|
         if v == true
-          k.to_s.gsub('_', '-')
+          k.to_s.tr('_', '-')
         elsif v
           v = 31536000 if v.to_s == 'static'
-          "#{k.to_s.gsub('_', '-')}=#{v}"
+          "#{k.to_s.tr('_', '-')}=#{v}"
         end
       end.compact.join(', ')
     end

@@ -39,7 +39,7 @@ engine :creole do
   end
 end
 
-xslt_engine :s5, :markup => :creole, :transformer => :s5, :mime => 'application/xhtml+xml; charset=utf-8'
+xslt_engine :s5_presentation, :markup => :creole, :transformer => :s5, :mime => 'application/xhtml+xml; charset=utf-8'
 xslt_engine :latex, :markup => :creole, :transformer => :xslt,
             :options => {:stylesheet => 'xhtml2latex.xsl'}, :mime => 'text/plain; charset=utf-8'
 

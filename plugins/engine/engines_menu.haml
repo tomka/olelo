@@ -2,7 +2,7 @@
   - engines = Wiki::Engine.find_all(@resource)
   - engines.select {|engine| engine.layout? }.each do |engine|
     %li{:class => @engine && engine.name == @engine.name ? 'selected': nil}
-      %a{:href => resource_path(@resource, :output => engine.name)}= engine.name
+      %a{:href => resource_path(@resource, :output => engine.name)}= Wiki::I18n.translate("engine_#{engine.name}", :fallback => engine.name.tr('_', ' '))
   - engines.select {|engine| !engine.layout? }.each do |engine|
     %li.download{:class => @engine && engine.name == @engine.name ? 'selected': nil}
-      %a{:href => resource_path(@resource, :output => engine.name)}= engine.name
+      %a{:href => resource_path(@resource, :output => engine.name)}= Wiki::I18n.translate("engine_#{engine.name}", :fallback => engine.name.tr('_', ' '))

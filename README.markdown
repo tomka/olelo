@@ -11,6 +11,7 @@ Features
 A lot of the features are implemented as plugins.
 
 - Edit, move or delete pages
+- Support for hierarchical wikis (directory structure)
 - Upload files
 - History (also as RSS/Atom changelog)
 - Plugin system
@@ -18,7 +19,6 @@ A lot of the features are implemented as plugins.
 - Section editing for creole markup
 - Embedded LaTeX/Graphviz graphics
 - Syntax highlighting (embedded code blocks)
-- Images can be uploaded
 - Image resizing, SVG to bitmap conversion
 - Auto-generated table of contents
 - Templates via include-tag
@@ -64,16 +64,21 @@ Then, run the program using the command:
 
 Point your web browser at <http://localhost:4567>.
 
-### Notes:
-
 Git-Wiki automatically creates a repository in the directory `./.wiki`.
-
-For production purposes, I recommend that you deploy the wiki
-with Mongrel. You can use the WIKI_CONFIG environment variable
-to specify multiple wiki configurations.
-
+For production purposes, I recommend that you deploy the wiki with Mongrel.
 I tested other webservers like unicorn, thin and webrick.
 Git-Wiki works with all of them thanks to rack.
+
+Configuration
+-------------
+
+You might want to deploy the wiki on a server and want to tweak some settings.
+The default wiki configuration is in the file config.yml. You can specify
+a different file via the environment variable WIKI_CONFIG.
+
+    export WIKI_CONFIG=/home/user/wiki_config.yml
+
+A documented example configuration is found at config.yml.sample.
 
 Dependencies
 ------------

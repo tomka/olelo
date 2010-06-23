@@ -2,7 +2,7 @@ author      'Daniel Mendler'
 description 'Tree engine'
 dependencies 'engine/engine'
 
-Engine.create(:tree, :priority => 1, :layout => true, :cacheable => true) do
+Engine.create(:tree, :priority => 2, :layout => true, :cacheable => true) do
   def accepts?(resource); resource.tree?; end
   def output(context)
     @curpage = context.params[:curpage].to_i

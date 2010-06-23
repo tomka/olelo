@@ -33,9 +33,10 @@ default_config = {
   :production      => true,
   :locale	   => 'en_US',
   :root_path       => 'Root',
-  :main_page       => 'Home',
+  :index_page      => 'Index',
   :sidebar_page    => 'Sidebar',
   :external_images => false,
+  :cache => ::File.join(path, '.wiki', 'cache'),
   :namespaces => {
     :discussion => 'Discussion:',
     :metadata   => 'Metadata:',
@@ -46,7 +47,6 @@ default_config = {
       :store  => ::File.join(path, '.wiki', 'users.yml'),
     },
   },
-  :cache => ::File.join(path, '.wiki', 'cache'),
   :mime => [
     'extension',
     'content',

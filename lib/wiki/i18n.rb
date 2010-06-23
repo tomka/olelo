@@ -21,7 +21,7 @@ module Wiki
         elsif @locale[key]
           @locale[key].gsub(/#\{(\w+)\}/) {|x| args.include?($1) ? args[$1].to_s : x }
         else
-          "##{key}"
+          args[:fallback] || "##{key}"
         end
       end
     end
