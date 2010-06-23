@@ -317,7 +317,7 @@ module Wiki
       halt BlockFile.open(file, 'rb')
     rescue Errno::ENOENT => ex
       @logger.error(ex) if @logger
-      raise Wiki::Routing::NotFound
+      raise Wiki::Routing::NotFound(file)
     end
   end
 

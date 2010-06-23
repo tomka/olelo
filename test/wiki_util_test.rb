@@ -58,5 +58,6 @@ describe 'Wiki::Util' do
 
   it 'should have #shell_filter' do
     Wiki::Util.shell_filter("sed 's/x/y/g'", 'axa').should.equal 'aya'
+    Wiki::Util.shell_filter('tr a b', 'a' * 6666666).should.equal 'b' * 6666666
   end
 end

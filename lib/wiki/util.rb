@@ -125,24 +125,20 @@ module Wiki
 
     def shell_filter(cmd, data)
       Open3.popen3(cmd) do |stdin, stdout, stderr|
+        output = ''
+        len = 0
         begin
-          output = ''
-          len = 0
           while len < data.length
-            begin
-              len += stdin.write_nonblock data[len..-1]
-            rescue Errno::EAGAIN
-            end
-            begin
-              output << stdout.read_nonblock(0xFFFF)
-            rescue Errno::EAGAIN
+            if found = IO.select([stdout], [stdin], nil, 0)
+              len += stdin.write_nonblock(data[len..-1]) if found[1].first
+              output << stdout.read_nonblock(1048576) if found[0].first
             end
           end
         rescue Errno::EPIPE
         end
         stdin.close
         begin
-	  output << stdout.read
+          output << stdout.read
         rescue Errno::EAGAIN
           retry
         end
