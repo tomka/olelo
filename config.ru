@@ -21,64 +21,17 @@ require 'rack/relative_redirect'
 require 'rack/static_cache'
 require 'wiki'
 
-config_file = if ENV['WIKI_CONFIG']
-  ENV['WIKI_CONFIG']
-else
-  ::File.join(path, 'config', 'config.yml')
-end
+Wiki::Config['app_path'] = path
+Wiki::Config['config_path'] = ::File.join(path, 'config')
+Wiki::Config['initializers_path'] = ::File.join(path, 'config', 'initializers')
+Wiki::Config['plugins_path'] = ::File.join(path, 'plugins')
+Wiki::Config['cache'] = ::File.join(path, '.wiki', 'cache')
+Wiki::Config['authentication.yamlfile.store'] = ::File.join(path, '.wiki', 'users.yml')
+Wiki::Config['repository.git.path'] = ::File.join(path, '.wiki', 'repository')
+Wiki::Config['log.file'] = ::File.join(path, '.wiki', 'log')
 
-default_config = {
-  :title           => 'Git-Wiki',
-  :app_path        => path,
-  :production      => true,
-  :locale	   => 'en_US',
-  :root_path       => 'Root',
-  :index_page      => 'Index',
-  :sidebar_page    => 'Sidebar',
-  :external_images => false,
-  :cache => ::File.join(path, '.wiki', 'cache'),
-  :namespaces => {
-    :discussion => 'Discussion:',
-    :metadata   => 'Metadata:',
-  },
-  :authentication => {
-    :service  => :yamlfile,
-    :yamlfile => {
-      :store  => ::File.join(path, '.wiki', 'users.yml'),
-    },
-  },
-  :mime => [
-    'extension',
-    'content',
-    'text/x-creole',
-  ],
-  :disabled_plugins => [
-    'authorization/private_wiki',
-    'tagging',
-    'editor/antispam',
-    'filter/benchmark',
-  ],
-  :rack => {
-    :blacklist    => [],
-    :deflater     => true,
-    :embed        => false,
-    :esi          => true,
-    :rewrite_base => nil,
-  },
-  :repository => {
-    :type  => :git,
-    :git => {
-      :path => ::File.join(path, '.wiki', 'repository'),
-    },
-  },
-  :log => {
-    :level => 'INFO',
-    :file  => ::File.join(path, '.wiki', 'log'),
-  },
-}
-
-Wiki::Config.update(default_config)
-Wiki::Config.load(config_file)
+Wiki::Config.load!(::File.join(path, 'config', 'config.yml.default'))
+Wiki::Config.load(ENV['WIKI_CONFIG'] || ::File.join(path, 'config', 'config.yml'))
 
 FileUtils.mkpath Wiki::Config.cache, :mode => 0755
 FileUtils.mkpath ::File.dirname(Wiki::Config.log.file), :mode => 0755

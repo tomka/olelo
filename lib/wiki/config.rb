@@ -25,11 +25,11 @@ module Wiki
       end
     end
 
-    def set(key, value)
+    def []=(key, value)
       key = key.to_s
       i = key.index('.')
       if i
-        child(key[0...i]).set(key[i+1..-1], value)
+        child(key[0...i])[key[i+1..-1]] = value
       elsif Hash === value
         child(key).update(value)
       else
@@ -40,7 +40,7 @@ module Wiki
 
     def update(hash)
       hash.each_pair do |key, value|
-        set(key, value)
+        self[key] = value
       end
     end
 
@@ -60,8 +60,12 @@ module Wiki
       hash.each(&block)
     end
 
+    def self.instance
+      @instance ||= Config.new
+    end
+
     def self.method_missing(key, *args)
-      (@instance ||= Config.new).send(key, *args)
+      instance.send(key, *args)
     end
 
     private
@@ -72,9 +76,6 @@ module Wiki
 
     def path(key)
       base ? "#{base}.#{key}" : key
-    end
-
-    def set_value(key, value)
     end
 
     def child(key)

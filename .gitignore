@@ -5,6 +5,5 @@ mongrel.sh
 thin.sh
 env.sh
 config.yml
-doc
+doc/api
 coverage
-banned.list

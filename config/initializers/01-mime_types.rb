@@ -1,5 +1,4 @@
-author      'Daniel Mendler'
-description 'Register some mime types'
+# Register some mime types
 
 MimeMagic.add('text/x-creole',
               :extensions => %w(creole text),

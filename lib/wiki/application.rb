@@ -32,19 +32,7 @@ module Wiki
       Templates.enable_caching if Config.production?
       Templates.paths << File.join(Config.app_path, 'views')
 
-      # Load locales for loaded plugins
-      # Add plugin path to template paths
-      Plugin.after :load do
-        I18n.load(file.sub(/\.rb$/, '_locale.yml'))
-        I18n.load(File.join(File.dirname(file), 'locale.yml'))
-        Templates.paths << File.dirname(file)
-      end
-
-      Plugin.logger = logger
-      Plugin.disabled = Config.disabled_plugins.to_a
-      Plugin.dir = File.join(Config.app_path, 'plugins')
-      Plugin.load('*')
-      Plugin.start
+      run_initializers
 
       logger.debug self.class.dump_routes
     end
@@ -294,6 +282,15 @@ module Wiki
     end
 
     private
+
+    def run_initializers
+      Dir[File.join(Config.initializers_path, '*.rb')].sort_by do |f|
+        File.basename(f)
+      end.each do |f|
+        logger.info "Running initializer #{f}"
+	instance_eval(File.read(f), f)
+      end
+    end
 
     def reserved_path?(path)
       path = path.to_s.urlpath

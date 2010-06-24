@@ -1,8 +1,12 @@
+# Filter engine configuration engines.rb
+# Filter engines consist of multiple filters
+
 def xslt_engine(name, opts = {})
   engine name do
     is_cacheable.has_priority(2).accepts("text/x-#{opts[:markup]}")
     mime opts[:mime]
     filter do
+      # Filters can be chained by . or newline
       remove_metadata.remove_comments.math
       tag { filter!(opts[:markup], opts[:options]).rubypants }
       toc.html_wrapper

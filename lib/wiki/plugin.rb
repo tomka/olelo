@@ -45,7 +45,7 @@ module Wiki
       # Load plugins by name and return a boolean for success
       def load(*list)
         files = list.map do |name|
-          Dir.glob(File.join(@dir, '**', "#{name.cleanpath}.rb"))
+          Dir[File.join(@dir, '**', "#{name.cleanpath}.rb")]
         end.flatten
         return false if files.empty?
         files.inject(true) do |result,file|

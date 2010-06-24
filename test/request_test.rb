@@ -13,17 +13,21 @@ end
 describe 'requests' do
   before do
     @test_path = File.expand_path(File.join(File.dirname(__FILE__), '.test'))
+    @app_path = File.expand_path(File.join(File.dirname(__FILE__), '..'))
 
     default_config = {
-      :title           => 'Git-Wiki',
-      :app_path        => File.expand_path(File.join(File.dirname(__FILE__), '..')),
-      :production      => true,
-      :locale	       => 'en_US',
-      :root_path       => 'Root',
-      :index_page      => 'Index',
-      :sidebar_page    => 'Sidebar',
-      :external_images => false,
-      :cache           => File.join(@test_path, 'cache'),
+      :title             => 'Git-Wiki',
+      :app_path          => @app_path,
+      :plugins_path      => File.join(@app_path, 'plugins'),
+      :config_path       => File.join(@app_path, 'config'),
+      :initializers_path => File.join(@app_path, 'config', 'initializers'),
+      :production        => true,
+      :locale	         => 'en_US',
+      :root_path         => 'Root',
+      :index_page        => 'Index',
+      :sidebar_page      => 'Sidebar',
+      :external_images   => false,
+      :cache             => File.join(@test_path, 'cache'),
       :namespaces => {
         :discussion => 'Discussion:',
         :metadata   => 'Metadata:',
@@ -48,7 +52,7 @@ describe 'requests' do
       :repository => {
         :type  => :git,
         :git => {
-          :path => File.expand_path(File.join(@test_path, 'repository')),
+          :path => File.join(@test_path, 'repository'),
         },
       }
     }
@@ -56,7 +60,7 @@ describe 'requests' do
     Wiki::Config.update(default_config)
     Wiki::Repository.instance = nil
 
-    logger = Logger.new(File.expand_path(File.join(File.dirname(__FILE__), '..', 'test.log')))
+    logger = Logger.new(File.join(@app_path, 'test.log'))
 
     @app = Rack::Builder.new do
       run Wiki::Application.new(nil, :logger => logger)

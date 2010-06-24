@@ -369,7 +369,7 @@ module Wiki
       name = File.dirname(Plugin.current.name)
       dir = File.dirname(Plugin.current.file)
       files.each do |file|
-        Dir.glob(File.join(dir, file)).each do |path|
+        Dir[File.join(dir, file)].each do |path|
           asset_paths[name/path[dir.length+1..-1]] = path if File.file?(path)
         end
       end

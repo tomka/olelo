@@ -146,5 +146,8 @@ module Wiki
       end
     end
 
+    def require_dir(dir)
+      Dir["#{dir}/*.rb"].sort_by {|file| File.basename(file) }.each { |file| require file }
+    end
   end
 end

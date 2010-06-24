@@ -1,5 +1,7 @@
-# config.yml.sample
-# Wiki configuration example with default settings
+# config.yml.default
+# Default wiki configuration
+# Copy this file to config.yml if you want to tweak any settings.
+# Do not delete this file!
 
 ##################################################
 # Main configuration
@@ -36,8 +38,8 @@ namespaces:
   discussion:    'Discussion:'
   metadata:      'Metadata:'
 
-# Caching directory
-cache:           '/home/user/wiki/cache'
+# Caching directory. Uncomment this!
+#cache:           '/home/user/wiki/cache'
 
 ##################################################
 # Authentication backend configuration
@@ -46,15 +48,21 @@ authentication:
   # Select a authentication service which is configured below.
   # Currently supported are: yamlfile, portal and stack.
   service:       yamlfile
+
   # Configure the yamlfile backend.
   # The yaml file backend stores the users in a simple yaml file.
-  yamlfile:
-    # Path to yaml file
-    store:       '/home/user/wiki/users.yml'
+  # Uncomment this!
+
+  #yamlfile:
+  #  store:       '/home/user/wiki/users.yml'
+
   # Configure the portal backend.
   # The portal backend uses a REST-API to access user data.
-  portal:
-    url:         'http://portal.test.com/'
+  # Uncomment this!
+
+  #portal:
+  #  url:         'http://portal.test.com/'
+
   # Stack backend which accesses multiple backends in the following order.
   stack:
     - yamlfile
@@ -104,8 +112,8 @@ rack:
 # Logging configuration
 
 log:
-  level:         INFO
-  file:          '/home/user/wiki/log'
+  level: INFO
+  #file: '/home/user/wiki/log'
 
 ##################################################
 # Antispam configuration.
@@ -113,8 +121,8 @@ log:
 
 antispam:
   recaptcha:
-    public:      public key
-    private:     private key
+    #public:      public key
+    #private:     private key
 
 ##################################################
 # Repository configuration
@@ -122,7 +130,8 @@ antispam:
 repository:
   # Specify type of repository
   type:          git
-  # Configuration git repository type
-  git:
-    # Path to bare (!) git repository
-    path:        '/home/user/wiki/repository'
+
+  # Configuration git repository type. Uncomment this!
+  # Path is to a bare (!) git repository.
+  #git:
+  #  path:        '/home/user/wiki/repository'

@@ -14,9 +14,9 @@ module TestHelper
   def create_repository
     String.root_path = 'root'
     Wiki::Repository.instance = nil
-    Wiki::Config.set('repository.type', 'git')
-    Wiki::Config.set('repository.git.path', File.expand_path(File.join(File.dirname(__FILE__), '.test')))
-    Wiki::Config.set(:namespaces, :discussion => 'Discussion:', :metadata   => 'Metadata:')
+    Wiki::Config['repository.type'] = 'git'
+    Wiki::Config['repository.git.path'] = File.expand_path(File.join(File.dirname(__FILE__), '.test'))
+    Wiki::Config[:namespaces] = {:discussion => 'Discussion:', :metadata   => 'Metadata:'}
     load_plugin('repository/git/git')
   end
 
