@@ -287,7 +287,7 @@ module Wiki
       Dir[File.join(Config.initializers_path, '*.rb')].sort_by do |f|
         File.basename(f)
       end.each do |f|
-        logger.info "Running initializer #{f}"
+        logger.debug "Running initializer #{f}"
 	instance_eval(File.read(f), f)
       end
     end

@@ -26,7 +26,7 @@ def markup_engine(name, opts = {})
     end
   end
 
-  xslt_engine :s5, :markup => name, :transformer => :s5, :options => opts[:options], :mime => 'application/xhtml+xml; charset=utf-8'
+  xslt_engine :s5_presentation, :markup => name, :transformer => :s5, :options => opts[:options], :mime => 'application/xhtml+xml; charset=utf-8'
   xslt_engine :latex, :markup => name, :transformer => :xslt,
               :options => {:stylesheet => 'xhtml2latex.xsl'}.merge(opts[:options] || {}), :mime => 'text/plain; charset=utf-8'
 end

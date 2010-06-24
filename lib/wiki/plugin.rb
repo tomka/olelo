@@ -64,7 +64,12 @@ module Wiki
               end
             rescue Exception => ex
               @failed << name
-              logger.error ex
+              if LoadError === ex
+                logger.error "Plugin #{name} could not be loaded due to: #{ex.message} (Missing gem?)"
+              else
+                logger.error "Plugin #{name} could not be loaded due to: #{ex.message}"
+                logger.error ex
+              end
               @plugins.delete(name)
               false
             end
@@ -106,11 +111,11 @@ module Wiki
       with_hooks :start do
         instance_eval(&@setup) if @setup
         @started = true
-        logger.debug("Plugin #{name} successfully started")
+        logger.debug "Plugin #{name} successfully started"
       end
     rescue Exception => ex
+      logger.error "Plugin #{name} failed to start due to: #{ex.message}"
       logger.error ex
-      logger.error("Plugin #{name} failed to start")
       false
     end
 
@@ -120,7 +125,7 @@ module Wiki
       @dependencies ||= []
       @dependencies += list
       list.each do |dep|
-        raise "Could not load dependency #{dep} for #{name}" if !Plugin.load(dep)
+        raise(LoadError, "Could not load dependency #{dep} for #{name}") if !Plugin.load(dep)
       end
       @dependencies
     end

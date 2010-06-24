@@ -10,6 +10,8 @@ class Wiki::Filter
   attr_reader :options
   attr_accessor :context, :sub, :post
 
+  class MandatoryFilterNotFound < NameError; end
+
   def initialize(options)
     @context = nil
     @sub = nil
@@ -44,14 +46,18 @@ class Wiki::Filter
       @filter = []
     end
 
+    # Add optional filter
     def filter(name, options = nil, &block)
       add(name, false, options, &block)
     end
 
+    # Add mandatory filter
     def filter!(name, options = nil, &block)
       add(name, true, options, &block)
     end
 
+    # Add filter with method name.
+    # Mandatory filters must end with !
     def method_missing(name, options = nil, &block)
       name = name.to_s
       name.ends_with?('!') ? filter!(name[0..-2], options, &block) : filter(name, options, &block)
@@ -73,7 +79,7 @@ class Wiki::Filter
         filter.sub = Filter::Builder.new(@name).build(&block) if block
       else
         if mandatory
-          raise "Engine '#{@name}' not created because mandatory filter '#{name}' is not available"
+          raise MandatoryFilterNotFound, "Engine '#{@name}' not created because mandatory filter '#{name}' is not available"
         else
           Plugin.current.logger.warn "Optional filter '#{name}' not available"
         end
@@ -132,6 +138,8 @@ class Wiki::FilterEngine < Engine
     def engine(name, &block)
       Engine.register(Builder.new(name).build(&block))
       Plugin.current.logger.debug "Filter engine '#{name}' successfully created"
+    rescue Filter::MandatoryFilterNotFound => ex
+      Plugin.current.logger.error ex.message
     rescue Exception => ex
       Plugin.current.logger.error ex
     end
