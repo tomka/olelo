@@ -72,12 +72,10 @@ Configuration
 -------------
 
 You might want to deploy the wiki on a server and want to tweak some settings.
-The default wiki configuration is in the file config/config.yml. You can specify
-a different file via the environment variable WIKI_CONFIG.
+Just copy the default configuration config/config.yml.default to config/config.yml.
+You can specify a different configuration file via the environment variable WIKI_CONFIG.
 
     export WIKI_CONFIG=/home/user/wiki_config.yml
-
-A documented example configuration is found at config/config.yml.sample.
 
 Dependencies
 ------------
