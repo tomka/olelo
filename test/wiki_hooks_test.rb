@@ -65,9 +65,10 @@ describe 'Wiki::Hooks' do
   end
 
   it 'should have hook priority' do
-    @hooks_test.hook(:ping, 0) { :hook1 }
+    @hooks_test.hook(:ping, 2) { :hook1 }
     @hooks_test.hook(:ping, 1) { :hook2 }
-    @hooks_test.new.invoke_hook(:ping).should.equal [:hook2, :hook1]
+    @hooks_test.hook(:ping, 3) { :hook3 }
+    @hooks_test.new.invoke_hook(:ping).should.equal [:hook2, :hook1, :hook3]
   end
 end
 

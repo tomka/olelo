@@ -141,7 +141,9 @@ class Wiki::Application
     end
   end
 
-  after :view_menu do
-    render :engines_menu, :layout => false
+  hook :menu do |menu|
+    menu.css('li > a.action-view').each do |link|
+      link.after render(:engines_menu, :layout => false)
+    end
   end
 end

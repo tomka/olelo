@@ -17,7 +17,7 @@ class Wiki::Application
     end
   end
 
-  before(:show, 1000) do
+  before(:show, 1) do
     metadata = @resource.metadata
     if metadata[:redirect]
       path = resource_path(@resource, :path => metadata[:redirect])

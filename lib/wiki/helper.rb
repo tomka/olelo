@@ -24,15 +24,6 @@ module Wiki
     def footnote(content = nil, &block); define_block(:footnote, content, &block); end
     def head(content = nil, &block);     define_block(:head, content, &block);     end
     def title(content = nil, &block);    define_block(:title, content, &block);    end
-
-    def menu(*menu)
-      define_block :menu, render(:menu, :layout => false, :locals => { :menu => menu })
-    end
-
-    def include_menu
-      menu if !blocks.include?(:menu)
-      include_block(:menu)
-    end
   end
 
   module FlashHelper
@@ -344,6 +335,15 @@ module Wiki
 
     def session
       env['rack.session'] ||= {}
+    end
+
+    def menu
+      doc = Nokogiri::XML::Document.new
+      menu = doc.create_element('menu')
+      doc << menu
+      menu.inner_html = render(:menu, :layout => false)
+      invoke_hook :menu, menu
+      menu.children.to_html
     end
   end
 

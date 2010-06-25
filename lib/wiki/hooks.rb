@@ -11,6 +11,7 @@ module Wiki
       end
     end
 
+    # Invoke before/after hooks
     def with_hooks(type, *args)
       result = Result.new
       result.push(*invoke_hook("before #{type}", *args))
@@ -19,6 +20,7 @@ module Wiki
       result.push(*invoke_hook("after #{type}", *args))
     end
 
+    # Invoke hooks
     def invoke_hook(type, *args)
       result = Result.new
       while type
@@ -34,15 +36,18 @@ module Wiki
         @hooks ||= {}
       end
 
-      def hook(type, priority = 0, &block)
-        (hooks[type] ||= []) << [-priority, block.to_method(self)]
+      # Register hook. Hook with lowest priority is executed first.
+      def hook(type, priority = 99, &block)
+        (hooks[type] ||= []) << [priority, block.to_method(self)]
       end
 
-      def before(type, priority = 0, &block)
+      # Register before hook
+      def before(type, priority = 99, &block)
         hook("before #{type}", priority, &block)
       end
 
-      def after(type, priority = 0, &block)
+      # Register after hook
+      def after(type, priority = 99, &block)
         hook("after #{type}", priority, &block)
       end
     end

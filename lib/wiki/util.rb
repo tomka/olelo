@@ -108,7 +108,9 @@ module Wiki
 
     # XML builder (Nokogiri, Markaby, Erector style)
     def builder(&block)
-      root = Nokogiri::XML::Document.new.create_element('root')
+      doc = Nokogiri::XML::Document.new
+      root = doc.create_element('root')
+      doc << root
       Nokogiri::XML::Builder.with(root, &block)
       root.children.to_html
     end
@@ -144,10 +146,6 @@ module Wiki
         end
         output
       end
-    end
-
-    def require_dir(dir)
-      Dir["#{dir}/*.rb"].sort_by {|file| File.basename(file) }.each { |file| require file }
     end
   end
 end

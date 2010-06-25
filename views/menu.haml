@@ -7,7 +7,7 @@
         = @resource.tree_version.short
 %ul.wiki
   - if @resource
-    - if menu.include?(:version)
+    - if @menu_versions
       - if @resource.previous_version
         %li
           %a.action-older{:href=>resource_path(@resource, :version => @resource.previous_version), :accesskey=>'o'}= :older.t
@@ -19,8 +19,7 @@
           %a.action-newer{:href=>resource_path(@resource, :version => @resource.next_version), :accesskey=>'n'}= :newer.t
     - if !@resource.new?
       %li
-        = render_block(:view_menu) do
-          %a.action-view{:href=> @resource.path.urlpath, :accesskey=>'v'}= :view.t
+        %a.action-view{:href=> @resource.path.urlpath, :accesskey=>'v'}= :view.t
     %li
       - if @resource.namespace == :discussion
         %a.action-page{:href=> @resource.namespace_path.urlpath, :accesskey=>'p' }= :page.t

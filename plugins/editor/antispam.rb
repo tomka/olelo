@@ -104,7 +104,7 @@ class Wiki::Application
     end
   end
 
-  before(:save, -2) do |page|
+  before(:save, 2) do |page|
     if (action?(:new) || action?(:edit)) && !captcha_valid?
       level = SpamEvaluator.new(user, params, @resource).evaluate
       flash.info :spam_level.t(:level => level) if !Config.production?

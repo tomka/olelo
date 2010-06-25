@@ -19,7 +19,7 @@
           %div
             %label.hidden{:for=>'pattern'}= :search.t
             %input{:type=>'text',:id=>'pattern',:name=>'pattern', :value=> params[:pattern] || :search.t, :class=> !params[:pattern] && 'placeholder'}
-    #menu= include_menu
+    #menu= menu
     #container
       #sidebar
         %esi:include{:src=>'/_/sidebar', :onerror => 'continue'}/
