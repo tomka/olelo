@@ -15,6 +15,10 @@ class Wiki::Application
     WHITE_LIST.any? {|pattern| request.path_info =~ /^#{pattern}$/ }
   end
 
+  hook :menu, 999 do |menu|
+    menu.css('ul.wiki').remove
+  end
+
   before :routing do
     if user.anonymous?
       halt if request.path_info == '/_/sidebar'
