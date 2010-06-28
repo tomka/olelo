@@ -25,6 +25,17 @@
     %td External images enabled
     %td&= Wiki::Config.external_images?
   %tr
+    %td Root path
+    %td
+      %a{:href=>Wiki::Config.root_path.urlpath}&= Wiki::Config.root_path
+  %tr
+    %td Sidebar page
+    %td
+      %a{:href=>Wiki::Config.sidebar_page.urlpath}&= Wiki::Config.sidebar_page
+  %tr
+    %td Directory index pages
+    %td&= Wiki::Config.index_page
+  %tr
     %td Namespace prefix
     %td&= Wiki::Config.namespaces.to_hash.map {|name, prefix| "#{name}: #{prefix}" }.join(', ')
   %tr
