@@ -1,5 +1,6 @@
 author       'Daniel Mendler'
 description  'Gallery engine'
+dependencies 'engine/engine'
 
 class Wiki::Application
   assets 'gallery.css', 'script.js'
