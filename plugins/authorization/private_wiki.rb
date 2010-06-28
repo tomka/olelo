@@ -16,7 +16,7 @@ class Wiki::Application
   end
 
   hook :menu, 999 do |menu|
-    menu.css('ul.wiki').remove
+    menu.css('ul.wiki').remove if user.anonymous?
   end
 
   before :routing do
