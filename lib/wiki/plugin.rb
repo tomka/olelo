@@ -16,7 +16,7 @@ module Wiki
 
       # Current loading plugin
       def current
-        file = caller.each do |line|
+        caller.each do |line|
           return @plugins[$1] if line =~ %r{^#{@dir}/(.+?)\.rb}
         end
         raise 'No plugin context'
