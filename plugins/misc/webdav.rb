@@ -7,7 +7,7 @@ class Wiki::Application
     begin
       page = Page.find!(params[:path])
       with_hooks :save, page do
-        Resource.transaction(:file_uploaded.t(:path => page.path), user) do
+        Resource.transaction(:page_uploaded.t(:path => page.path), user) do
 	  page.write(request.body)
 	end
       end
@@ -27,7 +27,7 @@ class Wiki::Application
       raise :reserved_path.t if reserved_path?(params[:path])
       page = Page.new(params[:path])
       with_hooks :save, page do
-        Resource.transaction(:file_uploaded.t(:path => page.path), user) do
+        Resource.transaction(:page_uploaded.t(:path => page.path), user) do
 	  page.write(request.body)
 	end
       end

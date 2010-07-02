@@ -155,7 +155,7 @@ module Wiki
 
     post '/:path/move' do
       on_error :move
-      Resource.transaction(:resource_moved_to.t(:path => params[:path].cleanpath, :destination => params[:destination].cleanpath), user) do
+      Resource.transaction(:resource_moved.t(:path => params[:path].cleanpath, :destination => params[:destination].cleanpath), user) do
         @resource = Resource.find!(params[:path])
         with_hooks(:move, @resource, params[:destination]) do
           @resource.move(params[:destination])
@@ -231,13 +231,13 @@ module Wiki
 
       if action?(:upload) && params[:file]
         with_hooks :save, @resource do
-          Resource.transaction(:file_uploaded.t(:path => params[:path].cleanpath), user) do
+          Resource.transaction(:page_uploaded.t(:path => params[:path].cleanpath), user) do
             @resource.write(params[:file][:tempfile])
           end
         end
       elsif action?(:edit) && params[:content]
         with_hooks :save, @resource do
-          Resource.transaction(params[:comment], user) do
+          Resource.transaction(:page_edited.t(:path => @resource.path, :comment => params[:comment]), user) do
             content = if params[:pos]
                         pos = [[0, params[:pos].to_i].max, @resource.content.size].min
                         len = [0, params[:len].to_i].max
@@ -264,13 +264,13 @@ module Wiki
 
       if action?(:upload) && params[:file]
         with_hooks :save, @resource do
-          Resource.transaction(:file_uploaded.t(:path => @resource.path), user) do
+          Resource.transaction(:page_uploaded.t(:path => @resource.path), user) do
             @resource.write(params[:file][:tempfile])
           end
         end
       elsif action?(:new)
         with_hooks :save, @resource do
-          Resource.transaction(params[:comment], user) do
+          Resource.transaction(:page_edited.t(:path => @resource.path, :comment => params[:comment]), user) do
             @resource.write(params[:content])
           end
         end

@@ -12,9 +12,9 @@
     - @resource.history.each do |version|
       %tr{:id =>"version-#{version}"}
         %td
-          %a{:href=>resource_path(@resource, :version => version)}&= version.comment.truncate(30)
+          %a{:href=>resource_path(@resource, :version => version)}&= version.comment.truncate(50)
           (
           %a{:href=> ('changes'/version).urlpath }<>= :changes.t
           )
-        %td&= version.author.name
+        %td&= version.author.name.truncate(30)
         %td= date version.date
