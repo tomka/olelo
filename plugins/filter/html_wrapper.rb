@@ -8,7 +8,6 @@ Filter.create :html_wrapper do |content|
               <html xmlns="http://www.w3.org/1999/xhtml">
                 <head>
                   <title>#{context.resource.title}</title>
-                  #{context.app.include_block :style}
                 </head>
                 <body><div>#{content}</div></body>
               </html>}.unindent

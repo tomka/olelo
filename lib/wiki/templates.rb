@@ -15,19 +15,14 @@ module Wiki
       end
     end
 
-    def render(name, opts = {})
-      output = render_haml(name, opts)
-      output = render_haml(:layout, opts) { output } if opts[:layout] != false
-      output
+    def render(name, opts = {}, &block)
+      locals = opts.delete(:locals) || {}
+      haml_opts = HAML_OPTIONS.merge(opts).merge(:filename => "#{name}.haml")
+      engine = load_template(:haml, name, haml_opts) { |content, opt| Haml::Engine.new(content, opt) }
+      engine.render(self, locals, &block)
     end
 
     private
-
-    def render_haml(name, opts = {}, &block)
-      haml_opts = HAML_OPTIONS.merge(opts[:options] || {}).merge(:filename => "#{name}.haml")
-      engine = load_template(:haml, name, haml_opts) { |content, opt| Haml::Engine.new(content, opt) }
-      engine.render(self, opts[:locals] || {}, &block)
-    end
 
     def load_template(type, name, opts)
       id = [type,name,opts].to_s

@@ -2,9 +2,9 @@ author       'Daniel Mendler'
 description  'Support for page redirects'
 
 class Wiki::Application
-  before :content do
+  hook :layout do |name, doc|
     if params[:redirect]
-      builder do
+      html = builder do
         p_ {
           text 'Redirected from '
           [params[:redirect]].flatten.each do |link|
@@ -14,6 +14,7 @@ class Wiki::Application
           text '◉'
         }
       end
+      doc.css('#content').children.before(html)
     end
   end
 

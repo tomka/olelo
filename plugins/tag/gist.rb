@@ -5,8 +5,8 @@ require      'open-uri'
 require      'json'
 
 class Wiki::Application
-  after :style do
-    '<link rel="stylesheet" href="http://gist.github.com/stylesheets/gist/embed.css" type="text/css"/>' if @gist_used
+  hook :layout do |name, doc|
+    doc.css('head').children.after '<link rel="stylesheet" href="http://gist.github.com/stylesheets/gist/embed.css" type="text/css"/>' if @gist_used
   end
 
   def gist(id)

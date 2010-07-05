@@ -5,15 +5,9 @@ module Wiki
       base.extend(ClassMethods)
     end
 
-    class Result < Array
-      def to_s
-        map(&:to_s).join
-      end
-    end
-
     # Invoke before/after hooks
     def with_hooks(type, *args)
-      result = Result.new
+      result = []
       result.push(*invoke_hook("before #{type}", *args))
       result << yield
     ensure
@@ -22,7 +16,7 @@ module Wiki
 
     # Invoke hooks
     def invoke_hook(type, *args)
-      result = Result.new
+      result = []
       while type
         result.push(*self.class.hooks[type].to_a.sort_by(&:first).map {|priority, method| method.bind(self).call(*args) })
         break if type == Object

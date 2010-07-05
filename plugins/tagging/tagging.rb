@@ -55,8 +55,8 @@ class Wiki::Application
     @tag_store ||= TagStore.find(TAG_STORE) || TagStore.new(TAG_STORE)
   end
 
-  after :footer do
-    render(:tagbox, :layout => false) if @resource && !@resource.new?
+  hook :layout do |name, doc|
+    doc.css('#footer').children.before(render(:tagbox, :layout => false)) if @resource && !@resource.new?
   end
 
   get '/tags/:tag' do

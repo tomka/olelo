@@ -3,18 +3,19 @@ description 'Enhanced edit form with preview and diff'
 dependencies 'engine/engine'
 
 class Wiki::Application
-  before :edit_form_buttons do
-    %{<input type="checkbox" name="minor" id="minor" value="1"#{params[:minor] ? ' checked="checked"' : ''}/>
-      <label for="minor">#{:minor_changes.t}</label><br/>
-      <button type="submit" name="preview" accesskey="p">#{:preview.t}</button>
-      <button type="submit" name="changes" accesskey="c">#{:changes.t}</button>}.unindent
-  end
+  hook :layout do |name, doc|
+    if name == :edit || name == :new
+      if @preview
+        doc.css('#page .tabs').before %{<div class="preview">#{@preview}</div>}
+      elsif @patch
+        doc.css('#page .tabs').before format_patch(@patch)
+      end
 
-  before :edit_form do
-    if @preview
-      %{<div class="preview">#{@preview}</div>}
-    elsif @patch
-      format_patch(@patch)
+      doc.css('#tab-edit button[type=submit]').before(
+        %{<input type="checkbox" name="minor" id="minor" value="1"#{params[:minor] ? ' checked="checked"' : ''}/>
+          <label for="minor">#{:minor_changes.t}</label><br/>
+          <button type="submit" name="preview" accesskey="p">#{:preview.t}</button>
+          <button type="submit" name="changes" accesskey="c">#{:changes.t}</button>}.unindent)
     end
   end
 

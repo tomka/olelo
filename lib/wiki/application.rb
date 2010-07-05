@@ -2,10 +2,10 @@
 module Wiki
   # Main class of the application
   class Application
-    include Routing
-    include ApplicationHelper
-    include Templates
     include Util
+    include Routing
+    include Templates
+    include ApplicationHelper
     extend Assets
 
     patterns :path => Resource::PATH_PATTERN
@@ -237,6 +237,7 @@ module Wiki
         end
       elsif action?(:edit) && params[:content]
         with_hooks :save, @resource do
+          raise :empty_comment.t if params[:comment].blank?
           Resource.transaction(:page_edited.t(:path => @resource.path, :comment => params[:comment]), user) do
             content = if params[:pos]
                         pos = [[0, params[:pos].to_i].max, @resource.content.size].min
@@ -270,6 +271,7 @@ module Wiki
         end
       elsif action?(:new)
         with_hooks :save, @resource do
+          raise :empty_comment.t if params[:comment].blank?
           Resource.transaction(:page_edited.t(:path => @resource.path, :comment => params[:comment]), user) do
             @resource.write(params[:content])
           end

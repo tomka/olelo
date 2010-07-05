@@ -16,9 +16,12 @@ describe 'Wiki::Templates' do
   end
 
   it 'should have #render' do
-    render(:test, :layout => false, :locals => {:text => 'Hello, World!'}).should.equal "<h1>Hello, World!</h1>\n"
+    render(:test, :locals => {:text => 'Hello, World!'}).should.equal "<h1>Hello, World!</h1>\n"
     Wiki::Templates.cache.size.should.equal 1
-    render(:test, :locals => {:text => 'Blub'}).should.equal "<div id=\"layout\"><h1>Blub</h1>\n</div>\n"
-    Wiki::Templates.cache.size.should.equal 2
+  end
+
+  it 'should support haml options' do
+    render(:test, :locals => {:text => '< bad characters >'}).should.equal "<h1>< bad characters ></h1>\n"
+    render(:test, :escape_html => true, :locals => {:text => '< bad characters >'}).should.equal "<h1>&lt; bad characters &gt;</h1>\n"
   end
 end

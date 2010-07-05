@@ -73,9 +73,10 @@ module Wiki
     def error!(ex)
       @response.status = Rack::Utils.status_code(ex.try(:status) || :internal_server_error)
       @response.body   = [ex.message]
-      safe_output do
-        invoke_hook(ex.class, ex).to_s
-      end
+      invoke_hook(ex.class, ex).join
+    rescue => ex
+      @logger.error(ex) if @logger
+      %{<span class="error">#{escape_html ex.message}</span>}
     end
 
     def perform!

@@ -9,20 +9,7 @@ module Wiki
       blocks[name] = block ? capture_haml(&block) : content
     end
 
-    def include_block(name)
-      safe_output do
-        with_hooks(name) { blocks[name] }.to_s
-      end
-    end
-
-    def render_block(name, &block)
-      safe_output do
-        with_hooks(name) { capture_haml(&block) }.to_s
-      end
-    end
-
     def footnote(content = nil, &block); define_block(:footnote, content, &block); end
-    def head(content = nil, &block);     define_block(:head, content, &block);     end
     def title(content = nil, &block);    define_block(:title, content, &block);    end
   end
 
@@ -57,13 +44,6 @@ module Wiki
 
   module PageHelper
     include Util
-
-    def safe_output
-      yield
-    rescue => ex
-      @logger.error(ex) if @logger
-      builder { span.error ex.message }
-    end
 
     def pagination(resource, pages, curpage, opts)
       if pages > 0
@@ -228,7 +208,7 @@ module Wiki
     end
   end
 
-  module CacheHelper
+  module HttpHelper
     include Util
 
     # Cache control for resource
@@ -284,9 +264,7 @@ module Wiki
         end
       end.compact.join(', ')
     end
-  end
 
-  module ResponseHelper
     def content_type(type, params={})
       type = type.to_s
       if params.any?
@@ -316,8 +294,7 @@ module Wiki
     include BlockHelper
     include FlashHelper
     include PageHelper
-    include CacheHelper
-    include ResponseHelper
+    include HttpHelper
 
     attr_setter :on_error, :redirect_to_new
 
@@ -337,13 +314,15 @@ module Wiki
       env['rack.session'] ||= {}
     end
 
-    def menu
-      doc = Nokogiri::XML::Document.new
-      menu = doc.create_element('menu')
-      doc << menu
-      menu.inner_html = render(:menu, :layout => false)
-      invoke_hook :menu, menu
-      menu.children.to_html
+    def render(name, opts = {})
+      layout = opts.delete(:layout)
+      output = super(name, opts)
+      if layout != false
+        doc = Nokogiri::XML(super(:layout, opts) { output })
+        invoke_hook :layout, name, doc
+        output = doc.to_xhtml
+      end
+      output
     end
   end
 

@@ -108,12 +108,6 @@ class Wiki::Engine
   def cached_output(context)
     output(context)
   end
-
-  # Add :layout=>false to template rendering (included from Template module)
-  def render(name, opts = {})
-    opts[:layout] ||= false
-    super(name, opts)
-  end
 end
 
 # Plug-in the engine subsystem
@@ -141,8 +135,8 @@ class Wiki::Application
     end
   end
 
-  hook :menu do |menu|
-    menu.css('li > a.action-view').each do |link|
+  hook :layout do |name, doc|
+    doc.css('#menu li > a.action-view').each do |link|
       link.after render(:engines_menu, :layout => false)
     end
   end

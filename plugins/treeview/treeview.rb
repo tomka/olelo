@@ -3,12 +3,9 @@ description  'Tree Viewer'
 dependencies 'misc/sidebar'
 
 class Wiki::Application
-  after :style do
-    '<link rel="stylesheet" href="/_/treeview/treeview.css" type="text/css"/>'
-  end
-
-  after :script do
-    '<script src="/_/treeview/script.js" type="text/javascript"></script>'
+  hook :layout do |name, doc|
+    doc.css('head').children.after '<link rel="stylesheet" href="/_/treeview/treeview.css" type="text/css"/>'
+    doc.css('body').children.after '<script src="/_/treeview/script.js" type="text/javascript"/>'
   end
 
   assets 'script.js',

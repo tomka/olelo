@@ -32,11 +32,11 @@ end
 
 # Export variables to javascript for client extensions
 class Wiki::Application
-  before :head do
+  hook :layout do |name, doc|
     vars = @resource ? params.merge(Plugin.current.variables(@resource, @engine)) : params
-    %{<script type="text/javascript">
-        Wiki = #{escape_json(vars.to_json)};
-      </script>}.unindent
+    doc.css('head').children.before %{<script type="text/javascript">
+                                      Wiki = #{escape_json(vars.to_json)};
+                                      </script>}.unindent
   end
 
   get '/_/user' do

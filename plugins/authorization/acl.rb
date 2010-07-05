@@ -24,7 +24,7 @@ class Wiki::Application
     end
   end
 
-  before(:save, -1) do |resource|
+  before(:save, 999) do |resource|
     resource.access?(:write, user) || raise(AccessDenied)
   end
 end

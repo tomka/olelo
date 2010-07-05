@@ -6,6 +6,15 @@ cpu_count = `cat /proc/cpuinfo | grep processor | wc -l`.to_i rescue 1
 @semaphore = Semaphore.new(cpu_count)
 def semaphore; @semaphore; end
 
+@magick_prefix = if (`gm -version` rescue '').include?('GraphicsMagick')
+                   'gm '
+                 elsif (`convert -version` rescue '').include?('ImageMagick')
+                   ''
+                 else
+                   raise 'GraphicsMagick or ImageMagick not found'
+                 end
+def magick_prefix; @magick_prefix.dup; end
+
 Engine.create(:image, :priority => 5, :layout => false, :cacheable => true) do
   def svg?(page); page.mime.to_s =~ /svg/; end
   def ps?(page); page.mime.to_s =~ /postscript/; end
@@ -42,13 +51,13 @@ Engine.create(:image, :priority => 5, :layout => false, :cacheable => true) do
       else
         cmd << "gs -sDEVICE=jpeg -sOutputFile=- -dFirstPage=#{curpage} -dLastPage=#{curpage} -r200 -dBATCH -dNOPAUSE -q - | "
       end
-      cmd << 'convert -depth 8 -quality 50 '
+      cmd << Plugin.current.magick_prefix << 'convert -depth 8 -quality 50 '
       cmd << ' -trim' if trim
       cmd << " -resize '#{geometry}'" if geometry =~ /^(\d+)?x?(\d+)?[%!<>]*$/
       cmd << ' - JPEG:-'
       convert(page, cmd)
     elsif svg?(page) || geometry || trim
-      cmd = 'convert'
+      cmd = Plugin.current.magick_prefix << 'convert'
       cmd << ' -trim' if trim
       cmd << " -resize '#{geometry}'" if geometry =~ /^(\d+)?x?(\d+)?[%!<>]*$/
       cmd << ' - '

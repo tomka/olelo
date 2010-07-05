@@ -2,9 +2,9 @@ author      'Daniel Mendler'
 description 'Index page engine'
 dependencies 'engine/engine'
 
-Application.hook :menu do |menu|
+Application.hook :layout do |name, doc|
   if @resource && @resource.tree?
-    menu.css('.action-edit').each do |a|
+    doc.css('#menu .action-edit').each do |a|
       a[:href] = action_path(@resource.path/Config.index_page, :edit)
       a[:accesskey] = 'e'
     end

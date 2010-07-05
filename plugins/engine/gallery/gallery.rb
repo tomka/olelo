@@ -5,18 +5,12 @@ dependencies 'engine/engine'
 class Wiki::Application
   assets 'gallery.css', 'script.js'
 
-  after :style do
+  hook :layout do |name, doc|
     if @engine && @engine.name == 'gallery'
-      '<link rel="stylesheet" href="/_/engine/gallery/gallery.css" type="text/css"/>'
+      doc.css('head').children.after '<link rel="stylesheet" href="/_/engine/gallery/gallery.css" type="text/css"/>'
+      doc.css('body').children.after '<script src="/_/engine/gallery/script.js" type="text/javascript"/>'
     end
   end
-
-  after :script do
-    if @engine && @engine.name == 'gallery'
-      '<script src="/_/engine/gallery/script.js" type="text/javascript"></script>'
-    end
-  end
-
 end
 
 Engine.create(:gallery, :priority => 3, :layout => true, :cacheable => true) do

@@ -18,14 +18,14 @@ class Wiki::Application
   end
 
   def set_login_token(token, value)
-    login_tokens.transaction(false) do |store|
+    login_tokens.transaction do |store|
       store[token] = [value, Time.now]
       clean_login_tokens(store)
     end
   end
 
   def delete_login_token(token)
-    login_tokens.transaction(false) do |store|
+    login_tokens.transaction do |store|
       store.delete(token)
       clean_login_tokens(store)
     end
@@ -47,9 +47,17 @@ class Wiki::Application
     end
   end
 
+  hook :layout do |name, doc|
+    if name == :login
+      doc.css('#tab-login button[type=submit]').before(
+        %{<input type="checkbox" name="persistent" id="persistent" value="1"/>
+          <label for="persistent">Persistent login</label><br/>})
+    end
+  end
+
   after :action do |method, path|
     if path == '/login'
-      if !user.anonymous?
+      if !user.anonymous? && params[:persistent]
         token = SecureRandom.hex
         response.set_cookie(TOKEN_NAME, :value => token, :expires => Time.now + TOKEN_LIFETIME)
         set_login_token(token, user.name)

@@ -3,12 +3,16 @@ description 'RSS Changelogs'
 require 'rss/maker'
 
 class Wiki::Application
-  after :head do
+  hook :layout do |name, doc|
     if @resource && !@resource.new?
-      %{<link rel="alternate" href="/changelog.atom" type="application/atom+xml" title="Sitewide Atom Changelog"/>
-        <link rel="alternate" href="#{(@resource.path/'changelog.atom').urlpath}" type="application/atom+xml" title="Atom Changelog"/>
-        <link rel="alternate" href="/changelog.rss" type="application/rss+xml" title="Sitewide RSS Changelog"/>
-        <link rel="alternate" href="#{(@resource.path/'changelog.rss').urlpath}" type="application/rss+xml" title="RSS Changelog"/>}.unindent
+      doc.css('head').children.after(
+        %{<link rel="alternate" href="/changelog.atom" type="application/atom+xml" title="Sitewide Atom Changelog"/>
+          <link rel="alternate" href="/changelog.rss" type="application/rss+xml" title="Sitewide RSS Changelog"/>}.unindent)
+      doc.css('head').children.after(
+        %{<link rel="alternate" href="#{escape_html (@resource.path/'changelog.atom').urlpath}" type="application/atom+xml"
+                title="#{escape_html @resource.path} Atom Changelog"/>
+          <link rel="alternate" href="#{escape_html (@resource.path/'changelog.rss').urlpath}" type="application/rss+xml"
+                title="#{escape_html @resource.path} RSS Changelog"/>}.unindent) if !@resource.path.blank?
     end
   end
 

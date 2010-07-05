@@ -36,7 +36,7 @@ describe 'Wiki::Hooks' do
       :hook2
     end
     result = @hooks_test.new.invoke_hook(:ping, 1, 2)
-    result.should.be.instance_of Wiki::Hooks::Result
+    result.should.be.instance_of Array
     result.should.equal [:hook1, :hook2]
   end
 
@@ -60,7 +60,7 @@ describe 'Wiki::Hooks' do
     result = @hooks_test.new.with_hooks(:action, 1, 2) do
       :action
     end
-    result.should.be.instance_of Wiki::Hooks::Result
+    result.should.be.instance_of Array
     result.should.equal [:action_before1, :action_before2, :action, :action_after]
   end
 
@@ -69,17 +69,5 @@ describe 'Wiki::Hooks' do
     @hooks_test.hook(:ping, 1) { :hook2 }
     @hooks_test.hook(:ping, 3) { :hook3 }
     @hooks_test.new.invoke_hook(:ping).should.equal [:hook2, :hook1, :hook3]
-  end
-end
-
-describe 'Wiki::Hooks::Result' do
-  it 'should be an array' do
-    Wiki::Hooks::Result.new.should.equal []
-  end
-
-  it 'should have #to_s' do
-    result = Wiki::Hooks::Result.new
-    result << :a << :b
-    result.to_s.should.equal "ab"
   end
 end

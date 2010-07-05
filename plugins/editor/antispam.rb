@@ -85,13 +85,14 @@ class SpamEvaluator
 end
 
 class Wiki::Application
-  before :edit_form_buttons do
-    %{<br/><label for="recaptcha">#{:captcha.t}</label><br/><div id="recaptcha"></div><br/>} if @show_captcha
-  end
+  hook(:layout, 1000) do |name, doc|
+    if name == :edit || name == :new
+      doc.css('#tab-edit button[type=submit]').before(
+        %{<br/><label for="recaptcha">#{:captcha.t}</label><br/><div id="recaptcha"></div><br/>}) if @show_captcha
+    end
 
-  after :script do
-    if @show_captcha
-      %{<script type="text/javascript"  src="https://api-secure.recaptcha.net/js/recaptcha_ajax.js"></script>
+    doc.css('body').children.after(
+      %{<script type="text/javascript"  src="https://api-secure.recaptcha.net/js/recaptcha_ajax.js"/>
         <script type="text/javascript">
           $(function() {
             Recaptcha.create('#{RECAPTCHA_PUBLIC}',
@@ -100,11 +101,10 @@ class Wiki::Application
               callback: Recaptcha.focus_response_field
             });
           });
-        </script>}.unindent
-    end
+        </script>}.unindent) if @show_captcha
   end
 
-  before(:save, 2) do |page|
+  before(:save, 1000) do |page|
     if (action?(:new) || action?(:edit)) && !captcha_valid?
       level = SpamEvaluator.new(user, params, @resource).evaluate
       flash.info :spam_level.t(:level => level) if !Config.production?
