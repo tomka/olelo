@@ -7,8 +7,8 @@ class WikiCreoleParser < Creole
   include PageHelper
   include Util
 
-  def initialize(page)
-    super()
+  def initialize(content, page)
+    super(content, :extensions => true)
     @page = page
   end
 
@@ -49,5 +49,5 @@ class WikiCreoleParser < Creole
 end
 
 Filter.create :creole do |content|
-  WikiCreoleParser.new(context.page).parse(content)
+  WikiCreoleParser.new(content, context.page).to_html
 end
