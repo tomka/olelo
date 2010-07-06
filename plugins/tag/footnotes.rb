@@ -30,7 +30,7 @@ Tag.define :references do |context, attrs, content|
           refs.each do |ref|
             a.backref '↑', :href => "#ref#{ref}"
           end
-          text note
+          parent.children.after(note)
         }
       end
     }
