@@ -320,7 +320,7 @@ module Wiki
       if layout != false
         doc = Nokogiri::XML(super(:layout, opts) { output })
         invoke_hook :layout, name, doc
-        output = doc.to_xhtml
+        output = doc.to_xhtml(:encoding => 'UTF-8')
       end
       output
     end
