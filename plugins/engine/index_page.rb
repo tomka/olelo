@@ -5,8 +5,8 @@ dependencies 'engine/engine'
 Application.hook :layout do |name, doc|
   if @resource && @resource.tree?
     doc.css('#menu .action-edit').each do |a|
-      a[:href] = action_path(@resource.path/Config.index_page, :edit)
-      a[:accesskey] = 'e'
+      a['href'] = action_path(@resource.path/Config.index_page, :edit)
+      a['accesskey'] = 'e'
     end
   end
 end
