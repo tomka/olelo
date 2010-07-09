@@ -13,16 +13,16 @@ module Wiki
 
     # Start or restart timer
     def start
-      raise 'Timer has already been started' if @start
       @start = Time.now if !@start
       self
     end
 
     # Stop timer
     def stop
-      raise 'Timer has already been stopped' if !@start
-      @elapsed += Time.now - @start
-      @start = nil
+      if @start
+        @elapsed += Time.now - @start
+        @start = nil
+      end
       self
     end
 
