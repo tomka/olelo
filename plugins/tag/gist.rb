@@ -6,7 +6,7 @@ require      'json'
 
 class Wiki::Application
   hook :layout do |name, doc|
-    doc.css('head').children.after '<link rel="stylesheet" href="http://gist.github.com/stylesheets/gist/embed.css" type="text/css"/>' if @gist_used
+    doc.css('head').first << '<link rel="stylesheet" href="http://gist.github.com/stylesheets/gist/embed.css" type="text/css"/>' if @gist_used
   end
 
   def gist(id)

@@ -91,7 +91,7 @@ class Wiki::Application
         %{<br/><label for="recaptcha">#{:captcha.t}</label><br/><div id="recaptcha"></div><br/>}) if @show_captcha
     end
 
-    doc.css('body').children.after(
+    doc.css('body').first <<\
       %{<script type="text/javascript"  src="https://api-secure.recaptcha.net/js/recaptcha_ajax.js"/>
         <script type="text/javascript">
           $(function() {
@@ -101,7 +101,7 @@ class Wiki::Application
               callback: Recaptcha.focus_response_field
             });
           });
-        </script>}.unindent) if @show_captcha
+        </script>}.unindent if @show_captcha
   end
 
   before(:save, 1000) do |page|

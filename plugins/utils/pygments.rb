@@ -46,7 +46,7 @@ class Wiki::Application
   assets 'pygments.css'
 
   hook :layout do |name, doc|
-    doc.css('head').children.after '<link rel="stylesheet" href="/_/utils/pygments.css" type="text/css"/>' if @pygmentize_used
+    doc.css('head').first << '<link rel="stylesheet" href="/_/utils/pygments.css" type="text/css"/>' if @pygmentize_used
   end
 
   def pygmentize(code, format)

@@ -1,11 +1,12 @@
 author       'Daniel Mendler'
 description  'Tree Viewer'
 dependencies 'misc/sidebar'
+require      'json'
 
 class Wiki::Application
   hook :layout do |name, doc|
-    doc.css('head').children.after '<link rel="stylesheet" href="/_/treeview/treeview.css" type="text/css"/>'
-    doc.css('body').children.after '<script src="/_/treeview/script.js" type="text/javascript"/>'
+    doc.css('head').first << '<link rel="stylesheet" href="/_/treeview/treeview.css" type="text/css"/>'
+    doc.css('body').first << '<script src="/_/treeview/script.js" type="text/javascript"/>'
   end
 
   assets 'script.js',
@@ -15,8 +16,6 @@ class Wiki::Application
 
   get '/_/treeview.json' do
     begin
-      require 'json'
-
       content_type 'application/json', :charset => 'utf-8'
       tree = Tree.find!(params[:dir], params[:version])
       cache_control :etag => tree.version, :last_modified => tree.version.date

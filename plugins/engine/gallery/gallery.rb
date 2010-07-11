@@ -7,8 +7,8 @@ class Wiki::Application
 
   hook :layout do |name, doc|
     if @engine && @engine.name == 'gallery'
-      doc.css('head').children.after '<link rel="stylesheet" href="/_/engine/gallery/gallery.css" type="text/css"/>'
-      doc.css('body').children.after '<script src="/_/engine/gallery/script.js" type="text/javascript"/>'
+      doc.css('head').first << '<link rel="stylesheet" href="/_/engine/gallery/gallery.css" type="text/css"/>'
+      doc.css('body').first << '<script src="/_/engine/gallery/script.js" type="text/javascript"/>'
     end
   end
 end

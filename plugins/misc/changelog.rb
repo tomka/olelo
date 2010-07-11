@@ -5,14 +5,12 @@ require 'rss/maker'
 class Wiki::Application
   hook :layout do |name, doc|
     if @resource && !@resource.new?
-      doc.css('head').children.after(
-        %{<link rel="alternate" href="/changelog.atom" type="application/atom+xml" title="Sitewide Atom Changelog"/>
-          <link rel="alternate" href="/changelog.rss" type="application/rss+xml" title="Sitewide RSS Changelog"/>}.unindent)
-      doc.css('head').children.after(
-        %{<link rel="alternate" href="#{escape_html((@resource.path/'changelog.atom').urlpath)}" type="application/atom+xml"
-                title="#{escape_html @resource.path} Atom Changelog"/>
-          <link rel="alternate" href="#{escape_html((@resource.path/'changelog.rss').urlpath)}" type="application/rss+xml"
-                title="#{escape_html @resource.path} RSS Changelog"/>}.unindent) if !@resource.path.blank?
+      doc.css('head').first << %{<link rel="alternate" href="/changelog.atom" type="application/atom+xml" title="Sitewide Atom Changelog"/>
+                                  <link rel="alternate" href="/changelog.rss" type="application/rss+xml" title="Sitewide RSS Changelog"/>}.unindent
+      doc.css('head').first << %{<link rel="alternate" href="#{escape_html((@resource.path/'changelog.atom').urlpath)}" type="application/atom+xml"
+                                  title="#{escape_html @resource.path} Atom Changelog"/>
+                                  <link rel="alternate" href="#{escape_html((@resource.path/'changelog.rss').urlpath)}" type="application/rss+xml"
+                                  title="#{escape_html @resource.path} RSS Changelog"/>}.unindent if !@resource.path.blank?
     end
   end
 
