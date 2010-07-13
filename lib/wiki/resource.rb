@@ -70,6 +70,10 @@ module Wiki
       find(path, tree_version) || raise(ObjectNotFound, path)
     end
 
+    def root?
+      path.empty?
+    end
+
     def next_version
       init_versions
       @next_version
@@ -146,8 +150,12 @@ module Wiki
     end
 
     def name
-      i = path.rindex('/')
-      name = i ? path[i+1..-1] : (path.blank? ? Config.root_path : path)
+      if root?
+        Config.root_path
+      else
+        i = path.rindex('/')
+        name = i ? path[i+1..-1] : path
+      end
     end
 
     def safe_name

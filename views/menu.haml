@@ -36,7 +36,7 @@
         %ul
           %li
             %a.action-new{:href=> (@resource.tree? ? @resource.path/'new' : 'new').urlpath, :accesskey=>'n'}= :new_page.t
-          - if !@resource.path.blank?
+          - if !@resource.root?
             %li
               %a.action-move{:href=> action_path(@resource, :move) }= :move.t
             %li
