@@ -15,8 +15,8 @@ class Wiki::Application
     WHITE_LIST.any? {|pattern| request.path_info =~ /^#{pattern}$/ }
   end
 
-  hook :menu, 999 do |menu|
-    menu.css('ul.wiki').remove if user.anonymous?
+  hook :layout, 999 do |name, doc|
+    doc.css('#menu ul.wiki').remove if user.anonymous?
   end
 
   before :routing do

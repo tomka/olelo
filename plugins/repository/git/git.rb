@@ -35,15 +35,15 @@ class GitRepository < Repository
     Thread.current[TRANSACTION] = nil
   end
 
-  def find_resource(path, tree_version, klass = nil)
+  def find_resource(path, tree_version, current, klass = nil)
     commit = tree_version ? git.get_commit(tree_version.to_s) : git.head
     return nil if !commit
     object = commit.tree[path] rescue nil
     return nil if !object
     if klass
-      klass.ancestors.include?(object_class(object.type)) ? klass.new(path, commit.to_wiki, !tree_version) : nil
+      klass.ancestors.include?(object_class(object.type)) ? klass.new(path, commit.to_wiki, current) : nil
     else
-      object_class(object.type).new(path, commit.to_wiki, !tree_version)
+      object_class(object.type).new(path, commit.to_wiki, current)
     end
   end
 

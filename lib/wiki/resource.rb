@@ -52,7 +52,7 @@ module Wiki
       @path = path.to_s.cleanpath
       @tree_version = tree_version
       @current = current
-      @next_version = @previous_version = @version = nil
+      @next_version = @previous_version = @version = @parent = nil
     end
 
     def self.transaction(comment, user = nil, &block)
@@ -62,8 +62,8 @@ module Wiki
 
     def self.find(path, tree_version = nil)
       path = path.to_s.cleanpath
-      check_path(path)
-      Repository.instance.find_resource(path, tree_version, Resource == self ? nil : self)
+      raise :invalid_path.t if path !~ PATH_REGEXP || Config.namespaces.any? {|ns, prefix| prefix == path}
+      Repository.instance.find_resource(path, tree_version, !tree_version, Resource == self ? nil : self)
     end
 
     def self.find!(path, tree_version = nil)
@@ -93,10 +93,16 @@ module Wiki
       @history ||= Repository.instance.history(self)
     end
 
+    def parent
+      @parent ||= Repository.instance.find_resource(path/'..', tree_version, current?, Tree) ||
+        Tree.new(path/'..', tree_version, current?) if !root?
+    end
+
     def move(destination)
       destination = destination.to_s.cleanpath
-      Resource.check_path(destination)
       check_modifiable
+      raise :already_exists.t(:path => destination) if Resource.find(destination)
+      # TODO: Move metadata and discussion also
       Repository.instance.move(self, destination)
     end
 
@@ -165,7 +171,7 @@ module Wiki
     def committed(path, tree_version)
       @path = path
       @tree_version = tree_version
-      @metadata = @version = @next_version = @previous_version = @history = nil
+      @metadata = @version = @next_version = @previous_version = @history = @parent = nil
     end
 
     def metadata
@@ -190,10 +196,6 @@ module Wiki
       if !@version && @tree_version
         @previous_version, @version, @next_version = Repository.instance.version(self)
       end
-    end
-
-    def self.check_path(path)
-      raise :invalid_path.t if path !~ PATH_REGEXP || Config.namespaces.any? {|ns, prefix| prefix == path}
     end
   end
 
