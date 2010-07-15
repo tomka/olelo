@@ -20,13 +20,6 @@
     - if !@resource.new?
       %li
         %a.action-view{:href=> @resource.path.urlpath, :accesskey=>'v'}= :view.t
-    %li
-      - if @resource.namespace == :discussion
-        %a.action-page{:href=> @resource.namespace_path.urlpath, :accesskey=>'p' }= :page.t
-      - elsif @resource.namespace == :metadata
-        %a.action-page{:href=> @resource.namespace_path.urlpath, :accesskey=>'p' }= :page.t
-      - else
-        %a.action-discuss{:href=> @resource.namespace_path(:discussion).urlpath, :accesskey=>'d' }= :discuss.t
     - if !@resource.new?
       %li
         - if @resource.page?
