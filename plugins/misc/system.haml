@@ -36,9 +36,6 @@
     %td Directory index pages
     %td&= Wiki::Config.index_page
   %tr
-    %td Namespace prefix
-    %td&= Wiki::Config.namespaces.to_hash.map {|name, prefix| "#{name}: #{prefix}" }.join(', ')
-  %tr
     %td Mime type detection order
     %td&= Wiki::Config.mime.join(', ')
 %h2 Plugins

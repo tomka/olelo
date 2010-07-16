@@ -73,6 +73,7 @@ module Wiki
 
     hook StandardError do |ex|
       if on_error
+        logger.error "this is the on error"
         logger.error ex
         (ex.try(:messages) || [ex.message]).each {|msg| flash.error(msg) }
         halt render(on_error)
@@ -177,8 +178,8 @@ module Wiki
     end
 
     get '/?:path?/diff' do
-      on_error :history
       @resource = Resource.find!(params[:path])
+      on_error :history
       check do |errors|
         errors << :from_missing.t if params[:from].blank?
         errors << :to_missing.t  if params[:to].blank?
@@ -222,9 +223,9 @@ module Wiki
 
     # Edit form sends put requests
     put '/:path' do
-      on_error :edit
-
       @resource = Page.find!(params[:path])
+
+      on_error :edit
 
       # TODO: Implement conflict diffs
       raise :version_conflict.t if @resource.version.to_s != params[:version]

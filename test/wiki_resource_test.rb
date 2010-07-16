@@ -71,24 +71,20 @@ describe 'Wiki::Resource' do
     Wiki::Tree.new('new').should.be.new
   end
 
-  it 'have type' do
+  it 'has type' do
     Wiki::Page.find('Home').should.be.page
     Wiki::Tree.find('').should.be.tree
   end
 
-  it 'have name' do
+  it 'has name' do
     Wiki::Resource.new('/path/name.ext').name.should.equal 'name.ext'
   end
 
-  it 'have title' do
-    Wiki::Resource.new('/path/name.ext').title.should.equal 'name.ext'
-  end
-
-  it 'have path' do
+  it 'has path' do
     Wiki::Resource.new('/path/name.ext').path.should.equal 'path/name.ext'
   end
 
-  it 'have safe name' do
+  it 'has safe name' do
     Wiki::Resource.new('0 1 2 3 4 5').safe_name.should.equal '0_1_2_3_4_5'
   end
 end

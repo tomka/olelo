@@ -76,7 +76,7 @@ class Wiki::Engine
   # name can be given to claim a specific engine.
   # If no engine is found a exception is raised.
   def self.find!(resource, opts = {})
-    opts[:name] ||= resource.metadata[:output] || resource.metadata[:engine] if resource.namespace != :metadata
+    opts[:name] ||= resource.metadata[:output] || resource.metadata[:engine] if !resource.namespace.metadata?
     engines = opts[:name] ? @engines[opts[:name].to_s] : @engines.values.flatten
     engine = engines.to_a.sort_by {|a| a.priority }.find { |e| e.accepts?(resource) && (!opts[:layout] || e.layout?) }
     raise(:engine_not_available.t(:engine => opts[:name],

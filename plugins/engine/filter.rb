@@ -139,7 +139,7 @@ class Wiki::FilterEngine < Engine
       Engine.register(Builder.new(name).build(&block))
       Plugin.current.logger.debug "Filter engine '#{name}' successfully created"
     rescue Filter::MandatoryFilterNotFound => ex
-      Plugin.current.logger.error ex.message
+      Plugin.current.logger.warn ex.message
     rescue Exception => ex
       Plugin.current.logger.error ex
     end

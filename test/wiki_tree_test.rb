@@ -28,7 +28,7 @@ describe 'Wiki::Tree' do
     old_tree.children[0].should.not.be.current
   end
 
-  it "children" do
+  it 'has working children' do
     create_page('page1')
     create_page('page2')
     create_page('page3')

@@ -65,7 +65,7 @@ module Wiki
             rescue Exception => ex
               @failed << name
               if LoadError === ex
-                logger.error "Plugin #{name} could not be loaded due to: #{ex.message} (Missing gem?)"
+                logger.warn "Plugin #{name} could not be loaded due to: #{ex.message} (Missing gem?)"
               else
                 logger.error "Plugin #{name} could not be loaded due to: #{ex.message}"
                 logger.error ex

@@ -33,10 +33,12 @@ sidebar_page:    'Sidebar'
 external_images: false
 
 # Namespace configuration
-# These prefixes are used for discussion and metadata pages.
+# Every namespace is a list of two prefixes, the main prefix and the metadata prefix.
+# Example: 'Discussion:' and 'DiscussionMetadata:'
+# In the main namespace (default namespace) only the metadata pages are prefixed.
 namespaces:
-  discussion:    'Discussion:'
-  metadata:      'Metadata:'
+  main:       ['', 'Metadata:']
+  discussion: ['Discussion:', 'DiscussionMetadata:']
 
 # Caching directory. Uncomment this!
 #cache:           '/home/user/wiki/cache'

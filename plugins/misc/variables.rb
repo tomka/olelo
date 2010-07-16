@@ -7,7 +7,8 @@ def variables(page, engine)
   vars = {
     'page_name'             => page.name,
     'page_path'             => page.path,
-    'page_namespace'        => page.namespace,
+    'page_namespace'        => page.namespace.name,
+    'page_metadata'         => page.namespace.metadata?,
     'page_title'            => page.title,
     'page_version'          => page.version.to_s,
     'page_next_version'     => page.next_version.to_s,

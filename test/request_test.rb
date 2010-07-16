@@ -29,8 +29,8 @@ describe 'requests' do
       :external_images   => false,
       :cache             => File.join(@test_path, 'cache'),
       :namespaces => {
-        :discussion => 'Discussion:',
-        :metadata   => 'Metadata:',
+        :main       => ['', 'Metadata:'],
+        :discussion => ['Discussion:', 'DiscussionMetadata:']
       },
       :authentication => {
         :service  => :yamlfile,
@@ -59,6 +59,7 @@ describe 'requests' do
 
     Wiki::Config.update(default_config)
     Wiki::Repository.instance = nil
+    Wiki::Namespace.reset
 
     logger = Logger.new(File.join(@app_path, 'test.log'))
 

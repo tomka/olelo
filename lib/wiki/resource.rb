@@ -39,6 +39,57 @@ module Wiki
 
   Diff = Struct.new(:from, :to, :patch)
 
+  class Namespace < Struct.new(:name, :prefix)
+    attr_reader? :metadata
+
+    def initialize(name, prefix, metadata)
+      super(name.to_sym, prefix.freeze)
+      @metadata = metadata
+    end
+
+    def title(page)
+      (metadata? ? :"#{name}_metadata_title" : :"#{name}_title").t(:name => page[prefix.length..-1])
+    end
+
+    class << self
+      def reset
+        @namespaces = @metadata_namespaces = @page_namespaces = nil
+      end
+
+      def find(name)
+        namespaces.find { |ns| !ns.prefix.empty? && name.begins_with?(ns.prefix) } || main
+      end
+
+      def page(name)
+        page_namespaces[name.to_sym] || raise("Invalid page namespace '#{name}'")
+      end
+
+      def metadata(name)
+        metadata_namespaces[name.to_sym] || raise("Invalid metadata namespace '#{name}'")
+      end
+
+      def main
+        @main ||= Namespace.page(:main)
+      end
+
+      def page_namespaces
+        @page_namespaces ||= Hash[*Config.namespaces.map do |name, prefix|
+          [name.to_sym, Namespace.new(name, prefix[0], false)]
+        end.flatten]
+      end
+
+      def metadata_namespaces
+        @metadata_namespaces ||= Hash[*Config.namespaces.map do |name, prefix|
+          [name.to_sym, Namespace.new(name, prefix[1], true)]
+        end.flatten]
+      end
+
+      def namespaces
+        @namespaces ||= page_namespaces.values + metadata_namespaces.values
+      end
+    end
+  end
+
   class Resource
     include Util
 
@@ -49,7 +100,7 @@ module Wiki
     attr_reader? :current
 
     def initialize(path, tree_version = nil, current = true)
-      @path = path.to_s.cleanpath
+      @path = path.to_s.cleanpath.freeze
       @tree_version = tree_version
       @current = current
       @next_version = @previous_version = @version = @parent = nil
@@ -62,7 +113,14 @@ module Wiki
 
     def self.find(path, tree_version = nil)
       path = path.to_s.cleanpath
-      raise :invalid_path.t if path !~ PATH_REGEXP || Config.namespaces.any? {|ns, prefix| prefix == path}
+
+      raise :invalid_path.t if path !~ PATH_REGEXP
+
+      p = path.split('/')
+      raise :invalid_path.t if Namespace.namespaces.any? do |ns|
+        !ns.prefix.empty? && (p.last == ns.prefix || p[0..-2].any? {|x| x.begins_with?(ns.prefix) })
+      end
+
       Repository.instance.find_resource(path, tree_version, !tree_version, Resource == self ? nil : self)
     end
 
@@ -102,7 +160,6 @@ module Wiki
       destination = destination.to_s.cleanpath
       check_modifiable
       raise :already_exists.t(:path => destination) if Resource.find(destination)
-      # TODO: Move metadata and discussion also
       Repository.instance.move(self, destination)
     end
 
@@ -131,28 +188,13 @@ module Wiki
       new?
     end
 
-    def namespace
-      if page?
-        tmp = name
-        Config.namespaces.each do |namespace, prefix|
-          return namespace.to_sym if tmp.begins_with?(prefix)
-        end
-      end
-      nil
-    end
-
-    def namespace_path(ns = nil)
-      n = namespace
-      n == ns ? @path : (@path/'..'/(namespace_prefix(ns) + name[namespace_prefix(n).length..-1]))
+    def namespace_path(ns)
+      old_ns = namespace
+      old_ns == ns ? @path : (@path/'..'/(ns.prefix + name[old_ns.prefix.length..-1]))
     end
 
     def title
-      ns = namespace
-      if ns
-        :"#{ns}_title".t(:name => name[namespace_prefix(ns).length..-1])
-      else
-        metadata[:title] || name
-      end
+      metadata[:title] || namespace.title(name)
     end
 
     def name
@@ -169,27 +211,19 @@ module Wiki
     end
 
     def committed(path, tree_version)
-      @path = path
+      @path = path.freeze
       @tree_version = tree_version
       @metadata = @version = @next_version = @previous_version = @history = @parent = nil
     end
 
     def metadata
-      @metadata ||= Page.find(namespace_path(:metadata), tree_version).try(:metadata) || {}
+      @metadata ||= Page.find(namespace_path(Namespace.metadata(namespace.name)), tree_version).try(:metadata) || {}
     end
 
     protected
 
     def check_modifiable
       raise 'Tree not current' if !current?
-    end
-
-    def namespace_prefix(ns)
-      if ns
-        Config.namespaces[ns] || raise("Invalid namespace '#{ns}'")
-      else
-        ''
-      end
     end
 
     def init_versions
@@ -202,6 +236,10 @@ module Wiki
   class Page < Resource
     YAML_MIME = MimeMagic.new('text/x-yaml')
     YAML_REGEXP = /(\A[\-\w_]+:.*?(\r?\n\r?\n|(\r?\n)?\Z))|(\A---\r?\n.*?(\r?\n---|\r?\n\.\.\.|\r?\n\r?\n|(\r?\n)?\Z))/m
+
+    def namespace
+     Namespace.find(name)
+    end
 
     def content(pos = nil, len = nil)
       c = @content || saved_content
@@ -251,7 +289,7 @@ module Wiki
 
     def mime
       if !@mime
-        if namespace == :metadata
+        if namespace.metadata?
           @mime = YAML_MIME
         else
           Config.mime.any? do |mime|
@@ -272,7 +310,7 @@ module Wiki
     def metadata
       @metadata ||= if content =~ YAML_REGEXP
 		      (YAML.load("#{$&}\n") rescue nil).try(:with_indifferent_access) || {}
-                    elsif namespace == :metadata
+                    elsif namespace.metadata?
 		      {}
 		    else
                       super
@@ -288,9 +326,13 @@ module Wiki
   end
 
   class Tree < Resource
+    def namespace
+      Namespace.main
+    end
+
     def children(*namespaces)
       @children ||= Repository.instance.children(self).sort_by {|x| "#{x.tree? ? 0 : 1}#{x.name}" }
-      namespaces << nil if namespaces.empty?
+      namespaces << Namespace.main if namespaces.empty?
       @children.select {|child| namespaces.include?(child.namespace) }
     end
 
