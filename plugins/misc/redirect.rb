@@ -7,7 +7,7 @@ class Wiki::Application
       html = builder do
         p_ {
           text 'Redirected from '
-          [params[:redirect]].flatten.each do |link|
+          [*params[:redirect]].each do |link|
             a link.cleanpath, :href => action_path(link, :edit)
             text ' → '
           end

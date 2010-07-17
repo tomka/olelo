@@ -33,7 +33,7 @@ class Wiki::Resource
 
   def access?(type, user = nil)
     acl = metadata['acl'] || {}
-    names = [acl[type.to_s]].flatten.compact
+    names = [*acl[type.to_s]].compact
     names.empty? ||
     names.include?(user.name) ||
     user.groups.any? {|group| names.include?('@'+group) }
