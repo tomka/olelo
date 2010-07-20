@@ -35,7 +35,7 @@
           %a.action-edit= :edit.t
         %ul
           %li
-            %a.action-new{:href=> (@resource.tree? ? @resource.path/'new' : 'new').urlpath, :accesskey=>'n'}= :new_page.t
+            %a.action-new{:href=> (@resource.tree? ? @resource.path/'new' : @resource.path/'..'/'new').urlpath, :accesskey=>'n'}= :new_page.t
           - if !@resource.root?
             %li
               %a.action-move{:href=> action_path(@resource, :move) }= :move.t
