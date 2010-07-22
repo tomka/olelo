@@ -73,7 +73,6 @@ module Wiki
 
     hook StandardError do |ex|
       if on_error
-        logger.error "this is the on error"
         logger.error ex
         (ex.try(:messages) || [ex.message]).each {|msg| flash.error(msg) }
         halt render(on_error)

@@ -6,8 +6,11 @@
     $.fn.treeView = function(options) {
         if (!options) options = {};
         if (!options.root) options.root = '/';
-	if (!options.url) options.url = '/_/treeview.json';
+        if (!options.url) options.url = '/treeview.json';
         if (!options.delay) options.delay = 2000;
+	if (!options.ajax) options.ajax = function(path, success, error) {
+            $.ajax({url: options.url, data: { dir: path }, success: success, error: error});
+        };
 
         // Store if node is expanded
         function setExpanded(path, expanded) {
@@ -70,7 +73,7 @@
                 if (path == options.root)
                     element.empty();
                 element.children('ul').remove();
-                element.removeClass('wait').append(ul);
+                element.append(ul);
             }
 
             // Data updated via ajax (callback)
@@ -106,14 +109,9 @@
             // Update this element with some delay
             function update() {
                 setTimeout(function() {
-                    $.ajax({
-                        url: options.url,
-                        data: { dir: path },
-                        success: dataUpdated,
-                        error: function() {
-                            if (cacheKey)
-                                jStorage.remove(cacheKey);
-                        }
+                    options.ajax(path, dataUpdated, function() {
+                        if (cacheKey)
+                            jStorage.remove(cacheKey);
                     });
                 }, options.delay);
             }
@@ -123,21 +121,22 @@
 	        element.children('ul').show();
                 update();
 	    } else {
-                // Add busy indicator
-                element.addClass('wait');
-
                 // Try to load from cache
                 var data = cacheKey ? jStorage.get(cacheKey) : null;
                 if (data) {
                     dataLoaded(data);
                     update();
                 }
-                // Load data via ajax
+                // Load data via ajax and add busy indicator
                 else {
-                    $.getJSON(options.url, { dir: path }, function(data) {
+                    element.addClass('wait');
+                    options.ajax(path, function(data) {
+                        element.removeClass('wait');
                         dataLoaded(data);
                         store(data);
-                    });
+                     }, function() {
+                        element.removeClass('wait');
+                     });
                 }
             }
         }
