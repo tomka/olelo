@@ -44,6 +44,10 @@ class Wiki::AccessDenied < RuntimeError
   def initialize
     super('Access denied')
   end
+
+  def status
+    :forbidden
+  end
 end
 
 class Wiki::Application
