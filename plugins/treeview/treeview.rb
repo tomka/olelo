@@ -3,10 +3,12 @@ description  'Tree Viewer'
 dependencies 'engine/engine'
 require      'json'
 
-Engine.create(:treeview_json, :priority => 999, :layout => false, :cacheable => true) do
+Engine.create(:treeview_json, :priority => 999, :layout => false, :cacheable => true, :hidden => true) do
   def accepts?(resource); resource.tree?; end
   def mime(resource); 'application/json; charset=utf-8'; end
   def output(context)
+    # Format [[is-tree, has-children, classes, path, name], ...]
+    # Example: [[1, 1, 'tree', '/a/b', 'b'], ...]
     context.tree.children.map do |child|
       ext = !child.page? || child.extension.empty? ? '' : " file-type-#{child.extension.downcase}"
       [child.tree? ? 1 : 0, child.tree? && !child.children.empty? ? 1 : 0, child.tree? ? 'tree' : 'page' + ext, resource_path(child), child.name]

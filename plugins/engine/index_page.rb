@@ -13,11 +13,12 @@ end
 
 Engine.create(:index_page, :priority => 1, :layout => true) do
   def accepts?(resource)
-    resource.tree? && Page.find(resource.path/Config.index_page)
+    resource.tree? && Page.find(resource.path/Config.index_page, resource.current? ? nil : resource.tree_version)
   end
 
   def output(context)
-    page = Page.find!(context.resource.path/Config.index_page)
+    tree = context.tree
+    page = Page.find!(tree.path/Config.index_page, tree.current? ? nil : tree.tree_version)
     engine = Engine.find(page, :layout => true)
     if engine
       engine.cached_output(context.subcontext(:engine => engine, :resource => page))

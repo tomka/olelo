@@ -47,12 +47,13 @@ class Wiki::Engine
     @name = name.to_s
     @layout = !!options[:layout]
     @cacheable = !!options[:cacheable]
+    @hidden = !!options[:hidden]
     @priority = (options[:priority] || 99).to_i
     @options = options
   end
 
   attr_reader :name, :priority, :options
-  attr_reader? :layout, :cacheable
+  attr_reader? :layout, :cacheable, :hidden
 
   # Create engine class. This is sugar to create and
   # register an engine class in one step.

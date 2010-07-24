@@ -210,6 +210,7 @@ module Wiki
         pass if reserved_path?(params[:path])
         @resource = Resource.find!(params[:path], params[:version])
         cache_control :etag => @resource.version, :last_modified => @resource.version.date
+        @menu_versions = true
         with_hooks(:show) do
           @content = @resource.try(:content)
           halt render(:show)
