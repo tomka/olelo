@@ -13,6 +13,10 @@ class Renderer
     @loaded ||= load rescue false
   end
 
+  def load
+    true
+  end
+
   class << self
     attr_accessor :registry
 
@@ -100,13 +104,20 @@ class BlahtexImageRenderer < Renderer
   end
 end
 
+class GoogleRenderer < Renderer
+  def render(code, display)
+    %{<img src="http://chart.apis.google.com/chart?cht=tx&amp;chl=#{escape code}" alt="#{escape_html code}" class="math #{display}"/>}
+  end
+end
+
 Renderer.registry = {
   'imaginator'   => ImaginatorRenderer.new,
   'itex'         => ItexRenderer.new,
   'ritex'        => RitexRenderer.new,
   'blahtexml'    => BlahtexMLRenderer.new,
   'blahteximage' => BlahtexImageRenderer.new,
-  'image'        => %w(imaginator blahteximage),
+  'google'       => GoogleRenderer.new,
+  'image'        => %w(imaginator blahteximage google),
   'mathml'       => %w(blahtexml itex ritex),
 }
 
