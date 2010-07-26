@@ -292,7 +292,7 @@ table input
   h1, h2, h3, h4, h5, h6
     margin: 0.2em 0
 
-.tabs
+.js .tabs
   .tabs-hide
     display: none
   > ul
@@ -327,6 +327,9 @@ table input
         color: #333
         &:hover, &:active, &:focus
           text-shadow: #333 1px 1px 2px
+
+.no-js .tabs > ul
+  display: none
 
 .hidden
   display: none !important
@@ -367,7 +370,7 @@ table input
       margin-right: 0.5em
       display: inline
 
-body.timemachine
+.timemachine
   #header
     background: #222
   tr.even

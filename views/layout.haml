@@ -1,13 +1,11 @@
-:plain
-  <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1 plus MathML 2.0 plus SVG 1.1//EN" "http://www.w3.org/2002/04/xhtml-math-svg/xhtml-math-svg-flat.dtd" >
-%html{:xmlns=>"http://www.w3.org/1999/xhtml", 'xmlns:esi' => 'http://www.edge-delivery.org/esi/1.0',
-      'xml:lang' => Wiki::Config.locale.sub('_', '-') }
+!!! 5
+%html.no-js{:xmlns=>"http://www.w3.org/1999/xhtml", 'xmlns:esi' => 'http://www.edge-delivery.org/esi/1.0',
+      'xml:lang' => Wiki::Config.locale.sub('_', '-'), :class => @resource && !@resource.current? ? 'timemachine' : nil}
   %head
     %title&= Wiki::Config.title + ' - ' + blocks[:title]
     = theme_links
     %link{:rel => 'shortcut icon', :href => '/static/images/favicon.png', :type => 'image/png'}
-  - timemachine = @resource && !@resource.current?
-  %body{:class => timemachine ? 'timemachine' : nil}
+  %body
     #header
       %h1&= Wiki::Config.title
       #info
