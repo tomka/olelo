@@ -90,7 +90,7 @@ mime:
 # You can disable whole plugin directories.
 
 disabled_plugins:
-  - authorization/private_wiki
+  - security/private_wiki
   - tagging
   - editor/antispam
   - filter/benchmark

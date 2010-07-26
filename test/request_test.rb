@@ -44,7 +44,7 @@ describe 'requests' do
                 'text/x-creole',
                ],
       :disabled_plugins => [
-                            'authorization/private_wiki',
+                            'security/private_wiki',
                             'tagging',
                             'editor/antispam',
                             'filter/benchmark',
