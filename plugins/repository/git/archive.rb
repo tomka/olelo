@@ -2,6 +2,8 @@ author      'Daniel Mendler'
 description 'Archive engine for git repository'
 dependencies 'engine/engine', 'repository/git/git'
 
+raise 'Git repository required' if Config.repository.type != 'git'
+
 Engine.create(:archive, :priority => 999, :layout => false) do
   def accepts?(resource); resource.tree?; end
   def mime(resource); 'application/zip'; end

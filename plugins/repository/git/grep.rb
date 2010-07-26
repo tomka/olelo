@@ -1,6 +1,7 @@
 author      'Daniel Mendler'
 description 'Searching via git-grep'
-dependencies 'repository/git/git'
+
+raise 'Git repository required' if Config.repository.type != 'git'
 
 class Wiki::Application
   get '/search' do
@@ -37,7 +38,7 @@ class Wiki::Application
     end rescue nil # git-grep returns 1 if nothing is found
 
     @matches = matches.map {|k, v| [k.urlpath, emphasize(k), emphasize(v)] }
-    render :git_grep
+    render :grep
   end
 
   private

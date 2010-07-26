@@ -1,8 +1,10 @@
 en:
+  engine_archive: 'Download Archive'
   search_results: 'Search results for #{pattern}'
   match:          'One match'
   match_plural:   '#{count} matches'
 de:
+  engine_archive: 'Archiv herunterladen'
   search_results: 'Suchergebnisse für #{pattern}'
   match:          'Ein Treffer'
   match_plural:   '#{count} Treffer'
