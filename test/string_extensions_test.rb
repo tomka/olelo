@@ -30,11 +30,11 @@ describe 'String extensions' do
   end
 
   it 'should have #urlpath' do
-    '/'.urlpath.should.equal '/root'
+    '/'.urlpath.should.equal '/'
     '/a/b/c/../'.urlpath.should.equal '/a/b'
     '/a/./b/../c/../d/./'.urlpath.should.equal '/a/d'
     '1///2'.urlpath.should.equal '/1/2'
-    'root'.urlpath.should.equal '/root'
+    'root'.urlpath.should.equal '/'
     '///root/1/../2'.urlpath.should.equal '/2'
   end
 

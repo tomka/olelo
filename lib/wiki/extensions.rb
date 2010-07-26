@@ -207,8 +207,7 @@ class String
 
   # Convert string to url path
   def urlpath
-    path = cleanpath
-    '/' << (path.blank? ? String.root_path : path)
+    '/' << cleanpath
   end
 
   # Truncate string and add omission
