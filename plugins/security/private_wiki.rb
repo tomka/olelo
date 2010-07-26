@@ -16,7 +16,7 @@ class Wiki::Application
   end
 
   hook :layout, 999 do |name, doc|
-    doc.css('#menu ul.wiki').remove if user.anonymous?
+    doc.css('#menu .wiki').remove if user.anonymous?
   end
 
   before :routing do

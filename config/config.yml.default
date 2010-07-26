@@ -90,6 +90,7 @@ mime:
 # You can disable whole plugin directories.
 
 disabled_plugins:
+  - security/readonly_wiki
   - security/private_wiki
   - tagging
   - editor/antispam

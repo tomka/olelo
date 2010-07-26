@@ -137,7 +137,7 @@ class Wiki::Application
   end
 
   hook :layout do |name, doc|
-    doc.css('#menu li > a.action-view').each do |link|
+    doc.css('#menu .action-view').each do |link|
       link.after render(:engines_menu, :layout => false)
     end
   end

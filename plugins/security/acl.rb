@@ -53,10 +53,10 @@ end
 class Wiki::Application
   hook :layout, 999 do |name, doc|
     if @resource
-      doc.css('#menu a.action-edit').first.delete('href') if !@resource.writable?(user)
+      doc.css('#menu .action-edit').each {|link| link.delete('href') } if !@resource.writable?(user)
       if !@resource.root?
-        doc.css('#menu a.action-delete').first.parent.remove if !@resource.deletable?(user)
-        doc.css('#menu a.action-move').first.parent.remove if !@resource.movable?(user)
+        doc.css('#menu .action-delete').each {|link| link.parent.remove } if !@resource.deletable?(user)
+        doc.css('#menu .action-move').each {|link| link.parent.remove } if !@resource.movable?(user)
       end
     end
   end
@@ -64,6 +64,7 @@ class Wiki::Application
   hook AccessDenied do |ex|
     cache_control :no_cache => true
     @resource = nil
+    session[:goto] = request.path_info if request.path_info !~ %r{^/_/}
     halt render(:access_denied)
   end
 
