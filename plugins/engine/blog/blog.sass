@@ -1,0 +1,33 @@
+@import ../../../static/themes/lib/reset.sass
+@import ../../../static/themes/lib/horizontal-list.sass
+
+.blog > .article
+  clear: both
+  width: 100%
+  > h2
+    border: none
+    clear: both
+    margin: 0
+  > .author, > .date, > .tags
+    float: left
+    font-size: 90%
+    color: #555
+    margin: 0.2em 0.4em 1em 0
+  > .tags
+    +list-bar
+    li
+      margin: 0.2em 0.4em 1em 0
+  > .content
+    clear: both
+    width: 100%
+  > .full
+    float: right
+
+.blog-menu
+  > .year
+    clear: both
+    display: block
+  a
+    display: block
+    float: left
+    margin-right: 0.5em

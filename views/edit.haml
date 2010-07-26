@@ -18,7 +18,7 @@
           %input{:type=>'hidden', :name=> 'len', :value=> params[:len]}
       %label{:for=>'edit-content'}= :content.t
       %br
-      %textarea#edit-content{:name=>'content', :cols=>100, :rows=>20}&= edit_content(@resource)
+      %textarea#edit-content{:name=>'content', :cols => 100, :rows => 20}&= edit_content(@resource)
       %br
       %label{:for=>'edit-comment'}= :comment.t
       %input#edit-comment{:type=>'text', :name=>'comment', :size => 50, :value => params[:comment]}

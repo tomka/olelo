@@ -1,0 +1,6 @@
+en:
+  full_article: 'Full Article'
+  written_by:   'written by #{author}'
+de:
+  full_article: 'Ganzer Artikel'
+  written_by: 'verfasst von #{author}'

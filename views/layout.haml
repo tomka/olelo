@@ -27,5 +27,5 @@
       Powered by
       %a{:href=>'http://github.com/minad/git-wiki/tree/master'} Git-Wiki
       = blocks[:footnote]
-      %span.noprint= "| #{:generated_in.t(:ms => @timer.stop.elapsed_ms)}"
+      %span.noprint= "| #{@timer.stop.elapsed_ms}ms"
     %script{:src=>'/static/script.js', :type=>'text/javascript'}

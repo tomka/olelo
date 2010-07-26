@@ -52,7 +52,7 @@ __END__
 
 @@ grep.haml
 - title :search_results.t(:pattern => params[:pattern])
-= :match.t(:count => @matches.length)
+%p= :match.t(:count => @matches.length)
 - @matches.each do |path, name, content|
   .match
     %a.name{:href => path}&= name

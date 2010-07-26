@@ -43,7 +43,8 @@ namespace :gen do
   task :js => %w(static/script.js plugins/treeview/script.js plugins/engine/gallery/script.js)
 
   desc('Compile CSS files')
-  task :css => %w(static/themes/blue/style.css plugins/treeview/treeview.css plugins/utils/pygments.css plugins/engine/gallery/gallery.css)
+  task :css => %w(static/themes/blue/style.css plugins/treeview/treeview.css
+                  plugins/utils/pygments.css plugins/engine/gallery/gallery.css plugins/engine/blog/blog.css)
 end
 
 namespace :test do

@@ -13,7 +13,7 @@ class Wiki::Application
   end
 end
 
-Engine.create(:gallery, :priority => 3, :layout => true, :cacheable => true) do
+Engine.create(:gallery, :priority => 3, :layout => true, :cacheable => true, :hidden => true) do
   def accepts?(resource); resource.tree?; end
   def output(context)
     per_page = 16
