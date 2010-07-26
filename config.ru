@@ -25,6 +25,7 @@ Wiki::Config['app_path'] = path
 Wiki::Config['config_path'] = ::File.join(path, 'config')
 Wiki::Config['initializers_path'] = ::File.join(path, 'config', 'initializers')
 Wiki::Config['plugins_path'] = ::File.join(path, 'plugins')
+Wiki::Config['views_path'] = ::File.join(path, 'views')
 Wiki::Config['cache'] = ::File.join(path, '.wiki', 'cache')
 Wiki::Config['authentication.yamlfile.store'] = ::File.join(path, '.wiki', 'users.yml')
 Wiki::Config['repository.git.path'] = ::File.join(path, '.wiki', 'repository')

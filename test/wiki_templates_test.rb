@@ -7,11 +7,11 @@ end
 describe 'Wiki::Templates' do
   before do
     Wiki::Templates.enable_caching
-    Wiki::Templates.paths << File.dirname(__FILE__)
+    Wiki::Templates.loader << Wiki::Templates::InlineLoader.new(__FILE__)
   end
 
   after do
-    Wiki::Templates.paths.clear
+    Wiki::Templates.loader.clear
     Wiki::Templates.cache.clear
   end
 
@@ -25,3 +25,9 @@ describe 'Wiki::Templates' do
     render(:test, :escape_html => true, :locals => {:text => '< bad characters >'}).should.equal "<h1>&lt; bad characters &gt;</h1>\n"
   end
 end
+
+__END__
+
+@@ test.haml
+%h1= text
+
