@@ -1,7 +1,0 @@
-- title :search_results.t(:pattern => params[:pattern])
-= :match.t(:count => @matches.length)
-%ul
-  = list_of @matches do |path, name, match|
-    %a{:href => path}= name
-    %br
-    = match

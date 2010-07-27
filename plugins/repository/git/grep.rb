@@ -47,3 +47,13 @@ class Wiki::Application
     escape_html(s.truncate(800)).gsub(/(#{params[:pattern]})/i, '<span style="background: #FAA">\1</span>')
   end
 end
+
+__END__
+
+@@ grep.haml
+- title :search_results.t(:pattern => params[:pattern])
+= :match.t(:count => @matches.length)
+- @matches.each do |path, name, content|
+  .match
+    %a.name{:href => path}&= name
+    .content&= content

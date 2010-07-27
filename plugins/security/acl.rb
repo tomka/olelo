@@ -86,3 +86,10 @@ class Wiki::Application
     resource.movable?(user, destination) || raise(AccessDenied)
   end
 end
+
+__END__
+
+@@ access_denied.haml
+- title 'Access denied'
+Access denied. Please
+%a{:href => '/login'} login.

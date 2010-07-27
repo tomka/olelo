@@ -21,6 +21,34 @@ Engine.create(:documentbrowser, :priority => 1, :layout => true, :cacheable => t
     end
     @pages = 0 if @pages < 0
     @curpage = context.params[:curpage].to_i
-    render :documentbrowser
+    render :browser
   end
 end
+
+__END__
+
+@@ browser.haml
+= pagination(@page, @pages, @curpage, :output => 'documentbrowser')
+%p
+  %img#pdf{:src=> resource_path(@page, :output => 'image', :geometry => '480x>', :trim => 1, :curpage => @curpage)}
+= pagination(@page, @pages, @curpage, :output => 'documentbrowser')
+%h3&= :information.t
+%table.zebra
+  %tbody
+    %tr
+      %td&= :name.t
+      %td&= @page.name
+    - if @page.version
+      %tr
+        %td&= :last_modified.t
+        %td= date @page.version.date
+      %tr
+        %td&= :version.t
+        %td.version= @page.version
+    %tr
+      %td&= :type.t
+      %td #{@page.mime.comment} (#{@page.mime})
+    %tr
+      %td&= :download.t
+      %td
+        %a{:href=> resource_path(@page, :output => 'download')} Download File

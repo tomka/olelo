@@ -138,7 +138,19 @@ class Wiki::Application
 
   hook :layout do |name, doc|
     doc.css('#menu .action-view').each do |link|
-      link.after render(:engines_menu, :layout => false)
+      link.after render(:views, :layout => false)
     end
   end
 end
+
+__END__
+
+@@ views.haml
+%ul
+  - engines = Wiki::Engine.find_all(@resource).select {|e| !e.hidden? }
+  - engines.select {|e| e.layout? }.each do |engine|
+    %li{:class => @engine && engine.name == @engine.name ? 'selected': nil}
+      %a{:href => resource_path(@resource, :output => engine.name)}= Wiki::I18n.translate("engine_#{engine.name}", :fallback => engine.name.tr('_', ' '))
+  - engines.select {|e| !e.layout? }.each do |engine|
+    %li.download{:class => @engine && engine.name == @engine.name ? 'selected': nil}
+      %a{:href => resource_path(@resource, :output => engine.name)}= Wiki::I18n.translate("engine_#{engine.name}", :fallback => engine.name.tr('_', ' '))
