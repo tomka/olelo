@@ -47,7 +47,6 @@ describe 'requests' do
       :disabled_plugins => [
                             'security/readonly_wiki',
 			    'security/private_wiki',
-                            'tagging',
                             'editor/antispam',
                             'filter/benchmark',
                            ],
