@@ -18,7 +18,6 @@ Engine.create(:gallery, :priority => 3, :layout => true, :cacheable => true, :hi
 end
 
 __END__
-
 @@ gallery.haml
 - per_row = 4
 = pagination(@tree, @pages, @curpage, :output => 'gallery')
@@ -32,6 +31,6 @@ __END__
           - thumb_path = resource_path(image, :output => 'image', :geometry => '100x>')
           - image_path = resource_path(image, :output => 'image', :geometry => '500x>')
           %td
-            %a{:href=>image_path}
-              %img{:src=>thumb_path, :alt=>''}
+            %a(href=image_path)
+              %img(src=thumb_path alt='')
   #gallery-screen

@@ -60,7 +60,6 @@ Engine.create(:blog, :priority => 3, :layout => true, :cacheable => true, :hidde
 end
 
 __END__
-
 @@ blog.haml
 .blog
   - @articles.each do |page, content|
@@ -78,7 +77,6 @@ __END__
       - if !full
         %a.full{:href=>resource_path(page)}&= :full_article.t
 = pagination(@tree, @pages, @curpage, :output => 'blog')
-
 @@ menu.haml
 %table.blog-menu
   - years.keys.sort.each do |year|

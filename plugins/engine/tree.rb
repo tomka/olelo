@@ -29,7 +29,7 @@ __END__
   %tbody
     - if @children.empty?
       %tr
-        %td{:colspan=>5}= :empty.t
+        %td(colspan='5')= :empty.t
     - else
       - @children.each do |child|
         - classes = child.tree? ? 'tree' : 'page'

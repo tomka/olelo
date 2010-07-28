@@ -2,36 +2,36 @@
 .tabs
   %ul
     = tab :login do
-      %a{:href=>'#tab-login'}= :login.t
+      %a(href='#tab-login')= :login.t
     = tab :signup do
-      %a{:href=>'#tab-signup'}= :sign_up.t
-  %form{:action => '/login', :method=>'post'}
+      %a(href='#tab-signup')= :sign_up.t
+  %form(action='/login' method='post')
     #tab-login.fieldset
       %h2 Login
       = flash_messages if action? :login
-      %label{:for=>'login-user'}= :user.t
-      %input#login-user{:type=>'text', :name=>'user'}
+      %label(for='login-user')= :user.t
+      %input#login-user(type='text' name='user')
       %br
-      %label{:for=>'login-password'}= :password.t
-      %input#login-password{:type=>'password', :name=>'password'}
+      %label(for='login-password')= :password.t
+      %input#login-password(type='password' name='password')
       %br
-      %button{:type=>'submit'}= :login.t
+      %button(type='submit')= :login.t
       %br
-  %form{:action => '/signup', :method=>'post'}
+  %form(action='/signup' method='post')
     #tab-signup.fieldset
       %h2= :sign_up.t
       = flash_messages if action? :signup
-      %label{:for=>'signup-user'}= :user.t
-      %input#signup-user{:type=>'text', :name=>'user'}
+      %label(for='signup-user')= :user.t
+      %input#signup-user(type='text' name='user')
       %br
-      %label{:for=>'signup-password'}= :password.t
-      %input#signup-password{:type=>'password', :name=>'password'}
+      %label(for='signup-password')= :password.t
+      %input#signup-password(type='password' name='password')
       %br
-      %label{:for=>'signup-confirm'}= :confirm_password.t
-      %input#signup-confirm{:type=>'password', :name=>'confirm'}
+      %label(for='signup-confirm')= :confirm_password.t
+      %input#signup-confirm(type='password' name='confirm')
       %br
-      %label{:for=>'signup-email'}= :email.t
-      %input#signup-email{:type=>'text', :name=>'email'}
+      %label(for='signup-email')= :email.t
+      %input#signup-email(type='text' name='email')
       %br
-      %button{:type=>'submit'}= :sign_up.t
+      %button(type='submit')= :sign_up.t
       %br

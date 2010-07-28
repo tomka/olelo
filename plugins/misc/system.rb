@@ -13,7 +13,6 @@ class Wiki::Application
 end
 
 __END__
-
 @@ system.haml
 - title 'System Information'
 %h2 Runtime

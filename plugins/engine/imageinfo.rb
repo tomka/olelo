@@ -16,7 +16,6 @@ Engine.create(:imageinfo, :priority => 1, :layout => true, :cacheable => true) d
 end
 
 __END__
-
 @@ info.haml
 %p
   %a{:href => resource_path(@page, :output => 'image') }

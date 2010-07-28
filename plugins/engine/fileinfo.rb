@@ -10,7 +10,6 @@ Engine.create(:fileinfo, :priority => 4, :layout => true, :cacheable => true) do
 end
 
 __END__
-
 @@ info.haml
 %table.zebra
   %tbody
