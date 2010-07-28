@@ -39,7 +39,11 @@ module Wiki
           content = nil
           data.to_s.each_line do |line|
             if line =~ /^@@\s*(.*)/
-              content = '' if name == $1
+              if name == $1
+                content = ''
+              elsif content
+                break
+              end
             elsif content
               content << line
             end

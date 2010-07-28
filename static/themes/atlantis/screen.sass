@@ -12,15 +12,14 @@
 body
   color: #111
   background: #FFF
-  font-family: 'Bitstream Vera Sans', Verdana, Arial, Helvetica, sans-serif
+  font-family: $normal_font
   font-size: 10pt
   line-height: 1.2em
 
 =headline
-  font-family: 'Georgia', 'Times New Roman', serif
+  font-family: $headline_font
   color: $color1
   margin: 1em 0 0.5em 0
-  border-bottom: $border
   line-height: 1.2em
 
 +headlines
@@ -112,6 +111,7 @@ a
       display: block
 
 .editlink
+  font-family: $normal_font
   font-size: 9pt
   color: $light_color
   float: right
@@ -137,7 +137,7 @@ hr
   height: 1px
 
 .version, tt, pre, code, kbd
-  font-family: "Bitstream Vera Mono", monospace
+  font-family: $monospace_font
 
 pre
   border: $border
@@ -335,13 +335,10 @@ table input
   cursor: pointer
 
 .toc
-  border: $border
-  padding: 0.5em 2.5em
-  margin: 1em 0
-  ul
-    margin: 0
   .toc1
     font-weight: bold
+    > ol
+      margin-bottom: 1em
     .toc2
       font-weight: normal
 

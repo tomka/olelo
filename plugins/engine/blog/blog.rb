@@ -7,7 +7,7 @@ class Wiki::Application
   patterns :year => '20\d{2}', :month => '(?:0[1-9])|(?:1[1-2])'
 
   hook :layout do |name, doc|
-    if @engine && @engine.name == 'blog'
+    if !doc.css('.blog, .blog-menu').empty?
       doc.css('head').first << '<link rel="stylesheet" href="/_/engine/blog/blog.css" type="text/css"/>'
     end
   end
@@ -25,23 +25,7 @@ Tag.define('blog-menu') do |context, attrs, content|
   tree.children.each do |child|
     (years[child.version.date.year] ||= [])[child.version.date.month] = true if child.page?
   end
-  builder do
-    div(:class => 'blog-menu') do
-      years.keys.sort.each do |year|
-        div(:class => 'year') do
-          a.year(:href => resource_path(tree, :path => tree.path/year)) do
-            text year
-          end
-          (1..12).each do |month|
-            m = '%02d' % month
-            a.month(:href => resource_path(tree, :path => tree.path/year/m)) do
-              text m
-            end if years[year][month]
-          end
-        end
-      end
-    end
-  end
+  render :menu, :locals => {:years => years, :tree => tree}
 end
 
 Engine.create(:blog, :priority => 3, :layout => true, :cacheable => true, :hidden => true) do
@@ -65,7 +49,14 @@ Engine.create(:blog, :priority => 3, :layout => true, :cacheable => true, :hidde
       engine = Engine.find(page, :layout => true)
       if engine
         content = engine.output(context.subcontext(:engine => engine, :resource => page))
-        content = Nokogiri::HTML::DocumentFragment.parse(content).xpath('p').first if !context.params[:full]
+        if !context.params[:full]
+          paragraphs = Nokogiri::XML::DocumentFragment.parse(content).xpath('p')
+          content = ''
+          paragraphs.each do |p|
+            content += p.to_xhtml(:encoding => 'UTF-8')
+            break if content.length > 10000
+          end
+        end
       else
         content = %{#{:engine_not_available.t(:page => page.name, :type => "#{page.mime.comment} (#{page.mime})", :engine => nil)}}
       end
@@ -94,3 +85,14 @@ __END__
       - if !full
         %a.full{:href=>resource_path(page)}&= :full_article.t
 = pagination(@tree, @pages, @curpage, :output => 'blog')
+
+@@ menu.haml
+%table.blog-menu
+  - years.keys.sort.each do |year|
+    %tr
+      %td
+        %a{:href => resource_path(tree, :path => tree.path/year)}= year
+      %td
+        - (1..12).select {|m| years[year][m] }.each do |month|
+          - m = '%02d' % month
+          %a{:href => resource_path(tree, :path => tree.path/year/m)}= m

@@ -1,12 +1,11 @@
 @import ../../../static/themes/lib/reset.sass
+@import ../../../static/themes/lib/shadow.sass
 @import ../../../static/themes/lib/horizontal-list.sass
 
 .blog > .article
   clear: both
   width: 100%
   > h2
-    border: none
-    clear: both
     margin: 0
   > .author, > .date, > .tags
     float: left
@@ -21,13 +20,14 @@
     clear: both
     width: 100%
   > .full
+    clear: both
     float: right
 
 .blog-menu
-  > .year
-    clear: both
-    display: block
-  a
-    display: block
-    float: left
-    margin-right: 0.5em
+  +reset-table
+  +reset-box-model
+  +no-box-shadow
+  tr
+    background: transparent
+    td
+      vertical-align: top
