@@ -4,17 +4,10 @@ description  'Support for page redirects'
 class Wiki::Application
   hook :layout do |name, doc|
     if params[:redirect]
-      html = builder do
-        p_ {
-          text 'Redirected from '
-          [*params[:redirect]].each do |link|
-            a link.cleanpath, :href => action_path(link, :edit)
-            text ' → '
-          end
-          text '◉'
-        }
-      end
-      doc.css('#content').children.before(html)
+      links = [*params[:redirect]].map do |link|
+        %{<a href="#{escape_html action_path(link, :edit)}">#{escape_html link.cleanpath}</a> → }
+      end.join
+      doc.css('#content').children.before("<p>Redirected from #{links} ◉</p>")
     end
   end
 

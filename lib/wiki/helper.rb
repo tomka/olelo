@@ -28,16 +28,9 @@ module Wiki
 
     def flash_messages
       if !flash.empty?
-        builder do
-          ul do
-            flash.each do |level, list|
-              list.each do |msg|
-                li msg, :class => level
-              end
-            end
-            flash.clear
-          end
-        end
+        li = flash.map {|level, list| list.map {|msg| %{<li class="#{level}">#{escape_html msg}</li>} } }.flatten
+        flash.clear
+        "<ul>#{li.join}</ul>"
       end
     end
   end
@@ -47,38 +40,34 @@ module Wiki
 
     def pagination(resource, pages, curpage, opts)
       if pages > 0
-        builder do
-          ul.pagination {
-            if curpage > 0
-              li { a '«', :href => resource_path(resource, opts.merge(:curpage => 0)) }
-              li { a '‹', :href => resource_path(resource, opts.merge(:curpage => curpage - 1)) }
-            end
-            min = curpage - 3
-            max = curpage + 3
-            if min > 0
-              min -= max - pages if max > pages
-            else
-              max -= min if min < 0
-            end
-            max = [max, pages].min
-            min = [min, 0].max
-            li '…' if min != 0
-            (min..max).each do |i|
-              li {
-                if i == curpage
-                  a.current i + 1, :href => '#'
-                else
-                  a i + 1, :href => resource_path(resource, opts.merge(:curpage => i))
-                end
-              }
-            end
-            li '…' if max != pages
-            if curpage < pages
-              li { a '›', :href => resource_path(resource, opts.merge(:curpage => curpage + 1)) }
-              li { a '»', :href => resource_path(resource, opts.merge(:curpage => pages)) }
-            end
-          }
+        li = []
+        if curpage > 0
+          li << %{<a href="#{escape_html resource_path(resource, opts.merge(:curpage => 0))}">«</a>}
+          li << %{<a href="#{escape_html resource_path(resource, opts.merge(:curpage => curpage - 1))}">‹</a>}
         end
+        min = curpage - 3
+        max = curpage + 3
+        if min > 0
+          min -= max - pages if max > pages
+        else
+          max -= min if min < 0
+        end
+        max = [max, pages].min
+        min = [min, 0].max
+        li '…' if min != 0
+        (min..max).each do |i|
+          if i == curpage
+            li << %{<a class="current" href="#">#{i + 1}</a>}
+          else
+            li << %{<a href="#{escape_html resource_path(resource, opts.merge(:curpage => i))}">#{i + 1}</a>}
+          end
+        end
+        li << '…' if max != pages
+        if curpage < pages
+          li << %{<a href="#{escape_html resource_path(resource, opts.merge(:curpage => curpage + 1))}">›</a>}
+          li << %{<a href="#{escape_html resource_path(resource, opts.merge(:curpage => pages))}">»</a>}
+        end
+        %{<ul class="pagination">#{li.map {|x| "<li>#{x}</li>"}.join}</ul>}
       end
     end
 
@@ -163,19 +152,15 @@ module Wiki
 
     def breadcrumbs(resource)
       path = resource.try(:path) || ''
-      builder do
-        li.first.breadcrumb(:class => '' == path ? 'last' : '') {
-          a Wiki::Config.root_path, :accesskey=>'z', :class => 'root', :href => resource_path(resource, :path => '/')
-        }
-        path.split('/').inject('') do |parent,elem|
-          li.breadcrumb '/'
-          current = parent/elem
-          li.breadcrumb(:class => current == path ? 'last' : '') {
-            a elem, :href => resource_path(resource, :path => current.urlpath)
-          }
-          current
-        end
+      li = [%{<li class="first breadcrumb#{path.empty? ? ' last' : ''}">
+              <a accesskey="z" class="root" href="#{escape_html resource_path(resource, :path => '/')}">#{escape_html Wiki::Config.root_path}</a></li>}.unindent]
+      path.split('/').inject('') do |parent,elem|
+        current = parent/elem
+        li << %{<li class="breadcrumb#{current == path ? ' last' : ''}">
+                <a href="#{escape_html resource_path(resource, :path => current.urlpath)}">#{escape_html elem}</a></li>}.unindent
+        current
       end
+      li.join('<li class="breadcrumb">/</li>')
     end
 
     def resource_path(resource, opts = {})

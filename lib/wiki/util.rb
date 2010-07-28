@@ -106,15 +106,6 @@ module Wiki
       Digest::SHA256.hexdigest(s)
     end
 
-    # XML builder (Nokogiri, Markaby, Erector style)
-    def builder(&block)
-      doc = Nokogiri::XML::Document.new
-      root = doc.create_element('root')
-      doc << root
-      Nokogiri::XML::Builder.with(root, &block)
-      root.children.to_html
-    end
-
     def build_query(params)
       params.map do |k, v|
         if v.class == Array

@@ -26,7 +26,7 @@ class Wiki::Resource
 
   # Resource is movable if parent is writable and destination is writable
   def movable?(user, destination = nil)
-    deletable?(user) && (!destination || Tree.find(destination).writable?(user))
+    deletable?(user) && (!destination || (Resource.find(destination) || Page.new(destination)).writable?(user))
   end
 
   private

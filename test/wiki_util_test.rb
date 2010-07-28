@@ -34,16 +34,6 @@ describe 'Wiki::Util' do
     Wiki::Util.escape_json('a&b<c>').should.equal 'a\u0026b\u003Cc\u003E'
   end
 
-  it 'should have xml #builder' do
-    Wiki::Util.builder do
-      entry {
-        attribute(:key => 'a') {
-          text 'text'
-        }
-      }
-    end.should.equal '<entry><attribute key="a">text</attribute></entry>'
-  end
-
   it 'should have #md5' do
     Wiki::Util.md5('test').should.equal '098f6bcd4621d373cade4e832627b4f6'
   end

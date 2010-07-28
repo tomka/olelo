@@ -23,16 +23,15 @@ end
 
 Tag.define :references do |context, attrs, content|
   footnotes = context.private[:footnotes]
-  builder do
-    ol {
-      footnotes.each do |id, note, refs|
-        li(:id=>"note#{id}") {
-          refs.each do |ref|
-            a.backref '↑', :href => "#ref#{ref}"
-          end
-          parent << note
-        }
-      end
-    }
-  end if footnotes
+  render :footnotes, :local => {:footnotes => footnotes} if footnotes
 end
+
+__END__
+
+@@ footnotes.haml
+%ol
+  - footnotes.each do |id, note, refs|
+    %li(id="note#{id}")
+      - refs.each do |ref|
+        %a.backref(href="#ref#{ref}") ↑
+      = note
