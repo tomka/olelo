@@ -24,8 +24,9 @@
         #page= yield
     #footer
       #themes.noprint
-      Powered by
-      %a{:href=>'http://github.com/minad/git-wiki/tree/master'} Git-Wiki
-      = blocks[:footnote]
-      %span.noprint= "| #{@timer.stop.elapsed_ms}ms"
+      = blocks[:footer]
+      .noprint.powered_by
+        Powered by
+        %a{:href=>'http://github.com/minad/git-wiki/tree/master'} Ōlelo
+        | #{@timer.stop.elapsed_ms}ms
     %script{:src=>'/static/script.js', :type=>'text/javascript'}

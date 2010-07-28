@@ -22,13 +22,13 @@ class Wiki::Application
     prefix = request.scheme + '://' +  request.host + ':' + request.port.to_s + '/'
 
     content = RSS::Maker.make(params[:format] == 'rss' ? '2.0' : 'atom') do |feed|
-      feed.channel.generator = 'Git-Wiki'
+      feed.channel.generator = 'Ōlelo'
       feed.channel.title = Config.title
       feed.channel.link = prefix + resource.path
       feed.channel.description = Config.title + ' Changelog'
-      feed.channel.id = prefix + resource.path # atom
+      feed.channel.id = prefix + resource.path
       feed.channel.updated = Time.now
-      feed.channel.author = 'Git-Wiki'
+      feed.channel.author = Config.title
       feed.items.do_sort = true
       resource.history.each do |version|
         i = feed.items.new_item

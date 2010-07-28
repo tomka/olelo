@@ -1,8 +1,7 @@
 README
 ======
 
-Git-Wiki is a wiki that stores pages in a [Git][] repository.
-
+Ōlelo is a wiki that stores pages in a [Git][] repository.
 See the demo installation at <http://git.awiki.org/> or <http://git-wiki.kicks-ass.org/>.
 
 Features
@@ -14,7 +13,7 @@ A lot of the features are implemented as plugins.
 - Support for hierarchical wikis (directory structure)
 - Upload files
 - History (also as RSS/Atom changelog)
-- Plugin system
+- Access control lists
 - Support for multiple text engines (Creole, Markdown, Textile, ...)
 - Section editing for creole markup
 - Embedded LaTeX/Graphviz graphics

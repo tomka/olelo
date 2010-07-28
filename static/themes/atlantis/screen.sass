@@ -61,7 +61,7 @@ ul.pagination
     a
       display: block
       background: $main_bg
-      border: 1px outset #999
+      border: 1px outset $border_color
       padding: 0em 0.5em
       line-height: 1.5em
       +rounded
@@ -113,7 +113,7 @@ a
 
 .editlink
   font-size: 9pt
-  color: #999
+  color: $light_color
   float: right
   margin-top: -1.8em
   font-variant: normal
@@ -132,7 +132,7 @@ img
   vertical-align: middle
 
 hr
-  background: #999
+  background: $border_color
   border: none
   height: 1px
 
@@ -228,7 +228,7 @@ form
     float:		left
     margin:		0.3em 0.5em 0.3em 0
     padding:		2px
-    border:		1px outset #999
+    border:		1px outset $border_color
     color:              $dark_color
     &:focus
       border-style:	dotted

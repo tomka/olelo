@@ -16,7 +16,7 @@ describe 'requests' do
     @app_path = File.expand_path(File.join(File.dirname(__FILE__), '..'))
 
     default_config = {
-      :title             => 'Git-Wiki',
+      :title             => 'Ōlelo',
       :app_path          => @app_path,
       :plugins_path      => File.join(@app_path, 'plugins'),
       :config_path       => File.join(@app_path, 'config'),

@@ -14,7 +14,7 @@ body
   font-family: 'Georgia', 'Times New Roman', serif
   color: $color1
   margin: 1em 0 0.5em 0
-  border-bottom: 1px solid #999
+  border-bottom: $border
 
 +headlines
 
@@ -37,10 +37,10 @@ ul, ol
 table
   border-collapse: collapse
   border-spacing: 0
-  border: 1px solid #999
+  border: $border
   tr
     td, th
-      border: 1px solid #999
+      border: $border
       padding: 0.2em 0.5em
       &.link
         padding: 0
@@ -58,7 +58,7 @@ a
   &.img
     background: transparent
   div.img &
-    border: 1px solid #999
+    border: $border
     float: right
     text-align: center
     color: #000
@@ -71,7 +71,7 @@ img
   vertical-align: middle
 
 hr
-  background: #999
+  background: $border_color
   border: none
   height: 1px
 

@@ -9,8 +9,8 @@ module Wiki
       blocks[name] = block ? capture_haml(&block) : content
     end
 
-    def footnote(content = nil, &block); define_block(:footnote, content, &block); end
-    def title(content = nil, &block);    define_block(:title, content, &block);    end
+    def footer(content = nil, &block); define_block(:footer, content, &block); end
+    def title(content = nil, &block);  define_block(:title,  content, &block); end
   end
 
   module FlashHelper
