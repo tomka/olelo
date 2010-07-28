@@ -1,4 +1,3 @@
-author       'Daniel Mendler'
 description  'Wraps fragment into html block to make it valid'
 dependencies 'engine/filter'
 

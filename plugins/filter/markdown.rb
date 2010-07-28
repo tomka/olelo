@@ -1,4 +1,3 @@
-author       'Daniel Mendler'
 description  'Markdown text filter'
 dependencies 'engine/filter'
 require      'rdiscount'

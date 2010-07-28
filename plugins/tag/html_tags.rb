@@ -1,4 +1,3 @@
-author       'Daniel Mendler'
 description  'Safe html tags'
 dependencies 'filter/tag'
 

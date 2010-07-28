@@ -1,5 +1,4 @@
-author      'Daniel Mendler'
-description 'Basic sidebar implementation'
+description  'Basic sidebar implementation'
 dependencies 'engine/engine'
 
 class Wiki::Application

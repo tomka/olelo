@@ -1,4 +1,3 @@
-author       'Daniel Mendler'
 description  'Support for XML tag soup in wiki text'
 dependencies 'engine/filter'
 

@@ -1,4 +1,3 @@
-author      'Daniel Mendler'
 description 'Access control lists'
 
 class Wiki::Resource

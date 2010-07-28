@@ -1,4 +1,3 @@
-author       'Daniel Mendler'
 description  'Tilt filter'
 dependencies 'engine/filter'
 require      'tilt'

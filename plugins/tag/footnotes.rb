@@ -1,4 +1,3 @@
-author       'Daniel Mendler'
 description  'Footnote support'
 dependencies 'filter/tag'
 
@@ -23,7 +22,7 @@ end
 
 Tag.define :references do |context, attrs, content|
   footnotes = context.private[:footnotes]
-  render :footnotes, :local => {:footnotes => footnotes} if footnotes
+  render :footnotes, :locals => {:footnotes => footnotes} if footnotes
 end
 
 __END__

@@ -1,4 +1,3 @@
-author      'Daniel Mendler'
 description 'Download engine'
 dependencies 'engine/engine'
 

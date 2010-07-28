@@ -1,6 +1,5 @@
-author      'Daniel Mendler'
 description 'RSS Changelogs'
-require 'rss/maker'
+require     'rss/maker'
 
 class Wiki::Application
   hook :layout do |name, doc|

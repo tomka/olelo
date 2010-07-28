@@ -1,5 +1,4 @@
-author      'Daniel Mendler'
-description 'Blog engine'
+description  'Blog engine'
 dependencies 'filter/tag', 'utils/asset_manager'
 
 AssetManager.register_scripts '*.css'

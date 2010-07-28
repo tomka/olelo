@@ -1,5 +1,4 @@
-author      'Daniel Mendler'
-description 'Tree engine'
+description  'Tree engine'
 dependencies 'engine/engine'
 
 Engine.create(:tree, :priority => 2, :layout => true, :cacheable => true) do

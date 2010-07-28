@@ -1,4 +1,3 @@
-author       'Daniel Mendler'
 description  'Source code highlighting engine'
 dependencies 'engine/engine', 'utils/pygments'
 

@@ -1,4 +1,3 @@
-author      'Daniel Mendler'
 description 'Interwiki support'
 
 def interwiki

@@ -1,4 +1,3 @@
-author       'Daniel Mendler'
 description  'Pandoc filter'
 dependencies 'engine/filter'
 

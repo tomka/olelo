@@ -1,4 +1,3 @@
-author       'Daniel Mendler'
 description  'Embed github gists'
 dependencies 'filter/tag'
 require      'open-uri'

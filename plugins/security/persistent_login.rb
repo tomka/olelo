@@ -1,7 +1,6 @@
-author      'Daniel Mendler'
 description 'Persistent login'
-require 'pstore'
-require 'securerandom'
+require     'pstore'
+require     'securerandom'
 
 class Wiki::Application
   TOKEN_LIFETIME = 24*60*60*365

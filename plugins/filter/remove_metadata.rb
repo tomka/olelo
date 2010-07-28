@@ -1,4 +1,3 @@
-author       'Daniel Mendler'
 description  'Removes metadata header'
 dependencies 'engine/filter'
 

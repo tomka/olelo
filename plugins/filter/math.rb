@@ -1,4 +1,3 @@
-author       'Daniel Mendler'
 description  'Math shortcuts \(1+1\), \[1+1\], $$1+1$$'
 dependencies 'engine/filter'
 

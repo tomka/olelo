@@ -1,4 +1,3 @@
-author       'Daniel Mendler'
 description  'Sort tag'
 dependencies 'filter/tag'
 

@@ -1,4 +1,3 @@
-author       'Daniel Mendler'
 description  'Syntax highlighting tag'
 dependencies 'filter/tag', 'utils/pygments'
 

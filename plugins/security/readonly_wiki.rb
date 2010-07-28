@@ -1,4 +1,3 @@
-author      'Daniel Mendler'
 description 'Read-only wiki'
 
 class Wiki::Application

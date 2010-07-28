@@ -1,4 +1,3 @@
-author      'Daniel Mendler'
 description 'Asset manager'
 
 class Wiki::AssetManager

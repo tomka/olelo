@@ -1,4 +1,3 @@
-author      'Daniel Mendler'
 description 'Image information engine'
 dependencies 'engine/image'
 

@@ -1,4 +1,3 @@
-author       'Daniel Mendler'
 description  'Gallery engine'
 dependencies 'engine/engine', 'utils/asset_manager'
 

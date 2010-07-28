@@ -1,4 +1,3 @@
-author       'Daniel Mendler'
 description  'Export variables to context and javascript'
 dependencies 'engine/engine'
 require      'json'

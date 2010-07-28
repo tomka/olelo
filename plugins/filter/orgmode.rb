@@ -1,4 +1,3 @@
-author       'Daniel Mendler'
 description  'Emacs org-mode filter'
 dependencies 'engine/filter'
 require      'org-ruby'

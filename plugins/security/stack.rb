@@ -1,5 +1,4 @@
-author       'Daniel Mendler'
-description  'Authentication service stack'
+description 'Authentication service stack'
 
 class StackService < User::Service
   def initialize(config)

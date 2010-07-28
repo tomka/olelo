@@ -1,5 +1,4 @@
-author       'Daniel Mendler'
-description  'Engine subsystem'
+description 'Engine subsystem'
 
 # Engine context
 # A engine context holds the request parameters and other
@@ -68,9 +67,12 @@ class Wiki::Engine
     (@engines[engine.name] ||= []) << engine
   end
 
-  # Find all accepting engines for a resource
+  # Find all accepting engines for a resource which are not hidden
   def self.find_all(resource)
-    @engines.values.flatten.find_all { |e| e.accepts? resource }.sort_by {|a| a.name }
+    name = resource.metadata[:output] || resource.metadata[:engine]
+    @engines.values.flatten.select do |e|
+      ((!resource.namespace.metadata? && e.name == name) || !e.hidden?) && e.accepts?(resource)
+    end.sort_by {|a| a.name }
   end
 
   # Find appropiate engine for resource. An optional
@@ -138,19 +140,18 @@ class Wiki::Application
 
   hook :layout do |name, doc|
     doc.css('#menu .action-view').each do |link|
-      link.after render(:views, :layout => false)
+      engines = Wiki::Engine.find_all(@resource)
+      li = engines.select {|e| e.layout? }.map do |e|
+        name = escape_html Wiki::I18n.translate("engine_#{e.name}", :fallback => e.name.tr('_', ' '))
+        %{<li#{@engine && e.name == @engine.name ? ' class="selected"': ''}>
+          <a href="#{escape_html resource_path(@resource, :output => e.name)}">#{name}</a></li>}.unindent
+      end +
+      engines.select {|e| !e.layout? }.map do |e|
+        name = escape_html Wiki::I18n.translate("engine_#{e.name}", :fallback => e.name.tr('_', ' '))
+        %{<li class="download#{@engine && e.name == @engine.name ? 'selected': ''}">
+                <a href="#{escape_html resource_path(@resource, :output => e.name)}">#{name}</a></li>}.unindent
+      end
+      link.after "<ul>#{li.join}</ul>"
     end
   end
 end
-
-__END__
-
-@@ views.haml
-%ul
-  - engines = Wiki::Engine.find_all(@resource).select {|e| !e.hidden? }
-  - engines.select {|e| e.layout? }.each do |engine|
-    %li{:class => @engine && engine.name == @engine.name ? 'selected': nil}
-      %a{:href => resource_path(@resource, :output => engine.name)}= Wiki::I18n.translate("engine_#{engine.name}", :fallback => engine.name.tr('_', ' '))
-  - engines.select {|e| !e.layout? }.each do |engine|
-    %li.download{:class => @engine && engine.name == @engine.name ? 'selected': nil}
-      %a{:href => resource_path(@resource, :output => engine.name)}= Wiki::I18n.translate("engine_#{engine.name}", :fallback => engine.name.tr('_', ' '))

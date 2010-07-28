@@ -1,4 +1,3 @@
-author       'Daniel Mendler'
 description  'Creole wiki text filter'
 dependencies 'engine/filter'
 require      'creole'

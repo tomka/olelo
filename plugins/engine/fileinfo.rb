@@ -1,4 +1,3 @@
-author      'Daniel Mendler'
 description 'File information engine'
 dependencies 'engine/engine'
 

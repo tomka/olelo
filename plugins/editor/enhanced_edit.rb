@@ -1,5 +1,4 @@
-author      'Daniel Mendler'
-description 'Enhanced edit form with preview and diff'
+description  'Enhanced edit form with preview and diff'
 dependencies 'engine/engine'
 
 class Wiki::Application

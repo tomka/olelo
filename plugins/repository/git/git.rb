@@ -1,6 +1,5 @@
-author      'Daniel Mendler'
 description 'Git repository backend'
-require 'gitrb'
+require     'gitrb'
 
 class Gitrb::Diff
   def to_wiki

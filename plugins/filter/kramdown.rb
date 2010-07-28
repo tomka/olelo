@@ -1,4 +1,3 @@
-author       'Daniel Mendler'
 description  'Kramdown markdown converter'
 dependencies 'engine/filter'
 require      'kramdown'

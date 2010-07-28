@@ -1,4 +1,3 @@
-author       'Daniel Mendler'
 description  'Basic XSLT filter'
 dependencies 'engine/filter'
 

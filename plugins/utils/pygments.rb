@@ -1,5 +1,4 @@
-author      'Daniel Mendler'
-description 'Pygments syntax highlighter'
+description  'Pygments syntax highlighter'
 dependencies 'utils/asset_manager'
 
 AssetManager.register_scripts 'pygments.css'

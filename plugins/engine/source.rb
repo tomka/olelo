@@ -1,5 +1,4 @@
-author      'Daniel Mendler'
-description 'Source engine'
+description  'Source engine'
 dependencies 'engine/engine'
 
 Engine.create(:source, :priority => 3, :layout => true, :cacheable => true) do

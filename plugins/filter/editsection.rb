@@ -1,5 +1,4 @@
-author      'Daniel Mendler'
-description 'Adds links for section editing for creole'
+description  'Adds links for section editing for creole'
 dependencies 'engine/filter'
 
 Filter.create :editsection do |content|

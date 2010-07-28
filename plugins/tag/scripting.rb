@@ -1,4 +1,3 @@
-author       'Daniel Mendler'
 description  'Scripting tags'
 dependencies 'filter/tag'
 require      'evaluator'

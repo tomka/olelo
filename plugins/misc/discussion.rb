@@ -1,4 +1,3 @@
-author      'Daniel Mendler'
 description 'Discussion pages'
 
 class Wiki::Application

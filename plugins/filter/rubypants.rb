@@ -1,4 +1,3 @@
-author       'Daniel Mendler'
 description  'Filter which fixes punctuation'
 dependencies 'engine/filter'
 require      'rubypants'

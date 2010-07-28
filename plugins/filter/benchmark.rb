@@ -1,5 +1,4 @@
-author      'Daniel Mendler'
-description 'Filter engine benchmark'
+description  'Filter engine benchmark'
 dependencies 'engine/filter'
 
 class Wiki::Filter

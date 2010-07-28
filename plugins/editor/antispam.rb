@@ -1,6 +1,5 @@
-author      'Daniel Mendler'
 description 'Anti-Spam'
-require 'net/http'
+require     'net/http'
 
 RECAPTCHA_PUBLIC = Config.antispam.recaptcha.public
 RECAPTCHA_PRIVATE = Config.antispam.recaptcha.private

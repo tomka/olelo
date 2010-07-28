@@ -1,4 +1,3 @@
-author       'Daniel Mendler'
 description  'S5 presentation filter'
 dependencies 'filter/xslt', 'utils/asset_manager'
 

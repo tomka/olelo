@@ -1,5 +1,4 @@
-author      'Daniel Mendler'
-description 'Cache class'
+description  'Cache class'
 dependencies 'engine/engine'
 
 # Cache base class

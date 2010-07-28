@@ -1,4 +1,3 @@
-author       'Daniel Mendler'
 description  'Remove html comments'
 dependencies 'engine/filter'
 

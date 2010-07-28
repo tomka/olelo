@@ -1,4 +1,3 @@
-author       'Daniel Mendler'
 description  'LaTeX rendering (math tags)'
 dependencies 'filter/tag'
 

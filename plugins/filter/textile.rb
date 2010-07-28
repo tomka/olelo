@@ -1,4 +1,3 @@
-author       'Daniel Mendler'
 description  'Textile text filter'
 dependencies 'engine/filter'
 require      'redcloth'

@@ -1,4 +1,3 @@
-author       'Daniel Mendler'
 description  'Tree Viewer'
 dependencies 'engine/engine', 'utils/asset_manager'
 require      'json'

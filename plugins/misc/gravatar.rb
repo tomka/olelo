@@ -1,4 +1,3 @@
-author      'Daniel Mendler'
 description 'Display gravatar'
 
 class Wiki::Application

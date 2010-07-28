@@ -1,4 +1,3 @@
-author      'Daniel Mendler'
 description 'Simple webdav interface to the wiki files'
 
 class Wiki::Application

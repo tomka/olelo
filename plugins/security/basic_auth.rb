@@ -1,6 +1,5 @@
-author      'Daniel Mendler'
 description 'HTTP basic authentication'
-require 'rack/auth/basic'
+require     'rack/auth/basic'
 
 class Wiki::Application
   hook :auto_login do

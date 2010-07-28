@@ -1,5 +1,4 @@
-author      'Daniel Mendler'
-description 'Archive engine for git repository'
+description  'Archive engine for git repository'
 dependencies 'engine/engine', 'repository/git/git'
 
 raise 'Git repository required' if Config.repository.type != 'git'

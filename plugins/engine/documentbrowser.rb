@@ -1,4 +1,3 @@
-author      'Daniel Mendler'
 description 'Document browser engine'
 dependencies 'engine/engine'
 

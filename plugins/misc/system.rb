@@ -1,4 +1,3 @@
-author      'Daniel Mendler'
 description 'System information'
 
 class Wiki::Application

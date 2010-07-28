@@ -1,5 +1,4 @@
-author       'Daniel Mendler'
-description  'Support for page redirects'
+description 'Support for page redirects'
 
 class Wiki::Application
   hook :layout do |name, doc|

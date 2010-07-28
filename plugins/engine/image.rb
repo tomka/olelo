@@ -1,4 +1,3 @@
-author      'Daniel Mendler'
 description 'Image rendering engine'
 dependencies 'engine/engine', 'utils/semaphore'
 

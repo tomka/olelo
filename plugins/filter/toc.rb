@@ -1,4 +1,3 @@
-author       'Daniel Mendler'
 description  'Auto-generated table of contents'
 dependencies 'engine/filter', 'filter/tag'
 

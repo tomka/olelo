@@ -1,5 +1,4 @@
-author      'Daniel Mendler'
-description 'Text engine'
+description  'Text engine'
 dependencies 'engine/engine'
 
 # Text engine. Renders text content.

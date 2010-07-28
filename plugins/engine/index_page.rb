@@ -1,4 +1,3 @@
-author      'Daniel Mendler'
 description 'Index page engine'
 dependencies 'engine/engine'
 

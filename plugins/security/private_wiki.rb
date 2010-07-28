@@ -1,4 +1,3 @@
-author      'Daniel Mendler'
 description 'Disallow anonymous access'
 
 class Wiki::Application

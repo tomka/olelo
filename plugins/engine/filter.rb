@@ -1,4 +1,3 @@
-author      'Daniel Mendler'
 description 'Filter pipeline engine'
 dependencies 'engine/engine'
 

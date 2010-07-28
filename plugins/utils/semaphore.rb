@@ -1,4 +1,3 @@
-author      'Daniel Mendler'
 description 'Semaphore class'
 
 class Wiki::Semaphore
