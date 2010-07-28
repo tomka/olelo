@@ -2,9 +2,7 @@
   = breadcrumbs(@resource)
   - if @resource && !@resource.current?
     %li.noborder
-      = :version.t
-      %span.version{:title => @resource.tree_version}
-        = @resource.tree_version.short
+      = date @resource.tree_version.date
 %ul.wiki
   - if @resource
     - if @menu_versions

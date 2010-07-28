@@ -1,36 +1,22 @@
+@import constants.sass
 @import ../lib/reset.sass
+@import ../lib/headlines.sass
 @import ../lib/changes.sass
 
 body
   color: #000
-  background: #FFF
+  background: $main_bg
   font-family: 'Bitstream Vera Sans', Verdana, Arial, Helvetica, sans-serif
   font-size: 10pt
   line-height: 1.2em
 
-h1
-  font-size: 180%
-
-h2
-  font-size: 170%
-
-h3
-  font-size: 150%
-
-h4
-  font-size: 120%
-
-h5
-  font-size: 120%
-
-h6
-  font-size: 120%
-
-h1,h2,h3,h4,h5,h6
+=headline
   font-family: 'Georgia', 'Times New Roman', serif
-  color: #0b3e71
+  color: $color1
   margin: 1em 0 0.5em 0
   border-bottom: 1px solid #999
+
++headlines
 
 ul,ol,p
   margin: 0.8em 0 0.8em 0
@@ -67,14 +53,8 @@ table
 
 a
   &, &:visited
-    color: #0B3E71
+    color: $color1
     text-decoration: none
-  &:hover, &:active
-    color: #FFF
-    background: #0B3E71
-    text-decoration: none
-  &:active
-    background: #022763
   &.img
     background: transparent
   div.img &
@@ -82,7 +62,7 @@ a
     float: right
     text-align: center
     color: #000
-    background: #FFF
+    background: $main_bg
     padding: 0.2em
     img
       display: block

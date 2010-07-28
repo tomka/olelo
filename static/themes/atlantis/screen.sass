@@ -18,7 +18,7 @@ body
 
 =headline
   font-family: 'Georgia', 'Times New Roman', serif
-  color: #0b3e71
+  color: $color1
   margin: 1em 0 0.5em 0
   border-bottom: $border
   line-height: 1.2em
@@ -60,7 +60,7 @@ ul.pagination
     margin: 0 0.5em 0.5em 0
     a
       display: block
-      background: #FFF
+      background: $main_bg
       border: 1px outset #999
       padding: 0em 0.5em
       line-height: 1.5em
@@ -79,7 +79,7 @@ table
   border: $border
   margin: 0 0 1em 0
   tr
-    background: #FFF
+    background: $main_bg
     td, th
       padding: 0.2em 0.5em
       &.link
@@ -97,7 +97,7 @@ table
 
 a
   &, &:visited
-    color: #0B3E71
+    color: $color1
     text-decoration: none
   &.img
     background: transparent
@@ -106,7 +106,7 @@ a
     float: right
     text-align: center
     color: #000
-    background: #FFF
+    background: $main_bg
     padding: 0.2em
     img
       display: block
@@ -142,7 +142,6 @@ hr
 pre
   border: $border
   padding: 0.2em
-  background: #FFF
   min-width: 60%
   white-space: pre-wrap
   display: block
@@ -219,8 +218,8 @@ form
     margin:		0.3em 0.5em 0.3em 0
     padding:		2px
     border:             $border
-    background:		#FFF
-    color:              #333
+    background:	        $main_bg
+    color:              $dark_color
     &:focus
       border-style:	dotted
   button
@@ -230,7 +229,7 @@ form
     margin:		0.3em 0.5em 0.3em 0
     padding:		2px
     border:		1px outset #999
-    color:              #333
+    color:              $dark_color
     &:focus
       border-style:	dotted
     &:active
@@ -249,7 +248,7 @@ form
     padding:            0.4em 0.5em 0.4em 0
     border:             none
     background:         none
-    color:              #333
+    color:              $dark_color
     white-space:        nowrap
   .fieldset label
     width:		8em
@@ -312,18 +311,17 @@ table input
       height: 1.5em
       line-height: 1.5em
       border: $border
-      color: #333
       &.tabs-selected > a
         +rounded-tl
         +rounded-tr
-        background: #FFF
+        background: $main_bg
         border-bottom: 1px solid #FFF
       > a
         display: block
         text-decoration: none
         white-space: nowrap
         padding: 0 0.8em
-        color: #333
+        color: $dark_color
         &:hover, &:active, &:focus
           text-shadow: #333 1px 1px 2px
 
@@ -337,7 +335,6 @@ table input
   cursor: pointer
 
 .toc
-  background: #FFF
   border: $border
   padding: 0.5em 2.5em
   margin: 1em 0
@@ -370,7 +367,7 @@ table input
       display: inline
 
 .timemachine #header
-  background: #333
+  background: $header_bg2
   h1
     color: #EEE
 

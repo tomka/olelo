@@ -23,7 +23,7 @@ file 'plugins/utils/pygments.sass' do
   sh "pygmentize -S default -f html -a .highlight | css2sass > plugins/utils/pygments.sass"
 end
 
-file('static/themes/blue/style.css' => Dir.glob('static/themes/blue/*.sass') + Dir.glob('static/themes/lib/*.sass')) do |t|
+file('static/themes/atlantis/style.css' => Dir.glob('static/themes/atlantis/*.sass') + Dir.glob('static/themes/lib/*.sass')) do |t|
   puts "Creating #{t.name}..."
   content = "@media screen{#{sass(t.name.gsub('style.css', 'screen.sass'))}}@media print{#{sass(t.name.gsub('style.css', 'print.sass'))}}"
   spew(t.name, content)
@@ -43,7 +43,7 @@ namespace :gen do
   task :js => %w(static/script.js plugins/treeview/script.js plugins/engine/gallery/script.js)
 
   desc('Compile CSS files')
-  task :css => %w(static/themes/blue/style.css plugins/treeview/treeview.css
+  task :css => %w(static/themes/atlantis/style.css plugins/treeview/treeview.css
                   plugins/utils/pygments.css plugins/engine/gallery/gallery.css plugins/engine/blog/blog.css)
 end
 
