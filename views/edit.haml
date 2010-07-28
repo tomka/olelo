@@ -31,6 +31,7 @@
       %input{:type=>'hidden', :name=> 'action',  :value=>'upload'}
       %input{:type=>'hidden', :name=> 'version', :value => @resource.version}
       %h2= :upload_file.t
+      %p= :upload_warning.t
       = flash_messages if action? :upload
       %label{:for=>'upload-file'}= :file.t
       %input#upload-file{:name=>'file',:type=>'file'}
