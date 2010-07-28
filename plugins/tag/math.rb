@@ -44,17 +44,6 @@ class Renderer
   end
 end
 
-class ImaginatorRenderer < Renderer
-  def load
-    Plugin.load('utils/imaginator')
-  end
-
-  def render(code, display)
-    name = Plugin['utils/imaginator'].imaginator.enqueue('math', code)
-    %{<img src="/_/utils/imaginator/#{name}" alt="#{escape_html code}" class="math #{display}"/>}
-  end
-end
-
 class RitexRenderer < Renderer
   def load
     require 'ritex'
@@ -111,13 +100,12 @@ class GoogleRenderer < Renderer
 end
 
 Renderer.registry = {
-  'imaginator'   => ImaginatorRenderer.new,
   'itex'         => ItexRenderer.new,
   'ritex'        => RitexRenderer.new,
   'blahtexml'    => BlahtexMLRenderer.new,
   'blahteximage' => BlahtexImageRenderer.new,
   'google'       => GoogleRenderer.new,
-  'image'        => %w(imaginator blahteximage google),
+  'image'        => %w(google blahteximage),
   'mathml'       => %w(blahtexml itex ritex),
 }
 

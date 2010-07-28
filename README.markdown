@@ -51,7 +51,6 @@ First, you have to install the [Gem][] dependencies via `gem`:
     gem install RedCloth
     gem install maruku
     gem install rubypants
-    gem install imaginator
     gem install evaluator
     gem install rack-embed
     gem install org-ruby
@@ -87,8 +86,6 @@ Dependencies
 
 ### Optional Dependencies
 
-- [imaginator][] for [LaTeX][]/[GraphViz][] output
-  (`imaginator` Gem from [gemcutter][])
 - [Pygments][] for syntax highlighting
 - [ImageMagick][] for image scaling and svg rendering
 - [RubyPants][] to fix punctuation
@@ -112,7 +109,6 @@ At least one of these renderers should be installed:
 [GraphViz]:http://www.graphviz.org
 [HAML]:http://haml.hamptoncatlin.com
 [nokogiri]:http://nokogiri.org/
-[imaginator]:http://github.com/minad/imaginator
 [LaTeX]:www.latex-project.org
 [pygments]:http://pygments.org/
 [RDiscount]:http://github.com/rtomayko/rdiscount
