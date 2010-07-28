@@ -80,8 +80,6 @@ if Wiki::Config.rack.esi?
   if Wiki::Config.production?
     logger.info 'Use rack cache'
     require 'rack/cache'
-    require 'rack/purge'
-    use Rack::Purge
     use Rack::Cache,
       :verbose     => false,
       :metastore   => "file:#{::File.join(Wiki::Config.cache, 'rack', 'meta')}",
