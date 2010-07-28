@@ -6,7 +6,6 @@ module Wiki
     include Routing
     include Templates
     include ApplicationHelper
-    extend Assets
 
     patterns :path => Resource::PATH_PATTERN
     attr_reader :logger, :user

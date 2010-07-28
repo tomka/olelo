@@ -6,9 +6,9 @@
     &.tabs-selected
       display: none !important
 
-=file-type(!type)
-  .file-type-#{!type}
-    background: url(/static/themes/default/images/filetypes/#{!type}.png) no-repeat center center !important
+=file-type($type)
+  .file-type-#{$type}
+    background: url(/static/themes/default/images/filetypes/#{$type}.png) no-repeat center center !important
 
 #treeview
   +file-type("7z")
@@ -75,11 +75,11 @@
           height: 16px
           float: left
     .wait .arrow
-      background: url(spinner.gif) no-repeat center center !important
+      background: url(treeview/spinner.gif) no-repeat center center !important
     .collapsed .arrow
-      background: url(collapsed.png) no-repeat center center
+      background: url(treeview/collapsed.png) no-repeat center center
     .expanded .arrow
-      background: url(expanded.png) no-repeat center center
+      background: url(treeview/expanded.png) no-repeat center center
     .page
       background: url(/static/themes/default/images/page.png) no-repeat center center
     .expanded .tree

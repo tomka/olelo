@@ -1,5 +1,8 @@
 author      'Daniel Mendler'
 description 'Pygments syntax highlighter'
+dependencies 'utils/asset_manager'
+
+AssetManager.register_scripts 'pygments.css'
 
 module Wiki::Pygments
   include Util
@@ -40,17 +43,4 @@ module Wiki::Pygments
   end
 
   private_class_method :pre, :lexer_mapping
-end
-
-class Wiki::Application
-  assets 'pygments.css'
-
-  hook :layout do |name, doc|
-    doc.css('head').first << '<link rel="stylesheet" href="/_/utils/pygments.css" type="text/css"/>' if @pygmentize_used
-  end
-
-  def pygmentize(code, format)
-    @pygmentize_used = true
-    Pygments.pygmentize(code, format)
-  end
 end

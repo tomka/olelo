@@ -4,21 +4,21 @@
   %head
     %title&= Wiki::Config.title + ' - ' + blocks[:title]
     = theme_links
-    %link{:rel => 'shortcut icon', :href => '/static/images/favicon.png', :type => 'image/png'}
+    %link(rel='shortcut icon' href='/static/images/favicon.png' type='image/png')
   %body
     #header
       %h1&= Wiki::Config.title
       #info
         %esi:include{:src=>'/_/user'}/
       #search
-        %form{:action=>'/search',:method=>'get'}
+        %form(action='/search' method='get')
           %div
-            %label.hidden{:for=>'pattern'}= :search.t
+            %label.hidden(for='pattern')= :search.t
             %input{:type=>'text',:id=>'pattern',:name=>'pattern', :value=> params[:pattern] || :search.t, :class=> !params[:pattern] && 'placeholder'}
     #menu= render(:menu, :layout => false)
     #container
       #sidebar
-        %esi:include{:src=>'/_/sidebar', :onerror => 'continue'}/
+        %esi:include(src='/_/sidebar' onerror='continue')/
       #content
         %h1&= blocks[:title]
         #page= yield
@@ -27,6 +27,6 @@
       = blocks[:footer]
       .noprint.powered_by
         Powered by
-        %a{:href=>'http://github.com/minad/git-wiki/tree/master'} Ōlelo
+        %a(href='http://github.com/minad/git-wiki/tree/master') Ōlelo
         | #{@timer.stop.elapsed_ms}ms
-    %script{:src=>'/static/script.js', :type=>'text/javascript'}
+    %script(src='/static/script.js' type='text/javascript')

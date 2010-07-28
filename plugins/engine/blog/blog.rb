@@ -1,18 +1,11 @@
 author      'Daniel Mendler'
 description 'Blog engine'
-dependencies 'filter/tag'
+dependencies 'filter/tag', 'utils/asset_manager'
+
+AssetManager.register_scripts '*.css'
 
 class Wiki::Application
-  assets 'blog.css'
-  patterns :year => '20\d{2}', :month => '(?:0[1-9])|(?:1[1-2])'
-
-  hook :layout do |name, doc|
-    if !doc.css('.blog, .blog-menu').empty?
-      doc.css('head').first << '<link rel="stylesheet" href="/_/engine/blog/blog.css" type="text/css"/>'
-    end
-  end
-
-  get '/:path/?:year', '/:path/?:year/:month' do
+  get '/:path/?:year', '/:path/?:year/:month', :year => '20\d{2}', :month => '(?:0[1-9])|(?:1[1-2])' do
     params[:output] = 'blog'
     send('GET /:path')
   end

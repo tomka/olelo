@@ -325,33 +325,4 @@ module Wiki
       output
     end
   end
-
-  module Assets
-    def self.extended(base)
-      base.class_eval do
-        get "/_/:file", :file => /.*/ do
-          if path = self.class.asset_paths[params[:file]]
-            cache_control :last_modified => File.mtime(path), :max_age => :static
-            send_file path
-          else
-            pass
-          end
-        end
-      end
-    end
-
-    def asset_paths
-      @asset_paths ||= {}
-    end
-
-    def assets(*files)
-      name = File.dirname(Plugin.current.name)
-      dir = File.dirname(Plugin.current.file)
-      files.each do |file|
-        Dir[File.join(dir, file)].each do |path|
-          asset_paths[name/path[dir.length+1..-1]] = path if File.file?(path)
-        end
-      end
-    end
-  end
 end

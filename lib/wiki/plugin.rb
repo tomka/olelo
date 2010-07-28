@@ -15,8 +15,8 @@ module Wiki
       attr_accessor :dir, :logger, :disabled
 
       # Current loading plugin
-      def current
-        caller.each do |line|
+      def current(start = 0)
+        caller(start + 1).each do |line|
           return @plugins[$1] if line =~ %r{^#{@dir}/(.+?)\.rb}
         end
         raise 'No plugin context'
