@@ -19,6 +19,6 @@ $.translations({
                  '</h1><div id="treeview"/></div><div id="sidebar-menu">' + sidebar.html() + '</div>');
     $('#treeview-tabs').tabs({store: 'treeview-tabs'});
     $('#treeview').treeView({stateStore: 'treeview-state', cacheStore: 'treeview-cache', ajax: function(path, success, error) {
-        $.ajax({url: path, data: { output: 'treeview_json' }, success: success, error: error});
+        $.ajax({url: path, data: { output: 'treeview.json' }, success: success, error: error});
     }});
 })();

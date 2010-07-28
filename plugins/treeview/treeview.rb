@@ -5,7 +5,7 @@ require      'json'
 AssetManager.register_scripts '*.js', '*.css'
 AssetManager.register_assets '*.png', '*.gif'
 
-Engine.create(:treeview_json, :priority => 999, :layout => false, :cacheable => true, :hidden => true) do
+Engine.create('treeview.json', :priority => 999, :layout => false, :cacheable => true, :hidden => true) do
   def accepts?(resource); resource.tree?; end
   def mime(resource); 'application/json; charset=utf-8'; end
   def output(context)
