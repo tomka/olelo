@@ -31,8 +31,7 @@ class Wiki::AssetManager
   end
 
   def self.setup
-    FileUtils.mkdir_p Wiki::Config.cache, :mode => 0755
-    file = File.join(Wiki::Config.cache, 'assets.')
+    file = File.join(Wiki::Config.tmp_path, 'assets.')
     scripts.each do |type, s|
       File.open(file + type, 'w') {|out| s.each {|path| out << File.read(path) } }
       assets['assets.' + type] = [s.map {|path| File.mtime(path) }.max, file + type]

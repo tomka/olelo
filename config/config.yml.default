@@ -40,8 +40,8 @@ namespaces:
   main:       ['', 'Metadata:']
   discussion: ['Discussion:', 'DiscussionMetadata:']
 
-# Caching directory. Uncomment this!
-#cache:           '/home/user/wiki/cache'
+# Temporary directory used for caches etc. Uncomment this!
+#tmp_path:        '/home/user/wiki/tmp'
 
 ##################################################
 # Authentication backend configuration

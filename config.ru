@@ -26,7 +26,7 @@ Wiki::Config['config_path'] = ::File.join(path, 'config')
 Wiki::Config['initializers_path'] = ::File.join(path, 'config', 'initializers')
 Wiki::Config['plugins_path'] = ::File.join(path, 'plugins')
 Wiki::Config['views_path'] = ::File.join(path, 'views')
-Wiki::Config['cache'] = ::File.join(path, '.wiki', 'cache')
+Wiki::Config['tmp_path'] = ::File.join(path, '.wiki', 'tmp')
 Wiki::Config['authentication.yamlfile.store'] = ::File.join(path, '.wiki', 'users.yml')
 Wiki::Config['repository.git.path'] = ::File.join(path, '.wiki', 'repository')
 Wiki::Config['log.file'] = ::File.join(path, '.wiki', 'log')
@@ -34,7 +34,7 @@ Wiki::Config['log.file'] = ::File.join(path, '.wiki', 'log')
 Wiki::Config.load!(::File.join(path, 'config', 'config.yml.default'))
 Wiki::Config.load(ENV['WIKI_CONFIG'] || ::File.join(path, 'config', 'config.yml'))
 
-FileUtils.mkpath Wiki::Config.cache, :mode => 0755
+FileUtils.mkpath Wiki::Config.tmp_path, :mode => 0755
 FileUtils.mkpath ::File.dirname(Wiki::Config.log.file), :mode => 0755
 
 logger = ::Logger.new(Wiki::Config.log.file, 25, 1024000)
@@ -82,8 +82,8 @@ if Wiki::Config.rack.esi?
     require 'rack/cache'
     use Rack::Cache,
       :verbose     => false,
-      :metastore   => "file:#{::File.join(Wiki::Config.cache, 'rack', 'meta')}",
-      :entitystore => "file:#{::File.join(Wiki::Config.cache, 'rack', 'entity')}"
+      :metastore   => "file:#{::File.join(Wiki::Config.tmp_path, 'rack-meta')}",
+      :entitystore => "file:#{::File.join(Wiki::Config.tmp_path, 'rack-entity')}"
   end
 end
 

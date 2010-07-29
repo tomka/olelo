@@ -7,7 +7,7 @@ class Wiki::Application
   TOKEN_NAME = 'wiki.token'
 
   def login_tokens
-    @login_tokens ||= PStore.new(File.join(Wiki::Config.cache, 'tokens.pstore'))
+    @login_tokens ||= PStore.new(File.join(Wiki::Config.tmp_path, 'tokens.pstore'))
   end
 
   def get_login_token(token)

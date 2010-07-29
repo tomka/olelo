@@ -82,7 +82,7 @@ class BlahtexImageRenderer < Renderer
   end
 
   def directory
-    @directory ||= File.join(Config.cache, 'blahtex').tap {|dir| FileUtils.mkdir_p dir, :mode => 0755 }
+    @directory ||= File.join(Config.tmp_path, 'blahtex').tap {|dir| FileUtils.mkdir_p dir, :mode => 0755 }
   end
 
   def render(code, display)

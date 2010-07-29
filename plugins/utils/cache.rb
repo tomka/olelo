@@ -6,7 +6,7 @@ class Wiki::Cache
   class<< self
     # Accessor for the default cache instance
     def instance
-      @instance ||= Disk.new(Config.cache)
+      @instance ||= Disk.new(File.join(Config.tmp_path, 'cache'))
     end
 
     # Block around cacheable return value belonging to
@@ -16,25 +16,24 @@ class Wiki::Cache
     # * :disable Disable caching
     # * :update Force cache update
     # * :marshal Marshal object before store
-    def cache(bucket, key, opts = {}, &block)
-      instance.cache(bucket, key, opts, &block)
+    def cache(key, opts = {}, &block)
+      instance.cache(key, opts, &block)
     end
   end
 
-  # Block around cacheable return value belonging to
-  # a <i>bucket<i>, identified by a <i>key</i>.
+  # Block around cacheable return value identified by a <i>key</i>.
   # The following options can be specified:
   # * :disable Disable caching
   # * :update Force cache update
   # * :marshal Marshal object before store
-  def cache(bucket, key, opts = {}, &block)
+  def cache(key, opts = {}, &block)
     return yield if opts[:disable] || !Config.production?
-    if exist?(bucket, key) && !opts[:update]
-      content = read(bucket, key)
+    if exist?(key) && !opts[:update]
+      content = read(key)
       return opts[:marshal] ? Marshal.restore(content) : content
     end
     content = yield
-    write(bucket, key, opts[:marshal] ? Marshal.dump(content) : content)
+    write(key, opts[:marshal] ? Marshal.dump(content) : content)
     content
   end
 
@@ -48,28 +47,28 @@ class Wiki::Cache
       FileUtils.mkdir_p root, :mode => 0755
     end
 
-    # Exists the entry in the <i>bucket</i> with <i>key</i>
-    def exist?(bucket, key)
-      File.exist?(cache_path(bucket, key))
+    # Exists the entry with <i>key</i>
+    def exist?(key)
+      File.exist?(cache_path(key))
     end
 
-    # Read entry in the <i>bucket</i> with <i>key</i>
-    def read(bucket, key)
-      File.read(cache_path(bucket, key))
+    # Read entry with <i>key</i>
+    def read(key)
+      File.read(cache_path(key))
     rescue Errno::ENOENT
       nil
     end
 
-    # Open file in the <i>bucket</i> with <i>key</i>.
+    # Open file with <i>key</i>.
     # Returns open BlockFile instance.
-    def open(bucket, key)
-      BlockFile.open(cache_path(bucket, key), 'rb')
+    def open(key)
+      BlockFile.open(cache_path(key), 'rb')
     rescue Errno::ENOENT
       nil
     end
 
-    # Write entry <i>content</i> in <i>bucket</i> with <i>key</i>.
-    def write(bucket, key, content)
+    # Write entry <i>content</i> with <i>key</i>.
+    def write(key, content)
       temp_file = File.join(root, ['tmp', $$, Thread.current.unique_id].join('-'))
       File.open(temp_file, 'wb') do |dest|
         if content.respond_to? :to_str
@@ -79,7 +78,7 @@ class Wiki::Cache
         end
       end
 
-      path = cache_path(bucket, key)
+      path = cache_path(key)
       if File.exist?(path)
         File.unlink temp_file
       else
@@ -92,19 +91,18 @@ class Wiki::Cache
       false
     end
 
-    # Remove entry with <i>key</i> from <i>bucket</i>
-    def remove(bucket, key)
-      File.unlink cache_path(bucket, key)
+    # Remove entry with <i>key</i>
+    def remove(key)
+      File.unlink cache_path(key)
     rescue Errno::ENOENT
     end
 
     protected
 
-    def cache_path(bucket, key)
-      File.join(root, bucket, key)
+    def cache_path(key)
+      File.join(root, key[0..1], key[2..-1])
     end
   end
-
 end
 
 # Provide engine with caching
@@ -112,7 +110,7 @@ class Wiki::Engine
   redefine_method :cached_output do |context|
     context_id = md5(name + context.resource.path + context.resource.version.to_s + context.params.to_a.sort.inspect)
 
-    content, vars = Cache.cache('engine', context_id,
+    content, vars = Cache.cache(context_id,
                 :disable => context.resource.modified? || !cacheable?,
                 :update => context.request && context.request.no_cache?,
                 :marshal => true) do

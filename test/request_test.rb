@@ -22,13 +22,13 @@ describe 'requests' do
       :config_path       => File.join(@app_path, 'config'),
       :initializers_path => File.join(@app_path, 'config', 'initializers'),
       :views_path        => File.join(@app_path, 'views'),
+      :tmp_path          => File.join(@test_path, 'tmp'),
       :production        => true,
       :locale	         => 'en_US',
       :root_path         => 'Root',
       :index_page        => 'Index',
       :sidebar_page      => 'Sidebar',
       :external_images   => false,
-      :cache             => File.join(@test_path, 'cache'),
       :namespaces => {
         :main       => ['', 'Metadata:'],
         :discussion => ['Discussion:', 'DiscussionMetadata:']
