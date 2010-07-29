@@ -48,7 +48,7 @@ class Hash
   # Stolen from rails
   class WithIndifferentAccess < Hash
     def initialize(arg = {})
-      if arg.is_a?(Hash)
+      if Hash === arg
         super()
         update(arg)
       else
@@ -57,7 +57,7 @@ class Hash
     end
 
     def default(key = nil)
-      if key.is_a?(Symbol) && include?(key = key.to_s)
+      if Symbol === key && include?(key = key.to_s)
         self[key]
       else
         super

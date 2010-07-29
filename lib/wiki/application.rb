@@ -28,11 +28,6 @@ module Wiki
       I18n.locale = Config.locale
       I18n.load(File.join(File.dirname(__FILE__), 'locale.yml'))
 
-      Templates.enable_caching if Config.production?
-      Templates.loader << Templates::PluginFileLoader.new <<
-                          Templates::PluginInlineLoader.new <<
-                          Templates::FileLoader.new(Config.views_path)
-
       run_initializers
 
       logger.debug self.class.dump_routes

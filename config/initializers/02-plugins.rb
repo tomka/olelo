@@ -1,5 +1,4 @@
 # Load locales for loaded plugins
-# Add plugin path to template paths
 Plugin.after :load do
   I18n.load(file.sub(/\.rb$/, '_locale.yml'))
   I18n.load(File.join(File.dirname(file), 'locale.yml'))

@@ -259,20 +259,6 @@ module Wiki
         response['Content-Type'] = type
       end
     end
-
-    def send_file(file, opts = {})
-      content_type(opts[:content_type] || MimeMagic.by_extension(File.extname(file)) || 'application/octet-stream')
-      if opts[:disposition] == 'attachment' || opts[:filename]
-        response['Content-Disposition'] = 'attachment; filename="%s"' % (opts[:filename] || File.basename(file))
-      elsif opts[:disposition] == 'inline'
-        response['Content-Disposition'] = 'inline'
-      end
-      response['Content-Length'] ||= File.stat(file).size.to_s
-      halt BlockFile.open(file, 'rb')
-    rescue Errno::ENOENT => ex
-      @logger.error(ex) if @logger
-      raise Wiki::Routing::NotFound, file
-    end
   end
 
   module ApplicationHelper

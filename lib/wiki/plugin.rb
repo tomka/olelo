@@ -96,20 +96,14 @@ module Wiki
       @name = name
       @file = file
       @logger = logger
-      @setup = nil
       @started = false
-    end
-
-    # Add setup method
-    def setup(&block)
-      @setup = block
     end
 
     # Start the plugin
     def start
       return true if @started
       with_hooks :start do
-        instance_eval(&@setup) if @setup
+        setup if respond_to?(:setup)
         @started = true
         logger.debug "Plugin #{name} successfully started"
       end

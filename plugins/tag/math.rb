@@ -117,7 +117,10 @@ end
 class Wiki::Application
   get '/_/tag/math/blahtex/:name', :name => /[\w\.]+/ do
     begin
-      send_file File.join(Renderer.get('blahteximage').directory, params[:name])
+      file = File.join(Renderer.get('blahteximage').directory, params[:name])
+      content_type 'image/png'
+      response['Content-Length'] ||= File.stat(file).size.to_s
+      halt BlockFile.open(file, 'rb')
     rescue => ex
       `convert -pointsize 16 -background transparent "label:#{ex.message}" PNG:-` rescue nil
     end

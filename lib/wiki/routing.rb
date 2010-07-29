@@ -194,7 +194,7 @@ module Wiki
 
       def add_route(methods, paths, &block)
         paths = [*paths]
-        patterns = self.patterns.merge(paths.last.is_a?(Hash) ? paths.pop : {})
+        patterns = self.patterns.merge(Hash === paths.last ? paths.pop : {})
         paths.each do |path|
           path, pattern, keys = compile_route(path, patterns)
           [*methods].each do |m|

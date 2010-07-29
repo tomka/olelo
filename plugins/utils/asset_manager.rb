@@ -10,33 +10,26 @@ class Wiki::AssetManager
   end
 
   def self.register_assets(*files)
-    find(files) do |file|
-      assets[file[Plugin.dir.length+1..-1]] = [File.mtime(file), file]
-    end
+    base = File.dirname(Plugin.current(1).name)
+    make_fs.glob(*files) {|fs, file| assets[base/file] = [fs, file] }
   end
 
   def self.register_scripts(*files)
-    find(files) do |file|
+    options = files.last.is_a?(Hash) ? files.pop : {}
+    priority = options[:priority] || 99
+    make_fs.glob(*files) do |fs, file|
       type = %w(js css).find {|ext| file.ends_with? ext }
       raise 'Invalid script type' if !type
-      (scripts[type] ||= []) << file
+      (scripts[type] ||= []) << [priority, fs.mtime(file), fs.read(file)]
     end
   end
 
-  def self.find(files, &block)
-    dir = File.dirname(Plugin.current(2).file)
-    files.each do |file|
-      Dir[File.join(dir, file)].select {|path| File.file? path }.each(&block)
-    end
+  def self.make_fs
+    file = Plugin.current(2).file
+    UnionFS.new(Config.production? ? CacheInlineFS.new(file) : InlineFS.new(file), DirectoryFS.new(File.dirname(file)))
   end
 
-  def self.setup
-    file = File.join(Wiki::Config.tmp_path, 'assets.')
-    scripts.each do |type, s|
-      File.open(file + type, 'w') {|out| s.each {|path| out << File.read(path) << "\n" } }
-      assets['assets.' + type] = [s.map {|path| File.mtime(path) }.max, file + type]
-    end
-  end
+  private_class_method :make_fs
 end
 
 class Wiki::Application
@@ -45,14 +38,25 @@ class Wiki::Application
     doc.css('body').first << '<script src="/_/assets/assets.js" type="text/javascript"/>' if AssetManager.assets['assets.js']
   end
 
-  get "/_/assets/:name", :name => /.*/ do
+  get "/_/assets/:name", :name => '.*' do
     if asset = AssetManager.assets[params[:name]]
-      cache_control :last_modified => asset[0], :max_age => :static
-      send_file asset[1]
+      fs, file, mtime = asset
+      cache_control :last_modified => mtime || fs.mtime(file), :max_age => :static
+      content_type(MimeMagic.by_extension(File.extname(file)) || 'application/octet-stream')
+      response['Content-Length'] ||= fs.size(file).to_s
+      halt fs.open(file)
     else
-      :not_found
+      pass
     end
   end
 end
 
-setup { AssetManager.setup }
+def setup
+  fs = DirectoryFS.new(Wiki::Config.tmp_path)
+  AssetManager.scripts.each do |type, s|
+    name = 'assets.' + type
+    File.open(File.join(Wiki::Config.tmp_path, name), 'w') {|out| out << s.sort_by(&:first).map(&:last).join("\n") }
+    AssetManager.assets[name] = [fs, name, s.map {|x| x[1] }.max]
+  end
+  AssetManager.scripts.clear
+end

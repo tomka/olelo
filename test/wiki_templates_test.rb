@@ -1,3 +1,4 @@
+require 'wiki/fs'
 require 'wiki/templates'
 
 class Bacon::Context
@@ -7,11 +8,10 @@ end
 describe 'Wiki::Templates' do
   before do
     Wiki::Templates.enable_caching
-    Wiki::Templates.loader << Wiki::Templates::InlineLoader.new(__FILE__)
+    Wiki::Templates.make_fs = proc { Wiki::InlineFS.new(__FILE__) }
   end
 
   after do
-    Wiki::Templates.loader.clear
     Wiki::Templates.cache.clear
   end
 
@@ -28,6 +28,6 @@ end
 
 __END__
 
-@@ test.haml
+@@ test.haml  
 %h1= text
 
