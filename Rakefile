@@ -1,6 +1,4 @@
-require 'rubygems'
-require 'rake'
-
+# -*- coding: utf-8 -*-
 task :default => %w(test:spec)
 
 def shrink_js(t)
