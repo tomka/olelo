@@ -33,7 +33,7 @@ class Wiki::AssetManager
   def self.setup
     file = File.join(Wiki::Config.tmp_path, 'assets.')
     scripts.each do |type, s|
-      File.open(file + type, 'w') {|out| s.each {|path| out << File.read(path) } }
+      File.open(file + type, 'w') {|out| s.each {|path| out << File.read(path) << "\n" } }
       assets['assets.' + type] = [s.map {|path| File.mtime(path) }.max, file + type]
     end
   end
