@@ -1,6 +1,6 @@
 description  'Export variables to context and javascript'
 dependencies 'engine/engine'
-require      'json'
+require      'yajl/json_gem'
 
 def variables(page, engine)
   vars = {

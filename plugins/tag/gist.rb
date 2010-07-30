@@ -1,7 +1,7 @@
 description  'Embed github gists'
 dependencies 'filter/tag', 'utils/asset_manager'
 require      'open-uri'
-require      'json'
+require      'yajl/json_gem'
 
 AssetManager.register_scripts 'gist.css', :priority => 0
 

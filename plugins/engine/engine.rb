@@ -21,7 +21,7 @@ class Wiki::Context < Struct.new(:app, :resource, :engine, :logger, :request,
   end
 
   def subcontext(attrs = {})
-    attrs = to_hash.merge!(attrs)
+    attrs = to_hash.with_indifferent_access.merge!(attrs)
     attrs[:params] = params.merge(attrs[:params] || {})
     attrs[:private] = private.merge(attrs[:private] || {})
     attrs[:parent] = self

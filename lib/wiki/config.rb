@@ -5,7 +5,7 @@ module Wiki
 
     attr_reader :base, :hash
     alias to_hash hash
-    undef_method :type if RUBY_VERSION < '1.9'
+    undef_method :type rescue nil if RUBY_VERSION < '1.9'
 
     def initialize(hash = nil, base = nil)
       @hash = {}

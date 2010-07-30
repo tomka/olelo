@@ -54,6 +54,7 @@ First, you have to install the [Gem][] dependencies via `gem`:
     gem install evaluator
     gem install rack-embed
     gem install org-ruby
+    gem install yajl-ruby
 
 Then, run the program using the command:
 

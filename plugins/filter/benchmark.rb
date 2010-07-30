@@ -7,8 +7,9 @@ class Wiki::Filter
   end
 
   def call!(content)
+    timers = (context.private[:timers] ||= {})
     match = Filter.registry.find {|name, klass| klass == self.class }
-    @timer = context.engine.timers[match ? match[0] : self.class.name] ||= Timer.new
+    @timer = timers[match ? match[0] : self.class.name] ||= Timer.new
     content = @timer.measure { filter(content) }
     post ? post.call(context, content) : content
   end
@@ -19,11 +20,8 @@ class Wiki::FilterEngine
     timer = Timer.new
     result = timer.measure { super(context) }
     context.logger.info "Benchmark of engine #{name} on #{context.resource.path} - #{timer.elapsed_ms}ms"
+    timers = context.private[:timers] || {}
     timers.each {|name, timer| context.logger.info "#{name}: #{timer.elapsed_ms}ms" }
     result
-  end
-
-  def timers
-    @timers ||= {}
   end
 end

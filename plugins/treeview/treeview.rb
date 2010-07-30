@@ -1,6 +1,6 @@
 description  'Tree Viewer'
 dependencies 'engine/engine', 'utils/asset_manager'
-require      'json'
+require      'yajl/json_gem'
 
 AssetManager.register_scripts '*.js', '*.css'
 AssetManager.register_assets '*.png', '*.gif'
