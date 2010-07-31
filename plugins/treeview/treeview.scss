@@ -1,0 +1,106 @@
+#treeview-tabs {
+  li {
+    background: white;
+    border-bottom: 1px solid #85aaff;
+    display: block !important;
+    &.tabs-selected {
+      display: none !important;
+    }
+  }
+}
+
+@mixin file-type($type) {
+  .file-type-#{$type} {
+    background: url(/static/themes/default/images/filetypes/#{$type}.png) no-repeat center center !important;
+  }
+}
+
+#treeview {
+  @include file-type("7z");
+  @include file-type("bz2");
+  @include file-type("doc");
+  @include file-type("flac");
+  @include file-type("gz");
+  @include file-type("html");
+  @include file-type("java");
+  @include file-type("jpg");
+  @include file-type("midi");
+  @include file-type("mp3");
+  @include file-type("ogg");
+  @include file-type("pdf");
+  @include file-type("php");
+  @include file-type("png");
+  @include file-type("ppt");
+  @include file-type("psd");
+  @include file-type("rar");
+  @include file-type("rb");
+  @include file-type("sh");
+  @include file-type("tar");
+  @include file-type("txt");
+  @include file-type("wma");
+  @include file-type("xls");
+  @include file-type("zip");
+  position: relative;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  max-height: 600px;
+  font-size: 9pt;
+  overflow: auto;
+  ul {
+    list-style: none;
+    display: block;
+    clear: both;
+    li {
+      border: none !important;
+      text-indent: 0 !important;
+      clear: both;
+      li {
+        margin: 0;
+        padding: 0 1em !important;
+      }
+      a, a:active, a:hover {
+        font-size: 90% !important;
+        font-variant: normal;
+        text-indent: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        float: left;
+        width: 1px;
+        overflow: visible;
+        white-space: nowrap !important;
+        color: #333333;
+        background: transparent;
+      }
+      .hitarea, .placeholder {
+        width: 32px;
+        height: 16px;
+        cursor: pointer;
+        float: left;
+        div {
+          width: 16px;
+          height: 16px;
+          float: left;
+	}
+      }
+    }
+    .wait .arrow {
+      background: url(treeview/spinner.gif) no-repeat center center !important;
+    }
+    .collapsed .arrow {
+      background: url(treeview/collapsed.png) no-repeat center center;
+    }
+    .expanded .arrow {
+      background: url(treeview/expanded.png) no-repeat center center;
+    }
+    .page {
+      background: url(/static/themes/default/images/page.png) no-repeat center center;
+    }
+    .expanded .tree {
+      background: url(/static/themes/default/images/tree_open.png) no-repeat center center;
+    }
+    .collapsed .tree {
+      background: url(/static/themes/default/images/tree.png) no-repeat center center;
+    }
+  }
+}

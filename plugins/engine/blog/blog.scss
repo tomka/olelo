@@ -1,0 +1,43 @@
+@import "lib/reset.scss";
+@import "lib/shadow.scss";
+@import "lib/horizontal-list.scss";
+
+.blog > .article {
+  clear: both;
+  width: 100%;
+  > h2 {
+    margin: 0;
+  }
+  > .author, > .date, > .tags {
+    float: left;
+    font-size: 90%;
+    color: #555555;
+    margin: 0.2em 0.4em 1em 0;
+  }
+  > .tags {
+    @include list-bar;
+    li {
+      margin: 0.2em 0.4em 1em 0;
+    }
+  }
+  > .content {
+    clear: both;
+    width: 100%;
+  }
+  > .full {
+    clear: both;
+    float: right;
+  }
+}
+
+.blog-menu {
+  @include reset-table;
+  @include reset-box-model;
+  @include no-box-shadow;
+  tr {
+    background: transparent;
+    td {
+      vertical-align: top;
+    }
+  }
+}

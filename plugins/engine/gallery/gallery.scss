@@ -1,0 +1,35 @@
+@import "lib/reset.scss";
+@import "lib/rounded.scss";
+@import "lib/shadow.scss";
+
+#gallery-thumbs {
+  @include no-box-shadow;
+  @include reset-table;
+  @include reset-box-model;
+  width: 45%;
+  float: left;
+  td {
+    vertical-align: top;
+  }
+  img {
+    @include box-shadow(3px, 3px, 10px, #333333);
+    margin: 5px 5px 5px 5px;
+    &:hover {
+      @include no-box-shadow;
+      margin: 7px 3px 3px 7px;
+    }
+  }
+}
+
+#gallery-screen {
+  width: 45%;
+  float: left;
+  margin-left: 1em;
+  position: relative;
+  img {
+    @include box-shadow(3px, 3px, 10px, #333333);
+    position: absolute;
+    top: 0px;
+    left: 0px;
+  }
+}

@@ -1,0 +1,115 @@
+@import "constants.scss";
+
+#header {
+  background: $header_bg;
+  padding-left: 0.5em;
+  clear: both;
+  height: 3em;
+  h1 {
+    @include reset-box-model;
+    border: none;
+    color: #ffffc2;
+    font-size: 200%;
+    font-variant: small-caps;
+    font-weight: bold;
+    float: left;
+  }
+}
+
+#info {
+  float: right;
+  background: $light_bg;
+  padding: 0.3em;
+  margin: 0.65em 0.5em 0 0;
+  opacity: 0.8;
+}
+
+#search {
+  opacity: 0.8;
+  float: right;
+  border: none;
+  input {
+    margin: 0.65em 0.5em 0 0;
+    width: 10em;
+    padding: 0.2em;
+    padding-left: 20px;
+    background: $main_bg url(images/search.png) no-repeat 0.2em 0.2em;
+  }
+}
+
+html, body {
+  height: 100%;
+}
+
+#container {
+  min-height: 520px;
+  position: relative;
+  display: block;
+  overflow: hidden;
+  padding-right: 7em;
+  padding-left: $sidebar_width;
+  background: url(images/container_bg.png) top left repeat-y;
+  z-index: 10;
+}
+
+#content {
+  position: relative;
+  float: left;
+  width: 100%;
+  padding: 0 3.5em 3.5em 3.5em;
+  background: url(images/content_bg.png) top left repeat-x;
+}
+
+#sidebar {
+  background: $light_bg;
+  position: relative;
+  width: $sidebar_width;
+  float: left;
+  padding-bottom: 3.5em;
+  margin-left: -$sidebar_width;
+  font-variant: small-caps;
+  h1, h2, h3, h4, h5, h6 {
+    font-size: 140%;
+    background: white;
+    font-weight: normal;
+    padding: 0 5px;
+    margin: 1em 0 0 0;
+    border-top: 1px solid #85aaff;
+    border-bottom: 1px solid #85aaff;
+    display: block;
+  }
+  ul {
+    @include reset-box-model;
+    list-style: none;
+    li {
+      margin: 0;
+      a {
+        padding: 0 5px;
+        display: block;
+      }
+    }
+    ul a {
+      padding: 0 20px;
+    }
+    ul ul a {
+      padding: 0 35px;
+    }
+  }
+}
+
+#footer {
+  clear: both;
+  position: relative;
+  color: $light_color;
+  font-size: 90%;
+  background: url(images/footer_bg.png) top left repeat-x;
+  margin-top: -23px;
+  padding: 3em;
+  text-align: right;
+  z-index: 1 !important;
+  .powered_by {
+    margin-top: 1em;
+    color: #aaaaaa;
+    font-size: 90%;
+  }
+}

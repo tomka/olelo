@@ -1,0 +1,31 @@
+@mixin no-bullet {
+  list-style-type: none;
+  margin-left: 0px;
+}
+
+@mixin list-bar {
+  @include reset-box-model;
+  @include no-bullet;
+  display: block;
+  float: left;
+  li {
+    float: left;
+  }
+}
+
+@mixin horizontal-list-container {
+  @include reset-box-model;
+}
+
+@mixin horizontal-list-item {
+  @include no-bullet;
+  float: left;
+  white-space: nowrap;
+}
+
+@mixin horizontal-list {
+  @include horizontal-list-container;
+  li {
+    @include horizontal-list-item;
+  }
+}

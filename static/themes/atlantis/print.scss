@@ -1,0 +1,132 @@
+@import "constants.scss";
+@import "lib/reset.scss";
+@import "lib/headlines.scss";
+@import "lib/changes.scss";
+
+body {
+  color: black;
+  background: $main_bg;
+  font-family: $normal_font;
+  font-size: 10pt;
+  line-height: 1.2em;
+}
+
+@mixin headline {
+  font-family: $headline_font;
+  color: $color1;
+  margin: 2em 0 0.5em 0;
+}
+
+@include headlines;
+
+ul,ol,p {
+  margin: 0.8em 0 0.8em 0;
+}
+
+ul,ol ul,ol {
+  margin: 0;
+}
+
+ul {
+  list-style-type: disc;
+}
+
+ol {
+  list-style-type: decimal;
+}
+
+ul, ol {
+  list-style-position: outside;
+  padding-left: 1.5em;
+}
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  border: $border;
+  tr {
+    td, th {
+      border: $border;
+      padding: 0.2em 0.5em;
+      &.link {
+        padding: 0;
+        a {
+          margin: 0;
+          padding: 0.2em 0.5em;
+          display: block;
+	}
+      }
+    }
+    th {
+      font-variant: small-caps;
+    }
+  }
+}
+
+a {
+  &, &:visited {
+    color: $color1;
+    text-decoration: none;
+  }
+  &.img {
+    background: transparent;
+  }
+  div.img & {
+    border: $border;
+    float: right;
+    text-align: center;
+    color: black;
+    background: $main_bg;
+    padding: 0.2em;
+    img {
+      display: block;
+    }
+  }
+}
+
+img {
+  vertical-align: middle;
+}
+
+hr {
+  background: $border_color;
+  border: none;
+  height: 1px;
+}
+
+#header, #sidebar, #menu, .editlink, .backref, .hidden, .noprint {
+  display: none !important;
+}
+
+#footer {
+  display: block;
+  margin-top: 1em;
+}
+
+.ref, .ref:visited, .ref:active, .ref:hover {
+  vertical-align: super;
+  font-size: 80%;
+  color: black;
+}
+
+.date {
+  .ago {
+    display: none !important;
+  }
+  .full {
+    display: inline !important;
+  }
+}
+
+.toc {
+  padding: 0.5em 2em;
+  ul {
+    margin: 0;
+  }
+  .toc1 {
+    font-weight: bold;
+    .toc2 {
+      font-weight: normal;
+    }
+  }
+}

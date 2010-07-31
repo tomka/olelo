@@ -1,0 +1,32 @@
+.changes {
+  width: 100%;
+  border: 1px solid #999999;
+  border-collapse: collapse;
+  border-spacing: 0;
+  tr {
+    td {
+      padding: 0.5em;
+      border-top: 1px solid #999999;
+      font-family: "Bitstream Vera Mono", monospace;
+      white-space: pre-wrap;
+      span.plus {
+        background: #aaff99;
+      }
+      span.minus {
+        color: #777777;
+        text-decoration: line-through;
+      }
+    }
+    th {
+      font-variant: normal;
+      padding: 0.2em 0.5em;
+      border: 1px solid #999999;
+      .left {
+        float: left;
+      }
+      .right {
+        float: right;
+      }
+    }
+  }
+}
