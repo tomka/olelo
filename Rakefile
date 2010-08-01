@@ -7,27 +7,24 @@ def shrink_js(t)
 end
 
 def sass(file)
-  gem 'haml', '>= 0'
-  require 'sass'
-  engine = Sass::Engine.new(File.read(file), :style => :compressed, :load_paths => [File.dirname(file)], :cache => false)
-  engine.render
+  `sass -C -I #{File.dirname(file)} -I static/themes -t compressed #{file}`
 end
 
 def spew(file, content)
   File.open(file, 'w') {|f| f.write(content) }
 end
 
-file 'plugins/utils/pygments.sass' do
-  sh "pygmentize -S default -f html -a .highlight | css2sass > plugins/utils/pygments.sass"
+file 'plugins/utils/pygments.scss' do
+  sh "pygmentize -S default -f html -a .highlight | sass-convert --from css --to scss > plugins/utils/pygments.scss"
 end
 
-file('static/themes/atlantis/style.css' => Dir.glob('static/themes/atlantis/*.sass') + Dir.glob('static/themes/lib/*.sass')) do |t|
+file('static/themes/atlantis/style.css' => Dir.glob('static/themes/atlantis/*.scss') + Dir.glob('static/themes/lib/*.scss')) do |t|
   puts "Creating #{t.name}..."
-  content = "@media screen{#{sass(t.name.gsub('style.css', 'screen.sass'))}}@media print{#{sass(t.name.gsub('style.css', 'print.sass'))}}"
+  content = "@media screen{#{sass(t.name.gsub('style.css', 'screen.scss'))}}@media print{#{sass(t.name.gsub('style.css', 'print.scss'))}}"
   spew(t.name, content)
 end
 
-rule '.css' => ['.sass'] do |t|
+rule '.css' => ['.scss'] do |t|
   puts "Creating #{t.name}..."
   spew(t.name, sass(t.source))
 end

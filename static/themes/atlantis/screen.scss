@@ -75,11 +75,11 @@ ul.pagination {
       @include rounded;
       color: black;
       &:active, &.current, &.loading {
-        background: #ddddff;
+        background: $light_bg1;
         border-style: inset;
       }
       &.loading {
-        background: #ddddff url(images/loading.gif) repeat;
+        background: $light_bg1 url(images/loading.gif) repeat;
       }
     }
   }
@@ -110,7 +110,7 @@ table {
       font-variant: small-caps;
     }
     &.even {
-      background: #ddddff;
+      background: $light_bg1;
     }
   }
 }
@@ -371,7 +371,7 @@ table input {
       @include rounded-tl;
       @include rounded-tr;
       font-variant: small-caps;
-      background: #ddddff;
+      background: $light_bg1;
       float: left;
       padding: 0;
       margin: 0 0 0 4px;
