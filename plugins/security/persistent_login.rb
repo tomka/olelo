@@ -2,12 +2,12 @@ description 'Persistent login'
 require     'pstore'
 require     'securerandom'
 
-class Wiki::Application
+class Olelo::Application
   TOKEN_LIFETIME = 24*60*60*365
-  TOKEN_NAME = 'wiki.token'
+  TOKEN_NAME = 'olelo.token'
 
   def login_tokens
-    @login_tokens ||= PStore.new(File.join(Wiki::Config.tmp_path, 'tokens.pstore'))
+    @login_tokens ||= PStore.new(File.join(Olelo::Config.tmp_path, 'tokens.pstore'))
   end
 
   def get_login_token(token)

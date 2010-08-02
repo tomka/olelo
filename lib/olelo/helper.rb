@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-module Wiki
+module Olelo
   module BlockHelper
     def blocks
       @blocks ||= Hash.with_indifferent_access('')
@@ -153,7 +153,7 @@ module Wiki
     def breadcrumbs(resource)
       path = resource.try(:path) || ''
       li = [%{<li class="first breadcrumb#{path.empty? ? ' last' : ''}">
-              <a accesskey="z" class="root" href="#{escape_html resource_path(resource, :path => '/')}">#{escape_html Wiki::Config.root_path}</a></li>}.unindent]
+              <a accesskey="z" class="root" href="#{escape_html resource_path(resource, :path => '/')}">#{escape_html Olelo::Config.root_path}</a></li>}.unindent]
       path.split('/').inject('') do |parent,elem|
         current = parent/elem
         li << %{<li class="breadcrumb#{current == path ? ' last' : ''}">

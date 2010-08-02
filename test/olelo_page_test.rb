@@ -1,23 +1,23 @@
 require 'helper'
 
-describe 'Wiki::Page' do
+describe 'Olelo::Page' do
   before { create_repository }
   after { destroy_repository }
 
   it 'should have correct path' do
-    Wiki::Page.new('/path/name.ext').path.should.equal 'path/name.ext'
+    Olelo::Page.new('/path/name.ext').path.should.equal 'path/name.ext'
   end
 
   it 'should have correct extension' do
-    Wiki::Page.new('/path/name.tar.gz').extension.should.equal 'tar.gz'
+    Olelo::Page.new('/path/name.tar.gz').extension.should.equal 'tar.gz'
   end
 
   it 'write content' do
-    page = Wiki::Page.new('test')
+    page = Olelo::Page.new('test')
     page.should.be.new
     page.should.be.modified
     page.content.should.equal nil
-    Wiki::Page.transaction "comment1\ntext", Wiki::User.new('Author1', 'author1@localhorst') do
+    Olelo::Page.transaction "comment1\ntext", Olelo::User.new('Author1', 'author1@localhorst') do
       page.write('old content')
     end
 
@@ -33,7 +33,7 @@ describe 'Wiki::Page' do
     page.should.not.be.new
     page.should.be.modified
     page.content.should.equal 'new content'
-    Wiki::Page.transaction 'comment2', Wiki::User.new('Author2', 'author2@localhorst') do
+    Olelo::Page.transaction 'comment2', Olelo::User.new('Author2', 'author2@localhorst') do
       page.write('new content')
     end
 
@@ -41,7 +41,7 @@ describe 'Wiki::Page' do
     page.tree_version.author.name.should.equal 'Author2'
     page.tree_version.author.email.should.equal 'author2@localhorst'
 
-    page = Wiki::Page.find!('test')
+    page = Olelo::Page.find!('test')
     page.should.not.be.new
     page.content.should.equal 'new content'
 
@@ -51,14 +51,14 @@ describe 'Wiki::Page' do
   end
 
   it 'fail on duplicates' do
-    page = Wiki::Page.new('test')
-    Wiki::Page.transaction 'comment', Wiki::User.new('Author', 'author@localhorst') do
+    page = Olelo::Page.new('test')
+    Olelo::Page.transaction 'comment', Olelo::User.new('Author', 'author@localhorst') do
       page.write('content')
     end
 
-    page = Wiki::Page.new('test')
+    page = Olelo::Page.new('test')
     lambda do
-      Wiki::Page.transaction 'comment', Wiki::User.new('Author', 'author@localhorst') do
+      Olelo::Page.transaction 'comment', Olelo::User.new('Author', 'author@localhorst') do
         page.write('content')
       end
     end.should.raise RuntimeError

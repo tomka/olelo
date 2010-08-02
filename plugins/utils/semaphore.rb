@@ -1,6 +1,6 @@
 description 'Semaphore class'
 
-class Wiki::Semaphore
+class Olelo::Semaphore
   def initialize(counter = 1)
     @mutex = Mutex.new
     @cond = ConditionVariable.new

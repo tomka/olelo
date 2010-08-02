@@ -1,4 +1,4 @@
 - title @error.message
 %p= :error_occurred.t
-- if !Wiki::Config.production?
+- if !Olelo::Config.production?
   %pre&= @error.backtrace.to_a.join("\n")

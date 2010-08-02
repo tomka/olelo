@@ -2,7 +2,7 @@ description  'Cache class'
 dependencies 'engine/engine'
 
 # Cache base class
-class Wiki::Cache
+class Olelo::Cache
   class<< self
     # Accessor for the default cache instance
     def instance
@@ -106,7 +106,7 @@ class Wiki::Cache
 end
 
 # Provide engine with caching
-class Wiki::Engine
+class Olelo::Engine
   redefine_method :cached_output do |context|
     context_id = md5(name + context.resource.path + context.resource.version.to_s + context.params.to_a.sort.inspect)
 

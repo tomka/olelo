@@ -83,7 +83,7 @@ class SpamEvaluator
   end
 end
 
-class Wiki::Application
+class Olelo::Application
   hook(:layout, 1000) do |name, doc|
     if name == :edit || name == :new
       doc.css('#tab-edit button[type=submit]').before(

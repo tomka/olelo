@@ -1,7 +1,7 @@
 description  'Enhanced edit form with preview and diff'
 dependencies 'engine/engine'
 
-class Wiki::Application
+class Olelo::Application
   hook :layout do |name, doc|
     if name == :edit || name == :new
       if @preview

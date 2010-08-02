@@ -1,6 +1,6 @@
 require 'helper'
 
-describe 'Wiki::Tree' do
+describe 'Olelo::Tree' do
   before { create_repository }
   after { destroy_repository }
 
@@ -9,7 +9,7 @@ describe 'Wiki::Tree' do
     create_page('page2')
     create_page('page3')
 
-    tree = Wiki::Tree.find!('/')
+    tree = Olelo::Tree.find!('/')
     tree.should.be.current
 
     tree.tree_version.should.equal tree.children[0].tree_version
@@ -19,7 +19,7 @@ describe 'Wiki::Tree' do
     tree.children[1].should.be.current
     tree.children[2].should.be.current
 
-    old_tree = Wiki::Tree.find('/', tree.previous_version)
+    old_tree = Olelo::Tree.find('/', tree.previous_version)
     old_tree.should.not.be.current
     tree.previous_version.should.equal old_tree.tree_version
     old_tree.tree_version.should.equal old_tree.children[0].tree_version
@@ -45,7 +45,7 @@ describe 'Wiki::Tree' do
     create_page('tree1/subtree1/subsubpage2')
     create_page('tree1/subtree1/subsubpage3')
 
-    tree = Wiki::Tree.find!('/')
+    tree = Olelo::Tree.find!('/')
     tree.children.size.should.equal 6
     tree.children[0].path.should.equal 'tree1'
     tree.children[1].path.should.equal 'tree2'
@@ -61,7 +61,7 @@ describe 'Wiki::Tree' do
     tree.children[4].should.be.page
     tree.children[5].should.be.page
 
-    tree = Wiki::Tree.find!('/tree1')
+    tree = Olelo::Tree.find!('/tree1')
     tree.children.size.should.equal 4
     tree.children[0].path.should.equal 'tree1/subtree1'
     tree.children[1].path.should.equal 'tree1/subpage1'
@@ -73,7 +73,7 @@ describe 'Wiki::Tree' do
     tree.children[2].should.be.page
     tree.children[3].should.be.page
 
-    tree = Wiki::Tree.find!('/tree1/subtree1')
+    tree = Olelo::Tree.find!('/tree1/subtree1')
     tree.children.size.should.equal 3
     tree.children[0].path.should.equal 'tree1/subtree1/subsubpage1'
     tree.children[1].path.should.equal 'tree1/subtree1/subsubpage2'

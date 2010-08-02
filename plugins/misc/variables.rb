@@ -26,23 +26,23 @@ def variables(page, engine)
 end
 
 # Export variables to engine context
-Wiki::Context.hook(:initialized) do
+Olelo::Context.hook(:initialized) do
   params.merge!(Plugin.current.variables(page, engine))
 end
 
 # Export variables to javascript for client extensions
-class Wiki::Application
+class Olelo::Application
   hook :layout do |name, doc|
     vars = @resource ? params.merge(Plugin.current.variables(@resource, @engine)) : params
     doc.css('head').children.before %{<script type="text/javascript">
-                                      Wiki = #{escape_json(vars.to_json)};
+                                      Olelo = #{escape_json(vars.to_json)};
                                       </script>}.unindent
   end
 
   get '/_/user' do
     %{<script type="text/javascript">
-      Wiki.user_anonymous = #{escape_json(@user.anonymous?.to_json)};
-      Wiki.user_name = #{escape_json(@user.name.to_json)};
+      Olelo.user_anonymous = #{escape_json(@user.anonymous?.to_json)};
+      Olelo.user_name = #{escape_json(@user.name.to_json)};
     </script>}.unindent + super()
   end
 end

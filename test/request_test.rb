@@ -5,7 +5,7 @@ Rack::MockRequest::DEFAULT_ENV['REMOTE_ADDR'] = 'localhorst'
 
 class Bacon::Context
   include Rack::Test::Methods
-  include Wiki::Util
+  include Olelo::Util
 
   attr_reader :app
 end
@@ -58,14 +58,14 @@ describe 'requests' do
       }
     }
 
-    Wiki::Config.update(default_config)
-    Wiki::Repository.instance = nil
-    Wiki::Namespace.reset
+    Olelo::Config.update(default_config)
+    Olelo::Repository.instance = nil
+    Olelo::Namespace.reset
 
     logger = Logger.new(File.join(@app_path, 'test.log'))
 
     @app = Rack::Builder.new do
-      run Wiki::Application.new(nil, :logger => logger)
+      run Olelo::Application.new(nil, :logger => logger)
     end
   end
 

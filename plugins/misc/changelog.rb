@@ -1,7 +1,7 @@
 description 'RSS Changelogs'
 require     'rss/maker'
 
-class Wiki::Application
+class Olelo::Application
   hook :layout do |name, doc|
     if @resource && !@resource.new?
       doc.css('head').first << %{<link rel="alternate" href="/changelog.atom" type="application/atom+xml" title="Sitewide Atom Changelog"/>

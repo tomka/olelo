@@ -1,6 +1,6 @@
 description 'System information'
 
-class Wiki::Application
+class Olelo::Application
   get '/system' do
     GC.start
     @plugins = Plugin.plugins.sort_by(&:name)
@@ -26,33 +26,33 @@ __END__
 %table.zebra
   %tr
     %td Production mode:
-    %td= Wiki::Config.production?
+    %td= Olelo::Config.production?
   %tr
     %td Repository backend:
-    %td&= Wiki::Config.repository.type
+    %td&= Olelo::Config.repository.type
   %tr
     %td Authentication backend:
-    %td&= Wiki::Config.authentication.service
+    %td&= Olelo::Config.authentication.service
   %tr
     %td Locale
-    %td&= Wiki::Config.locale
+    %td&= Olelo::Config.locale
   %tr
     %td External images enabled
-    %td&= Wiki::Config.external_images?
+    %td&= Olelo::Config.external_images?
   %tr
     %td Root path
     %td
-      %a{:href=>Wiki::Config.root_path.urlpath}&= Wiki::Config.root_path
+      %a{:href=>Olelo::Config.root_path.urlpath}&= Olelo::Config.root_path
   %tr
     %td Sidebar page
     %td
-      %a{:href=>Wiki::Config.sidebar_page.urlpath}&= Wiki::Config.sidebar_page
+      %a{:href=>Olelo::Config.sidebar_page.urlpath}&= Olelo::Config.sidebar_page
   %tr
     %td Directory index pages
-    %td&= Wiki::Config.index_page
+    %td&= Olelo::Config.index_page
   %tr
     %td Mime type detection order
-    %td&= Wiki::Config.mime.join(', ')
+    %td&= Olelo::Config.mime.join(', ')
 %h2 Plugins
 %table.zebra.full
   %thead

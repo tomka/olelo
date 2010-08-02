@@ -1,7 +1,7 @@
 description  'Filter engine benchmark'
 dependencies 'engine/filter'
 
-class Wiki::Filter
+class Olelo::Filter
   redefine_method :subfilter do |content|
     @timer.measure_not { super(content) }
   end
@@ -15,7 +15,7 @@ class Wiki::Filter
   end
 end
 
-class Wiki::FilterEngine
+class Olelo::FilterEngine
   redefine_method :output do |context|
     timer = Timer.new
     result = timer.measure { super(context) }

@@ -14,5 +14,5 @@
       %td= :parents.t
       %td
         - @version.parents.each do |parent|
-          %a{:href=> ('changes'/parent).urlpath }= Wiki::Version.short(parent)
+          %a{:href=> ('changes'/parent).urlpath }= Olelo::Version.short(parent)
 ~ format_patch(@diff.patch, :from => @diff.from, :to => @diff.to)

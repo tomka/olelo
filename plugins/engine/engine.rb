@@ -5,7 +5,7 @@ description 'Engine subsystem'
 # variables used by the engines.
 # It is possible for a engine to run sub-engines. For this
 # purpose you create a subcontext which inherits the variables.
-class Wiki::Context < Struct.new(:app, :resource, :engine, :logger, :request,
+class Olelo::Context < Struct.new(:app, :resource, :engine, :logger, :request,
                                  :response, :parent, :private, :params)
   include Hooks
 
@@ -31,7 +31,7 @@ end
 
 # An Engine renders resources
 # Engines get a resource as input and create text.
-class Wiki::Engine
+class Olelo::Engine
   include PageHelper
   include Templates
 
@@ -114,7 +114,7 @@ class Wiki::Engine
 end
 
 # Plug-in the engine subsystem
-class Wiki::Application
+class Olelo::Application
   before :show do
     @engine = Engine.find!(@resource, :name => params[:output] || params[:engine])
     context = Context.new(:app      => self,
@@ -140,14 +140,14 @@ class Wiki::Application
 
   hook :layout do |name, doc|
     doc.css('#menu .action-view').each do |link|
-      engines = Wiki::Engine.find_all(@resource)
+      engines = Olelo::Engine.find_all(@resource)
       li = engines.select {|e| e.layout? }.map do |e|
-        name = escape_html Wiki::I18n.translate("engine_#{e.name}", :fallback => e.name.tr('_', ' '))
+        name = escape_html Olelo::I18n.translate("engine_#{e.name}", :fallback => e.name.tr('_', ' '))
         %{<li#{@engine && e.name == @engine.name ? ' class="selected"': ''}>
           <a href="#{escape_html resource_path(@resource, :output => e.name)}">#{name}</a></li>}.unindent
       end +
       engines.select {|e| !e.layout? }.map do |e|
-        name = escape_html Wiki::I18n.translate("engine_#{e.name}", :fallback => e.name.tr('_', ' '))
+        name = escape_html Olelo::I18n.translate("engine_#{e.name}", :fallback => e.name.tr('_', ' '))
         %{<li class="download#{@engine && e.name == @engine.name ? 'selected': ''}">
                 <a href="#{escape_html resource_path(@resource, :output => e.name)}">#{name}</a></li>}.unindent
       end

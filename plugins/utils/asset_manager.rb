@@ -1,6 +1,6 @@
 description 'Asset manager'
 
-class Wiki::AssetManager
+class Olelo::AssetManager
   def self.assets
     @assets ||= {}
   end
@@ -32,7 +32,7 @@ class Wiki::AssetManager
   private_class_method :make_fs
 end
 
-class Wiki::Application
+class Olelo::Application
   hook :layout, 1 do |name, doc|
     doc.css('head').first << '<link rel="stylesheet" href="/_/assets/assets.css" type="text/css"/>' if AssetManager.assets['assets.css']
     doc.css('body').first << '<script src="/_/assets/assets.js" type="text/javascript"/>' if AssetManager.assets['assets.js']
@@ -52,10 +52,10 @@ class Wiki::Application
 end
 
 def setup
-  fs = DirectoryFS.new(Wiki::Config.tmp_path)
+  fs = DirectoryFS.new(Olelo::Config.tmp_path)
   AssetManager.scripts.each do |type, s|
     name = 'assets.' + type
-    File.open(File.join(Wiki::Config.tmp_path, name), 'w') {|out| out << s.sort_by(&:first).map(&:last).join("\n") }
+    File.open(File.join(Olelo::Config.tmp_path, name), 'w') {|out| out << s.sort_by(&:first).map(&:last).join("\n") }
     AssetManager.assets[name] = [fs, name, s.map {|x| x[1] }.max]
   end
   AssetManager.scripts.clear

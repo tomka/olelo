@@ -1,6 +1,6 @@
 description 'Access control lists'
 
-class Wiki::Resource
+class Olelo::Resource
   # Resource must be readable and parents must recursively be readable
   def readable?(user)
     access?(:read, user) && (root? || parent.readable?(user))
@@ -39,7 +39,7 @@ class Wiki::Resource
   end
 end
 
-class Wiki::AccessDenied < RuntimeError
+class Olelo::AccessDenied < RuntimeError
   def initialize
     super('Access denied')
   end
@@ -49,7 +49,7 @@ class Wiki::AccessDenied < RuntimeError
   end
 end
 
-class Wiki::Application
+class Olelo::Application
   hook :layout, 999 do |name, doc|
     if @resource
       doc.css('#menu .action-edit').each {|link| link.delete('href') } if !@resource.writable?(user)

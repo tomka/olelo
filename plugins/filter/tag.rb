@@ -105,7 +105,7 @@ class TagSoupParser
   end
 end
 
-class Wiki::Tag < Filter
+class Olelo::Tag < Filter
   @@tags = {}
 
   def self.define(tag, opts = {}, &block)

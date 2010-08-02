@@ -2,14 +2,14 @@ description 'Git repository backend'
 require     'gitrb'
 
 class Gitrb::Diff
-  def to_wiki
-    Wiki::Diff.new(from.to_wiki, to.to_wiki, patch)
+  def to_olelo
+    Olelo::Diff.new(from.to_olelo, to.to_olelo, patch)
   end
 end
 
 class Gitrb::Commit
-  def to_wiki
-    Wiki::Version.new(id, Wiki::User.new(author.name, author.email), date, message, parents.map(&:id))
+  def to_olelo
+    Olelo::Version.new(id, Olelo::User.new(author.name, author.email), date, message, parents.map(&:id))
   end
 end
 
@@ -28,7 +28,7 @@ class GitRepository < Repository
     raise 'Transaction already running' if Thread.current[TRANSACTION]
     Thread.current[TRANSACTION] = []
     git.transaction(comment, user && Gitrb::User.new(user.name, user.email), &block)
-    tree_version = git.head.to_wiki
+    tree_version = git.head.to_olelo
     current_transaction.each {|f| f.call(tree_version) }
   ensure
     Thread.current[TRANSACTION] = nil
@@ -40,18 +40,18 @@ class GitRepository < Repository
     object = commit.tree[path] rescue nil
     return nil if !object
     if klass
-      klass.ancestors.include?(object_class(object.type)) ? klass.new(path, commit.to_wiki, current) : nil
+      klass.ancestors.include?(object_class(object.type)) ? klass.new(path, commit.to_olelo, current) : nil
     else
-      object_class(object.type).new(path, commit.to_wiki, current)
+      object_class(object.type).new(path, commit.to_olelo, current)
     end
   end
 
   def find_version(version)
-    git.get_commit(version.to_s).to_wiki
+    git.get_commit(version.to_s).to_olelo
   end
 
   def history(resource)
-    git.log(30, nil, resource.path).map(&:to_wiki)
+    git.log(30, nil, resource.path).map(&:to_olelo)
   end
 
   def version(resource)
@@ -62,7 +62,7 @@ class GitRepository < Repository
       child = io.eof? ? nil : git.get_commit(git.set_encoding(io.readline).strip)
     end rescue nil # no error because pipe is closed intentionally
 
-    [commits[1] ? commits[1].to_wiki : nil, commits[0].to_wiki, child]
+    [commits[1] ? commits[1].to_olelo : nil, commits[0].to_olelo, child]
   end
 
   def children(resource)
@@ -93,7 +93,7 @@ class GitRepository < Repository
   end
 
   def diff(from, to, path = nil)
-    git.diff(from.to_s, to.to_s, path).to_wiki
+    git.diff(from.to_s, to.to_s, path).to_olelo
   end
 
   def short_version(version)

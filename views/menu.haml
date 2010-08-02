@@ -33,12 +33,12 @@
               %a.action-delete{:href=> action_path(@resource, :delete) }= :delete.t
           - if !@resource.namespace.metadata?
             %li
-              %a.action-metadata{:href=> action_path(@resource.namespace_path(Wiki::Namespace.metadata(@resource.namespace.name)), :edit) }= :metadata.t
+              %a.action-metadata{:href=> action_path(@resource.namespace_path(Olelo::Namespace.metadata(@resource.namespace.name)), :edit) }= :metadata.t
       %li
         %a.action-history{:href=>action_path(@resource, :history), :accesskey=>'h'}= :history.t
     - if @resource.namespace.metadata?
       %li
-        %a.action-page{:href=> action_path(@resource.namespace_path(Wiki::Namespace.page(@resource.namespace.name)), :edit) }= :page.t
+        %a.action-page{:href=> action_path(@resource.namespace_path(Olelo::Namespace.page(@resource.namespace.name)), :edit) }= :page.t
   - else
     %li
       %a.action-new{:href=>'/new', :accesskey=>'n'}= :new_page.t

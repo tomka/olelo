@@ -3,7 +3,7 @@ dependencies 'utils/asset_manager'
 
 AssetManager.register_scripts 'pygments.css'
 
-module Wiki::Pygments
+module Olelo::Pygments
   include Util
 
   PROGRAM = 'pygmentize'

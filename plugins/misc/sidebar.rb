@@ -1,7 +1,7 @@
 description  'Basic sidebar implementation'
 dependencies 'engine/engine'
 
-class Wiki::Application
+class Olelo::Application
   get '/_/sidebar' do
     if page = Page.find(Config.sidebar_page)
       engine = Engine.find(page, :layout => true)

@@ -1,10 +1,10 @@
-require 'wiki/extensions'
-require 'wiki/hooks'
+require 'olelo/extensions'
+require 'olelo/hooks'
 
-describe 'Wiki::Hooks' do
+describe 'Olelo::Hooks' do
   before do
     @hooks_test = Class.new do
-      include Wiki::Hooks
+      include Olelo::Hooks
     end
   end
 

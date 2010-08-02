@@ -1,4 +1,4 @@
-require 'wiki/extensions'
+require 'olelo/extensions'
 
 describe 'Hash extensions' do
   it 'should have #with_indifferent_access' do

@@ -1,7 +1,7 @@
-require 'wiki/util'
+require 'olelo/util'
 
 class Base
-  extend Wiki::Factory
+  extend Olelo::Factory
 end
 
 class A < Base
@@ -10,7 +10,7 @@ end
 class B < Base
 end
 
-describe 'Wiki::Factory' do
+describe 'Olelo::Factory' do
   it 'should have #register' do
     Base.registry.should.be.empty
     Base.register :a, A

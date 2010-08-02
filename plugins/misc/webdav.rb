@@ -1,6 +1,6 @@
 description 'Simple webdav interface to the wiki files'
 
-class Wiki::Application
+class Olelo::Application
   put '/:path' do
     return super() if request.form_data?
     begin

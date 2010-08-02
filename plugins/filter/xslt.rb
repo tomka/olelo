@@ -1,7 +1,7 @@
 description  'Basic XSLT filter'
 dependencies 'engine/filter'
 
-class Wiki::XSLT < Filter
+class Olelo::XSLT < Filter
   def initialize(options)
     super
     content = File.read(File.join(File.dirname(__FILE__), options[:stylesheet]))
@@ -18,4 +18,4 @@ class Wiki::XSLT < Filter
   end
 end
 
-Filter.register :xslt, Wiki::XSLT
+Filter.register :xslt, Olelo::XSLT

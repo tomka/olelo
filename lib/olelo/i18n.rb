@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-module Wiki
+module Olelo
   module I18n
     @locale = nil
     @translations = Hash.with_indifferent_access
@@ -33,6 +33,6 @@ end
 
 class Symbol
   def t(args = {})
-    Wiki::I18n.translate(self, args)
+    Olelo::I18n.translate(self, args)
   end
 end

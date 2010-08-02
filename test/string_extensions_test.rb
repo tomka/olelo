@@ -1,4 +1,4 @@
-require 'wiki/extensions'
+require 'olelo/extensions'
 
 describe 'String extensions' do
   before { String.root_path = 'root' }

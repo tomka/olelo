@@ -68,7 +68,7 @@ jQuery.fn.historyTable = function() {
     });
 };
 
-// Wiki bootstrap
+// Olelo bootstrap
 // Written by Daniel Mendler
 (function() {
     $('#themes').styleswitcher();

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-module Wiki
+module Olelo
   # Main class of the application
   class Application
     include Util

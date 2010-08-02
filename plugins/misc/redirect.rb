@@ -1,6 +1,6 @@
 description 'Support for page redirects'
 
-class Wiki::Application
+class Olelo::Application
   hook :layout do |name, doc|
     if params[:redirect]
       links = [*params[:redirect]].map do |link|

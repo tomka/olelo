@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-module Wiki
+module Olelo
   module Routing
     class NotFound < NameError
       def initialize(path)

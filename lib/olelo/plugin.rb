@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-module Wiki
-  # Wiki plugin system
+module Olelo
+  # Olelo plugin system
   class Plugin
     include Util
     include Hooks

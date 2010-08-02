@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-module Wiki
+module Olelo
   class MultiError < StandardError
     attr_accessor :messages
 

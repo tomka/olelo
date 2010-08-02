@@ -114,7 +114,7 @@ Tag.define :math do |context, attrs, code|
   Renderer.choose(mode).render(code, attrs['display'] == 'block' ? 'block' : 'inline')
 end
 
-class Wiki::Application
+class Olelo::Application
   get '/_/tag/math/blahtex/:name', :name => /[\w\.]+/ do
     begin
       file = File.join(Renderer.get('blahteximage').directory, params[:name])

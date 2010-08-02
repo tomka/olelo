@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-module Wiki
+module Olelo
   module Templates
     HAML_OPTIONS = { :format => :xhtml, :attr_wrapper  => '"', :ugly => true }
 

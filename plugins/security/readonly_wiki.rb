@@ -1,6 +1,6 @@
 description 'Read-only wiki'
 
-class Wiki::Application
+class Olelo::Application
   hook :layout, 999 do |name, doc|
     doc.css('#menu .wiki, #info, .editlink').remove if user.anonymous?
   end

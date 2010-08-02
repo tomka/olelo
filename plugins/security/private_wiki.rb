@@ -1,6 +1,6 @@
 description 'Disallow anonymous access'
 
-class Wiki::Application
+class Olelo::Application
   WHITE_LIST =
     [
      '/login',

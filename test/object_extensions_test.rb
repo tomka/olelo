@@ -1,5 +1,5 @@
-require 'wiki/extensions'
-require 'wiki/util'
+require 'olelo/extensions'
+require 'olelo/util'
 
 describe 'Object extensions' do
   it 'should have #blank?' do

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-module Wiki
+module Olelo
   class DirectoryFS < Struct.new(:dir)
     def fs_id
       "D<#{dir}>"

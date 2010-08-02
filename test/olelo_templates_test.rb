@@ -1,23 +1,24 @@
-require 'wiki/fs'
-require 'wiki/templates'
+require 'olelo/fs'
+require 'olelo/templates'
+require 'haml'
 
 class Bacon::Context
-  include Wiki::Templates
+  include Olelo::Templates
 end
 
-describe 'Wiki::Templates' do
+describe 'Olelo::Templates' do
   before do
-    Wiki::Templates.enable_caching
-    Wiki::Templates.make_fs = proc { Wiki::InlineFS.new(__FILE__) }
+    Olelo::Templates.enable_caching
+    Olelo::Templates.make_fs = proc { Olelo::InlineFS.new(__FILE__) }
   end
 
   after do
-    Wiki::Templates.cache.clear
+    Olelo::Templates.cache.clear
   end
 
   it 'should have #render' do
     render(:test, :locals => {:text => 'Hello, World!'}).should.equal "<h1>Hello, World!</h1>\n"
-    Wiki::Templates.cache.size.should.equal 1
+    Olelo::Templates.cache.size.should.equal 1
   end
 
   it 'should support haml options' do

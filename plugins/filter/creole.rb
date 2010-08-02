@@ -2,7 +2,7 @@ description  'Creole wiki text filter'
 dependencies 'engine/filter'
 require      'creole'
 
-class WikiCreoleParser < Creole
+class OleloCreoleParser < Creole
   include PageHelper
   include Util
 
@@ -48,5 +48,5 @@ class WikiCreoleParser < Creole
 end
 
 Filter.create :creole do |content|
-  WikiCreoleParser.new(content, context.page).to_html
+  OleloCreoleParser.new(content, context.page).to_html
 end

@@ -5,8 +5,8 @@ path = ::File.expand_path(::File.dirname(__FILE__))
 $: << ::File.join(path, 'lib')
 Dir[::File.join(path, 'deps', '*', 'lib')].each {|x| $: << x }
 
-require 'wiki/timer'
-timer = Wiki::Timer.start
+require 'olelo/timer'
+timer = Olelo::Timer.start
 
 # Require newest rack
 raise 'Rack 1.1.0 or newer required' if Rack.version < '1.1'
@@ -19,45 +19,45 @@ require 'rack/patches'
 require 'rack/degrade_mime_type'
 require 'rack/relative_redirect'
 require 'rack/static_cache'
-require 'wiki'
+require 'olelo'
 
-Wiki::Config['app_path'] = path
-Wiki::Config['config_path'] = ::File.join(path, 'config')
-Wiki::Config['initializers_path'] = ::File.join(path, 'config', 'initializers')
-Wiki::Config['plugins_path'] = ::File.join(path, 'plugins')
-Wiki::Config['views_path'] = ::File.join(path, 'views')
-Wiki::Config['tmp_path'] = ::File.join(path, '.wiki', 'tmp')
-Wiki::Config['authentication.yamlfile.store'] = ::File.join(path, '.wiki', 'users.yml')
-Wiki::Config['repository.git.path'] = ::File.join(path, '.wiki', 'repository')
-Wiki::Config['log.file'] = ::File.join(path, '.wiki', 'log')
+Olelo::Config['app_path'] = path
+Olelo::Config['config_path'] = ::File.join(path, 'config')
+Olelo::Config['initializers_path'] = ::File.join(path, 'config', 'initializers')
+Olelo::Config['plugins_path'] = ::File.join(path, 'plugins')
+Olelo::Config['views_path'] = ::File.join(path, 'views')
+Olelo::Config['tmp_path'] = ::File.join(path, '.wiki', 'tmp')
+Olelo::Config['authentication.yamlfile.store'] = ::File.join(path, '.wiki', 'users.yml')
+Olelo::Config['repository.git.path'] = ::File.join(path, '.wiki', 'repository')
+Olelo::Config['log.file'] = ::File.join(path, '.wiki', 'log')
 
-Wiki::Config.load!(::File.join(path, 'config', 'config.yml.default'))
-Wiki::Config.load(ENV['WIKI_CONFIG'] || ::File.join(path, 'config', 'config.yml'))
+Olelo::Config.load!(::File.join(path, 'config', 'config.yml.default'))
+Olelo::Config.load(ENV['OLELO_CONFIG'] || ENV['WIKI_CONFIG'] || ::File.join(path, 'config', 'config.yml'))
 
-FileUtils.mkpath Wiki::Config.tmp_path, :mode => 0755
-FileUtils.mkpath ::File.dirname(Wiki::Config.log.file), :mode => 0755
+FileUtils.mkpath Olelo::Config.tmp_path, :mode => 0755
+FileUtils.mkpath ::File.dirname(Olelo::Config.log.file), :mode => 0755
 
-logger = ::Logger.new(Wiki::Config.log.file, 25, 1024000)
-logger.level = ::Logger.const_get(Wiki::Config.log.level)
+logger = ::Logger.new(Olelo::Config.log.file, 25, 1024000)
+logger.level = ::Logger.const_get(Olelo::Config.log.level)
 
-use_lint if !Wiki::Config.production?
+use_lint if !Olelo::Config.production?
 
-if !Wiki::Config.rack.blacklist.empty?
+if !Olelo::Config.rack.blacklist.empty?
   require 'rack/blacklist'
-  use Rack::Blacklist, :blacklist => Wiki::Config.rack.blacklist
+  use Rack::Blacklist, :blacklist => Olelo::Config.rack.blacklist
 end
 
 use(Rack::Config) {|env| env['rack.logger'] = logger }
 use Rack::DegradeMimeType
 use Rack::RelativeRedirect
 
-if !Wiki::Config.rack.rewrite_base.blank?
-  logger.info "Use rack rewrite base=#{Wiki::Config.rack.rewrite_base}"
+if !Olelo::Config.rack.rewrite_base.blank?
+  logger.info "Use rack rewrite base=#{Olelo::Config.rack.rewrite_base}"
   require 'rack/rewrite'
-  use Rack::Rewrite, :base => Wiki::Config.rack.rewrite_base
+  use Rack::Rewrite, :base => Olelo::Config.rack.rewrite_base
 end
 
-if Wiki::Config.rack.deflater?
+if Olelo::Config.rack.deflater?
   logger.info 'Use rack deflater'
   use Rack::Deflater
 end
@@ -66,24 +66,24 @@ use Rack::StaticCache, :urls => ['/static'], :root => path
 
 use Rack::Session::Pool
 
-if Wiki::Config.rack.embed?
+if Olelo::Config.rack.embed?
   logger.info 'Use rack image embedding'
   require 'rack/embed'
   use Rack::Embed, :threaded => true
 end
 
-if Wiki::Config.rack.esi?
+if Olelo::Config.rack.esi?
   logger.info 'Use rack esi'
   require 'rack/esi'
   use Rack::ESI
 
-  if Wiki::Config.production?
+  if Olelo::Config.production?
     logger.info 'Use rack cache'
     require 'rack/cache'
     use Rack::Cache,
       :verbose     => false,
-      :metastore   => "file:#{::File.join(Wiki::Config.tmp_path, 'rack-meta')}",
-      :entitystore => "file:#{::File.join(Wiki::Config.tmp_path, 'rack-entity')}"
+      :metastore   => "file:#{::File.join(Olelo::Config.tmp_path, 'rack-meta')}",
+      :entitystore => "file:#{::File.join(Olelo::Config.tmp_path, 'rack-entity')}"
   end
 end
 
@@ -94,6 +94,6 @@ end
 
 use Rack::MethodOverride
 use Rack::CommonLogger, LoggerOutput.new(logger)
-run Wiki::Application.new(nil, :logger => logger)
+run Olelo::Application.new(nil, :logger => logger)
 
-logger.info "Wiki started in #{timer.stop.elapsed_ms}ms (#{Wiki::Config.production? ? 'Production' : 'Development'} mode)"
+logger.info "Olelo started in #{timer.stop.elapsed_ms}ms (#{Olelo::Config.production? ? 'Production' : 'Development'} mode)"

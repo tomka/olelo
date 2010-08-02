@@ -6,7 +6,7 @@ end
 
 INTERWIKI_REGEX = %r{^/?(#{interwiki.keys.join('|')}):(.+)$}
 
-module Wiki::PageHelper
+module Olelo::PageHelper
   alias resource_path_without_interwiki resource_path
 
   def resource_path(resource, opts = {})

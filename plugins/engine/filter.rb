@@ -1,7 +1,7 @@
 description 'Filter pipeline engine'
 dependencies 'engine/engine'
 
-class Wiki::Filter
+class Olelo::Filter
   include PageHelper
   include Templates
   extend Factory
@@ -89,7 +89,7 @@ class Wiki::Filter
   end
 end
 
-class Wiki::FilterEngine < Engine
+class Olelo::FilterEngine < Engine
   def initialize(name, options, filter)
     super(name, options)
     @accepts = options[:accepts]

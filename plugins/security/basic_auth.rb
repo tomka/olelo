@@ -1,7 +1,7 @@
 description 'HTTP basic authentication'
 require     'rack/auth/basic'
 
-class Wiki::Application
+class Olelo::Application
   hook :auto_login do
     if params[:auth] && !user
       auth = Rack::Auth::Basic::Request.new(env)
@@ -16,7 +16,7 @@ class Wiki::Application
   private
 
   def unauthorized
-    response['WWW-Authenticate'] = 'Basic realm="Wiki"'
+    response['WWW-Authenticate'] = 'Basic realm="Olelo"'
     halt :unauthorized
   end
 end

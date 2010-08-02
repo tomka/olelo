@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-module Wiki
+module Olelo
   # Raised if resource is not found in the repository
   class ObjectNotFound < Routing::NotFound
     def initialize(id)

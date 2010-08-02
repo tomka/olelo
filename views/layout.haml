@@ -1,13 +1,13 @@
 !!! 5
 %html.no-js{:xmlns=>"http://www.w3.org/1999/xhtml", 'xmlns:esi' => 'http://www.edge-delivery.org/esi/1.0',
-      'xml:lang' => Wiki::Config.locale.sub('_', '-'), :class => @resource && !@resource.current? ? 'timemachine' : nil}
+      'xml:lang' => Olelo::Config.locale.sub('_', '-'), :class => @resource && !@resource.current? ? 'timemachine' : nil}
   %head
-    %title&= Wiki::Config.title + ' - ' + blocks[:title]
+    %title&= Olelo::Config.title + ' - ' + blocks[:title]
     = theme_links
     %link(rel='shortcut icon' href='/static/images/favicon.png' type='image/png')
   %body
     #header
-      %h1&= Wiki::Config.title
+      %h1&= Olelo::Config.title
       #info
         %esi:include{:src=>'/_/user'}/
       #search

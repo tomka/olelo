@@ -3,7 +3,7 @@ dependencies 'filter/tag', 'utils/asset_manager'
 
 AssetManager.register_scripts '*.css'
 
-class Wiki::Application
+class Olelo::Application
   get '/:path/?:year', '/:path/?:year/:month', :year => '20\d{2}', :month => '(?:0[1-9])|(?:1[1-2])' do
     params[:output] = 'blog'
     send('GET /:path')

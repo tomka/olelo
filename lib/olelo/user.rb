@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-module Wiki
+module Olelo
   class AuthenticationError < RuntimeError
   end
 
