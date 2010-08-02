@@ -33,7 +33,7 @@ class Wiki::AssetManager
 end
 
 class Wiki::Application
-  hook :layout do |name, doc|
+  hook :layout, 1 do |name, doc|
     doc.css('head').first << '<link rel="stylesheet" href="/_/assets/assets.css" type="text/css"/>' if AssetManager.assets['assets.css']
     doc.css('body').first << '<script src="/_/assets/assets.js" type="text/javascript"/>' if AssetManager.assets['assets.js']
   end
