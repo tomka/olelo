@@ -10,7 +10,7 @@ class Olelo::Application
   end
 end
 
-Tag.define('blog-menu') do |context, attrs, content|
+Tag.define('blog-menu', :description => 'Show blog menu') do |context, attrs, content|
   path = attrs[:path].to_s
   tree = Tree.find!(path, context.page.current? ? nil : context.page.tree_version)
   years = {}

@@ -53,6 +53,22 @@ __END__
   %tr
     %td Mime type detection order
     %td&= Olelo::Config.mime.join(', ')
+- if Olelo.const_defined? 'Tag'
+  %h2 Markup tags
+  %table.zebra.full
+    %thead
+      %tr
+        %th Name
+        %th Description
+        %th Provided by
+        %th Required attributes
+    %tbody
+      - Olelo::Tag.tags.each do |name, tag|
+        %tr
+          %td&= name
+          %td&= tag.description
+          %td&= tag.plugin.name
+          %td&= tag.requires.join(', ')
 %h2 Plugins
 %table.zebra.full
   %thead

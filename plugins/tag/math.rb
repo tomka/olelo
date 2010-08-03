@@ -108,7 +108,7 @@ Renderer.registry = {
   'mathml'       => %w(blahtexml itex ritex),
 }
 
-Tag.define :math do |context, attrs, code|
+Tag.define :math, :description => 'Render LaTeX' do |context, attrs, code|
   raise('Limits exceeded') if code.size > 10240
   mode = attrs['mode'] || context.page.metadata['math'] || 'image'
   Renderer.choose(mode).render(code, attrs['display'] == 'block' ? 'block' : 'inline')

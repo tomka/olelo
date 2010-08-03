@@ -35,12 +35,11 @@ HTML_TAGS = {
   :h6 => [],
   :blockquote => %w(cite),
   :div => %w(style),
-  :span => %w(style),
-  :style => %w(type),
+  :span => %w(style)
 }
 
 HTML_TAGS.each do |name, allowed|
-  Tag.define(name) do |context, attrs, content|
+  Tag.define(name, :description => "html tag #{name}") do |context, attrs, content|
     attrs = attrs.map {|(k,v)| %{#{k}="#{escape_html v}"} if allowed.include? k }.compact.join(' ')
     "<#{name}#{attrs.blank? ? '' : ' '+attrs}>#{subfilter(nested_tags(context, content))}</#{name}>"
   end

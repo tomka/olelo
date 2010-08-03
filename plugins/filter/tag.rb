@@ -108,8 +108,14 @@ end
 class Olelo::Tag < Filter
   @@tags = {}
 
+  def self.tags
+    @@tags
+  end
+
   def self.define(tag, opts = {}, &block)
-    @@tags[tag.to_s] = TagInfo.new(block.to_method(self), opts)
+    @@tags[tag.to_s] = TagInfo.new(opts.merge(:method => block.to_method(self),
+                                              :plugin => Plugin.current(1),
+                                              :requires => [opts[:requires] || []].flatten))
   end
 
   def nested_tags(context, content)
@@ -137,9 +143,9 @@ class Olelo::Tag < Filter
   BLOCK_ELEMENTS = %w(style script address blockquote div h1 h2 h3 h4 h5 h6 ul p ol pre table hr br)
   BLOCK_ELEMENT_REGEX = /<(#{BLOCK_ELEMENTS.join('|')})/
 
-  class TagInfo < Struct.new(:limit, :requires, :immediate, :method)
-    def initialize(method, opts)
-      update(opts.merge(:method => method, :requires => [opts[:requires] || []].flatten))
+  class TagInfo < Struct.new(:limit, :requires, :immediate, :method, :description, :plugin)
+    def initialize(opts)
+      update(opts)
     end
   end
 
@@ -187,11 +193,10 @@ class Olelo::Tag < Filter
     end
     content
   end
-
 end
 
 Filter.register :tag, Tag
 
-Tag.define :nowiki do |context, attrs, content|
+Tag.define :nowiki, :description => 'Do not process contained text' do |context, attrs, content|
   escape_html(content)
 end
