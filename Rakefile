@@ -15,7 +15,7 @@ def spew(file, content)
 end
 
 file 'plugins/utils/pygments.scss' do
-  sh "pygmentize -S default -f html -a .highlight | sass-convert --from css --to scss > plugins/utils/pygments.scss"
+  sh "pygmentize -S default -f html -a .highlight > plugins/utils/pygments.scss"
 end
 
 file('static/themes/atlantis/style.css' => Dir.glob('static/themes/atlantis/*.scss') + Dir.glob('static/themes/lib/*.scss')) do |t|
