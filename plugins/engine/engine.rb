@@ -58,7 +58,7 @@ class Olelo::Engine
   # register an engine class in one step.
   def self.create(name, opts = {}, &block)
     engine = Class.new(Engine)
-    engine.class_eval(&block) if block
+    engine.class_eval(&block)
     register engine.new(name, opts)
   end
 

@@ -31,19 +31,6 @@ class Module
   end
 end
 
-class Proc
-  def to_method(klass)
-    name = "__to_method_#{Thread.current.unique_id}"
-    proc = self
-    klass.module_eval do
-      define_method(name, proc)
-      instance_method(name)
-    end
-  ensure
-    klass.module_eval { remove_method(name) } rescue nil
-  end
-end
-
 class Hash
   # Stolen from rails
   class WithIndifferentAccess < Hash

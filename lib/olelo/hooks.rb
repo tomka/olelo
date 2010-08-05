@@ -18,7 +18,7 @@ module Olelo
     def invoke_hook(type, *args)
       result = []
       while type
-        result.push(*self.class.hooks[type].to_a.sort_by(&:first).map {|priority, method| method.bind(self).call(*args) })
+        result.push(*self.class.hooks[type].to_a.sort_by(&:first).map {|priority, name| send(name, *args) })
         break if type == Object
         type = Class === type ? type.superclass : nil
       end
@@ -32,7 +32,10 @@ module Olelo
 
       # Register hook. Hook with lowest priority is executed first.
       def hook(type, priority = 99, &block)
-        (hooks[type] ||= []) << [priority, block.to_method(self)]
+        hooks[type] ||= []
+        name = "HOOK #{type.to_s} #{hooks[type].size}"
+        define_method(name, &block)
+        hooks[type] << [priority, name]
       end
 
       # Register before hook

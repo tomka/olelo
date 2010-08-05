@@ -53,11 +53,11 @@ class TagSoupParser
       # empty tag
       @content = $'
       @parsed << $&
-      process_tag('')
+      @output << @callback.call(@name, @attrs, '')
     when /\A\s*>/
       @content = $'
       @parsed << $&
-      process_tag(get_inner_text)
+      @output << @callback.call(@name, @attrs, get_inner_text)
     else
       # Tag which begins with <name but has no >.
       # Ignore this and continue parsing after it.
@@ -99,10 +99,6 @@ class TagSoupParser
     end
     text
   end
-
-  def process_tag(text)
-    @output << @callback.call(@name, @attrs, text)
-  end
 end
 
 class Olelo::Tag < Filter
@@ -113,7 +109,9 @@ class Olelo::Tag < Filter
   end
 
   def self.define(tag, opts = {}, &block)
-    @@tags[tag.to_s] = TagInfo.new(opts.merge(:method => block.to_method(self),
+    name = "TAG #{tag}"
+    define_method(name, &block)
+    @@tags[tag.to_s] = TagInfo.new(opts.merge(:method => name,
                                               :plugin => Plugin.current(1),
                                               :requires => [opts[:requires] || []].flatten))
   end
@@ -160,7 +158,7 @@ class Olelo::Tag < Filter
       %{#{name}: Attribute "#{attr}" is required}
     else
       content = begin
-               tag.method.bind(self).call(context, attrs, content).to_s
+               send(tag.method, context, attrs, content).to_s
              rescue Exception => ex
                context.logger.error ex
                "#{name}: #{escape_html ex.message}"
