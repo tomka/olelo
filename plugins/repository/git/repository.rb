@@ -3,7 +3,7 @@ require     'gitrb'
 
 class Gitrb::Diff
   def to_olelo
-    Olelo::Diff.new(from.to_olelo, to.to_olelo, patch)
+    Olelo::Diff.new(from && from.to_olelo, to.to_olelo, patch)
   end
 end
 
@@ -93,7 +93,7 @@ class GitRepository < Repository
   end
 
   def diff(from, to, path = nil)
-    git.diff(from.to_s, to.to_s, path).to_olelo
+    git.diff(from && from.to_s, to.to_s, path).to_olelo
   end
 
   def short_version(version)

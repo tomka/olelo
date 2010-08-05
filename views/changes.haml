@@ -15,4 +15,4 @@
       %td
         - @version.parents.each do |parent|
           %a{:href=> ('changes'/parent).urlpath }= Olelo::Version.short(parent)
-~ format_patch(@diff.patch, :from => @diff.from, :to => @diff.to)
+~ format_patch(@version.diff.patch, :from => @version.diff.from, :to => @version.diff.to)

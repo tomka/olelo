@@ -129,7 +129,6 @@ module Olelo
     get '/changes/:version' do
       @version = Version.find!(params[:version])
       cache_control :etag => @version, :last_modified => @version.date
-      @diff = Version.diff(@version.parents.first, @version)
       render :changes
     end
 

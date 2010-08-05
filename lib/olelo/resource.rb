@@ -16,16 +16,16 @@ module Olelo
       find(id) || raise(ObjectNotFound, path)
     end
 
+    def diff
+      @diff ||= Repository.instance.diff(nil, id)
+    end
+
     def short
       Version.short(id)
     end
 
     def self.short(id)
       Repository.instance.short_version(id)
-    end
-
-    def self.diff(from, to)
-      Repository.instance.diff(from, to)
     end
 
     def to_s
