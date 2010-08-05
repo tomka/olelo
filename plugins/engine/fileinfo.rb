@@ -2,6 +2,7 @@ description 'File information engine'
 dependencies 'engine/engine'
 
 Engine.create(:fileinfo, :priority => 4, :layout => true, :cacheable => true) do
+  def accepts?(page); page.page?; end
   def output(context)
     @page = context.page
     render :info

@@ -48,11 +48,18 @@ class Olelo::Engine
     @cacheable = !!options[:cacheable]
     @hidden = !!options[:hidden]
     @priority = (options[:priority] || 99).to_i
+    @accepts = options[:accepts]
+    @mime = options[:mime]
     @options = options
   end
 
   attr_reader :name, :priority, :options
   attr_reader? :layout, :cacheable, :hidden
+
+  # Engines hash
+  def self.engines
+    @engines
+  end
 
   # Create engine class. This is sugar to create and
   # register an engine class in one step.
@@ -97,7 +104,9 @@ class Olelo::Engine
 
   # Acceptor should return true if resource would be accepted by this engine.
   # Reimplement this method.
-  def accepts?(resource); resource.respond_to? :content; end
+  def accepts?(resource)
+    resource.mime.to_s =~ /#{@accepts}/
+  end
 
   # Render resource content.
   # Reimplement this method.
@@ -105,7 +114,7 @@ class Olelo::Engine
 
   # Get output mime type.
   # Reimplement this method.
-  def mime(resource); resource.mime; end
+  def mime(resource); @mime || resource.mime; end
 
   # Render resource with possible caching. It should not be overwritten.
   def cached_output(context)

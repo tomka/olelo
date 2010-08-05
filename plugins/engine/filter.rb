@@ -92,17 +92,7 @@ end
 class Olelo::FilterEngine < Engine
   def initialize(name, options, filter)
     super(name, options)
-    @accepts = options[:accepts]
-    @mime = options[:mime]
     @filter = filter
-  end
-
-  def accepts?(page)
-    page.mime.to_s =~ /^#{@accepts}$/
-  end
-
-  def mime(page)
-    @mime || page.mime
   end
 
   def output(context)

@@ -1,8 +1,7 @@
 description 'Image information engine'
 dependencies 'engine/image'
 
-Engine.create(:imageinfo, :priority => 1, :layout => true, :cacheable => true) do
-  def accepts?(page); page.mime.image?; end
+Engine.create(:imageinfo, :priority => 1, :layout => true, :cacheable => true, :accepts => 'image/') do
   def output(context)
     @page = context.page
     identify = shell_filter("#{Plugin['engine/image'].magick_prefix}identify -format '%m %h %w' -", context.page.content).split(' ')

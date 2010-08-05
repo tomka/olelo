@@ -1,8 +1,7 @@
 description  'Tree engine'
 dependencies 'engine/engine'
 
-Engine.create(:tree, :priority => 2, :layout => true, :cacheable => true) do
-  def accepts?(resource); resource.tree?; end
+Engine.create(:tree, :priority => 2, :layout => true, :cacheable => true, :accepts => Tree::DIRECTORY_MIME) do
   def output(context)
     @curpage = context.params[:curpage].to_i
     per_page = 20

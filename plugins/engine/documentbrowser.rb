@@ -1,8 +1,7 @@
 description 'Document browser engine'
 dependencies 'engine/engine'
 
-Engine.create(:documentbrowser, :priority => 1, :layout => true, :cacheable => true) do
-  def accepts?(page); page.mime == 'application/pdf' || page.mime.to_s =~ /postscript/; end
+Engine.create(:documentbrowser, :priority => 1, :layout => true, :cacheable => true, :accepts => 'application/pdf|postscript') do
   def output(context)
     @page = context.page
     @pages = 0

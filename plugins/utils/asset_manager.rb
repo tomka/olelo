@@ -1,35 +1,34 @@
 description 'Asset manager'
 
-class Olelo::AssetManager
-  def self.assets
-    @assets ||= {}
-  end
+module Olelo::AssetManager
+  @assets = {}
+  @scripts = {}
 
-  def self.scripts
-    @scripts ||= {}
-  end
+  class << self
+    attr_reader :assets, :scripts
 
-  def self.register_assets(*files)
-    base = File.dirname(Plugin.current(1).name)
-    make_fs.glob(*files) {|fs, file| assets[base/file] = [fs, file] }
-  end
+    def register_assets(*files)
+      base = File.dirname(Plugin.current(1).name)
+      make_fs.glob(*files) {|fs, file| assets[base/file] = [fs, file] }
+    end
 
-  def self.register_scripts(*files)
-    options = files.last.is_a?(Hash) ? files.pop : {}
-    priority = options[:priority] || 99
-    make_fs.glob(*files) do |fs, file|
-      type = %w(js css).find {|ext| file.ends_with? ext }
-      raise 'Invalid script type' if !type
-      (scripts[type] ||= []) << [priority, fs.mtime(file), fs.read(file)]
+    def register_scripts(*files)
+      options = files.last.is_a?(Hash) ? files.pop : {}
+      priority = options[:priority] || 99
+      make_fs.glob(*files) do |fs, file|
+        type = %w(js css).find {|ext| file.ends_with? ext }
+        raise 'Invalid script type' if !type
+        (scripts[type] ||= []) << [priority, fs.mtime(file), fs.read(file)]
+      end
+    end
+
+    private
+
+    def make_fs
+      file = Plugin.current(2).file
+      UnionFS.new(Config.production? ? CacheInlineFS.new(file) : InlineFS.new(file), DirectoryFS.new(File.dirname(file)))
     end
   end
-
-  def self.make_fs
-    file = Plugin.current(2).file
-    UnionFS.new(Config.production? ? CacheInlineFS.new(file) : InlineFS.new(file), DirectoryFS.new(File.dirname(file)))
-  end
-
-  private_class_method :make_fs
 end
 
 class Olelo::Application

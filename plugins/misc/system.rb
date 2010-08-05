@@ -3,9 +3,6 @@ description 'System information'
 class Olelo::Application
   get '/system' do
     GC.start
-    @plugins = Plugin.plugins.sort_by(&:name)
-    @failed_plugins = Plugin.failed.sort
-    @disabled_plugins = Plugin.disabled.sort
     @memory = `ps -o rss= -p #{Process.pid}`.to_i / 1024
     render :system
   end
@@ -53,6 +50,26 @@ __END__
   %tr
     %td Mime type detection order
     %td&= Olelo::Config.mime.join(', ')
+- if Olelo.const_defined? 'Engine'
+  %h2 Engines
+  %table.zebra.full
+    %thead
+      %tr
+        %th Name
+        %th Output Mime Type
+        %th Accepted mime types
+        %th Cacheable
+        %th Hidden
+        %th Priority
+    %tbody
+      - Olelo::Engine.engines.values.flatten.each do |engine|
+        %tr
+          %td&= engine.name
+          %td&= engine.options[:mime]
+          %td&= engine.options[:accepts]
+          %td= engine.cacheable?
+          %td= engine.hidden?
+          %td= engine.priority
 - if Olelo.const_defined? 'Tag'
   %h2 Markup tags
   %table.zebra.full
@@ -78,13 +95,13 @@ __END__
       %th Description
       %th Dependencies
   %tbody
-    - @plugins.each do |plugin|
+    - Olelo::Plugin.plugins.sort_by(&:name).each do |plugin|
       %tr
         %td&= plugin.name
         %td&= plugin.author
         %td&= plugin.description
         %td&= plugin.dependencies.join(', ')
-    - @disabled_plugins.each do |plugin|
+    - Olelo::Plugin.disabled.sort.each do |plugin|
       %tr
         %td
           &= plugin
@@ -92,7 +109,7 @@ __END__
         %td unknown
         %td unknown
         %td unknown
-    - @failed_plugins.each do |plugin|
+    - Olelo::Plugin.failed.sort.each do |plugin|
       %tr
         %td
           &= plugin
