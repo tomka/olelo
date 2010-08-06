@@ -20,8 +20,7 @@ Tag.define('blog-menu', :description => 'Show blog menu') do |context, attrs, co
   render :menu, :locals => {:years => years, :tree => tree}
 end
 
-Engine.create(:blog, :priority => 3, :layout => true, :cacheable => true, :hidden => true) do
-  def accepts?(resource); resource.tree?; end
+Engine.create(:blog, :priority => 3, :layout => true, :cacheable => true, :hidden => true, :accepts => Tree::MIME) do
   def output(context)
     @tree = context.tree
 

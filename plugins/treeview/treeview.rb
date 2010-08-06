@@ -5,9 +5,7 @@ require      'yajl/json_gem'
 AssetManager.register_scripts '*.js', '*.css'
 AssetManager.register_assets '*.png', '*.gif'
 
-Engine.create('treeview.json', :priority => 999, :layout => false, :cacheable => true, :hidden => true) do
-  def accepts?(resource); resource.tree?; end
-  def mime(resource); 'application/json; charset=utf-8'; end
+Engine.create('treeview.json', :cacheable => true, :hidden => true, :accepts => Tree::MIME, :mime => 'application/json; charset=utf-8') do
   def output(context)
     # Format [[is-tree, has-children, classes, path, name], ...]
     # Example: [[1, 1, 'tree', '/a/b', 'b'], ...]

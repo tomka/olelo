@@ -1,11 +1,9 @@
 description  'Archive engine for git repository'
-dependencies 'engine/engine', 'repository/git/git'
+dependencies 'engine/engine'
 
 raise 'Git repository required' if Config.repository.type != 'git'
 
-Engine.create(:archive, :priority => 999, :layout => false) do
-  def accepts?(resource); resource.tree?; end
-  def mime(resource); 'application/zip'; end
+Engine.create(:archive, :accepts => Tree::MIME, :mime => 'application/zip') do
   def output(context)
     tree = context.tree
     response = context.response

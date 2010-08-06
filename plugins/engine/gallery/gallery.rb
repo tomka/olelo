@@ -3,8 +3,7 @@ dependencies 'engine/engine', 'utils/asset_manager'
 
 AssetManager.register_scripts '*.js', '*.css'
 
-Engine.create(:gallery, :priority => 3, :layout => true, :cacheable => true, :hidden => true) do
-  def accepts?(resource); resource.tree?; end
+Engine.create(:gallery, :priority => 3, :layout => true, :cacheable => true, :hidden => true, :accepts => Tree::MIME) do
   def output(context)
     per_page = 16
     @curpage = context.params[:curpage].to_i

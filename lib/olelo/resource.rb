@@ -323,6 +323,8 @@ module Olelo
   end
 
   class Tree < Resource
+    MIME = MimeMagic.new('inode/directory')
+
     def namespace
       Namespace.main
     end
@@ -334,17 +336,13 @@ module Olelo
     end
 
     def mime
-      DIRECTORY_MIME
+      MIME
     end
 
     def committed(path, tree_version)
       super
       @children = nil
     end
-
-    private
-
-    DIRECTORY_MIME = MimeMagic.new('inode/directory')
   end
 
   class Repository
