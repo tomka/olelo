@@ -14,7 +14,7 @@
         %td
           %a{:href=>resource_path(@resource, :version => version)}&= version.comment.truncate(50)
           (
-          %a{:href=> ('changes'/version).urlpath }<>= :changes.t
+          %a{:href=>(@resource.path/'changes'/version).urlpath }<>= :changes.t
           )
         %td&= version.author.name.truncate(30)
         %td= date version.date

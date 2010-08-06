@@ -126,8 +126,10 @@ module Olelo
       render :profile
     end
 
-    get '/changes/:version' do
+    get '/?:path?/changes/:version' do
+      @resource = Resource.find!(params[:path])
       @version = Version.find!(params[:version])
+      @diff = @resource.diff(nil, @version)
       cache_control :etag => @version, :last_modified => @version.date
       render :changes
     end

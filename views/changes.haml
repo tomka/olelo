@@ -1,6 +1,9 @@
-- title :changes_of.t(:version => @version)
+- title :changes_of.t(:path => @resource.title)
 %table.zebra
   %tbody
+    %tr
+      %td= :version.t
+      %td.version&= @version
     %tr
       %td= :comment.t
       %td&= @version.comment
@@ -12,7 +15,7 @@
       %td= date @version.date
     %tr
       %td= :parents.t
-      %td
+      %td.version
         - @version.parents.each do |parent|
           %a{:href=> ('changes'/parent).urlpath }= Olelo::Version.short(parent)
-~ format_patch(@version.diff.patch, :from => @version.diff.from, :to => @version.diff.to)
+~ format_patch(@diff.patch, :from => @diff.from, :to => @diff.to)
