@@ -42,25 +42,25 @@ describe 'Olelo::Resource' do
     Olelo::Tree.find!('').should.be.an.instance_of Olelo::Tree
     lambda do
       Olelo::Page.find!('/root')
-    end.should.raise Olelo::ObjectNotFound
+    end.should.raise Olelo::NotFound
 
     Olelo::Resource.find('Home').should.be.an.instance_of Olelo::Page
     Olelo::Page.find('Home').should.be.an.instance_of Olelo::Page
     lambda do
       Olelo::Tree.find!('/Home')
-    end.should.raise Olelo::ObjectNotFound
+    end.should.raise Olelo::NotFound
 
     lambda do
       Olelo::Resource.find!('/foo')
-    end.should.raise Olelo::ObjectNotFound
+    end.should.raise Olelo::NotFound
 
     lambda do
       Olelo::Page.find!('/foo')
-    end.should.raise Olelo::ObjectNotFound
+    end.should.raise Olelo::NotFound
 
     lambda do
       Olelo::Tree.find!('/foo')
-    end.should.raise Olelo::ObjectNotFound
+    end.should.raise Olelo::NotFound
   end
 
   it 'should be new' do

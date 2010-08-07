@@ -58,29 +58,32 @@ module Olelo
     end
 
     # Handle 404s
-    hook NotFound do |ex|
+    hook NotFound do |error|
+      logger.debug(error)
       if redirect_to_new
         # Redirect to create new page if flag is set
         path = (params[:path]/'new').urlpath
         path += '?' + request.query_string if !request.query_string.blank?
         redirect path
+      else
+        cache_control :no_cache => true
+        halt render(:not_found, :locals => {:error => error})
       end
     end
 
-    hook StandardError do |ex|
+    hook StandardError do |error|
       if on_error
-        logger.error ex
-        (ex.try(:messages) || [ex.message]).each {|msg| flash.error(msg) }
+        logger.error error
+        (error.try(:messages) || [error.message]).each {|msg| flash.error(msg) }
         halt render(on_error)
       end
     end
 
     # Show wiki error page
-    hook Exception do |ex|
+    hook Exception do |error|
+      logger.error(error)
       cache_control :no_cache => true
-      @error = ex
-      logger.error @error
-      render :error
+      render :error, :locals => {:error => error}
     end
 
     get '/_/user' do
@@ -212,7 +215,7 @@ module Olelo
           @content = @resource.try(:content)
           halt render(:show)
         end
-      rescue ObjectNotFound => ex
+      rescue NotFound
         redirect_to_new params[:version].blank?
         pass
       end

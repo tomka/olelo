@@ -1,19 +1,12 @@
 # -*- coding: utf-8 -*-
 module Olelo
-  # Raised if resource is not found in the repository
-  class ObjectNotFound < Routing::NotFound
-    def initialize(id)
-      super(id)
-    end
-  end
-
   class Version < Struct.new(:id, :author, :date, :comment, :parents)
     def self.find(id)
       Repository.instance.find_version(id)
     end
 
     def self.find!(id)
-      find(id) || raise(ObjectNotFound, path)
+      find(id) || raise(NotFound, path)
     end
 
     def short
@@ -121,7 +114,7 @@ module Olelo
     end
 
     def self.find!(path, tree_version = nil)
-      find(path, tree_version) || raise(ObjectNotFound, path)
+      find(path, tree_version) || raise(NotFound, path)
     end
 
     def root?

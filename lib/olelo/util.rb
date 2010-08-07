@@ -1,5 +1,15 @@
 # -*- coding: utf-8 -*-
 module Olelo
+  class NotFound < NameError
+    def initialize(path)
+      super(:not_found.t(:id => path), path)
+    end
+
+    def status
+      :not_found
+    end
+  end
+
   class MultiError < StandardError
     attr_accessor :messages
 

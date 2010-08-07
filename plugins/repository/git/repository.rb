@@ -37,17 +37,21 @@ class GitRepository < Repository
   def find_resource(path, tree_version, current, klass = nil)
     commit = tree_version ? git.get_commit(tree_version.to_s) : git.head
     return nil if !commit
-    object = commit.tree[path] rescue nil
+    object = commit.tree[path]
     return nil if !object
     if klass
       klass.ancestors.include?(object_class(object.type)) ? klass.new(path, commit.to_olelo, current) : nil
     else
       object_class(object.type).new(path, commit.to_olelo, current)
     end
+  rescue
+    nil
   end
 
   def find_version(version)
     git.get_commit(version.to_s).to_olelo
+  rescue
+    nil
   end
 
   def history(resource)
@@ -62,7 +66,7 @@ class GitRepository < Repository
       child = io.eof? ? nil : git.get_commit(git.set_encoding(io.readline).strip)
     end rescue nil # no error because pipe is closed intentionally
 
-    [commits[1] ? commits[1].to_olelo : nil, commits[0].to_olelo, child]
+    [commits[1] ? commits[1].to_olelo : nil, commits[0].to_olelo, child ? child.to_olelo : nil]
   end
 
   def children(resource)

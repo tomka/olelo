@@ -1,4 +1,4 @@
-- title error.message
-%p&= :error_occurred.t
+- title '404 Not Found'
+%p&= :page_not_found.t
 - if !Olelo::Config.production?
   %pre&= error.backtrace.to_a.join("\n")

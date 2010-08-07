@@ -1,16 +1,6 @@
 # -*- coding: utf-8 -*-
 module Olelo
   module Routing
-    class NotFound < NameError
-      def initialize(path)
-        super(:not_found.t(:id => path), path)
-      end
-
-      def status
-        :not_found
-      end
-    end
-
     def self.included(base)
       base.extend(ClassMethods)
       base.class_eval { include Hooks }
