@@ -38,7 +38,7 @@
         %a.action-history{:href=>action_path(@resource, :history), :accesskey=>'h'}= :history.t
     - if @resource.namespace.metadata?
       %li
-        %a.action-page{:href=> action_path(@resource.namespace_path(Olelo::Namespace.page(@resource.namespace.name)), :edit) }= :page.t
+        %a.action-page{:href=> @resource.namespace_path(Olelo::Namespace.page(@resource.namespace.name)).urlpath }= :page.t
   - else
     %li
       %a.action-new{:href=>'/new', :accesskey=>'n'}= :new_page.t

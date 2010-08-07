@@ -6,7 +6,7 @@ module Olelo
     end
 
     def self.find!(id)
-      find(id) || raise(NotFound, path)
+      find(id) || raise(NotFound, id)
     end
 
     def short
@@ -28,11 +28,13 @@ module Olelo
 
   Diff = Struct.new(:from, :to, :patch)
 
-  class Namespace < Struct.new(:name, :prefix)
+  class Namespace
+    attr_reader :name, :prefix
     attr_reader? :metadata
 
     def initialize(name, prefix, metadata)
-      super(name.to_sym, prefix.freeze)
+      @name = name.to_sym
+      @prefix = prefix.freeze
       @metadata = metadata
     end
 

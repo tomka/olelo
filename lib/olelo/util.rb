@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 module Olelo
   class NotFound < NameError
-    def initialize(path)
-      super(:not_found.t(:id => path), path)
+    def initialize(id)
+      super(:not_found.t(:id => id), id)
     end
 
     def status
