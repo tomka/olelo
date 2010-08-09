@@ -37,14 +37,6 @@ First, you have to install the [Gem][] dependencies via `gem`:
     gem install nokogiri
     gem install mongrel --source http://gems.rubyinstaller.org
 
-    # other rack-esi implementations should also work
-    # just try it
-    gem install minad-rack-esi
-
-    # this is a more current version of rack-cache with bugfixes
-    # TODO: replace this with official release when new version is released
-    gem install minad-rack-cache
-
 ### Optional:
 
     gem install rdiscount
@@ -52,7 +44,6 @@ First, you have to install the [Gem][] dependencies via `gem`:
     gem install maruku
     gem install rubypants
     gem install evaluator
-    gem install rack-embed
     gem install org-ruby
     gem install yajl-ruby
 

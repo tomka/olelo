@@ -9,16 +9,22 @@
     #header
       %h1&= Olelo::Config.title
       #info
-        %esi:include{:src=>'/_/user'}/
+        - if @user.anonymous?
+          &= @user.name
+          |
+          %a(href='/login')= :login.t
+        - else
+          %a(href='/profile')&= @user.name
+          |
+          %a(href='/logout')= :logout.t
       #search
         %form(action='/search' method='get')
           %div
             %label.hidden(for='pattern')= :search.t
             %input{:type=>'text',:id=>'pattern',:name=>'pattern', :value=> params[:pattern] || :search.t, :class=> !params[:pattern] && 'placeholder'}
-    #menu= render(:menu, :layout => false)
+    #menu= menu
     #container
       #sidebar
-        %esi:include(src='/_/sidebar' onerror='continue')/
       #content
         %h1&= blocks[:title]
         #page= yield

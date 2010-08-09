@@ -28,15 +28,8 @@ module Olelo
 
   Diff = Struct.new(:from, :to, :patch)
 
-  class Namespace
-    attr_reader :name, :prefix
-    attr_reader? :metadata
-
-    def initialize(name, prefix, metadata)
-      @name = name.to_sym
-      @prefix = prefix.freeze
-      @metadata = metadata
-    end
+  class Namespace < Struct.new(:name, :prefix, :metadata)
+    alias metadata? metadata
 
     def title(page)
       (metadata? ? :"#{name}_metadata_title" : :"#{name}_title").t(:name => page[prefix.length..-1])
@@ -112,7 +105,7 @@ module Olelo
         !ns.prefix.empty? && (p.last == ns.prefix || p[0..-2].any? {|x| x.begins_with?(ns.prefix) })
       end
 
-      Repository.instance.find_resource(path, tree_version, !tree_version, Resource == self ? nil : self)
+      Repository.instance.find_resource(path, tree_version, tree_version.blank?, Resource == self ? nil : self)
     end
 
     def self.find!(path, tree_version = nil)

@@ -17,7 +17,7 @@ class Olelo::Application
     resource = Resource.find!(params[:path])
     cache_control :etag => resource.version, :last_modified => resource.version.date
 
-    content_type "application/#{params[:format]}+xml", :charset => 'utf-8'
+    response['Content-Type'] = "application/#{params[:format]}+xml; charset=utf-8"
     prefix = request.scheme + '://' +  request.host + ':' + request.port.to_s + '/'
 
     content = RSS::Maker.make(params[:format] == 'rss' ? '2.0' : 'atom') do |feed|

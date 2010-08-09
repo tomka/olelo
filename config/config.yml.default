@@ -101,10 +101,6 @@ disabled_plugins:
 rack:
   # Use the deflater to compress data (Rack::Deflater)
   deflater:      true
-  # Use the image embedder (Rack::Embed in rack-embed)
-  embed:         false
-  # Use edge-side-includes (Rack::ESI in minad-rack-esi)
-  esi:           true
   # Use a different base directory as root to support installation in user homes
   rewrite_base:  ''
   # Specify a list of blacklisted ips which cannot post data

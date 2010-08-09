@@ -49,7 +49,7 @@ module Olelo
         @user ||= User.anonymous(request)
       end
 
-      content_type 'application/xhtml+xml', :charset => 'utf-8'
+      response['Content-Type'] = 'application/xhtml+xml;charset=utf-8'
     end
 
     # Purge memory cache after request
@@ -84,10 +84,6 @@ module Olelo
       logger.error(error)
       cache_control :no_cache => true
       render :error, :locals => {:error => error}
-    end
-
-    get '/_/user' do
-      render :user, :layout => false
     end
 
     get '/login', '/signup' do
@@ -212,8 +208,7 @@ module Olelo
         cache_control :etag => @resource.version, :last_modified => @resource.version.date
         @menu_versions = true
         with_hooks(:show) do
-          @content = @resource.try(:content)
-          halt render(:show)
+          halt render(:show, :locals => {:content => @resource.try(:content)})
         end
       rescue NotFound
         redirect_to_new params[:version].blank?

@@ -1,23 +1,28 @@
 description  'Cache class'
-dependencies 'engine/engine'
 
 # Cache base class
 class Olelo::Cache
+  include Util
+
   class<< self
-    # Accessor for the default cache instance
     def instance
       @instance ||= Disk.new(File.join(Config.tmp_path, 'cache'))
     end
 
-    # Block around cacheable return value belonging to
-    # a <i>bucket<i>, identified by a <i>key</i>. The
-    # default cache is used.
-    # The following options can be specified:
-    # * :disable Disable caching
-    # * :update Force cache update
-    # * :marshal Marshal object before store
-    def cache(key, opts = {}, &block)
-      instance.cache(key, opts, &block)
+    def cache(*args, &block)
+      instance.cache(*args, &block)
+    end
+  end
+
+  class Disabler
+    attr_reader? :disabled
+
+    def initialize
+      @disabled = false
+    end
+
+    def disable!
+      @disabled = true
     end
   end
 
@@ -25,16 +30,19 @@ class Olelo::Cache
   # The following options can be specified:
   # * :disable Disable caching
   # * :update Force cache update
-  # * :marshal Marshal object before store
   def cache(key, opts = {}, &block)
-    return yield if opts[:disable] || !Config.production?
-    if exist?(key) && !opts[:update]
+    key = md5(key)
+    if opts[:disable] || !Config.production?
+      yield(Disabler.new)
+    elsif exist?(key) && !opts[:update]
       content = read(key)
-      return opts[:marshal] ? Marshal.restore(content) : content
+      opts[:marshal] ? Marshal.restore(content) : content
+    else
+      disabler = Disabler.new
+      content = yield(disabler)
+      write(key, opts[:marshal] ? Marshal.dump(content) : content) if !disabler.disabled?
+      content
     end
-    content = yield
-    write(key, opts[:marshal] ? Marshal.dump(content) : content)
-    content
   end
 
   # File based cache
@@ -102,21 +110,5 @@ class Olelo::Cache
     def cache_path(key)
       File.join(root, key[0..1], key[2..-1])
     end
-  end
-end
-
-# Provide engine with caching
-class Olelo::Engine
-  redefine_method :cached_output do |context|
-    context_id = md5(name + context.resource.path + context.resource.version.to_s + context.params.to_a.sort.inspect)
-
-    content, vars = Cache.cache(context_id,
-                :disable => context.resource.modified? || !cacheable?,
-                :update => context.request && context.request.no_cache?,
-                :marshal => true) do
-      [output(context), context.private]
-    end
-    context.private = vars
-    content
   end
 end

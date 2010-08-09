@@ -66,27 +66,6 @@ use Rack::StaticCache, :urls => ['/static'], :root => path
 
 use Rack::Session::Pool
 
-if Olelo::Config.rack.embed?
-  logger.info 'Use rack image embedding'
-  require 'rack/embed'
-  use Rack::Embed, :threaded => true
-end
-
-if Olelo::Config.rack.esi?
-  logger.info 'Use rack esi'
-  require 'rack/esi'
-  use Rack::ESI
-
-  if Olelo::Config.production?
-    logger.info 'Use rack cache'
-    require 'rack/cache'
-    use Rack::Cache,
-      :verbose     => false,
-      :metastore   => "file:#{::File.join(Olelo::Config.tmp_path, 'rack-meta')}",
-      :entitystore => "file:#{::File.join(Olelo::Config.tmp_path, 'rack-entity')}"
-  end
-end
-
 class LoggerOutput
   def initialize(logger); @logger = logger; end
   def write(text); @logger << text; end

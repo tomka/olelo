@@ -9,7 +9,7 @@ class TiltFilter < Filter
     @template_class = Tilt[options[:tilt_template]] || raise("Tilt template '#{options[:tilt_template]}' not found")
   end
 
-  def filter(content)
+  def filter(context, content)
     template = @template_class.new(options[:tilt_options]) { content }
     template.render(context)
   end

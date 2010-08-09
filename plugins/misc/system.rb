@@ -73,8 +73,8 @@ __END__
       - Olelo::Engine.engines.values.flatten.each do |engine|
         %tr
           %td&= engine.name
-          %td&= engine.options[:mime]
-          %td&= engine.options[:accepts]
+          %td&= engine.mime
+          %td&= engine.accepts
           %td= engine.cacheable?
           %td= engine.hidden?
           %td= engine.priority

@@ -7,29 +7,26 @@ class Olelo::Filter
   extend Factory
 
   attr_reader :options
-  attr_accessor :context, :sub, :post
+  attr_accessor :sub, :post
 
   class MandatoryFilterNotFound < NameError; end
 
   def initialize(options)
-    @context = nil
     @sub = nil
     @post = nil
     @options = options
   end
 
-  def subfilter(content)
+  def subfilter(context, content)
     sub ? sub.call(context, content) : content
   end
 
   def call(context, content)
-    f = dup
-    f.context = context
-    f.call!(content)
+    dup.call!(context, content)
   end
 
-  def call!(content)
-    content = filter(content)
+  def call!(context, content)
+    content = filter(context, content)
     post ? post.call(context, content) : content
   end
 

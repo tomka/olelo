@@ -1,9 +1,9 @@
 description  'Adds links for section editing for creole'
 dependencies 'engine/filter'
 
-Filter.create :editsection do |content|
+Filter.create :editsection do |context, content|
   if context.page.modified? || !context.page.current?
-    subfilter(content)
+    subfilter(context, content)
   else
     prefix = "EDIT_#{unique_id}_"
     len = content.length
@@ -18,12 +18,12 @@ Filter.create :editsection do |content|
       content.insert(p[2] + off, link)
       off += link.size
     end
-    content = subfilter(content)
+    content = subfilter(context, content)
     content.gsub!(/#{prefix}(\d+)/) do |match|
       i = $1.to_i
       l = pos[i+1] ? pos[i+1][1] - pos[i][1] - 1 : len - pos[i][1]
       path = action_path(context.page, :edit) + "?pos=#{pos[i][1]}&len=#{l}&comment=#{pos[i][3]} edited"
-      %{<span class="editlink">[<a href="#{escape_html path}" title="Edit section #{escape_html pos[i][3]}">Edit</a>]</span>}
+      %{<a class="editlink" href="#{escape_html path}" title="Edit section #{escape_html pos[i][3]}">Edit</a>}
     end
     content
   end

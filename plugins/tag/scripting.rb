@@ -56,19 +56,18 @@ Tag.define(:include, :requires => :page, :limit => 10, :description => 'Include 
   if page = Page.find(path)
     engine = Engine.find(page, :name => attrs['output'] || attrs['engine'], :layout => true)
     raise NameError, "No engine found for #{path}" if !engine
-    engine.output(context.subcontext(:params => attrs, :engine => engine,
-                                     :resource => page, :private => {:included => true}))
+    engine.output(context.subcontext(:engine => engine, :params => attrs, :resource => page, :private => {:included => true}))
   else
     %{<a href="/#{escape_html path}/new">Create #{escape_html path}</a>}
   end
 end
 
 Tag.define(:includeonly, :immediate => true, :description => 'Text which is shown only if included') do |context, attrs, content|
-  nested_tags(context, content) if context.private[:included]
+  nested_tags(context.subcontext, content) if context.private[:included]
 end
 
 Tag.define(:noinclude, :immediate => true, :description => 'Text which is not included') do |context, attrs, content|
-  nested_tags(context, content) if !context.private[:included]
+  nested_tags(context.subcontext, content) if !context.private[:included]
 end
 
 Tag.define(:for, :requires => [:from, :to], :immediate => true, :limit => 50, :description => 'For loop') do |context, attrs, content|

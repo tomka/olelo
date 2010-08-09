@@ -14,14 +14,9 @@ def variables(page, engine)
     'page_previous_version' => page.previous_version.to_s,
     'page_type'             => page.tree? ? 'tree' : 'page',
     'page_mime'             => page.mime.to_s,
-    'page_current'          => page.current? }
-  if engine
-    vars.merge!({
-      'engine_name'      => engine.name,
-      'engine_layout'    => engine.layout?,
-      'engine_cacheable' => engine.cacheable?,
-      'engine_priority'  => engine.priority })
-  end
+    'page_current'          => page.current?
+  }
+  vars['engine_name'] = engine.name if engine
   vars
 end
 
@@ -34,15 +29,9 @@ end
 class Olelo::Application
   hook :layout do |name, doc|
     vars = @resource ? params.merge(Plugin.current.variables(@resource, @engine)) : params
+    vars.merge!('user_anonymous' => user.anonymous?, 'user_name' => user.name)
     doc.css('head').children.before %{<script type="text/javascript">
                                       Olelo = #{escape_json(vars.to_json)};
                                       </script>}.unindent
-  end
-
-  get '/_/user' do
-    %{<script type="text/javascript">
-      Olelo.user_anonymous = #{escape_json(@user.anonymous?.to_json)};
-      Olelo.user_name = #{escape_json(@user.name.to_json)};
-    </script>}.unindent + super()
   end
 end

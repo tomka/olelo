@@ -7,7 +7,7 @@ class Pandoc < Filter
     @command = "pandoc --to=#{options[:to]} --from=#{options[:from]}"
   end
 
-  def filter(content)
+  def filter(context, content)
     shell_filter(@command, content)
   end
 end

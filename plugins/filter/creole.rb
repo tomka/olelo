@@ -47,6 +47,6 @@ class OleloCreoleParser < Creole
   end
 end
 
-Filter.create :creole do |content|
+Filter.create :creole do |context, content|
   OleloCreoleParser.new(content, context.page).to_html
 end

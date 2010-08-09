@@ -50,9 +50,9 @@ module Olelo
         return false if files.empty?
         files.inject(true) do |result,file|
           name = file[(@dir.size+1)..-4]
-          if @failed.include?(name) || @plugins.include?(name)
+          if @plugins.include?(name)
 	    result
-	  elsif !enabled?(name)
+	  elsif @failed.include?(name) || !enabled?(name)
 	    false
 	  else
             begin

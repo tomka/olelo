@@ -1,12 +1,12 @@
 description 'Engine subsystem'
+dependencies 'utils/cache'
 
 # Engine context
 # A engine context holds the request parameters and other
 # variables used by the engines.
 # It is possible for a engine to run sub-engines. For this
 # purpose you create a subcontext which inherits the variables.
-class Olelo::Context < Struct.new(:app, :resource, :engine, :logger, :request,
-                                 :response, :parent, :private, :params)
+class Olelo::Context < Struct.new(:engine, :resource, :logger, :parent, :private, :params, :response)
   include Hooks
 
   alias page resource
@@ -17,6 +17,7 @@ class Olelo::Context < Struct.new(:app, :resource, :engine, :logger, :request,
     self.logger  ||= Logger.new(nil)
     self.params  ||= Hash.with_indifferent_access
     self.private ||= Hash.with_indifferent_access
+    self.response  ||= Hash.with_indifferent_access
     invoke_hook(:initialized)
   end
 
@@ -40,21 +41,19 @@ class Olelo::Engine
   # Constructor for engine
   # Options:
   # * layout: Engine output should be wrapped in HTML layout (Not used for download/image engines for example)
-  # * cacheable: Engine output can be cached
   # * priority: Engine priority. The engine with the lowest priority will be used for a resource.
   def initialize(name, options)
-    @name = name.to_s
-    @layout = !!options[:layout]
+    @name      = name.to_s
+    @layout    = !!options[:layout]
     @cacheable = !!options[:cacheable]
-    @hidden = !!options[:hidden]
-    @priority = (options[:priority] || 99).to_i
-    @accepts = options[:accepts]
-    @mime = options[:mime]
-    @options = options
+    @hidden    = !!options[:hidden]
+    @priority  = (options[:priority] || 99).to_i
+    @accepts   = options[:accepts]
+    @mime      = options[:mime]
   end
 
-  attr_reader :name, :priority, :options
-  attr_reader? :layout, :cacheable, :hidden
+  attr_reader :name, :priority, :mime, :accepts
+  attr_reader? :layout, :hidden, :cacheable
 
   # Engines hash
   def self.engines
@@ -111,40 +110,24 @@ class Olelo::Engine
   # Render resource content.
   # Reimplement this method.
   def output(context); context.resource.content; end
-
-  # Get output mime type.
-  # Reimplement this method.
-  def mime(resource); @mime || resource.mime; end
-
-  # Render resource with possible caching. It should not be overwritten.
-  def cached_output(context)
-    output(context)
-  end
 end
 
 # Plug-in the engine subsystem
 class Olelo::Application
   before :show do
-    @engine = Engine.find!(@resource, :name => params[:output] || params[:engine])
-    context = Context.new(:app      => self,
-                          :resource => @resource,
-                          :params   => params,
-                          :request  => request,
-                          :response => response,
-                          :logger   => logger,
-                          :engine   => @engine)
-    @content = @engine.cached_output(context)
-    if @engine.layout?
-      if request.xhr?
-        content_type 'text/plain'
-        halt @content
-      else
-        halt render(:show)
-      end
-    else
-      content_type @engine.mime(@resource).to_s
-      halt @content
+    @engine_name, layout, response, content =
+    Cache.cache("engine-#{@resource.path}-#{@resource.version}#{build_query(params)}", :marshal => true, :disable => request.no_cache?) do |cache|
+      engine = Engine.find!(@resource, :name => params[:output] || params[:engine])
+      cache.disable! if !engine.cacheable?
+      context = Context.new(:engine => engine, :resource => @resource, :params => params, :logger => logger)
+      content = engine.output(context)
+      context.response['Content-Type'] ||= engine.mime.to_s if engine.mime
+      context.response['Content-Type'] ||= @resource.mime.to_s if !engine.layout?
+      [engine.name, engine.layout?, context.response, content]
     end
+    self.response.header.merge!(response)
+    content = render(:show, :locals => {:content => content}) if layout && !request.xhr?
+    halt content
   end
 
   hook :layout do |name, doc|
@@ -152,12 +135,12 @@ class Olelo::Application
       engines = Olelo::Engine.find_all(@resource)
       li = engines.select {|e| e.layout? }.map do |e|
         name = escape_html Olelo::I18n.translate("engine_#{e.name}", :fallback => e.name.tr('_', ' '))
-        %{<li#{@engine && e.name == @engine.name ? ' class="selected"': ''}>
+        %{<li#{e.name == @engine_name ? ' class="selected"': ''}>
           <a href="#{escape_html resource_path(@resource, :output => e.name)}">#{name}</a></li>}.unindent
       end +
       engines.select {|e| !e.layout? }.map do |e|
         name = escape_html Olelo::I18n.translate("engine_#{e.name}", :fallback => e.name.tr('_', ' '))
-        %{<li class="download#{@engine && e.name == @engine.name ? 'selected': ''}">
+        %{<li class="download#{e.name == @engine_name ? 'selected': ''}">
                 <a href="#{escape_html resource_path(@resource, :output => e.name)}">#{name}</a></li>}.unindent
       end
       link.after "<ul>#{li.join}</ul>"

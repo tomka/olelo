@@ -8,16 +8,26 @@ class Olelo::Application
     params[:output] = 'blog'
     send('GET /:path')
   end
+
+  hook :layout, 999 do |name, doc|
+    doc.css('blog-menu').each do |element|
+      menu = Cache.cache("blog-menu-#{element['path']}-#{element['version']}") do
+        tree = Tree.find(element['path'], element['version'])
+        if tree
+          years = {}
+          tree.children.each do |child|
+            (years[child.version.date.year] ||= [])[child.version.date.month] = true if child.page?
+          end
+          render :menu, :locals => {:years => years, :tree => tree}, :layout => false
+        end
+      end
+      element.replace menu
+    end
+  end
 end
 
 Tag.define('blog-menu', :description => 'Show blog menu') do |context, attrs, content|
-  path = attrs[:path].to_s
-  tree = Tree.find!(path, context.page.current? ? nil : context.page.tree_version)
-  years = {}
-  tree.children.each do |child|
-    (years[child.version.date.year] ||= [])[child.version.date.month] = true if child.page?
-  end
-  render :menu, :locals => {:years => years, :tree => tree}
+  %{<blog-menu path="#{escape_html attrs['path']}"/>}
 end
 
 Engine.create(:blog, :priority => 3, :layout => true, :cacheable => true, :hidden => true, :accepts => Tree::MIME) do
@@ -63,7 +73,7 @@ __END__
   - @articles.each do |page, content|
     .article
       %h2
-        %a.name{:href=>resource_path(page)}&= page.name
+        %a.name{:href=>page.path.urlpath}&= page.name
       .date= date page.version.date
       .author&= :written_by.t(:author => page.version.author.name)
       - tags = page.metadata['tags'].to_a
@@ -73,15 +83,15 @@ __END__
             = tag
       .content= content
       - if !full
-        %a.full{:href=>resource_path(page)}&= :full_article.t
+        %a.full{:href=>page.path.urlpath}&= :full_article.t
 = pagination(@tree, @pages, @curpage, :output => 'blog')
 @@ menu.haml
 %table.blog-menu
   - years.keys.sort.each do |year|
     %tr
       %td
-        %a{:href => resource_path(tree, :path => tree.path/year)}= year
+        %a{:href => (tree.path/year).urlpath}= year
       %td
         - (1..12).select {|m| years[year][m] }.each do |month|
           - m = '%02d' % month
-          %a{:href => resource_path(tree, :path => tree.path/year/m)}= m
+          %a{:href => (tree.path/year/m).urlpath}= m

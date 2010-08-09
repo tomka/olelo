@@ -34,8 +34,8 @@ class Olelo::Application
             engine = Engine.find!(page, :layout => true)
           end
           if engine
-            context = Context.new(:app => self, :resource => page, :logger => logger, :engine => engine)
-            @preview = engine.cached_output(context)
+            context = Context.new(:resource => page, :logger => logger, :engine => engine)
+            @preview = engine.output(context)
           end
         end
 

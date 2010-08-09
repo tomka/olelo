@@ -217,8 +217,11 @@ module Olelo
         opts[:private] = true
 
         # Special etag for authenticated user
-        opts[:etag] = md5("#{@user.name}#{opts[:etag]}") if opts[:etag]
+        opts[:etag] = "#{@user.name}-#{opts[:etag]}" if opts[:etag]
       end
+
+      # Spcial etag for ajax request
+      opts[:etag] = "xhr-#{opts[:etag]}" if request.xhr?
 
       if opts[:etag]
         value = '"%s"' % opts.delete(:etag)
@@ -238,7 +241,7 @@ module Olelo
 
       opts[:public] = !opts[:private]
       opts[:max_age] ||= 0
-      opts[:must_revalidate] ||= true if !opts.include?(:must_revalidate) && !opts[:proxy_revalidate]
+      opts[:must_revalidate] ||= true if !opts.include?(:must_revalidate)
 
       response['Cache-Control'] = opts.map do |k, v|
         if v == true
@@ -249,16 +252,6 @@ module Olelo
         end
       end.compact.join(', ')
     end
-
-    def content_type(type, params={})
-      type = type.to_s
-      if params.any?
-        params = params.collect { |kv| "%s=%s" % kv }.join(', ')
-        response['Content-Type'] = [type, params].join(";")
-      else
-        response['Content-Type'] = type
-      end
-    end
   end
 
   module ApplicationHelper
@@ -268,6 +261,12 @@ module Olelo
     include HttpHelper
 
     attr_setter :on_error, :redirect_to_new
+
+    def menu
+      #Cache.cache(@resource ? "menu-#{@resource.name}-#{@resource.version}-#{@menu_versions}" : 'menu') do
+        render(:menu, :layout => false)
+      #end
+    end
 
     def tab(name, &block)
       "<li#{action?(name) ? ' class="tabs-selected"' : ''}>#{capture_haml(&block)}</li>"

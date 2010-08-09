@@ -2,7 +2,7 @@ description  'Auto-generated table of contents'
 dependencies 'engine/filter', 'filter/tag'
 
 class Toc < Filter
-  def filter(content)
+  def filter(context, content)
     return content if !context.page.metadata[:toc]
 
     @toc = ''

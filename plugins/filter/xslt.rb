@@ -8,13 +8,13 @@ class Olelo::XSLT < Filter
     @xslt   = Nokogiri::XSLT(content)
   end
 
-  def params
+  def params(context)
     context.resource.metadata.merge(:title => context.resource.title, :path => context.resource.path)
   end
 
-  def filter(content)
+  def filter(context, content)
     @xslt.apply_to(Nokogiri::XML(content),
-                   Nokogiri::XSLT.quote_params(self.params.to_hash))
+                   Nokogiri::XSLT.quote_params(params(context).to_hash))
   end
 end
 

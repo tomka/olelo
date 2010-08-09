@@ -41,7 +41,7 @@ class Olelo::Application
     if asset = AssetManager.assets[params[:name]]
       fs, file, mtime = asset
       cache_control :last_modified => mtime || fs.mtime(file), :max_age => :static
-      content_type(MimeMagic.by_extension(File.extname(file)) || 'application/octet-stream')
+      response['Content-Type'] = (MimeMagic.by_extension(File.extname(file)) || 'application/octet-stream').to_s
       response['Content-Length'] ||= fs.size(file).to_s
       halt fs.open(file)
     else

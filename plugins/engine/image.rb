@@ -20,16 +20,6 @@ Engine.create(:image, :priority => 5, :cacheable => true) do
   def pdf_or_ps?(page); page.mime == 'application/pdf' || ps?(page); end
   def accepts?(page); page.mime.image? || pdf_or_ps?(page); end
 
-  def mime(page)
-    if pdf_or_ps?(page)
-      'image/jpeg'
-    elsif svg?(page)
-      'image/png'
-    else
-      page.mime
-    end
-  end
-
   def output(context)
     page = context.page
     geometry = context.params[:geometry]
@@ -54,6 +44,7 @@ Engine.create(:image, :priority => 5, :cacheable => true) do
       cmd << ' -trim' if trim
       cmd << " -resize '#{geometry}'" if geometry =~ /^(\d+)?x?(\d+)?[%!<>]*$/
       cmd << ' - JPEG:-'
+      context.response['Content-Type'] = 'image/jpeg'
       convert(page, cmd)
     elsif svg?(page) || geometry || trim
       cmd = Plugin.current.magick_prefix << 'convert'
@@ -61,6 +52,7 @@ Engine.create(:image, :priority => 5, :cacheable => true) do
       cmd << " -resize '#{geometry}'" if geometry =~ /^(\d+)?x?(\d+)?[%!<>]*$/
       cmd << ' - '
       cmd << (page.mime.to_s == 'image/jpeg' ? 'JPEG:-' : 'PNG:-')
+      context.response['Content-Type'] = 'image/png'
       convert(page, cmd)
     else
       super

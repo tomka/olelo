@@ -35,7 +35,7 @@ class GitRepository < Repository
   end
 
   def find_resource(path, tree_version, current, klass = nil)
-    commit = tree_version ? git.get_commit(tree_version.to_s) : git.head
+    commit = !tree_version.blank? ? git.get_commit(tree_version.to_s) : git.head
     return nil if !commit
     object = commit.tree[path]
     return nil if !object

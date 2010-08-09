@@ -41,6 +41,6 @@ HTML_TAGS = {
 HTML_TAGS.each do |name, allowed|
   Tag.define(name, :description => "html tag #{name}") do |context, attrs, content|
     attrs = attrs.map {|(k,v)| %{#{k}="#{escape_html v}"} if allowed.include? k }.compact.join(' ')
-    "<#{name}#{attrs.blank? ? '' : ' '+attrs}>#{subfilter(nested_tags(context, content))}</#{name}>"
+    "<#{name}#{attrs.blank? ? '' : ' '+attrs}>#{subfilter(context.subcontext, content)}</#{name}>"
   end
 end

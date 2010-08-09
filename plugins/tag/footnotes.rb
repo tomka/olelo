@@ -13,7 +13,7 @@ Tag.define :ref, :description => 'Create footnote' do |context, attrs, content|
     footnotes[note_id-1][2] << ref_id
   else
     note_id = ref_id = footnotes.size + 1
-    content = subfilter(nested_tags(context.subcontext, content))
+    content = subfilter(context.subcontext, content)
     footnotes << [note_id, content.gsub(/^\s*<p>\s*|\s*<\/p>\s*$/, ''), [ref_id]]
     hash[name] = note_id if !name.blank?
   end

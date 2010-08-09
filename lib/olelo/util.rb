@@ -117,7 +117,7 @@ module Olelo
     end
 
     def build_query(params)
-      params.map do |k, v|
+      params.to_a.map {|k,v| [k.to_s, v ] }.sort.map do |k, v|
         if v.class == Array
           build_query(v.map { |x| [k, x] })
         else

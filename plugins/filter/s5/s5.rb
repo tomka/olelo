@@ -6,7 +6,7 @@ class S5 < XSLT
     super(:stylesheet => 's5/s5.xsl')
   end
 
-  def params
+  def params(context)
     themes = Dir.glob(File.join(File.dirname(__FILE__), 'ui', '*')).map {|name| File.basename(name) }
     themes.delete('common')
     themes.delete('default')

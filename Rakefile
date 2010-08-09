@@ -39,7 +39,7 @@ namespace :gen do
 
   desc('Compile CSS files')
   task :css => %w(static/themes/atlantis/style.css plugins/treeview/treeview.css
-                  plugins/utils/pygments.css plugins/engine/gallery/gallery.css plugins/engine/blog/blog.css)
+                  plugins/utils/pygments.css plugins/engine/gallery/gallery.css plugins/blog/blog.css)
 end
 
 namespace :test do
