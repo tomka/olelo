@@ -14,8 +14,8 @@ class Olelo::Application
           begin
             line = git.set_encoding(io.readline)
             line = unescape_backslash(line)
-            if line =~ /(.*?)\:(.*)\0(.*)/ && Namespace.find($2) == Namespace.main
-              (@matches[$2] ||= '') << $3
+            if line =~ /(.*?)\:(.*?)([^\/\0]+)\0(.*)/ && Namespace.find($3) == Namespace.main
+              (@matches[$3] ||= []) << $4
             end
           rescue => ex
             logger.error ex
@@ -28,9 +28,9 @@ class Olelo::Application
           begin
             line = git.set_encoding(io.readline)
             line = unescape_backslash(line).strip
-            if Namespace.find(line) == Namespace.main && line =~ /#{params[:pattern]}/i && !@matches[line]
+            if line =~ /#{params[:pattern]}/i && !@matches[line] && Namespace.find(line.split('/').last) == Namespace.main
               page = Page.find!(line)
-              @matches[line] = page.content.truncate(500) if page.mime.text?
+              @matches[line] = [page.content.truncate(500)] if page.mime.text?
             end
           rescue => ex
             logger.error ex
@@ -38,6 +38,10 @@ class Olelo::Application
         end
       end
     end
+
+    @matches = @matches.to_a.sort do |a,b|
+      a[1].length == b[1].length ? a[0] <=> b[0] : b[1].length <=> a[1].length
+    end.map {|path, content| [path, content.join] }
 
     render :grep
   end
