@@ -25,7 +25,7 @@ Engine.create(:image, :priority => 5, :cacheable => true) do
     geometry = context.params[:geometry]
     trim = context.params[:trim]
     if pdf_or_ps?(page)
-      curpage = context.params[:curpage].to_i + 1
+      page_nr = context.params[:page].to_i + 1
       cmd = case page.mime.to_s
             when /bz/
               'bunzip2 | '
@@ -35,10 +35,10 @@ Engine.create(:image, :priority => 5, :cacheable => true) do
               ''
             end
       if ps?(page)
-        cmd << "psselect -p#{curpage} /dev/stdin /dev/stdout | "
+        cmd << "psselect -p#{page_nr} /dev/stdin /dev/stdout | "
         cmd << "gs -sDEVICE=jpeg -sOutputFile=- -r200 -dBATCH -dNOPAUSE -q - | "
       else
-        cmd << "gs -sDEVICE=jpeg -sOutputFile=- -dFirstPage=#{curpage} -dLastPage=#{curpage} -r200 -dBATCH -dNOPAUSE -q - | "
+        cmd << "gs -sDEVICE=jpeg -sOutputFile=- -dFirstPage=#{page_nr} -dLastPage=#{page_nr} -r200 -dBATCH -dNOPAUSE -q - | "
       end
       cmd << Plugin.current.magick_prefix << 'convert -depth 8 -quality 50 '
       cmd << ' -trim' if trim

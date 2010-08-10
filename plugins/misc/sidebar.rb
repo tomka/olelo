@@ -4,7 +4,7 @@ dependencies 'engine/engine'
 class Olelo::Application
   hook :layout do |name, doc|
     doc.css('#sidebar').first << if page = Page.find(Config.sidebar_page)
-      Cache.cache("sidebar-#{page.version}", :disable => request.no_cache?) do |cache|
+      Cache.cache("sidebar-#{page.version}", :update => request.no_cache?) do |cache|
         engine = Engine.find(page, :layout => true)
         if engine
           cache.disable! if !engine.cacheable?

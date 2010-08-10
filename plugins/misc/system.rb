@@ -54,10 +54,10 @@ __END__
   %h2 Engines
   %p
     \Every resource is rendered by an appropriate rendering engine. The engine is selected automatically, where engines with lower priority are preferred. An alternative output engine
-    \can be selected using the view menu or manually using the "output" or "engine" query parameter. Examples:
+    \can be selected using the view menu or manually using the "output" query parameter. Examples:
     %ul
       %li
-        %a(href='/?engine=index_page') ?engine=index_page
+        %a(href='/?output=index_page') ?output=index_page
       %li
         %a(href='/?output=tree') ?output=tree
   %table.zebra.full

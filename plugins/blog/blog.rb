@@ -41,10 +41,10 @@ Engine.create(:blog, :priority => 3, :layout => true, :cacheable => true, :hidde
     month = context.params[:month].to_i
     articles.reject! {|article| article.version.date.month != month } if month != 0
 
-    @curpage = context.params[:curpage].to_i
+    @page = context.params[:page].to_i
     per_page = 10
-    @pages = articles.size / per_page
-    articles = articles[(@curpage * per_page) ... ((@curpage + 1) * per_page)].to_a
+    @last_page = articles.size / per_page
+    articles = articles[(@page * per_page) ... ((@page + 1) * per_page)].to_a
 
     @articles = articles.map do |page|
       engine = Engine.find(page, :layout => true)
@@ -84,7 +84,7 @@ __END__
       .content= content
       - if !full
         %a.full{:href=>page.path.urlpath}&= :full_article.t
-= pagination(@tree, @pages, @curpage, :output => 'blog')
+= pagination(@tree, @last_page, @page, :output => 'blog')
 @@ menu.haml
 %table.blog-menu
   - years.keys.sort.each do |year|

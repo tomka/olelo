@@ -38,34 +38,34 @@ module Olelo
   module PageHelper
     include Util
 
-    def pagination(resource, pages, curpage, opts)
-      if pages > 0
+    def pagination(resource, last_page, page, opts)
+      if last_page > 0
         li = []
-        if curpage > 0
-          li << %{<a href="#{escape_html resource_path(resource, opts.merge(:curpage => 0))}">«</a>}
-          li << %{<a href="#{escape_html resource_path(resource, opts.merge(:curpage => curpage - 1))}">‹</a>}
+        if page > 0
+          li << %{<a href="#{escape_html resource_path(resource, opts.merge(:page => 0))}">«</a>}
+          li << %{<a href="#{escape_html resource_path(resource, opts.merge(:page => page - 1))}">‹</a>}
         end
-        min = curpage - 3
-        max = curpage + 3
+        min = page - 3
+        max = page + 3
         if min > 0
-          min -= max - pages if max > pages
+          min -= max - last_page if max > last_page
         else
           max -= min if min < 0
         end
-        max = [max, pages].min
+        max = [max, last_page].min
         min = [min, 0].max
         li '…' if min != 0
         (min..max).each do |i|
-          if i == curpage
+          if i == page
             li << %{<a class="current" href="#">#{i + 1}</a>}
           else
-            li << %{<a href="#{escape_html resource_path(resource, opts.merge(:curpage => i))}">#{i + 1}</a>}
+            li << %{<a href="#{escape_html resource_path(resource, opts.merge(:page => i))}">#{i + 1}</a>}
           end
         end
-        li << '…' if max != pages
-        if curpage < pages
-          li << %{<a href="#{escape_html resource_path(resource, opts.merge(:curpage => curpage + 1))}">›</a>}
-          li << %{<a href="#{escape_html resource_path(resource, opts.merge(:curpage => pages))}">»</a>}
+        li << '…' if max != last_page
+        if page < last_page
+          li << %{<a href="#{escape_html resource_path(resource, opts.merge(:page => page + 1))}">›</a>}
+          li << %{<a href="#{escape_html resource_path(resource, opts.merge(:page => last_page))}">»</a>}
         end
         %{<ul class="pagination">#{li.map {|x| "<li>#{x}</li>"}.join}</ul>}
       end

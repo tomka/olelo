@@ -6,11 +6,11 @@ AssetManager.register_scripts '*.js', '*.css'
 Engine.create(:gallery, :priority => 3, :layout => true, :cacheable => true, :hidden => true, :accepts => Tree::MIME) do
   def output(context)
     per_page = 16
-    @curpage = context.params[:curpage].to_i
+    @page = context.params[:page].to_i
     @tree = context.tree
     @images = @tree.children.select {|page| page.page? && page.mime.image? }
-    @pages = @images.size / per_page
-    @images = @images[(@curpage * per_page) ... ((@curpage + 1) * per_page)].to_a
+    @last_page = @images.size / per_page
+    @images = @images[(@page * per_page) ... ((@page + 1) * per_page)].to_a
     render :gallery
   end
 end
@@ -18,7 +18,7 @@ end
 __END__
 @@ gallery.haml
 - per_row = 4
-= pagination(@tree, @pages, @curpage, :output => 'gallery')
+= pagination(@tree, @last_page, @page, :output => 'gallery')
 - if @images.empty?
   = :empty.t
 - else

@@ -75,7 +75,7 @@ class Olelo::Engine
 
   # Find all accepting engines for a resource which are not hidden
   def self.find_all(resource)
-    name = resource.metadata[:output] || resource.metadata[:engine]
+    name = resource.metadata[:output]
     @engines.values.flatten.select do |e|
       ((!resource.namespace.metadata? && e.name == name) || !e.hidden?) && e.accepts?(resource)
     end.sort_by {|a| a.name }
@@ -85,7 +85,7 @@ class Olelo::Engine
   # name can be given to claim a specific engine.
   # If no engine is found a exception is raised.
   def self.find!(resource, opts = {})
-    opts[:name] ||= resource.metadata[:output] || resource.metadata[:engine] if !resource.namespace.metadata?
+    opts[:name] ||= resource.metadata[:output] if !resource.namespace.metadata?
     engines = opts[:name] ? @engines[opts[:name].to_s] : @engines.values.flatten
     engine = engines.to_a.sort_by {|a| a.priority }.find { |e| e.accepts?(resource) && (!opts[:layout] || e.layout?) }
     raise(:engine_not_available.t(:engine => opts[:name],
@@ -116,8 +116,8 @@ end
 class Olelo::Application
   before :show do
     @engine_name, layout, response, content =
-    Cache.cache("engine-#{@resource.path}-#{@resource.version}-#{build_query(params)}", :marshal => true, :disable => request.no_cache?) do |cache|
-      engine = Engine.find!(@resource, :name => params[:output] || params[:engine])
+    Cache.cache("engine-#{@resource.path}-#{@resource.version}-#{build_query(params)}", :marshal => true, :update => request.no_cache?) do |cache|
+      engine = Engine.find!(@resource, :name => params[:output])
       cache.disable! if !engine.cacheable?
       context = Context.new(:engine => engine, :resource => @resource, :params => params, :logger => logger)
       content = engine.output(context)
