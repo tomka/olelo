@@ -60,7 +60,7 @@ class ItexRenderer < Renderer
   end
 
   def render(code, display)
-    shell_filter("itex2MML --#{display == 'block' ? 'display' : 'inline'}", code.strip)
+    Shell.itex2MML(display == 'block' ? '--display' : '--inline').run(code.strip)
   end
 end
 
@@ -70,7 +70,7 @@ class BlahtexMLRenderer < Renderer
   end
 
   def render(code, display)
-    content = shell_filter('blahtex --mathml', code.strip)
+    content = Shell.run('blahtex --mathml', code.strip)
     content =~ %r{<mathml>(.*)</mathml>}m
     '<mathml xmlns="http://www.w3.org/1998/Math/MathML" display="' + display + '">' + $1.to_s + '</mathml>'
   end
@@ -86,7 +86,7 @@ class BlahtexImageRenderer < Renderer
   end
 
   def render(code, display)
-    content = shell_filter("blahtex --png --png-directory '#{directory}'", code.strip)
+    content = Shell.run("blahtex --png --png-directory '#{directory}'", code.strip)
     content =~ %r{<md5>(.*)</md5>}m
     %{<img src="/_/tag/math/blahtex/#{$1}.png" alt="#{escape_html code}" class="math #{display}"/>}
   end
@@ -122,7 +122,8 @@ class Olelo::Application
       response['Content-Length'] ||= File.stat(file).size.to_s
       halt BlockFile.open(file, 'rb')
     rescue => ex
-      `convert -pointsize 16 -background transparent "label:#{ex.message}" PNG:-` rescue nil
+      label = Shell.escape("label:#{ex.message}")
+      ImageMagick.convert("-pointsize 16 -background transparent #{label}  PNG:-") rescue nil
     end
   end
 end

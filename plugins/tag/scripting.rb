@@ -50,10 +50,8 @@ end
 
 Tag.define(:include, :requires => :page, :limit => 10, :description => 'Include page') do |context, attrs, content|
   path = attrs['page']
-  if !path.begins_with? '/'
-    path = context.resource.page? ? context.resource.path/'..'/path : context.resource.path/path
-  end
-  if page = Page.find(path)
+  path = context.resource.path/'..'/path if !path.begins_with? '/'
+  if page = Page.find(path, context.page.current? ? nil : context.page.tree_version)
     engine = Engine.find(page, :name => attrs['output'], :layout => true)
     raise NameError, "No engine found for #{path}" if !engine
     engine.output(context.subcontext(:engine => engine, :params => attrs, :resource => page, :private => {:included => true}))

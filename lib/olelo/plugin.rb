@@ -22,11 +22,6 @@ module Olelo
         raise 'No plugin context'
       end
 
-      # Get plugin by name
-      def [](name)
-        @plugins[name.to_s]
-      end
-
       # Get all plugins
       def plugins
         @plugins.values

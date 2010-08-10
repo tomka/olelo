@@ -115,8 +115,9 @@ end
 # Plug-in the engine subsystem
 class Olelo::Application
   before :show do
+    cache_id = "engine-#{@resource.version}-#{build_query(params)}"
     @engine_name, layout, response, content =
-    Cache.cache("engine-#{@resource.path}-#{@resource.version}-#{build_query(params)}", :marshal => true, :update => request.no_cache?) do |cache|
+    Cache.cache(cache_id, :marshal => true, :update => request.no_cache?, :defer => true) do |cache|
       engine = Engine.find!(@resource, :name => params[:output])
       cache.disable! if !engine.cacheable?
       context = Context.new(:engine => engine, :resource => @resource, :params => params, :logger => logger)

@@ -1,24 +1,25 @@
 description 'Document browser engine'
-dependencies 'engine/engine'
+dependencies 'engine/engine', 'utils/shell'
 
 Engine.create(:documentbrowser, :priority => 1, :layout => true, :cacheable => true, :accepts => 'application/pdf|postscript') do
-  def output(context)
-    @page = context.page
-    @last_page = 0
+  def count_pages
     content = @page.content
     if @page.mime == 'application/pdf'
+      last_page = -1
       content.scan %r{/Type\s*/Pages.*?/Count\s*(\d+)}m do
-        @last_page += $1.to_i
+        last_page += $1.to_i
       end
-      @last_page -= 1
     else
-      if @page.mime.to_s =~ /(gz|bz)/
-        content = shell_filter($1 == 'gz' ? 'gunzip -c' : 'bunzip2 -c', content)
-      end
-      @last_page = $1.to_i - 1 if content =~ /^%%Pages:\s+(\d+)$/
+      content = Shell.run($1 == 'gz' ? 'gunzip' : 'bunzip2', content) if @page.mime.to_s =~ /(gz|bz)/
+      last_page = $1.to_i - 1 if content =~ /^%%Pages:\s+(\d+)$/
     end
-    @last_page = 0 if @last_page < 0
+    @last_page = [last_page, 0].max
+  end
+
+  def output(context)
+    @page = context.page
     @page_nr = context.params[:page].to_i
+    count_pages
     render :browser
   end
 end

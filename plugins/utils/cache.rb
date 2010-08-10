@@ -1,4 +1,5 @@
-description  'Cache class'
+description  'Caching support'
+dependencies 'utils/worker'
 
 # Cache base class
 class Olelo::Cache
@@ -34,15 +35,24 @@ class Olelo::Cache
     key = md5(key)
     if opts[:disable] || !Config.production?
       yield(Disabler.new)
-    elsif exist?(key) && !opts[:update]
-      content = read(key)
-      opts[:marshal] ? Marshal.restore(content) : content
+    elsif exist?(key) && (!opts[:update] || opts[:defer])
+      Worker.defer { update(key, opts, &block) } if opts[:update]
+      load(key, opts)
     else
-      disabler = Disabler.new
-      content = yield(disabler)
-      write(key, opts[:marshal] ? Marshal.dump(content) : content) if !disabler.disabled?
-      content
+      update(key, opts, &block)
     end
+  end
+
+  def load(key, opts = {})
+    content = read(key)
+    opts[:marshal] ? Marshal.restore(content) : content
+  end
+
+  def update(key, opts = {}, &block)
+    disabler = Disabler.new
+    content = block.call(disabler)
+    write(key, opts[:marshal] ? Marshal.dump(content) : content) if !disabler.disabled?
+    content
   end
 
   # File based cache
@@ -67,14 +77,6 @@ class Olelo::Cache
       nil
     end
 
-    # Open file with <i>key</i>.
-    # Returns open BlockFile instance.
-    def open(key)
-      BlockFile.open(cache_path(key), 'rb')
-    rescue Errno::ENOENT
-      nil
-    end
-
     # Write entry <i>content</i> with <i>key</i>.
     def write(key, content)
       temp_file = File.join(root, ['tmp', $$, Thread.current.unique_id].join('-'))
@@ -87,12 +89,9 @@ class Olelo::Cache
       end
 
       path = cache_path(key)
-      if File.exist?(path)
-        File.unlink temp_file
-      else
-        FileUtils.mkdir_p File.dirname(path), :mode => 0755
-        FileUtils.mv temp_file, path
-      end
+      File.unlink path if File.exist?(path)
+      FileUtils.mkdir_p File.dirname(path), :mode => 0755
+      FileUtils.mv temp_file, path
       true
     rescue
       File.unlink temp_file rescue false

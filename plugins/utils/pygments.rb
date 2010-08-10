@@ -1,5 +1,5 @@
 description  'Pygments syntax highlighter'
-dependencies 'utils/asset_manager'
+dependencies 'utils/asset_manager', 'utils/shell'
 
 AssetManager.register_scripts 'pygments.css'
 
@@ -12,7 +12,7 @@ module Olelo::Pygments
 
   def self.pygmentize(text, format)
     return pre(text) if lexer_mapping.empty? || !format
-    content = shell_filter("#{PROGRAM} #{RUN_OPTIONS} '#{format}'", text)
+    content = Shell.run("#{PROGRAM} #{RUN_OPTIONS} '#{format}'", text)
     content.blank? ? pre(text) : content
   end
 
