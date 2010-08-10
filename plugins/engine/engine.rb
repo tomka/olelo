@@ -116,7 +116,7 @@ end
 class Olelo::Application
   before :show do
     @engine_name, layout, response, content =
-    Cache.cache("engine-#{@resource.path}-#{@resource.version}#{build_query(params)}", :marshal => true, :disable => request.no_cache?) do |cache|
+    Cache.cache("engine-#{@resource.path}-#{@resource.version}-#{build_query(params)}", :marshal => true, :disable => request.no_cache?) do |cache|
       engine = Engine.find!(@resource, :name => params[:output] || params[:engine])
       cache.disable! if !engine.cacheable?
       context = Context.new(:engine => engine, :resource => @resource, :params => params, :logger => logger)

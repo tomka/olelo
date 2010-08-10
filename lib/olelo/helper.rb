@@ -262,12 +262,6 @@ module Olelo
 
     attr_setter :on_error, :redirect_to_new
 
-    def menu
-      #Cache.cache(@resource ? "menu-#{@resource.name}-#{@resource.version}-#{@menu_versions}" : 'menu') do
-        render(:menu, :layout => false)
-      #end
-    end
-
     def tab(name, &block)
       "<li#{action?(name) ? ' class="tabs-selected"' : ''}>#{capture_haml(&block)}</li>"
     end
