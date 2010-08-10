@@ -164,7 +164,7 @@ class Olelo::Tag < Filter
       content = begin
                send(tag.method, context, attrs, content).to_s
              rescue Exception => ex
-               context.logger.error ex
+               Plugin.current.logger.error ex
                "#{name}: #{escape_html ex.message}"
              end
       if tag.immediate

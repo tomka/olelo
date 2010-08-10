@@ -6,7 +6,7 @@ dependencies 'utils/cache'
 # variables used by the engines.
 # It is possible for a engine to run sub-engines. For this
 # purpose you create a subcontext which inherits the variables.
-class Olelo::Context < Struct.new(:engine, :resource, :logger, :parent, :private, :params, :response)
+class Olelo::Context < Struct.new(:engine, :resource, :parent, :private, :params, :response)
   include Hooks
 
   alias page resource
@@ -14,7 +14,6 @@ class Olelo::Context < Struct.new(:engine, :resource, :logger, :parent, :private
 
   def initialize(attrs = {})
     update(attrs)
-    self.logger  ||= Logger.new(nil)
     self.params  ||= Hash.with_indifferent_access
     self.private ||= Hash.with_indifferent_access
     self.response  ||= Hash.with_indifferent_access
@@ -120,7 +119,7 @@ class Olelo::Application
     Cache.cache(cache_id, :marshal => true, :update => request.no_cache?, :defer => true) do |cache|
       engine = Engine.find!(@resource, :name => params[:output])
       cache.disable! if !engine.cacheable?
-      context = Context.new(:engine => engine, :resource => @resource, :params => params, :logger => logger)
+      context = Context.new(:engine => engine, :resource => @resource, :params => params)
       content = engine.output(context)
       context.response['Content-Type'] ||= engine.mime.to_s if engine.mime
       context.response['Content-Type'] ||= @resource.mime.to_s if !engine.layout?

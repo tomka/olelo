@@ -8,7 +8,7 @@ class Olelo::Application
         engine = Engine.find(page, :layout => true)
         if engine
           cache.disable! if !engine.cacheable?
-          engine.output(Context.new(:engine => engine, :logger => logger, :resource => page))
+          engine.output(Context.new(:engine => engine, :resource => page))
         else
           %{<span class="error">#{:engine_not_available.t(:page => page.name, :type => "#{page.mime.comment} (#{page.mime})", :engine => nil)}</span>}
         end

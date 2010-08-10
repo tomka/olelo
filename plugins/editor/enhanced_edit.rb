@@ -33,10 +33,7 @@ class Olelo::Application
             page.content = params[:content]
             engine = Engine.find!(page, :layout => true)
           end
-          if engine
-            context = Context.new(:resource => page, :logger => logger, :engine => engine)
-            @preview = engine.output(context)
-          end
+          @preview = engine.output(Context.new(:resource => page, :engine => engine)) if engine
         end
 
         halt render(request.put? ? :edit : :new)

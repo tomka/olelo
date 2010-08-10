@@ -19,9 +19,9 @@ class Olelo::FilterEngine
   redefine_method :output do |context|
     timer = Timer.new
     result = timer.measure { super(context) }
-    context.logger.info "Benchmark of engine #{name} on #{context.resource.path} - #{timer.elapsed_ms}ms"
+    Plugin.current.logger.info "Benchmark of engine #{name} on #{context.resource.path} - #{timer.elapsed_ms}ms"
     timers = context.private[:timers] || {}
-    timers.each {|name, timer| context.logger.info "#{name}: #{timer.elapsed_ms}ms" }
+    timers.each {|name, timer| Plugin.current.logger.info "#{name}: #{timer.elapsed_ms}ms" }
     result
   end
 end
