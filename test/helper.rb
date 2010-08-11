@@ -18,11 +18,12 @@ module TestHelper
     Olelo::Config['repository.type'] = 'git'
     Olelo::Config['repository.git.path'] = File.expand_path(File.join(File.dirname(__FILE__), '.test'))
     Olelo::Config[:namespaces] = {:main => ['', 'Metadata:']}
-    load_plugin('repository/git/git')
+    load_plugin('repository/git/repository')
   end
 
   def destroy_repository
     String.root_path = nil
+    Olelo::Repository.instance = nil
     FileUtils.rm_rf(Olelo::Config.repository.git.path)
   end
 

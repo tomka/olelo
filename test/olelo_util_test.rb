@@ -49,9 +49,4 @@ describe 'Olelo::Util' do
   it 'should have #build_query' do
     Olelo::Util.build_query(:a => 1, :b => [1, 2, 3]).should.equal 'a=1&b=1&b=2&b=3'
   end
-
-  it 'should have #shell_filter' do
-    Olelo::Util.shell_filter("sed 's/x/y/g'", 'axa').should.equal 'aya'
-    Olelo::Util.shell_filter('tr a b', 'a' * 6666666).should.equal 'b' * 6666666
-  end
 end

@@ -14,24 +14,25 @@ class Gitrb::Commit
 end
 
 class GitRepository < Repository
-  TRANSACTION = 'GitRepository.transaction'
-  GIT = 'GitRepository.git'
+  attr_reader :git
 
   def initialize(config)
     logger = Plugin.current.logger
     logger.info "Opening git repository: #{config.path}"
-    @global_git = Gitrb::Repository.new(:path => config.path, :create => true,
-                                        :bare => true, :logger => logger)
+    @git = Gitrb::Repository.new(:path => config.path, :create => true,
+                                 :bare => true, :logger => logger)
+    @current_transaction = {}
+    @counter = 0
   end
 
   def transaction(comment, user = nil, &block)
-    raise 'Transaction already running' if Thread.current[TRANSACTION]
-    Thread.current[TRANSACTION] = []
+    raise 'Transaction already running' if @current_transaction[Thread.current.object_id]
+    @current_transaction[Thread.current.object_id] = []
     git.transaction(comment, user && Gitrb::User.new(user.name, user.email), &block)
     tree_version = git.head.to_olelo
     current_transaction.each {|f| f.call(tree_version) }
   ensure
-    Thread.current[TRANSACTION] = nil
+    @current_transaction.delete(Thread.current.object_id)
   end
 
   def find_resource(path, tree_version, current, klass = nil)
@@ -104,12 +105,12 @@ class GitRepository < Repository
     version[0..4]
   end
 
-  def clean_cache
-    Thread.current[GIT] = nil
-  end
-
-  def git
-    Thread.current[GIT] ||= @global_git.dup
+  def clear_cache
+    @counter += 1
+    if @counter == 10
+      git.clear
+      @counter = 0
+    end
   end
 
   private
@@ -121,8 +122,12 @@ class GitRepository < Repository
   end
 
   def current_transaction
-    Thread.current[TRANSACTION] || raise('No transaction running')
+    @current_transaction[Thread.current.object_id] || raise('No transaction running')
   end
 end
 
 Repository.register :git, GitRepository
+
+Application.after(:request) do
+  Repository.instance.clear_cache if Repository.instance.respond_to? :clear_cache
+end

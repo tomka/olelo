@@ -130,11 +130,6 @@ class Object
   def try(name, *args)
     respond_to?(name) ? send(name, *args) : nil
   end
-
-  # Unique object identifier as string
-  def unique_id
-    object_id.abs.to_s(16)
-  end
 end
 
 class Struct

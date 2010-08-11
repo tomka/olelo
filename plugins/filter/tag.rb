@@ -132,7 +132,7 @@ class Olelo::Tag < Filter
 
   def filter(context, content)
     @protected_elements = []
-    @protection_prefix = "TAG_#{unique_id}_"
+    @protection_prefix = "TAG_#{object_id}_"
     @tag_level = 0
     @tag_counter = {}
     replace_protected_elements(subfilter(context, content))

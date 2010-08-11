@@ -79,7 +79,7 @@ class Olelo::Cache
 
     # Write entry <i>content</i> with <i>key</i>.
     def write(key, content)
-      temp_file = File.join(root, ['tmp', $$, Thread.current.unique_id].join('-'))
+      temp_file = File.join(root, ['tmp', $$, Thread.current.object_id].join('-'))
       File.open(temp_file, 'wb') do |dest|
         if content.respond_to? :to_str
           dest.write(content.to_str)

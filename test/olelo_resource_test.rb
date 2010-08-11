@@ -38,29 +38,16 @@ describe 'Olelo::Resource' do
   end
 
   it 'find or raise' do
-    Olelo::Resource.find!('').should.be.an.instance_of Olelo::Tree
-    Olelo::Tree.find!('').should.be.an.instance_of Olelo::Tree
-    lambda do
-      Olelo::Page.find!('/root')
-    end.should.raise Olelo::NotFound
-
+    lambda { Olelo::Resource.find!('') }.should.raise Olelo::NotFound
+    lambda { Olelo::Tree.find!('') }.should.raise Olelo::NotFound
+    lambda { Olelo::Page.find!('') }.should.raise Olelo::NotFound
+    create_page('Home')
+    Olelo::Resource.find('').should.be.an.instance_of Olelo::Tree
+    Olelo::Tree.find('').should.be.an.instance_of Olelo::Tree
+    lambda { Olelo::Page.find!('') }.should.raise Olelo::NotFound
     Olelo::Resource.find('Home').should.be.an.instance_of Olelo::Page
     Olelo::Page.find('Home').should.be.an.instance_of Olelo::Page
-    lambda do
-      Olelo::Tree.find!('/Home')
-    end.should.raise Olelo::NotFound
-
-    lambda do
-      Olelo::Resource.find!('/foo')
-    end.should.raise Olelo::NotFound
-
-    lambda do
-      Olelo::Page.find!('/foo')
-    end.should.raise Olelo::NotFound
-
-    lambda do
-      Olelo::Tree.find!('/foo')
-    end.should.raise Olelo::NotFound
+    lambda { Olelo::Tree.find!('Home') }.should.raise Olelo::NotFound
   end
 
   it 'should be new' do
@@ -72,6 +59,7 @@ describe 'Olelo::Resource' do
   end
 
   it 'has type' do
+    create_page('Home')
     Olelo::Page.find('Home').should.be.page
     Olelo::Tree.find('').should.be.tree
   end

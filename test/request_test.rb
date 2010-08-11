@@ -62,6 +62,7 @@ describe 'requests' do
     Olelo::Repository.instance = nil
     Olelo::Namespace.reset
 
+    FileUtils.mkpath Olelo::Config.tmp_path, :mode => 0755
     logger = Logger.new(File.join(@app_path, 'test.log'))
 
     @app = Rack::Builder.new do

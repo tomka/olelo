@@ -52,11 +52,6 @@ module Olelo
       response['Content-Type'] = 'application/xhtml+xml;charset=utf-8'
     end
 
-    # Purge memory cache after request
-    after :request do
-      Repository.instance.clean_cache
-    end
-
     # Handle 404s
     hook NotFound do |error|
       logger.debug(error)
@@ -174,11 +169,7 @@ module Olelo
 
     get '/?:path?/diff' do
       @resource = Resource.find!(params[:path])
-      on_error :history
-      check do |errors|
-        errors << :from_missing.t if params[:from].blank?
-        errors << :to_missing.t  if params[:to].blank?
-      end
+      raise ArgumentError if !params[:from] || !params[:to]
       @diff = @resource.diff(params[:from], params[:to])
       render :diff
     end
@@ -238,7 +229,7 @@ module Olelo
             content = if params[:pos]
                         pos = [[0, params[:pos].to_i].max, @resource.content.size].min
                         len = [0, params[:len].to_i].max
-                        @resource.content(0, pos) + params[:content] + @resource.content(pos + len, @resource.content.size)
+                        [@resource.content(0, pos), params[:content], @resource.content(pos + len, @resource.content.size)].join
                       else
                         params[:content]
                       end
