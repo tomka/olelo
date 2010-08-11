@@ -75,9 +75,9 @@ class Olelo::Engine
   # Find all accepting engines for a resource which are not hidden
   def self.find_all(resource)
     name = resource.metadata[:output]
-    @engines.values.flatten.select do |e|
-      ((!resource.namespace.metadata? && e.name == name) || !e.hidden?) && e.accepts?(resource)
-    end.sort_by {|a| a.name }
+    @engines.values.map do |engines|
+      engines.sort_by {|e| e.priority }.find {|e| ((!resource.namespace.metadata? && e.name == name) || !e.hidden?) && e.accepts?(resource) }
+    end.compact.sort_by {|e| e.name }
   end
 
   # Find appropiate engine for resource. An optional
@@ -86,7 +86,7 @@ class Olelo::Engine
   def self.find!(resource, opts = {})
     opts[:name] ||= resource.metadata[:output] if !resource.namespace.metadata?
     engines = opts[:name] ? @engines[opts[:name].to_s] : @engines.values.flatten
-    engine = engines.to_a.sort_by {|a| a.priority }.find { |e| e.accepts?(resource) && (!opts[:layout] || e.layout?) }
+    engine = engines.to_a.sort_by {|e| e.priority }.find { |e| e.accepts?(resource) && (!opts[:layout] || e.layout?) }
     raise(:engine_not_available.t(:engine => opts[:name],
                                   :page => resource.path,
                                   :type => "#{resource.mime.comment} (#{resource.mime})")) if !engine
