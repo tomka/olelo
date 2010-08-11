@@ -199,6 +199,10 @@ end
 
 Filter.register :tag, Tag
 
-Tag.define :nowiki, :description => 'Do not process contained text' do |context, attrs, content|
+Tag.define :nowiki, :description => 'Disable tag and wikitext filtering' do |context, attrs, content|
   escape_html(content)
+end
+
+Tag.define :notags, :description => 'Disable tag processing', :immediate => true do |context, attrs, content|
+  content
 end

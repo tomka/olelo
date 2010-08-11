@@ -26,7 +26,7 @@ class Olelo::Application
   end
 end
 
-Tag.define('blog-menu', :description => 'Show blog menu') do |context, attrs, content|
+Tag.define 'blog-menu', :description => 'Show blog menu' do |context, attrs, content|
   %{<blog-menu path="#{escape_html attrs['path']}"/>}
 end
 

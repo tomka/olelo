@@ -2,24 +2,11 @@ description  'Scripting tags'
 dependencies 'filter/tag'
 require      'evaluator'
 
-Tag.define(:value, :requires => :of, :immediate => true, :description => 'Print value') do |context, attrs, content|
+Tag.define :value, :requires => :of, :immediate => true, :description => 'Print value' do |context, attrs, content|
   Evaluator.eval(attrs['of'], context.params)
 end
 
-Tag.define(:calc, :description => 'Calculator output') do |context, attrs, content|
-  code = content.strip.split("\n").map do |line|
-    line.strip!
-    val = if line =~ /^(\w+)\s*:=?\s*(.*)$/
-      context.params[$1] = Evaluator.eval($2, context.params)
-    else
-      Evaluator.eval(line, context.params)
-    end
-    "> #{line}\n#{val}\n"
-  end.join
-  "<pre>#{escape_html code}</pre>"
-end
-
-Tag.define(:def, :requires => :name, :immediate => true, :description => 'Define variable') do |context, attrs, content|
+Tag.define :def, :requires => :name, :immediate => true, :description => 'Define variable' do |context, attrs, content|
   name = attrs['name'].downcase
   if attrs['value']
     context.params[name] = Evaluator.eval(attrs['value'], context.params)
@@ -30,7 +17,7 @@ Tag.define(:def, :requires => :name, :immediate => true, :description => 'Define
   nil
 end
 
-Tag.define(:call, :requires => :name, :immediate => true, :description => 'Call function') do |context, attrs, content|
+Tag.define :call, :requires => :name, :immediate => true, :description => 'Call function' do |context, attrs, content|
   name = attrs['name'].downcase
   functions = context.private[:functions]
   raise NameError, "Function #{name} not found" if !functions || !functions[name]
@@ -48,7 +35,7 @@ Tag.define(:call, :requires => :name, :immediate => true, :description => 'Call 
   end
 end
 
-Tag.define(:include, :requires => :page, :limit => 10, :description => 'Include page') do |context, attrs, content|
+Tag.define :include, :requires => :page, :limit => 10, :description => 'Include page' do |context, attrs, content|
   path = attrs['page']
   path = context.resource.path/'..'/path if !path.begins_with? '/'
   if page = Page.find(path, context.page.current? ? nil : context.page.tree_version)
@@ -60,15 +47,15 @@ Tag.define(:include, :requires => :page, :limit => 10, :description => 'Include 
   end
 end
 
-Tag.define(:includeonly, :immediate => true, :description => 'Text which is shown only if included') do |context, attrs, content|
+Tag.define :includeonly, :immediate => true, :description => 'Text which is shown only if included' do |context, attrs, content|
   nested_tags(context.subcontext, content) if context.private[:included]
 end
 
-Tag.define(:noinclude, :immediate => true, :description => 'Text which is not included') do |context, attrs, content|
+Tag.define :noinclude, :immediate => true, :description => 'Text which is not included' do |context, attrs, content|
   nested_tags(context.subcontext, content) if !context.private[:included]
 end
 
-Tag.define(:for, :requires => [:from, :to], :immediate => true, :limit => 50, :description => 'For loop') do |context, attrs, content|
+Tag.define :for, :requires => [:from, :to], :immediate => true, :limit => 50, :description => 'For loop' do |context, attrs, content|
   to = attrs['to'].to_i
   from = attrs['from'].to_i
   raise 'Limits exceeded' if to - from > 10
@@ -78,7 +65,7 @@ Tag.define(:for, :requires => [:from, :to], :immediate => true, :limit => 50, :d
   end.join
 end
 
-Tag.define(:repeat, :requires => :times, :immediate => true, :limit => 50, :description => 'Repeat loop') do |context, attrs, content|
+Tag.define :repeat, :requires => :times, :immediate => true, :limit => 50, :description => 'Repeat loop' do |context, attrs, content|
   n = attrs['times'].to_i
   raise 'Limits exceeded' if n > 10
   (1..n).map do |i|
@@ -87,7 +74,7 @@ Tag.define(:repeat, :requires => :times, :immediate => true, :limit => 50, :desc
   end.join
 end
 
-Tag.define(:if, :requires => :test, :immediate => true, :description => 'If statement') do |context, attrs, content|
+Tag.define :if, :requires => :test, :immediate => true, :description => 'If statement' do |context, attrs, content|
   if Evaluator.eval(attrs['test'], context.params)
     nested_tags(context.subcontext, content)
   end

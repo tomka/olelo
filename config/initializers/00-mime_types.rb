@@ -11,14 +11,8 @@ MimeMagic.add('text/x-creole',
 MimeMagic.add('text/x-markdown',
               :extensions => %w(markdown md mdown mkdn mdown),
               :parents => 'text/plain',
-              :magic => [[0..64, 'markdown']],
+              :magic => [[0..64, 'markdown'], [0..64, 'kramdown'], [0..64, 'maruku']],
               :comment => 'Markdown Text File')
-
-MimeMagic.add('text/x-maruku',
-              :extensions =>  'maruku',
-              :parents => 'text/plain',
-              :magic => [[0..64, 'maruku']],
-              :comment => 'Maruku Text File')
 
 MimeMagic.add('text/x-textile',
               :extensions => 'textile',

@@ -121,6 +121,13 @@ class Olelo::FilterEngine < Engine
   end
 
   class Registrator
+    def regexp(name, *regexps)
+      Filter.create(name) do |context, content|
+        regexps.each_slice(2) { |regexp, sub| content.gsub!(regexp, sub) }
+        content
+      end
+    end
+
     def engine(name, &block)
       Engine.register(Builder.new(name).build(&block))
       Plugin.current.logger.debug "Filter engine '#{name}' successfully created"

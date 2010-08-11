@@ -1,56 +1,220 @@
 # Filter engine configuration engines.rb
 # Filter engines consist of multiple filters
 
-def xslt_engine(name, opts = {})
-  engine name do
-    is_cacheable.has_priority(2).accepts("text/x-#{opts[:markup]}")
-    mime opts[:mime]
-    filter do
-      # Filters can be chained by . or newline
-      remove_metadata.remove_comments.math
-      tag { filter!(opts[:markup], opts[:options]).rubypants }
-      toc.html_wrapper
-      filter!(opts[:transformer], opts[:options])
-    end
-  end
-end
+################################################################################
+# Register some simple regular expression filters which are used later
+################################################################################
 
-def markup_engine(name, opts = {})
-  engine name do
-    needs_layout.is_cacheable.has_priority(opts[:priority] || 1)
-    accepts(opts[:accepts] || "text/x-#{name}")
-    filter do
-      remove_metadata.remove_comments.math
-      tag { filter!(name, opts[:options]).rubypants }
-      toc
-    end
-  end
+regexp :remove_comments, /<!--.*?-->/m,      ''
+regexp :math_shortcuts,  /\$\$(.*?)\$\$/m,   '<math display="inline">\1</math>',
+                         /\\\((.*?)\\\)/m,   '<math display="inline">\1</math>',
+                         /\\\[(.*?)\\\]/m,   '<math display="block">\1</math>'
+regexp :remove_metadata, Page::YAML_REGEXP,  ''
+regexp :creole_nowiki,   /\{\{\{.*?\}\}\}/m, '<notags>\0</notags>'
+regexp :textile_nowiki,  /<pre>.*?<\/pre>/m, '<notags>\0</notags>'
 
-  xslt_engine :s5_presentation, :markup => name, :transformer => :s5, :options => opts[:options], :mime => 'application/xhtml+xml; charset=utf-8'
-  xslt_engine :latex, :markup => name, :transformer => :xslt,
-              :options => {:stylesheet => 'xhtml2latex.xsl'}.merge(opts[:options] || {}), :mime => 'text/plain; charset=utf-8'
-end
+################################################################################
+# Creole engines configuration
+################################################################################
 
 engine :creole do
   needs_layout.is_cacheable.has_priority(1)
   accepts 'text/x-creole'
   filter do
     editsection do
-      remove_metadata.remove_comments.math
-      tag { creole!.rubypants }
+      remove_metadata.remove_comments.math_shortcuts
+      creole_nowiki.tag { creole!.rubypants }
     end
     toc
   end
 end
 
-xslt_engine :s5_presentation, :markup => :creole, :transformer => :s5, :mime => 'application/xhtml+xml; charset=utf-8'
-xslt_engine :latex, :markup => :creole, :transformer => :xslt,
-            :options => {:stylesheet => 'xhtml2latex.xsl'}, :mime => 'text/plain; charset=utf-8'
+engine :s5 do
+  is_cacheable.accepts('text/x-creole')
+  mime 'application/xhtml+xml; charset=utf-8'
+  filter do
+    remove_metadata.remove_comments.math_shortcuts
+    creole_nowiki.tag { creole!.rubypants }
+    toc.html_wrapper!.s5!
+  end
+end
 
-markup_engine :textile
-markup_engine :markdown
-markup_engine :kramdown, :priority => 2, :accepts => 'text/x-markdown'
-markup_engine :maruku, :priority => 2, :accepts => 'text/x-markdown|text/x-maruku'
-markup_engine :orgmode
-markup_engine :tilt, :options => {:tilt_template => 'textile'}, :priority => 3, :accepts => 'text/x-textile'
-markup_engine :tilt, :options => {:tilt_template => 'markdown'}, :priority => 3, :accepts => 'text/x-markdown'
+engine :latex do
+  is_cacheable.accepts('text/x-creole')
+  mime 'text/plain; charset=utf-8'
+  filter do
+    remove_metadata.remove_comments.math_shortcuts
+    creole_nowiki.tag { creole!.rubypants }
+    toc.html_wrapper!.xslt!(:stylesheet => 'xhtml2latex.xsl')
+  end
+end
+
+################################################################################
+# Textile engines configuration
+################################################################################
+
+engine :textile do
+  needs_layout.is_cacheable.has_priority(1)
+  accepts 'text/x-textile'
+  filter do
+    remove_metadata.remove_comments.math_shortcuts
+    textile_nowiki.tag { textile!.rubypants }
+    toc
+  end
+end
+
+engine :s5 do
+  is_cacheable.accepts('text/x-textile')
+  mime 'application/xhtml+xml; charset=utf-8'
+  filter do
+    remove_metadata.remove_comments.math_shortcuts
+    textile_nowiki.tag { textile!.rubypants }
+    toc.html_wrapper!.s5!
+  end
+end
+
+engine :latex do
+  is_cacheable.accepts('text/x-textile')
+  mime 'text/plain; charset=utf-8'
+  filter do
+    remove_metadata.remove_comments.math_shortcuts
+    textile_nowiki.tag { textile!.rubypants }
+    toc.html_wrapper!.xslt!(:stylesheet => 'xhtml2latex.xsl')
+  end
+end
+
+################################################################################
+# Markdown engines configuration
+################################################################################
+
+engine :markdown do
+  needs_layout.is_cacheable.has_priority(1)
+  accepts 'text/x-markdown'
+  filter do
+    remove_metadata.remove_comments.math_shortcuts
+    markdown_nowiki.tag { markdown! }
+    toc
+  end
+end
+
+engine :s5 do
+  is_cacheable.accepts('text/x-markdown')
+  mime 'application/xhtml+xml; charset=utf-8'
+  filter do
+    remove_metadata.remove_comments.math_shortcuts
+    markdown_nowiki.tag { markdown! }
+    toc.html_wrapper!.s5!
+  end
+end
+
+engine :latex do
+  is_cacheable.accepts('text/x-markdown')
+  mime 'text/plain; charset=utf-8'
+  filter do
+    remove_metadata.remove_comments.math_shortcuts
+    markdown_nowiki.tag { markdown! }
+    toc.html_wrapper!.xslt!(:stylesheet => 'xhtml2latex.xsl')
+  end
+end
+
+################################################################################
+# Kramdown engines configuration
+################################################################################
+
+engine :kramdown do
+  needs_layout.is_cacheable.has_priority(2)
+  accepts 'text/x-markdown'
+  filter do
+    remove_metadata.remove_comments.math_shortcuts
+    markdown_nowiki.tag { kramdown! }
+    toc
+  end
+end
+
+engine :s5 do
+  is_cacheable.accepts('text/x-markdown')
+  mime 'application/xhtml+xml; charset=utf-8'
+  filter do
+    remove_metadata.remove_comments.math_shortcuts
+    markdown_nowiki.tag { kramdown! }
+    toc.html_wrapper!.s5!
+  end
+end
+
+engine :latex do
+  is_cacheable.accepts('text/x-markdown')
+  mime 'text/plain; charset=utf-8'
+  filter do
+    remove_metadata.remove_comments.math_shortcuts
+    markdown_nowiki.tag { kramdown! }
+    toc.html_wrapper!.xslt!(:stylesheet => 'xhtml2latex.xsl')
+  end
+end
+
+################################################################################
+# Maruku engines configuration
+################################################################################
+
+engine :maruku do
+  needs_layout.is_cacheable.has_priority(3)
+  accepts 'text/x-markdown'
+  filter do
+    remove_metadata.remove_comments.math_shortcuts
+    markdown_nowiki.tag { maruku! }
+    toc
+  end
+end
+
+engine :s5 do
+  is_cacheable.accepts('text/x-markdown')
+  mime 'application/xhtml+xml; charset=utf-8'
+  filter do
+    remove_metadata.remove_comments.math_shortcuts
+    markdown_nowiki.tag { maruku! }
+    toc.html_wrapper!.s5!
+  end
+end
+
+engine :latex do
+  is_cacheable.accepts('text/x-markdown')
+  mime 'text/plain; charset=utf-8'
+  filter do
+    remove_metadata.remove_comments.math_shortcuts
+    markdown_nowiki.tag { maruku! }
+    toc.html_wrapper!.xslt!(:stylesheet => 'xhtml2latex.xsl')
+  end
+end
+
+################################################################################
+# Orgmode engines configuration
+################################################################################
+
+engine :orgmode do
+  needs_layout.is_cacheable.has_priority(1)
+  accepts 'text/x-orgmode'
+  filter do
+    remove_metadata.remove_comments.math_shortcuts
+    tag { orgmode!.rubypants }
+    toc
+  end
+end
+
+engine :s5 do
+  is_cacheable.accepts('text/x-orgmode')
+  mime 'application/xhtml+xml; charset=utf-8'
+  filter do
+    remove_metadata.remove_comments.math_shortcuts
+    tag { orgmode!.rubypants }
+    toc.html_wrapper!.s5!
+  end
+end
+
+engine :latex do
+  is_cacheable.accepts('text/x-orgmode')
+  mime 'text/plain; charset=utf-8'
+  filter do
+    remove_metadata.remove_comments.math_shortcuts
+    tag { orgmode!.rubypants }
+    toc.html_wrapper!.xslt!(:stylesheet => 'xhtml2latex.xsl')
+  end
+end

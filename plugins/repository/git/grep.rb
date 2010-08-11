@@ -15,7 +15,7 @@ class Olelo::Application
             line = git.set_encoding(io.readline)
             line = unescape_backslash(line)
             if line =~ /(.*?)\:(.*?)([^\/\0]+)\0(.*)/ && Namespace.find($3) == Namespace.main
-              (@matches[$3] ||= []) << $4
+              (@matches["#{$2}#{$3}"] ||= []) << $4
             end
           rescue => ex
             logger.error ex
