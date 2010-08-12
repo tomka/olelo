@@ -64,9 +64,6 @@ module Olelo
       @response.status = Rack::Utils.status_code(ex.try(:status) || :internal_server_error)
       @response.body   = [ex.message]
       invoke_hook(ex.class, ex).join
-    rescue => ex
-      @logger.error(ex) if @logger
-      %{<span class="error">#{escape_html ex.message}</span>}
     end
 
     def perform!

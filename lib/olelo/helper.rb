@@ -262,8 +262,9 @@ module Olelo
 
     attr_setter :on_error, :redirect_to_new
 
-    def tab(name, &block)
-      "<li#{action?(name) ? ' class="tabs-selected"' : ''}>#{capture_haml(&block)}</li>"
+    def tab(action, id = nil)
+      id ||= action
+      %{<li id="tabheader-#{id}"#{action?(action) ? ' class="tabs-selected"' : ''}><a href="#tab-#{id}">#{escape_html id.t}</a></li>}
     end
 
     def action?(name)

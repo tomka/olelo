@@ -1,10 +1,8 @@
-- title action?(:login) ? :login.t : :sign_up.t
+- title action?(:login) ? :login.t : :signup.t
 .tabs
   %ul
-    = tab :login do
-      %a(href='#tab-login')= :login.t
-    = tab :signup do
-      %a(href='#tab-signup')= :sign_up.t
+    = tab :login
+    = tab :signup
   %form(action='/login' method='post')
     #tab-login.fieldset
       %h2 Login
@@ -19,7 +17,7 @@
       %br
   %form(action='/signup' method='post')
     #tab-signup.fieldset
-      %h2= :sign_up.t
+      %h2= :signup.t
       = flash_messages if action? :signup
       %label(for='signup-user')= :user.t
       %input#signup-user(type='text' name='user')
@@ -33,5 +31,5 @@
       %label(for='signup-email')= :email.t
       %input#signup-email(type='text' name='email')
       %br
-      %button(type='submit')= :sign_up.t
+      %button(type='submit')= :signup.t
       %br

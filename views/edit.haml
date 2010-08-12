@@ -1,10 +1,8 @@
 - title params[:pos] ? :edit_page_section.t(:page => @resource.title) : :edit_page.t(:page => @resource.title)
 .tabs
   %ul
-    = tab :edit do
-      %a(href='#tab-edit')= :edit.t
-    = tab :upload do
-      %a(href='#tab-upload')= :upload.t
+    = tab :edit
+    = tab :upload
   %form(action='#{@resource.path.urlpath}' method='post')
     #tab-edit.box
       %h2= :edit.t

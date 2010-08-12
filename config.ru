@@ -42,12 +42,13 @@ logger.level = ::Logger.const_get(Olelo::Config.log.level)
 
 use_lint if !Olelo::Config.production?
 
+use Rack::ShowExceptions if !Olelo::Config.production?
+
 if !Olelo::Config.rack.blacklist.empty?
   require 'rack/blacklist'
   use Rack::Blacklist, :blacklist => Olelo::Config.rack.blacklist
 end
 
-use(Rack::Config) {|env| env['rack.logger'] = logger }
 use Rack::DegradeMimeType
 use Rack::RelativeRedirect
 
