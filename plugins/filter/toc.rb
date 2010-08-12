@@ -43,7 +43,7 @@ class Toc < Filter
     end
     @count[@level-1] += 1
     headline = elem.children.first ? elem.children.first.inner_text : ''
-    section = 'section-' + @count[0..@level-1].join('_') + '_' + headline.strip.gsub(/[^\w]/, '_')
+    section = ['sec', *@count[0..@level-1], headline.strip.gsub(/[^\w]/, '-')].join('-').downcase
     @toc << %{<li class="toc#{@level-@offset+1}"><a href="##{section}">#{headline}</a>}.unindent
     elem.inner_html = %{<span class="number" id="#{section}">#{@count[0..@level-1].join('.')}</span> #{elem.inner_html}}
   end
