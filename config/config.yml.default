@@ -133,3 +133,4 @@ repository:
   # Path is to a bare (!) git repository.
   #git:
   #  path:        '/home/user/wiki/repository'
+  #  bare:        true

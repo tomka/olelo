@@ -29,6 +29,7 @@ Olelo::Config['views_path'] = ::File.join(path, 'views')
 Olelo::Config['tmp_path'] = ::File.join(path, '.wiki', 'tmp')
 Olelo::Config['authentication.yamlfile.store'] = ::File.join(path, '.wiki', 'users.yml')
 Olelo::Config['repository.git.path'] = ::File.join(path, '.wiki', 'repository')
+Olelo::Config['repository.git.bare'] = false
 Olelo::Config['log.file'] = ::File.join(path, '.wiki', 'log')
 
 Olelo::Config.load!(::File.join(path, 'config', 'config.yml.default'))

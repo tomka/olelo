@@ -17,6 +17,7 @@ module TestHelper
     Olelo::Namespace.reset
     Olelo::Config['repository.type'] = 'git'
     Olelo::Config['repository.git.path'] = File.expand_path(File.join(File.dirname(__FILE__), '.test'))
+    Olelo::Config['repository.git.bare'] = true
     Olelo::Config[:namespaces] = {:main => ['', 'Metadata:']}
     load_plugin('repository/git/repository')
   end

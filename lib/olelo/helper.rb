@@ -67,7 +67,7 @@ module Olelo
           li << %{<a href="#{escape_html resource_path(resource, opts.merge(:page => page + 1))}">›</a>}
           li << %{<a href="#{escape_html resource_path(resource, opts.merge(:page => last_page))}">»</a>}
         end
-        %{<ul class="pagination">#{li.map {|x| "<li>#{x}</li>"}.join}</ul>}
+        '<ul class="pagination">' + li.map {|x| "<li>#{x}</li>"}.join + '</ul>'
       end
     end
 
@@ -81,73 +81,15 @@ module Olelo
       end.compact.join("\n")
     end
 
-    def format_patch(patch, opts = {})
-      lines = patch.split("\n")
-      html, path, header, last = '', nil, true, nil
-      files, count = [], 0
-      lines.each do |line|
-        case line
-        when %r{^diff ([\w\-\s]+?) "?a/(.+?)"? "?b/(.+?)"?$}
-          path = unescape_backslash($2)
-          count += 1
-          header = true
-        when /^\+\+\+/
-          html << '</span>' if last
-          last = nil
-          html << '</td></tr></tbody></table>' if !html.empty?
-          if path
-            html << %{<table class="changes" id="file-#{count}">}
-            if opts[:from] && opts[:to]
-              html << %{<thead><tr><th>
-                          <a class="left" href="#{escape_html path.urlpath}">#{path}</a>
-                          <span class="right">
-                            <a href="#{escape_html((path/'version'/opts[:from]).urlpath)}">#{opts[:from].short}</a> to
-                            <a href="#{escape_html((path/'version'/opts[:to]).urlpath)}">#{opts[:to].short}</a>
-                          </span>
-                         </th></tr></thead>}.unindent
-            else
-              html << %{<thead><tr><th><a class="left" href="#{escape_html path.urlpath}">#{escape_html path}</a></th></tr></thead>}
-            end
-          else
-            html << %{<table class="changes">}
-          end
-          html << %{<tbody><tr><td>}
-        when /^(new|deleted)/
-          files << [$1, path, count]
-        else
-          ch = line[0..0]
-          if header
-            header = false if ch == '@'
-          else
-            case ch
-            when '@'
-              html << '</span>' if last
-              html << '</td></tr><tr><td>'
-              last = nil
-            when /-|\+| /
-              html << '</span>' if last && last != ch
-              html << "<span#{{'-' => ' class="minus"', '+' => ' class="plus"'}[ch]}>" if last != ch
-              html << (line.length > 1 ? escape_html(line[1..-1]) : '&#160;') << "\n"
-              last = ch
-            end
-          end
-        end
-      end
-      html << '</span>' if last
-      html << '</td></tr></tbody></table>' if !html.empty?
-      if files.empty?
-        html
-      else
-        result = '<ul class="files">'
-        files.each do |clazz, name, id|
-          result << %{<li class="#{clazz}"><a href="#file-#{id}">#{escape_html name}</a></li>}
-        end
-        result << '</ul>' << html
-      end
-    end
-
     def date(t)
       %{<span class="date epoch-#{t.to_i}">#{t.strftime('%d %h %Y %H:%M')}</span>}
+    end
+
+    def format_diff(diff)
+      summary   = PatchSummary.new(:links => true)
+      formatter = PatchFormatter.new(:links => true, :header => true)
+      PatchParser.parse(diff.patch, summary, formatter)
+      summary.html + formatter.html
     end
 
     def breadcrumbs(resource)

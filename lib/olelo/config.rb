@@ -17,10 +17,10 @@ module Olelo
       key = key.to_s
       i = key.index('.')
       if i
-        not_found(key) if !hash.include?(key[0...i])
+        _not_found(key) if !hash.include?(key[0...i])
         hash[key[0...i]][key[i+1..-1]]
       else
-        not_found(key) if !hash.include?(key)
+        _not_found(key) if !hash.include?(key)
         hash[key]
       end
     end
@@ -29,11 +29,11 @@ module Olelo
       key = key.to_s
       i = key.index('.')
       if i
-        child(key[0...i])[key[i+1..-1]] = value
+        _child(key[0...i])[key[i+1..-1]] = value
       elsif Hash === value
-        child(key).update(value)
+        _child(key).update(value)
       else
-        create_accessor(key)
+        _create_accessor(key)
         hash[key] = value
       end
     end
@@ -45,7 +45,7 @@ module Olelo
     end
 
     def method_missing(key, *args)
-      not_found(key)
+      _not_found(key)
     end
 
     def load(file)
@@ -70,20 +70,16 @@ module Olelo
 
     private
 
-    def not_found(key)
-      raise(NameError, "Configuration key #{path(key)} not found")
+    def _not_found(key)
+      raise(NameError, "Configuration key #{base ? "#{base}.#{key}" : key} not found")
     end
 
-    def path(key)
-      base ? "#{base}.#{key}" : key
+    def _child(key)
+      _create_accessor(key)
+      hash[key] ||= Config.new(nil, base ? "#{base}.#{key}" : key)
     end
 
-    def child(key)
-      create_accessor(key)
-      hash[key] ||= Config.new(nil, path(key))
-    end
-
-    def create_accessor(key)
+    def _create_accessor(key)
       if !respond_to?(key)
         metaclass.class_eval do
           define_method("#{key}?") { !!hash[key] }

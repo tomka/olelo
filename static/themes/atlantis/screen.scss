@@ -2,7 +2,7 @@
 @import "lib/rounded.scss";
 @import "lib/shadow.scss";
 @import "lib/headlines.scss";
-@import "lib/changes.scss";
+@import "lib/patch.scss";
 @import "constants.scss";
 @import "layout.scss";
 @import "menu.scss";
@@ -90,25 +90,25 @@ table {
   border-collapse: collapse;
   border-spacing: 0;
   border: $border;
-  margin: 0 0 1em 0;
+  margin: 0 0 2em 0;
+  th, thead tr {
+    background: url(images/button_bg.png) repeat-x left bottom $light_bg1;
+    border-bottom: $border;
+    font-variant: small-caps;
+  }
+  td, th {
+    padding: 0.2em 0.5em;
+    &.link {
+      padding: 0;
+      a {
+        margin: 0;
+        padding: 0.2em 0.5em;
+        display: block;
+        }
+    }
+  }
   tr {
     background: $main_bg;
-    td, th {
-      padding: 0.2em 0.5em;
-      &.link {
-        padding: 0;
-        a {
-          margin: 0;
-          padding: 0.2em 0.5em;
-          display: block;
-	}
-      }
-    }
-    th {
-      background: url(images/button_bg.png) repeat-x left bottom $light_bg1;
-      border-bottom: $border;
-      font-variant: small-caps;
-    }
     &.even {
       background: $light_bg1;
     }
@@ -194,7 +194,8 @@ table.full, #history-table, #tree-table {
 }
 
 .history-draggable {
-  background-color: #ff9999; }
+  background-color: #ffd4d4;
+}
 
 @mixin action-icon($name) {
   .action-#{$name} {
@@ -420,20 +421,6 @@ table input {
     .toc2 {
       font-weight: normal;
     }
-  }
-}
-
-.files {
-  margin: 0 0 1em 0;
-  padding: 0;
-  list-style-type: none;
-  .deleted {
-    background: url(images/minus.png) top left no-repeat;
-    padding-left: 20px;
-  }
-  .new {
-    background: url(images/plus.png) top left no-repeat;
-    padding-left: 20px;
   }
 }
 

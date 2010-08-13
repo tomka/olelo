@@ -7,7 +7,7 @@ class Olelo::Application
       if @preview
         doc.css('#page .tabs').before %{<div class="preview">#{@preview}</div>}
       elsif @patch
-        doc.css('#page .tabs').before format_patch(@patch)
+        doc.css('#page .tabs').before @patch
       end
 
       doc.css('#tab-edit button[type=submit]').before(
@@ -49,8 +49,9 @@ class Olelo::Application
         new.close
 
         # Read in binary mode and fix encoding afterwards
-        @patch = IO.popen("diff -u '#{original.path}' '#{new.path}'", 'rb') {|io| io.read }
-        @patch.force_encoding(__ENCODING__) if @patch.respond_to? :force_encoding
+        patch = IO.popen("diff -u '#{original.path}' '#{new.path}'", 'rb') {|io| io.read }
+        patch.force_encoding(__ENCODING__) if patch.respond_to? :force_encoding
+        @patch = PatchParser.parse(patch, PatchFormatter.new).html
 
 	halt render(request.put? ? :edit : :new)
       else

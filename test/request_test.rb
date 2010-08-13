@@ -54,6 +54,7 @@ describe 'requests' do
         :type  => :git,
         :git => {
           :path => File.join(@test_path, 'repository'),
+          :bare => true,
         },
       }
     }

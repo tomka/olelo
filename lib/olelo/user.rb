@@ -15,7 +15,7 @@ module Olelo
     def initialize(name, email, groups = nil)
       @name = name
       @email = email
-      @groups = groups.to_a
+      @groups = Set.new(groups.to_a)
       @groups << 'user' if !anonymous?
     end
 

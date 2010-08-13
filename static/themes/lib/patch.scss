@@ -1,0 +1,83 @@
+.patch {
+  width: 100%;
+  border: 1px solid #999999;
+  border-collapse: collapse;
+  border-spacing: 0;
+  tr {
+    td {
+      padding: 0.5em;
+      border-top: 1px solid #999999;
+      font-family: "Bitstream Vera Mono", monospace;
+      white-space: pre-wrap;
+      span.add {
+        background: #d4ffd4;
+      }
+      span.del {
+        color: #555555;
+        text-decoration: line-through;
+      }
+    }
+    th {
+      font-variant: normal;
+      padding: 0.2em 0.5em;
+      border: 1px solid #999999;
+    }
+    &.new th {
+	background: url(images/actions/new.png) 2px 2px no-repeat;
+	padding-left: 20px;
+    }
+    &.delete th {
+	background: url(images/actions/delete.png) 2px 2px no-repeat;
+	padding-left: 20px;
+    }
+    &.move th {
+	background: url(images/actions/move.png) 2px 2px no-repeat;
+	padding-left: 20px;
+    }
+    &.edit th {
+	background: url(images/actions/edit.png) 2px 2px no-repeat;
+	padding-left: 20px;
+    }
+  }
+}
+
+.patch-summary {
+  width: 100%;
+  .add, .del {
+    width: 1em;
+  }
+  .new {
+      background: #d4ffd4;
+      .name {
+          background: url(images/actions/new.png) 2px 2px no-repeat;
+	  padding-left: 20px;
+      }
+  }
+  .delete {
+      background: #ffd4d4;
+      .name {
+	  background: url(images/actions/delete.png) 2px 2px no-repeat;
+	  padding-left: 20px;
+      }
+  }
+  .move {
+      background: #ffc;
+      .name {
+	  background: url(images/actions/move.png) 2px 2px no-repeat;
+	  padding-left: 20px;
+      }
+  }
+  .edit {
+      background: #fff;
+      .name {
+	  background: url(images/actions/edit.png) 2px 2px no-repeat;
+	  padding-left: 20px;
+      }
+  }
+  .add {
+    color: #5A5;
+  }
+  .del {
+    color: #A55;
+  }
+}

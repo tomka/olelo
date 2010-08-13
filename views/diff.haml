@@ -9,4 +9,4 @@
       %td= :to.t
       %td
         %a.version{:href=>resource_path(@resource, :version => @diff.to)}= @diff.to.short
-%p~ format_patch(@diff.patch, :from => @diff.from, :to => @diff.to)
+= format_diff(@diff)

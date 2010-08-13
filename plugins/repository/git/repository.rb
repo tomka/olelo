@@ -20,7 +20,7 @@ class GitRepository < Repository
     logger = Plugin.current.logger
     logger.info "Opening git repository: #{config.path}"
     @git = Gitrb::Repository.new(:path => config.path, :create => true,
-                                 :bare => true, :logger => logger)
+                                 :bare => config.bare, :logger => logger)
     @current_transaction = {}
     @counter = 0
   end
@@ -98,7 +98,7 @@ class GitRepository < Repository
   end
 
   def diff(from, to, path = nil)
-    git.diff(from && from.to_s, to.to_s, path).to_olelo
+    git.diff(:from => from && from.to_s, :to => to.to_s, :path => path, :detect_renames => true).to_olelo
   end
 
   def short_version(version)
