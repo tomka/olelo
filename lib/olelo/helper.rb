@@ -58,7 +58,7 @@ module Olelo
         end
         max = [max, last_page].min
         min = [min, 0].max
-        li '…' if min != 0
+        li << '…' if min != 0
         (min..max).each do |i|
           if i == page
             li << %{<a class="current" href="#">#{i + 1}</a>}

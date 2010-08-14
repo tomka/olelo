@@ -126,7 +126,13 @@ class Olelo::Application
       [engine.name, engine.layout?, context.response, content]
     end
     self.response.header.merge!(response)
-    content = render(:show, :locals => {:content => content}) if layout && !request.xhr?
+    if layout
+      if request.xhr?
+        content = "<h1>#{escape_html @resource.title}</h1>#{content}"
+      else
+        content = render(:show, :locals => {:content => content})
+      end
+    end
     halt content
   end
 
