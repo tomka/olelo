@@ -10,8 +10,8 @@
 
 	$("ul:first > li > a[href^='#']", this).click(function() {
 	    links.each(function() { $(this.tabName).hide(); });
-	    links.parent().removeClass('tabs-selected');
-	    $(this).parent().addClass('tabs-selected');
+	    links.parent().removeClass('selected');
+	    $(this).parent().addClass('selected');
 	    $(this.tabName).show();
 	    if (store)
 		jStorage.set(store, this.tabName);
@@ -24,7 +24,7 @@
 		selected = $("ul:first > li > a[href='" + name + "']", this);
 	}
 	if (!selected || selected.get().length == 0)
-	    selected = $("ul:first > li.tabs-selected > a[href^='#']", this);
+	    selected = $("ul:first > li.selected > a[href^='#']", this);
 	selected.click();
     };
 })(jQuery);

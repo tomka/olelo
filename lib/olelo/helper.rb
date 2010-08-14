@@ -6,7 +6,11 @@ module Olelo
     end
 
     def define_block(name, content = nil, &block)
-      blocks[name] = block ? capture_haml(&block) : content
+      if block || content
+        blocks[name] = block ? capture_haml(&block) : content
+      else
+        blocks[name]
+      end
     end
 
     def footer(content = nil, &block); define_block(:footer, content, &block); end
@@ -69,16 +73,6 @@ module Olelo
         end
         '<ul class="pagination">' + li.map {|x| "<li>#{x}</li>"}.join + '</ul>'
       end
-    end
-
-    def theme_links
-      default = File.basename(File.readlink(File.join(Config.app_path, 'static', 'themes', 'default')))
-      Dir.glob(File.join(Config.app_path, 'static', 'themes', '*', 'style.css')).map do |file|
-        name = File.basename(File.dirname(file))
-        next if name == 'default'
-        %{<link rel="#{name == default ? '' : 'alternate '}stylesheet"
-          href="/static/themes/#{name}/style.css" type="text/css" title="#{name}"/>}.unindent
-      end.compact.join("\n")
     end
 
     def date(t)
@@ -172,13 +166,13 @@ module Olelo
         if etags = env['HTTP_IF_NONE_MATCH']
           etags = etags.split(/\s*,\s*/)
           # Etag is matching and modification date matches (HTTP Spec §14.26)
-          halt(304) if (etags.include?(value) || etags.include?('*')) && (!last_modified || last_modified == modified_since)
+          halt :not_modified if (etags.include?(value) || etags.include?('*')) && (!last_modified || last_modified == modified_since)
         end
       elsif last_modified
         # If-Modified-Since is only processed if no etag supplied.
         # If the etag match failed the If-Modified-Since has to be ignored (HTTP Spec §14.26)
         response['Last-Modified'] = last_modified
-        halt(304) if last_modified == modified_since
+        halt :not_modified if last_modified == modified_since
       end
 
       opts[:public] = !opts[:private]
@@ -202,11 +196,9 @@ module Olelo
     include PageHelper
     include HttpHelper
 
-    attr_setter :on_error, :redirect_to_new
-
     def tab(action, id = nil)
       id ||= action
-      %{<li id="tabheader-#{id}"#{action?(action) ? ' class="tabs-selected"' : ''}><a href="#tab-#{id}">#{escape_html id.t}</a></li>}
+      %{<li id="tabheader-#{id}"#{action?(action) ? ' class="selected"' : ''}><a href="#tab-#{id}">#{escape_html id.t}</a></li>}
     end
 
     def action?(name)

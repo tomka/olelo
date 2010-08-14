@@ -28,6 +28,6 @@
         }
     }
 
-    $('#page').bind('pageLoaded', initGallery);
+    $('#content').bind('pageLoaded', initGallery);
     initGallery();
 })();

@@ -15,27 +15,26 @@
       - if @resource.next_version
         %li
           %a.action-newer{:href=>resource_path(@resource, :version => @resource.next_version), :accesskey=>'n'}= :newer.t
-    - if !@resource.new?
-      %li
-        %a.action-view{:href=> @resource.path.urlpath, :accesskey=>'v'}= :view.t
-      %li
-        - if @resource.page?
-          %a.action-edit{:href=>action_path(@resource, :edit), :accesskey=>'e'}= :edit.t
-        - else
-          %a.action-edit= :edit.t
-        %ul
+    %li
+      %a.action-view{:href=> @resource.path.urlpath, :accesskey=>'v'}= :view.t
+    %li
+      - if @resource.page?
+        %a.action-edit{:href=>action_path(@resource, :edit), :accesskey=>'e'}= :edit.t
+      - else
+        %a.action-edit= :edit.t
+      %ul
+        %li
+          %a.action-new{:href=> (@resource.tree? ? @resource.path/'new' : @resource.path/'..'/'new').urlpath, :accesskey=>'n'}= :new_page.t
+        - if !@resource.root?
           %li
-            %a.action-new{:href=> (@resource.tree? ? @resource.path/'new' : @resource.path/'..'/'new').urlpath, :accesskey=>'n'}= :new_page.t
-          - if !@resource.root?
-            %li
-              %a.action-move{:href=> action_path(@resource, :move) }= :move.t
-            %li
-              %a.action-delete{:href=> action_path(@resource, :delete) }= :delete.t
-          - if !@resource.namespace.metadata?
-            %li
-              %a.action-metadata{:href=> action_path(@resource.namespace_path(Olelo::Namespace.metadata(@resource.namespace.name)), :edit) }= :metadata.t
-      %li
-        %a.action-history{:href=>action_path(@resource, :history), :accesskey=>'h'}= :history.t
+            %a.action-move{:href=> action_path(@resource, :move) }= :move.t
+          %li
+            %a.action-delete{:href=> action_path(@resource, :delete) }= :delete.t
+        - if !@resource.namespace.metadata?
+          %li
+            %a.action-metadata{:href=> action_path(@resource.namespace_path(Olelo::Namespace.metadata(@resource.namespace.name)), :edit) }= :metadata.t
+    %li
+      %a.action-history{:href=>action_path(@resource, :history), :accesskey=>'h'}= :history.t
     - if @resource.namespace.metadata?
       %li
         %a.action-page{:href=> @resource.namespace_path(Olelo::Namespace.page(@resource.namespace.name)).urlpath }= :page.t

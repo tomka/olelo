@@ -5,15 +5,13 @@ class Olelo::Application
   hook :layout do |name, doc|
     if name == :edit || name == :new
       if @preview
-        doc.css('#page .tabs').before %{<div class="preview">#{@preview}</div>}
+        doc.css('#content .tabs').before %{<div class="preview">#{@preview}</div>}
       elsif @patch
-        doc.css('#page .tabs').before @patch
+        doc.css('#content .tabs').before @patch
       end
 
       doc.css('#tab-edit button[type=submit]').before(
-        %{<input type="checkbox" name="minor" id="minor" value="1"#{params[:minor] ? ' checked="checked"' : ''}/>
-          <label for="minor">#{:minor_changes.t}</label><br/>
-          <button type="submit" name="preview" accesskey="p">#{:preview.t}</button>
+        %{<button type="submit" name="preview" accesskey="p">#{:preview.t}</button>
           <button type="submit" name="changes" accesskey="c">#{:changes.t}</button>}.unindent)
     end
   end
@@ -21,7 +19,7 @@ class Olelo::Application
   before :save do |page|
     if (action?(:new) || action?(:edit)) && params[:content]
       if params[:preview]
-        flash.error :empty_comment.t if params[:comment].blank? && !params[:minor]
+        flash.error :empty_comment.t if params[:comment].blank?
 
         if page.mime.text?
           if params[:pos]
@@ -38,7 +36,7 @@ class Olelo::Application
 
         halt render(request.put? ? :edit : :new)
       elsif params[:changes]
-        flash.error :empty_comment.t if params[:comment].blank? && !params[:minor]
+        flash.error :empty_comment.t if params[:comment].blank?
 
         original = Tempfile.new('original')
         original.write(page.content(params[:pos], params[:len]))
@@ -54,8 +52,6 @@ class Olelo::Application
         @patch = PatchParser.parse(patch, PatchFormatter.new).html
 
 	halt render(request.put? ? :edit : :new)
-      else
-        params[:comment] = :minor_changes.t if params[:minor] && params[:comment].blank?
       end
     end
   end

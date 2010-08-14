@@ -22,6 +22,7 @@ describe 'requests' do
       :config_path       => File.join(@app_path, 'config'),
       :initializers_path => File.join(@app_path, 'config', 'initializers'),
       :views_path        => File.join(@app_path, 'views'),
+      :themes_path       => File.join(@app_path, 'static', 'themes'),
       :tmp_path          => File.join(@test_path, 'tmp'),
       :production        => true,
       :locale	         => 'en_US',
@@ -108,7 +109,7 @@ describe 'requests' do
     get '/not-existing/history'
     last_response.should.be.not_found
 
-    get '/not-existing/diff'
+    get '/not-existing/compare'
     last_response.should.be.not_found
   end
 
@@ -137,9 +138,6 @@ describe 'requests' do
 
     get '/Testfolder/Testpage/edit'
     last_response.should.be.ok
-
-    get '/Testfolder/Testpage/upload'
-    last_response.should.be.ok
   end
 
   it 'should create page with special characters' do
@@ -160,9 +158,6 @@ describe 'requests' do
     last_response.should.be.ok
 
     get escape('/子供を公園/中文/edit')
-    last_response.should.be.ok
-
-    get escape('/子供を公園/中文/upload')
     last_response.should.be.ok
   end
 end

@@ -8,7 +8,8 @@ module Olelo
     include ApplicationHelper
 
     patterns :path => Resource::PATH_PATTERN
-    attr_reader :logger, :user
+    attr_reader :logger, :user, :theme_links, :timer
+    attr_setter :on_error, :redirect_to_new
 
     def user=(user)
       @user = user
@@ -25,12 +26,66 @@ module Olelo
 
       String.root_path = Config.root_path
 
-      I18n.locale = Config.locale
-      I18n.load(File.join(File.dirname(__FILE__), 'locale.yml'))
-
+      init_locale
+      init_templates
+      init_plugins
+      init_themes
       run_initializers
 
       logger.debug self.class.dump_routes
+    end
+
+    def init_locale
+      I18n.locale = Config.locale
+      I18n.load(File.join(File.dirname(__FILE__), 'locale.yml'))
+    end
+
+    class TemplateLoader
+      def context
+        Plugin.current.name rescue nil
+      end
+
+      def load(name)
+        plugin = Plugin.current rescue nil
+        fs = []
+        fs << DirectoryFS.new(File.dirname(plugin.file)) << InlineFS.new(plugin.file) if plugin
+        fs << DirectoryFS.new(Config.views_path)
+        UnionFS.new(*fs).read(name)
+      end
+    end
+
+    def init_templates
+      Templates.enable_caching if Config.production?
+      Templates.loader = TemplateLoader.new
+    end
+
+    def init_plugins
+      # Load locales for loaded plugins
+      Plugin.after :load do
+        I18n.load(file.sub(/\.rb$/, '_locale.yml'))
+        I18n.load(File.join(File.dirname(file), 'locale.yml'))
+      end
+
+      # Configure plugin system
+      Plugin.logger = logger
+      Plugin.disabled = Config.disabled_plugins.to_a
+      Plugin.dir = Config.plugins_path
+
+      # Load all plugins
+      Plugin.load('*')
+
+      # Start loaded plugins
+      Plugin.start
+    end
+
+    def init_themes
+      default = File.basename(File.readlink(File.join(Config.themes_path, 'default')))
+      @theme_links = Dir.glob(File.join(Config.themes_path, '*', 'style.css')).map do |file|
+        name = File.basename(File.dirname(file))
+        %{<link rel="#{name == default ? '' : 'alternate '}stylesheet"
+          href="/static/themes/#{name}/style.css?#{File.mtime(file).to_i}"
+          type="text/css" title="#{name}"/>}.unindent if name != 'default'
+      end.compact.join("\n")
     end
 
     # Executed before each request
@@ -57,7 +112,7 @@ module Olelo
       logger.debug(error)
       if redirect_to_new
         # Redirect to create new page if flag is set
-        path = (params[:path]/'new').urlpath
+        path = (params[:path].to_s/'new').urlpath
         path += '?' + request.query_string if !request.query_string.blank?
         redirect path
       else
@@ -81,7 +136,7 @@ module Olelo
       render :error, :locals => {:error => error}
     end
 
-    get '/login', '/signup' do
+    get '/login' do
       render :login
     end
 
@@ -167,32 +222,32 @@ module Olelo
       render :deleted
     end
 
-    get '/?:path?/diff' do
+    get '/?:path?/compare' do
       @resource = Resource.find!(params[:path])
       raise ArgumentError if !params[:from] || !params[:to]
       @diff = @resource.diff(params[:from], params[:to])
-      render :diff
+      render :compare
     end
 
     get '/:path/edit' do
-      @resource = Page.find(params[:path])
-      redirect((params[:path]/'new').urlpath) if !@resource
-      flash.warn :warn_binary.t(:page => @resource.path, :type => "#{@resource.mime.comment} (#{@resource.mime})") if @resource.content =~ /[^[:print:][:space:]]/
+      redirect_to_new(true)
+      @resource = Page.find!(params[:path])
+      flash.warn :warn_binary.t(:page => @resource.path,
+                                :type => "#{@resource.mime.comment} (#{@resource.mime})") if @resource.content =~ /[^[:print:][:space:]]/
       render :edit
     end
 
-    get '/?:path?/new', '/?:path?/upload' do
-      on_error :new
-      if params[:path] && @resource = Resource.find(params[:path])
-        return render(:edit) if @resource.page? && action?(:upload)
-        redirect((params[:path]/(@resource.tree? ? 'new page' : 'edit')).urlpath)
+    get '/?:path?/new' do
+      @resource = Resource.find(params[:path])
+      if @resource
+        redirect((params[:path]/'edit').urlpath) if @resource.page?
+        params[:path] = @resource.root? ? @resource.path : @resource.path + '/'
       end
-      @resource = Page.new(params[:path])
-      raise :reserved_path.t if reserved_path?(params[:path])
+      flash.error :reserved_path.t if reserved_path?(params[:path])
       render :new
     end
 
-    get '/?:path?/version/?:version?', '/:path' do
+    get '/?:path?/version/?:version?', '/:path', '/' do
       begin
         pass if reserved_path?(params[:path])
         @resource = Resource.find!(params[:path], params[:version])
@@ -244,30 +299,29 @@ module Olelo
 
     # New form sends post request
     post '/', '/:path' do
-      on_error :new
-
       pass if reserved_path?(params[:path])
 
-      @resource = Page.new(params[:path])
+      on_error :new
+      resource = Page.new(params[:path])
 
       if action?(:upload) && params[:file]
-        with_hooks :save, @resource do
-          Resource.transaction(:page_uploaded.t(:path => @resource.path), user) do
-            @resource.write(params[:file][:tempfile])
+        with_hooks :save, resource do
+          Resource.transaction(:page_uploaded.t(:path => resource.path), user) do
+            resource.write(params[:file][:tempfile])
           end
         end
       elsif action?(:new)
-        with_hooks :save, @resource do
+        with_hooks :save, resource do
           raise :empty_comment.t if params[:comment].blank?
-          Resource.transaction(:page_edited.t(:path => @resource.path, :comment => params[:comment]), user) do
-            @resource.write(params[:content])
+          Resource.transaction(:page_edited.t(:path => resource.path, :comment => params[:comment]), user) do
+            resource.write(params[:content])
           end
         end
       else
         redirect '/new'
       end
 
-      redirect @resource.path.urlpath
+      redirect resource.path.urlpath
     end
 
     private

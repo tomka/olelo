@@ -1,4 +1,5 @@
 - title :changes_of.t(:path => @resource.title)
+%h1&= title
 %table.zebra
   %tbody
     %tr
@@ -18,4 +19,4 @@
       %td.version
         - @version.parents.each do |parent|
           %a{:href=> ('changes'/parent).urlpath }= Olelo::Version.short(parent)
-= format_diff(@diff)
+~ format_diff(@diff)

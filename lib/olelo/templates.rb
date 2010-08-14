@@ -5,7 +5,7 @@ module Olelo
 
     class << self
       attr_reader :cache
-      attr_accessor :make_fs
+      attr_accessor :loader
 
       def enable_caching
         @cache = {}
@@ -23,10 +23,9 @@ module Olelo
       locals = opts.delete(:locals) || {}
       name = "#{name}.haml"
       haml_opts = HAML_OPTIONS.merge(opts).merge(:filename => name)
-      fs = Templates.make_fs.call
-      id = [fs.fs_id, name, haml_opts].to_s
+      id = [Templates.loader.context, name, haml_opts.map {|x| x}].flatten.join('-')
       engine = Templates.with_caching(id) do
-        Haml::Engine.new(fs.read(name), haml_opts)
+        Haml::Engine.new(Templates.loader.load(name), haml_opts)
       end
       engine.render(self, locals, &block)
     end

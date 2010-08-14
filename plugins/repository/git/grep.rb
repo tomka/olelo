@@ -54,9 +54,9 @@ class Olelo::Application
 end
 
 __END__
-
 @@ grep.haml
 - title :search_results.t(:pattern => params[:pattern])
+%h1&= title
 %p= :match.t(:count => @matches.length)
 .search
   - @matches.each do |path, content|

@@ -9,10 +9,10 @@ class SpamEvaluator
     @bad_words ||= File.read(File.join(File.dirname(__FILE__), 'antispam.words')).split("\n")
   end
 
-  def initialize(user, params, resource)
+  def initialize(user, params, page)
     @user = user
     @params = params
-    @resource = resource
+    @page = page
   end
 
   def evaluate
@@ -34,8 +34,8 @@ class SpamEvaluator
 
   def eval_change_size
     data = @params[:content].to_s
-    if !@resource.new? && @resource.content.size > 1024
-      ratio = data.size.to_f / @resource.content.size
+    if !@page.new? && @page.content.size > 1024
+      ratio = data.size.to_f / @page.content.size
       if ratio == 0
         100
       elsif ratio < 1
@@ -105,7 +105,7 @@ class Olelo::Application
 
   before(:save, 1000) do |page|
     if (action?(:new) || action?(:edit)) && !captcha_valid?
-      level = SpamEvaluator.new(user, params, @resource).evaluate
+      level = SpamEvaluator.new(user, params, page).evaluate
       flash.info :spam_level.t(:level => level) if !Config.production?
       if level >= 100
         flash.error :empty_comment.t if params[:comment].blank? && !params[:minor]

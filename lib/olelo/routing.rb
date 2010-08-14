@@ -26,8 +26,8 @@ module Olelo
 
       catch(:forward) do
         with_hooks(:request) { perform! }
-        status, header, body = @response.finish
-        return [status, header, @request.head? ? [] : body]
+        status, header, body = response.finish
+        return [status, header, request.head? ? [] : body]
       end
       @app ? @app.call(env) : error!(NotFound.new(@request.path_info))
     end
@@ -61,8 +61,8 @@ module Olelo
     end
 
     def error!(ex)
-      @response.status = Rack::Utils.status_code(ex.try(:status) || :internal_server_error)
-      @response.body   = [ex.message]
+      response.status = Rack::Utils.status_code(ex.try(:status) || :internal_server_error)
+      response.body   = [ex.message]
       invoke_hook(ex.class, ex).join
     end
 
@@ -71,40 +71,34 @@ module Olelo
         uri = catch(:redirect) do
           with_hooks(:routing) { route! }
         end
-        @response.redirect uri
+        response.redirect uri
         nil
       end
 
       return if !result
       if result.respond_to?(:to_str)
-        @response.body = [result]
+        response.body = [result]
       elsif result.respond_to?(:to_ary)
         result = result.to_ary
-        status = result.first
-        if Fixnum === status || Symbol === status
-          @response.status = Rack::Utils.status_code(status)
-          if result.length == 3
-            status, headers, body = result
-            @response.body = body if body
-            @response.headers.merge!(headers) if headers
-          elsif result.length == 2
-            @response.body = result.last
-          else
-            raise TypeError, "#{result.inspect} not supported"
-          end
+        status, body = result
+        if result.length == 2 && Symbol === status
+          response.status = Rack::Utils.status_code(status)
+          response.body = body if body
         else
-          @response.body = result
+          response.body = result
         end
       elsif result.respond_to?(:each)
-        @response.body = result
-      elsif Fixnum === result || Symbol === result
-        @response.status = Rack::Utils.status_code(result)
+        response.body = result
+      elsif Symbol === result
+        response.status = Rack::Utils.status_code(result)
+      else
+        raise TypeError, "#{result.inspect} not supported"
       end
     end
 
     def route!
-      path = unescape(@request.path_info)
-      method = @request.request_method
+      path = unescape(request.path_info)
+      method = request.request_method
       routes = self.class.routes[method]
       routes.each do |name, pattern, keys|
         if match = pattern.match(path)
@@ -116,7 +110,7 @@ module Olelo
                 hash
               end
             elsif captures.any?
-              {'captures' => captures}
+              {:captures => captures}
             else
               {}
             end
@@ -163,13 +157,9 @@ module Olelo
       def compile_route(path, patterns)
         keys = []
         if path.respond_to? :to_str
-          pattern = Regexp.escape(path).gsub(/:(\w+)|\\\?/) do |match|
-            if match == '\?'
-              '?'
-            else
-              keys << $1
-              patterns.key?($1) ? "(#{patterns[$1]})" : "([^/?&#\.]+)"
-            end
+          pattern = Regexp.escape(path).gsub('\?', '?').gsub(/:(\w+)/) do |match|
+            keys << $1
+            patterns.key?($1) ? "(#{patterns[$1]})" : "([^/?&#\.]+)"
           end
           [path, /^#{pattern}$/, keys]
         elsif path.respond_to? :match

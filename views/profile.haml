@@ -1,4 +1,5 @@
 - title :profile_title.t(:user => @user.name)
+%h1&= title
 - if @user.anonymous?
   = :anonymous_profile.t
 - else

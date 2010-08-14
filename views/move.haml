@@ -1,4 +1,5 @@
 - title :move_page.t(:page => @resource.title)
+%h1&= title
 %form(action='#{action_path(@resource.path, :move)}' method='post')
   .fieldset
     = flash_messages

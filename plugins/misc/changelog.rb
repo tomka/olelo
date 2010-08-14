@@ -3,7 +3,7 @@ require     'rss/maker'
 
 class Olelo::Application
   hook :layout do |name, doc|
-    if @resource && !@resource.new?
+    if @resource
       doc.css('head').first << %{<link rel="alternate" href="/changelog.atom" type="application/atom+xml" title="Sitewide Atom Changelog"/>
                                   <link rel="alternate" href="/changelog.rss" type="application/rss+xml" title="Sitewide RSS Changelog"/>}.unindent
       doc.css('head').first << %{<link rel="alternate" href="#{escape_html((@resource.path/'changelog.atom').urlpath)}" type="application/atom+xml"

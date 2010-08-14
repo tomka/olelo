@@ -1,20 +1,20 @@
 !!! 5
-%html.no-js{:xmlns=>"http://www.w3.org/1999/xhtml", 'xmlns:esi' => 'http://www.edge-delivery.org/esi/1.0',
-      'xml:lang' => Olelo::Config.locale.sub('_', '-'), :class => @resource && !@resource.current? ? 'timemachine' : nil}
+%html.no-js{:xmlns=>'http://www.w3.org/1999/xhtml', 'xml:lang' => Olelo::Config.locale.sub('_', '-'),
+            :class => @resource && !@resource.current? ? 'archive' : nil}
   %head
-    %title&= Olelo::Config.title + ' - ' + blocks[:title]
+    %title&= Olelo::Config.title + ' - ' + title
     = theme_links
-    %link(rel='shortcut icon' href='/static/images/favicon.png' type='image/png')
+    %link(rel='shortcut icon' href='/static/images/favicon.png?1' type='image/png')
   %body
     #header
       %h1&= Olelo::Config.title
       #info
-        - if @user.anonymous?
-          &= @user.name
+        - if user.anonymous?
+          &= user.name
           |
           %a(href='/login')= :login.t
         - else
-          %a(href='/profile')&= @user.name
+          %a(href='/profile')&= user.name
           |
           %a(href='/logout')= :logout.t
       #search
@@ -25,14 +25,12 @@
     #menu= render(:menu, :layout => false)
     #container
       #sidebar
-      #content
-        %h1&= blocks[:title]
-        #page= yield
+      #content= yield
     #footer
       #themes.noprint
-      = blocks[:footer]
+      = footer
       .noprint.powered_by
         Powered by
         %a(href='http://github.com/minad/olelo') Ōlelo
-        | #{@timer.stop.elapsed_ms}ms
-    %script(src='/static/script.js' type='text/javascript')
+        | #{timer.stop.elapsed_ms}ms
+    %script(src='/static/script.js?3' type='text/javascript')

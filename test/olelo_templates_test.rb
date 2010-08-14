@@ -6,10 +6,20 @@ class Bacon::Context
   include Olelo::Templates
 end
 
+class TemplateLoader
+  def context
+    nil
+  end
+
+  def load(path)
+    Olelo::InlineFS.new(__FILE__).read(path)
+  end
+end
+
 describe 'Olelo::Templates' do
   before do
     Olelo::Templates.enable_caching
-    Olelo::Templates.make_fs = proc { Olelo::InlineFS.new(__FILE__) }
+    Olelo::Templates.loader = TemplateLoader.new
   end
 
   after do

@@ -87,8 +87,8 @@ class Olelo::Application
 end
 
 __END__
-
 @@ access_denied.haml
 - title 'Access denied'
+%h1 Access denied
 Access denied. Please
 %a(href='/login') login.

@@ -11,7 +11,7 @@ end
 __END__
 @@ system.haml
 - title 'System Information'
-%h2 Runtime
+%h1 System Information
 %table.zebra
   %tr
     %td Ruby version:

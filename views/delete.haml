@@ -1,4 +1,5 @@
 - title :delete_page.t(:page => @resource.title)
+%h1&= title
 %form(action='#{@resource.path.urlpath}' method='post')
   .fieldset
     %input(type='hidden' name='_method' value='delete')

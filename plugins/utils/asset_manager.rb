@@ -9,13 +9,13 @@ module Olelo::AssetManager
 
     def register_assets(*files)
       base = File.dirname(Plugin.current(1).name)
-      make_fs.glob(*files) {|fs, file| assets[base/file] = [fs, file] }
+      fs.glob(*files) {|fs, file| assets[base/file] = [fs, file] }
     end
 
     def register_scripts(*files)
       options = files.last.is_a?(Hash) ? files.pop : {}
       priority = options[:priority] || 99
-      make_fs.glob(*files) do |fs, file|
+      fs.glob(*files) do |fs, file|
         type = %w(js css).find {|ext| file.ends_with? ext }
         raise 'Invalid script type' if !type
         (scripts[type] ||= []) << [priority, fs.mtime(file), fs.read(file)]
@@ -24,7 +24,7 @@ module Olelo::AssetManager
 
     private
 
-    def make_fs
+    def fs
       file = Plugin.current(2).file
       UnionFS.new(Config.production? ? CacheInlineFS.new(file) : InlineFS.new(file), DirectoryFS.new(File.dirname(file)))
     end
@@ -33,8 +33,10 @@ end
 
 class Olelo::Application
   hook :layout, 1 do |name, doc|
-    doc.css('head').first << '<link rel="stylesheet" href="/_/assets/assets.css" type="text/css"/>' if AssetManager.assets['assets.css']
-    doc.css('body').first << '<script src="/_/assets/assets.js" type="text/javascript"/>' if AssetManager.assets['assets.js']
+    asset = AssetManager.assets['assets.css']
+    doc.css('head').first << %{<link rel="stylesheet" href="/_/assets/assets.css?#{asset[2].to_i}" type="text/css"/>} if asset
+    asset = AssetManager.assets['assets.js']
+    doc.css('body').first << %{<script src="/_/assets/assets.js?#{asset[2].to_i}" type="text/javascript"/>} if asset
   end
 
   get "/_/assets/:name", :name => '.*' do

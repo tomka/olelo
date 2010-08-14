@@ -1,0 +1,7 @@
+- title "#{:compare.t(:name => @resource.title)}: #{@diff.from.short} -> #{@diff.to.short}"
+%h1
+  #{:compare.t(:name => @resource.title)}:
+  %a.version{:href=>resource_path(@resource, :version => @diff.from)}= @diff.from.short
+  &#8594;
+  %a.version{:href=>resource_path(@resource, :version => @diff.to)}= @diff.to.short
+~ format_diff(@diff)

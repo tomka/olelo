@@ -26,6 +26,10 @@ body {
 
 @include headlines;
 
+h1 {
+  margin-top: 0;
+}
+
 strong {
   font-weight: bold;
 }
@@ -359,9 +363,6 @@ table input {
 }
 
 .js .tabs {
-  .tabs-hide {
-    display: none;
-  }
   > ul {
     @include list-bar;
     margin: 0 0 1px 0;
@@ -380,7 +381,7 @@ table input {
       height: 1.5em;
       line-height: 1.5em;
       border: $border;
-      &.tabs-selected > a {
+      &.selected > a {
         @include rounded-tl;
         @include rounded-tr;
         background: $main_bg;
@@ -437,7 +438,7 @@ table input {
   }
 }
 
-.timemachine #header {
+.archive #header {
   background: $header_bg2;
   h1 {
       color: #eeeeee;

@@ -6,4 +6,5 @@
   = :version.t
   %a.version{:href => resource_path(@resource, :version => @resource.version), :title => @resource.version }= @resource.version.short
   = "#{:by.t} #{@resource.version.author.name}, #{date @resource.version.date}"
+%h1&= title
 ~ content

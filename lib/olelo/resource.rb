@@ -77,8 +77,7 @@ module Olelo
   class Resource
     include Util
 
-    PATH_PATTERN = '(?:[^\s](?:.*[^\s]+)?)?'
-    PATH_REGEXP  = /^#{PATH_PATTERN}$/
+    PATH_PATTERN = '[^\s](?:.*[^\s]+)?'
 
     attr_reader :path, :tree_version
     attr_reader? :current
@@ -98,7 +97,7 @@ module Olelo
     def self.find(path, tree_version = nil)
       path = path.to_s.cleanpath
 
-      raise :invalid_path.t if path !~ PATH_REGEXP
+      raise :invalid_path.t if !path.blank? && path !~ /^#{PATH_PATTERN}$/
 
       p = path.split('/')
       raise :invalid_path.t if Namespace.namespaces.any? do |ns|
@@ -142,13 +141,11 @@ module Olelo
 
     def move(destination)
       destination = destination.to_s.cleanpath
-      check_modifiable
       raise :already_exists.t(:path => destination) if Resource.find(destination)
       Repository.instance.move(self, destination)
     end
 
     def delete
-      check_modifiable
       Repository.instance.delete(self)
     end
 
@@ -205,10 +202,6 @@ module Olelo
     end
 
     protected
-
-    def check_modifiable
-      raise 'Tree not current' if !current?
-    end
 
     def init_versions
       if !@version && @tree_version

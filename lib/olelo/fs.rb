@@ -1,46 +1,40 @@
 # -*- coding: utf-8 -*-
 module Olelo
-  class DirectoryFS < Struct.new(:dir)
-    def fs_id
-      "D<#{dir}>"
+  class DirectoryFS
+    def initialize(dir)
+      @dir = dir
     end
 
     def read(name)
-      raise IOError if !dir
-      File.read(File.join(dir, name))
+      File.read(File.join(@dir, name))
     end
 
     def glob(*names)
-      return [] if !dir
       names.map do |name|
-        Dir[File.join(dir, name)].select {|f| File.file?(f) }
-      end.flatten.each {|f| yield(self, f[dir.length+1..-1]) }
+        Dir[File.join(@dir, name)].select {|f| File.file?(f) }
+      end.flatten.each {|f| yield(self, f[@dir.length+1..-1]) }
     end
 
     def open(name)
-      raise IOError if !dir
-      BlockFile.open(File.join(dir, name), 'rb')
+      BlockFile.open(File.join(@dir, name), 'rb')
     end
 
     def mtime(name)
-      raise IOError if !dir
-      File.mtime(File.join(dir, name))
+      File.mtime(File.join(@dir, name))
     end
 
     def size(name)
-      raise IOError if !dir
-      File.stat(File.join(dir, name)).size
+      File.stat(File.join(@dir, name)).size
     end
   end
 
-  class InlineFS < Struct.new(:file)
-    def fs_id
-      "I<#{file}>"
+  class InlineFS
+    def initialize(file)
+      @file = file
     end
 
     def read(name)
-      raise IOError if !file
-      code, data = File.read(file).split('__END__')
+      code, data = File.read(@file).split('__END__')
       content = nil
       data.to_s.each_line do |line|
         if line =~ /^@@\s*([^\s]+)\s*/
@@ -57,8 +51,7 @@ module Olelo
     end
 
     def glob(*names)
-      return [] if !file
-      code, data = File.read(file).split('__END__')
+      code, data = File.read(@file).split('__END__')
       data.to_s.each_line do |line|
         yield(self, $1) if line =~ /^@@\s*([^\s]+)\s*/ && names.any? {|pattern| File.fnmatch(pattern, $1) }
       end
@@ -69,8 +62,7 @@ module Olelo
     end
 
     def mtime(name)
-      raise IOError if !file
-      File.mtime(file)
+      File.mtime(@file)
     end
 
     def size(name)
@@ -88,10 +80,6 @@ module Olelo
   class UnionFS
     def initialize(*fs)
       @fs = fs
-    end
-
-    def fs_id
-      "U<#{@fs.map(&:fs_id).join(' ')}>"
     end
 
     def glob(*names, &block)
