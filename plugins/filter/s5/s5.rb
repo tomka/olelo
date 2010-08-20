@@ -10,7 +10,7 @@ class S5 < XSLT
     themes = Dir.glob(File.join(File.dirname(__FILE__), 'ui', '*')).map {|name| File.basename(name) }
     themes.delete('common')
     themes.delete('default')
-    super.merge(:themes => 'default ' + themes.join(' '), :s5_path => '/_/assets/filter/s5/')
+    super.merge(:themes => 'default ' + themes.join(' '), :s5_path => absolute_path('_/assets/filter/s5/'))
   end
 end
 

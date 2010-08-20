@@ -7,17 +7,17 @@ end
 INTERWIKI_REGEX = %r{^/?(#{interwiki.keys.join('|')}):(.+)$}
 
 module Olelo::PageHelper
-  alias resource_path_without_interwiki resource_path
+  alias page_path_without_interwiki page_path
 
-  def resource_path(resource, opts = {})
+  def page_path(page, opts = {})
     if opts[:path] =~ INTERWIKI_REGEX
-      opts[:path].urlpath
+      absolute_path(opts[:path])
     else
-      resource_path_without_interwiki(resource, opts)
+      page_path_without_interwiki(page, opts)
     end
   end
 end
 
-Application.get INTERWIKI_REGEX do
-  redirect(Plugin.current.interwiki[params[:captures][0]] + params[:captures][1])
+Application.get '/:interwiki::page', :interwiki => interwiki.keys.join('|'), :page => '.*' do
+  redirect(Plugin.current.interwiki[params[:interwiki]] + params[:page])
 end

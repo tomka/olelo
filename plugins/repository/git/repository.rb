@@ -16,6 +16,9 @@ end
 class GitRepository < Repository
   attr_reader :git
 
+  CONTENT_FILE   = 'content'
+  ATTRIBUTE_FILE = 'attributes'
+
   def initialize(config)
     logger = Plugin.current.logger
     logger.info "Opening git repository: #{config.path}"
@@ -35,16 +38,12 @@ class GitRepository < Repository
     @current_transaction.delete(Thread.current.object_id)
   end
 
-  def find_resource(path, tree_version, current, klass = nil)
+  def find_page(path, tree_version, current)
     commit = !tree_version.blank? ? git.get_commit(tree_version.to_s) : git.head
     return nil if !commit
     object = commit.tree[path]
     return nil if !object
-    if klass
-      klass.ancestors.include?(object_class(object.type)) ? klass.new(path, commit.to_olelo, current) : nil
-    else
-      object_class(object.type).new(path, commit.to_olelo, current)
-    end
+    Page.new(path, commit.to_olelo, current)
   rescue
     nil
   end
@@ -55,46 +54,69 @@ class GitRepository < Repository
     nil
   end
 
-  def history(resource)
-    git.log(30, nil, resource.path).map(&:to_olelo)
+  def load_history(page, skip, limit)
+    git.log(:max_count => limit, :skip => skip, :path => page.path).map(&:to_olelo)
   end
 
-  def version(resource)
-    commits = git.log(2, resource.tree_version, resource.path)
+  def load_version(page)
+    commits = git.log(:max_count => 2, :start => page.tree_version, :path => page.path)
 
     child = nil
-    git.git_rev_list('--reverse', '--remove-empty', "#{commits[0]}..", '--', resource.path) do |io|
+    git.git_rev_list('--reverse', '--remove-empty', "#{commits[0]}..", '--', page.path) do |io|
       child = io.eof? ? nil : git.get_commit(git.set_encoding(io.readline).strip)
     end rescue nil # no error because pipe is closed intentionally
 
     [commits[1] ? commits[1].to_olelo : nil, commits[0].to_olelo, child ? child.to_olelo : nil]
   end
 
-  def children(resource)
-    git.get_commit(resource.tree_version.to_s).tree[resource.path].map do |name, child|
-      object_class(child.type).new(resource.path/name, resource.tree_version, resource.current?)
+  def children(page)
+    object = git.get_commit(page.tree_version.to_s).tree[page.path]
+    if object.type == :tree
+      object.map do |name, child|
+        if name != CONTENT_FILE || name != ATTRIBUTE_FILE
+          Page.new(page.path/name, page.tree_version, page.current?)
+        end
+      end.compact
+    else
+      []
     end
   end
 
-  def read(resource)
-    git.get_commit(resource.tree_version.to_s).tree[resource.path].data
+  def load_content(page)
+    object = git.get_commit(page.tree_version.to_s).tree[page.path]
+    object = object[CONTENT_FILE] if object.type == :tree
+    if object
+      content = object.data
+      if content.respond_to? :force_encoding
+        content.force_encoding(__ENCODING__)
+        content.force_encoding(Encoding::BINARY) if !content.valid_encoding?
+      end
+      content
+    end
   end
 
-  def write(resource, content)
+  def load_attributes(page)
+    object = git.get_commit(page.tree_version.to_s).tree[page.path]
+    object = object.type == :tree ? object[ATTRIBUTE_FILE] : nil
+    object ? YAML.load(object.data) : {}
+  end
+
+  def save(page)
+    # TODO
     # FIXME: Gitrb should handle files directly
-    content = content.read if content.respond_to? :read
-    git.root[resource.path] = Gitrb::Blob.new(:data => content)
-    current_transaction << proc {|tree_version| resource.committed(resource.path, tree_version) }
+    #content = content.read if content.respond_to? :read
+    #git.root[page.path] = Gitrb::Blob.new(:data => content)
+    #current_transaction << proc {|tree_version| page.committed(page.path, tree_version) }
   end
 
-  def move(resource, destination)
-    git.root.move(resource.path, destination)
-    current_transaction << proc {|tree_version| resource.committed(destination, tree_version) }
+  def move(page, destination)
+    git.root.move(page.path, destination)
+    current_transaction << proc {|tree_version| page.committed(destination, tree_version) }
   end
 
-  def delete(resource)
-    git.root.delete(resource.path)
-    current_transaction << proc { resource.committed(resource.path, nil) }
+  def delete(page)
+    git.root.delete(page.path)
+    current_transaction << proc { page.committed(page.path, nil) }
   end
 
   def diff(from, to, path = nil)
@@ -114,12 +136,6 @@ class GitRepository < Repository
   end
 
   private
-
-  CLASSES = {:blob => Page, :tree => Tree}
-
-  def object_class(type)
-    CLASSES[type] || raise("Invalid object type: #{type}")
-  end
 
   def current_transaction
     @current_transaction[Thread.current.object_id] || raise('No transaction running')

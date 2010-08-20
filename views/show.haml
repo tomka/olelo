@@ -1,10 +1,10 @@
-- title @resource.title
+- title page.title
 - footer do
   %span.noprint
-    %a{:href=> resource_path(@resource, :version => @resource.version) }= :permalink.t
+    %a{:href=> page_path(page, :version => page.version) }= :permalink.t
     |
   = :version.t
-  %a.version{:href => resource_path(@resource, :version => @resource.version), :title => @resource.version }= @resource.version.short
-  = "#{:by.t} #{@resource.version.author.name}, #{date @resource.version.date}"
+  %a.version{:href => page_path(page, :version => page.version), :title => page.version }= page.version.short
+  = "#{:by.t} #{page.version.author.name}, #{date page.version.date}"
 %h1&= title
 ~ content

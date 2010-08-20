@@ -62,5 +62,5 @@ __END__
   - @matches.each do |path, content|
     .match
       %h2
-        %a.name{:href => path.urlpath}= emphasize(path)
+        %a.name{:href => absolute_path path}= emphasize(path)
       .content= emphasize(content)

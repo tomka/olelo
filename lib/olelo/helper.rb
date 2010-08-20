@@ -42,15 +42,15 @@ module Olelo
   module PageHelper
     include Util
 
-    def pagination(resource, last_page, page, opts)
+    def pagination(path, last_page, page_nr, opts = {})
       if last_page > 0
         li = []
-        if page > 0
-          li << %{<a href="#{escape_html resource_path(resource, opts.merge(:page => 0))}">«</a>}
-          li << %{<a href="#{escape_html resource_path(resource, opts.merge(:page => page - 1))}">‹</a>}
+        if page_nr > 0
+          li << %{<a href="#{escape_html absolute_path(path, opts.merge(:page => 0))}">«</a>}
+          li << %{<a href="#{escape_html absolute_path(path, opts.merge(:page => page_nr - 1))}">‹</a>}
         end
-        min = page - 3
-        max = page + 3
+        min = page_nr - 3
+        max = page_nr + 3
         if min > 0
           min -= max - last_page if max > last_page
         else
@@ -60,16 +60,16 @@ module Olelo
         min = [min, 0].max
         li << '…' if min != 0
         (min..max).each do |i|
-          if i == page
+          if i == page_nr
             li << %{<a class="current" href="#">#{i + 1}</a>}
           else
-            li << %{<a href="#{escape_html resource_path(resource, opts.merge(:page => i))}">#{i + 1}</a>}
+            li << %{<a href="#{escape_html absolute_path(path, opts.merge(:page => i))}">#{i + 1}</a>}
           end
         end
         li << '…' if max != last_page
-        if page < last_page
-          li << %{<a href="#{escape_html resource_path(resource, opts.merge(:page => page + 1))}">›</a>}
-          li << %{<a href="#{escape_html resource_path(resource, opts.merge(:page => last_page))}">»</a>}
+        if page_nr < last_page
+          li << %{<a href="#{escape_html absolute_path(path, opts.merge(:page => page_nr + 1))}">›</a>}
+          li << %{<a href="#{escape_html absolute_path(path, opts.merge(:page => last_page))}">»</a>}
         end
         '<ul class="pagination">' + li.map {|x| "<li>#{x}</li>"}.join + '</ul>'
       end
@@ -86,36 +86,38 @@ module Olelo
       summary.html + formatter.html
     end
 
-    def breadcrumbs(resource)
-      path = resource.try(:path) || ''
+    def breadcrumbs(page)
+      path = page.try(:path) || ''
       li = [%{<li class="first breadcrumb#{path.empty? ? ' last' : ''}">
-              <a accesskey="z" class="root" href="#{escape_html resource_path(resource, :path => '/')}">#{escape_html Olelo::Config.root_path}</a></li>}.unindent]
+              <a accesskey="z" class="root" href="#{escape_html page_path(page, :path => '/')}">#{escape_html :root.t}</a></li>}.unindent]
       path.split('/').inject('') do |parent,elem|
         current = parent/elem
         li << %{<li class="breadcrumb#{current == path ? ' last' : ''}">
-                <a href="#{escape_html resource_path(resource, :path => current.urlpath)}">#{escape_html elem}</a></li>}.unindent
+                <a href="#{escape_html page_path(page, :path => '/' + current)}">#{escape_html elem}</a></li>}.unindent
         current
       end
       li.join('<li class="breadcrumb">/</li>')
     end
 
-    def resource_path(resource, opts = {})
-      version = opts.delete(:version) || (resource && !resource.current? && resource.tree_version) || ''
-      if path = opts.delete(:path)
-        if !path.begins_with? '/'
-          path = resource.page? ? resource.path/'..'/path : resource.path/path
-        end
-      else
-        path = resource.path
-      end
-      path = (version.blank? ? path : path/'version'/version).urlpath
-      path << '?' << build_query(opts) if !opts.empty?
+    def absolute_path(path, opts = {})
+      path = '/' + Config.base_path/(path.try(:path) || path).to_s
+      path += '?' + build_query(opts) if !opts.empty?
       path
     end
 
+    def page_path(page, opts = {})
+      version = opts.delete(:version) || (page && !page.current? && page.tree_version) || ''
+      if path = opts.delete(:path)
+        path = page.path/'..'/path if !path.begins_with? '/'
+      else
+        path = page.path
+      end
+      path = path/'version'/version if !version.blank?
+      absolute_path(path, opts)
+    end
+
     def action_path(path, action)
-      path = path.try(:path) || path
-      (path.to_s/action.to_s).urlpath
+      absolute_path((path.try(:path) || path).to_s / action.to_s)
     end
 
     def edit_content(page)
@@ -123,8 +125,10 @@ module Olelo
         params[:content]
       elsif page.content.respond_to?(:encoding) && page.content.encoding != __ENCODING__
 	:error_binary.t(:page => page.path, :type => "#{page.mime.comment} (#{page.mime})")
+      elsif params[:pos]
+        page.content[params[:pos].to_i, params[:len].to_i].to_s
       else
-        page.content(params[:pos], params[:len])
+        page.content
       end
     end
   end
@@ -132,7 +136,7 @@ module Olelo
   module HttpHelper
     include Util
 
-    # Cache control for resource
+    # Cache control for page
     def cache_control(opts)
       return if !Config.production?
 

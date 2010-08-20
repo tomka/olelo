@@ -5,14 +5,15 @@ require      'yajl/json_gem'
 AssetManager.register_scripts '*.js', '*.css'
 AssetManager.register_assets '*.png', '*.gif'
 
-Engine.create('treeview.json', :hidden => true, :accepts => Tree::MIME, :cacheable => true, :mime => 'application/json; charset=utf-8') do
+Engine.create('treeview.json', :hidden => true, :cacheable => true, :mime => 'application/json; charset=utf-8') do
   def output(context)
     context.response['Content-Type'] = 'application/json'
-    # Format [[is-tree, has-children, classes, path, name], ...]
-    # Example: [[1, 1, 'tree', '/a/b', 'b'], ...]
-    context.tree.children.map do |child|
-      ext = !child.page? || child.extension.empty? ? '' : " file-type-#{child.extension.downcase}"
-      [child.tree? ? 1 : 0, child.tree? && !child.children.empty? ? 1 : 0, child.tree? ? 'tree' : 'page' + ext, resource_path(child), child.name]
+    # Format [[has-children, classes, path, name], ...]
+    # Example: [[0, 'file-type-pdf', '/a/b.pdf', 'b.pdf'], ...]
+    context.page.children.map do |child|
+      classes = child.children.empty? ? 'page' : 'tree'
+      classes << " file-type-#{child.extension.downcase}" if !child.extension.empty?
+      [child.children.empty? ? 0 : 1, classes, page_path(child), child.name]
     end.to_json
   end
 end

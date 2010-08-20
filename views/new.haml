@@ -4,7 +4,7 @@
   %ul
     = tab :new, :edit
     = tab :upload
-  %form(action='/' method='post' enctype='multipart/form-data')
+  %form(action='/' method='post')
     #tab-edit.box
       %h2= :edit.t
       %input(type='hidden' name='action' value='new')

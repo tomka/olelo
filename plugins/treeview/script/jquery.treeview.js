@@ -30,13 +30,13 @@
         }
 
         // Create child element.
-        // Data is array: [is-tree, has-children, classes, path, name]
+        // Data is array: [has-children, classes, path, name]
         function createChild(data) {
-            var path = data[3],
-                child = $('<li><div class="'+(data[1] ? 'hitarea collapsed' : 'placeholder')+
-                          '"><div class="arrow"/><div class="'+data[2]+'"/></div><a href="'+path+'">'+data[4]+'</a></li>'),
+            var path = data[2],
+                child = $('<li><div class="'+(data[0] ? 'hitarea collapsed' : 'placeholder')+
+                          '"><div class="arrow"/><div class="'+data[1]+'"/></div><a href="'+path+'">'+data[3]+'</a></li>'),
                 hitarea = child.children('.hitarea');
-            child.data('name', data[4]).data('tree', data[0] ? 1 : 0);
+            child.data('name', data[3]);
             hitarea.click(function() {
                 if (hitarea.hasClass('collapsed')) {
                     openTree(child, path);
@@ -82,7 +82,7 @@
 
                 var exists = {}, list = [];
                 $.each(data, function(i, child) {
-                    exists[child[4]] = child;
+                    exists[child[3]] = child;
                 });
                 $('> ul > li', element).each(function() {
                     var li = $(this), name = li.data('name');
@@ -95,7 +95,7 @@
                 $.each(exists, function(name, child) {
                     var inserted = false;
                     $.each(list, function(i, other) {
-		        if ((child[0] && !other.data('tree')) || (name < other.data('name') && child[0] == other.data('tree'))) {
+		        if (name < other.data('name')) {
                             inserted = true;
                             other.before(createChild(child));
                             return false;

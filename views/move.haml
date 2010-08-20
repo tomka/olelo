@@ -1,13 +1,10 @@
-- title :move_page.t(:page => @resource.title)
+- title :move_page.t(:page => page.title)
 %h1&= title
-%form(action='#{action_path(@resource.path, :move)}' method='post')
+%form(action='#{action_path(page.path, :move)}' method='post')
   .fieldset
     = flash_messages
     %label(for='destination')= :destination.t
-    %input#destination(name='destination' type='text' value='#{params[:destination] || @resource.path}')
-    %br
-    %label(for='create-redirect')= :create_redirect.t
-    %input#create-redirect(name='create_redirect' type='checkbox' value='1' checked='true')
+    %input#destination(name='destination' type='text' value='#{params[:destination] || page.path}')
     %br
     %button(type='submit' accesskey='m')= :move.t
     %button(type='button' accesskey='c' onclick='history.back()')= :cancel.t

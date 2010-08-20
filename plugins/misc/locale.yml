@@ -1,8 +1,0 @@
-en:
-  discussion: 'Discussion'
-  discussion_title: 'Discussion about #{name}'
-  discussion_metadata_title: 'Metadata of Discussion page #{name}'
-de:
-  discussion: 'Diskussion'
-  discussion_title: 'Diskussion über #{name}'
-  discussion_metadata_title: 'Metadaten von Diskussionsseite #{name}'

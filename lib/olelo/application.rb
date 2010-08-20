@@ -7,9 +7,9 @@ module Olelo
     include Templates
     include ApplicationHelper
 
-    patterns :path => Resource::PATH_PATTERN
-    attr_reader :logger, :user, :theme_links, :timer
-    attr_setter :on_error, :redirect_to_new
+    patterns :path => Page::PATH_PATTERN
+    attr_reader :logger, :user, :theme_links, :timer, :page
+    attr_setter :on_error
 
     def user=(user)
       @user = user
@@ -24,15 +24,13 @@ module Olelo
       @app = app
       @logger = opts[:logger] || Logger.new(nil)
 
-      String.root_path = Config.root_path
-
       init_locale
       init_templates
       init_plugins
       init_themes
+      init_routes
+      invoke_hook(:start)
       run_initializers
-
-      logger.debug self.class.dump_routes
     end
 
     def init_locale
@@ -73,18 +71,15 @@ module Olelo
 
       # Load all plugins
       Plugin.load('*')
-
-      # Start loaded plugins
-      Plugin.start
     end
 
     def init_themes
       default = File.basename(File.readlink(File.join(Config.themes_path, 'default')))
       @theme_links = Dir.glob(File.join(Config.themes_path, '*', 'style.css')).map do |file|
         name = File.basename(File.dirname(file))
+        path = absolute_path "static/themes/#{name}/style.css?#{File.mtime(file).to_i}"
         %{<link rel="#{name == default ? '' : 'alternate '}stylesheet"
-          href="/static/themes/#{name}/style.css?#{File.mtime(file).to_i}"
-          type="text/css" title="#{name}"/>}.unindent if name != 'default'
+          href="#{escape_html path}" type="text/css" title="#{escape_html name}"/>}.unindent if name != 'default'
       end.compact.join("\n")
     end
 
@@ -110,15 +105,8 @@ module Olelo
     # Handle 404s
     hook NotFound do |error|
       logger.debug(error)
-      if redirect_to_new
-        # Redirect to create new page if flag is set
-        path = (params[:path].to_s/'new').urlpath
-        path += '?' + request.query_string if !request.query_string.blank?
-        redirect path
-      else
-        cache_control :no_cache => true
-        halt render(:not_found, :locals => {:error => error})
-      end
+      cache_control :no_cache => true
+      halt render(:not_found, :locals => {:error => error})
     end
 
     hook StandardError do |error|
@@ -175,153 +163,174 @@ module Olelo
       render :profile
     end
 
-    get '/?:path?/changes/:version' do
-      @resource = Resource.find!(params[:path])
+    get '(/:path)/changes/:version' do
+      @page = Page.find!(params[:path])
       @version = Version.find!(params[:version])
-      @diff = @resource.diff(nil, @version)
+      @diff = @page.diff(nil, @version)
       cache_control :etag => @version, :last_modified => @version.date
       render :changes
     end
 
-    get '/?:path?/history' do
-      @resource = Resource.find!(params[:path])
-      cache_control :etag => @resource.version, :last_modified => @resource.version.date
-      render :history
+    get '(/:path)/history' do
+      @page = Page.find!(params[:path])
+      @per_page = 30
+      @page_nr = params[:page].to_i
+      @history = page.history(@page_nr * @per_page)
+      @last_page = @page_nr + @history.length / @per_page
+      @history = @history[0...@per_page]
+      cache_control :etag => @page.version, :last_modified => @page.version.date
+      render :history, :layout => !request.xhr?
     end
 
     get '/:path/move' do
-      @resource = Resource.find!(params[:path])
+      @page = Page.find!(params[:path])
       render :move
     end
 
     get '/:path/delete' do
-      @resource = Resource.find!(params[:path])
+      @page = Page.find!(params[:path])
       render :delete
     end
 
     post '/:path/move' do
       on_error :move
-      Resource.transaction(:resource_moved.t(:path => params[:path].cleanpath, :destination => params[:destination].cleanpath), user) do
-        @resource = Resource.find!(params[:path])
-        with_hooks(:move, @resource, params[:destination]) do
-          @resource.move(params[:destination])
-          Page.new(@resource.path).write("redirect: #{params[:destination].urlpath}") rescue nil if params[:create_redirect]
+      Page.transaction(:page_moved.t(:path => params[:path].cleanpath, :destination => params[:destination].cleanpath), user) do
+        @page = Page.find!(params[:path])
+        with_hooks(:move, @page, params[:destination]) do
+          @page.move(params[:destination])
         end
       end
-      redirect @resource.path.urlpath
+      redirect absolute_path(@page)
     end
 
-    delete '/:path' do
-      pass if reserved_path?(params[:path])
-      Resource.transaction(:resource_deleted.t(:path => params[:path].cleanpath), user) do
-        @resource = Resource.find!(params[:path])
-        with_hooks(:delete, @resource) do
-          @resource.delete
-        end
-      end
-      render :deleted
+    get '(/:path)/compare' do
+      versions = params[:versions] || []
+      redirect absolute_path(versions.size < 2 ? "#{params[:path]}/history" :
+                             "#{params[:path]}/compare/#{versions.first}...#{versions.last}")
     end
 
-    get '/?:path?/compare' do
-      @resource = Resource.find!(params[:path])
-      raise ArgumentError if !params[:from] || !params[:to]
-      @diff = @resource.diff(params[:from], params[:to])
+    get '(/:path)/compare/:versions', :versions => '(?:\w+)\.{2,3}(?:\w+)' do
+      @page = Page.find!(params[:path])
+      versions = params[:versions].split(/\.{2,3}/)
+      @diff = @page.diff(versions.first, versions.last)
       render :compare
     end
 
-    get '/:path/edit' do
-      redirect_to_new(true)
-      @resource = Page.find!(params[:path])
-      flash.warn :warn_binary.t(:page => @resource.path,
-                                :type => "#{@resource.mime.comment} (#{@resource.mime})") if @resource.content =~ /[^[:print:][:space:]]/
+    get '(/:path)/edit' do
+      @page = Page.find!(params[:path])
+      flash.warn :warn_binary.t(:page => @page.path,
+                                :type => "#{@page.mime.comment} (#{@page.mime})") if @page.content =~ /[^[:print:][:space:]]/
       render :edit
     end
 
-    get '/?:path?/new' do
-      @resource = Resource.find(params[:path])
-      if @resource
-        redirect((params[:path]/'edit').urlpath) if @resource.page?
-        params[:path] = @resource.root? ? @resource.path : @resource.path + '/'
-      end
+    get '(/:path)/new' do
+      @page = Page.find(params[:path])
+      redirect action_path(@page, :edit) if @page
       flash.error :reserved_path.t if reserved_path?(params[:path])
       render :new
     end
 
-    get '/?:path?/version/?:version?', '/:path', '/' do
-      begin
-        pass if reserved_path?(params[:path])
-        @resource = Resource.find!(params[:path], params[:version])
-        cache_control :etag => @resource.version, :last_modified => @resource.version.date
-        @menu_versions = true
-        with_hooks(:show) do
-          halt render(:show, :locals => {:content => @resource.try(:content)})
+    def self.final_routes
+      get '(/:path)/version(/:version)|/(:path)' do
+        begin
+          @page = Page.find!(params[:path], params[:version])
+          cache_control :etag => @page.version, :last_modified => @page.version.date
+          @menu_versions = true
+          with_hooks(:show) do
+            halt render(:show, :locals => {:content => @page.try(:content)})
+          end
+        rescue NotFound
+          redirect absolute_path(params[:path].to_s/'new') if params[:version].blank?
+          raise
         end
-      rescue NotFound
-        redirect_to_new params[:version].blank?
-        pass
+      end
+
+      delete '/:path' do
+        Page.transaction(:page_deleted.t(:path => params[:path].cleanpath), user) do
+          @page = Page.find!(params[:path])
+          with_hooks(:delete, @page) do
+            @page.delete
+          end
+        end
+        render :deleted
+      end
+
+      # Edit form sends put requests
+      put '/:path' do
+        @page = Page.find!(params[:path])
+
+        on_error :edit
+
+        # TODO: Implement conflict diffs
+        raise :version_conflict.t if @page.version.to_s != params[:version]
+
+        if action?(:upload) && params[:file]
+          with_hooks :save, @page do
+            Page.transaction(:page_uploaded.t(:path => params[:path].cleanpath), user) do
+              page.content = params[:file][:tempfile]
+              @page.save
+            end
+          end
+        elsif action?(:edit) && params[:content]
+          with_hooks :save, @page do
+            raise :empty_comment.t if params[:comment].blank?
+            Page.transaction(:page_edited.t(:path => @page.path, :comment => params[:comment]), user) do
+              @page.content = if params[:pos]
+                                [@page.content[0, params[:pos].to_i].to_s,
+                                 params[:content],
+                                 @page.content[params[:pos].to_i + params[:len].to_i .. -1]].join
+                              else
+                                params[:content]
+                              end
+              @page.save
+            end
+          end
+        else
+          redirect action_path(@page, :edit)
+        end
+        redirect absolute_path(@page)
+      end
+
+      # New form sends put requests
+      post '/(:path)' do
+        on_error :new
+        page = Page.new(params[:path])
+
+        if action?(:upload) && params[:file]
+          with_hooks :save, page do
+            Page.transaction(:page_uploaded.t(:path => page.path), user) do
+              page.content = params[:file][:tempfile]
+              page.save
+            end
+          end
+        elsif action?(:new)
+          with_hooks :save, page do
+            raise :empty_comment.t if params[:comment].blank?
+            Page.transaction(:page_edited.t(:path => page.path, :comment => params[:comment]), user) do
+              page.content = params[:content]
+              page.save
+            end
+          end
+        else
+          redirect '/new'
+        end
+
+        redirect absolute_path(page)
       end
     end
 
-    # Edit form sends put requests
-    put '/:path' do
-      @resource = Page.find!(params[:path])
-
-      on_error :edit
-
-      # TODO: Implement conflict diffs
-      raise :version_conflict.t if @resource.version.to_s != params[:version]
-
-      if action?(:upload) && params[:file]
-        with_hooks :save, @resource do
-          Resource.transaction(:page_uploaded.t(:path => params[:path].cleanpath), user) do
-            @resource.write(params[:file][:tempfile])
-          end
+    def init_routes
+      @reserved_paths = self.class.router.map do |method, router|
+        router.map { |name, pattern, keys| [pattern, /#{pattern.source[0..-2]}/] }
+      end.flatten
+      self.class.final_routes
+      invoke_hook(:final_routes)
+      self.class.router.each do |method, router|
+        logger.debug method
+        router.each do |name, pattern, keys|
+          logger.debug "#{name} -> #{pattern.source}"
         end
-      elsif action?(:edit) && params[:content]
-        with_hooks :save, @resource do
-          raise :empty_comment.t if params[:comment].blank?
-          Resource.transaction(:page_edited.t(:path => @resource.path, :comment => params[:comment]), user) do
-            content = if params[:pos]
-                        pos = [[0, params[:pos].to_i].max, @resource.content.size].min
-                        len = [0, params[:len].to_i].max
-                        [@resource.content(0, pos), params[:content], @resource.content(pos + len, @resource.content.size)].join
-                      else
-                        params[:content]
-                      end
-            @resource.write(content)
-          end
-        end
-      else
-        redirect((params[:path]/'edit').urlpath)
-      end
-      redirect @resource.path.urlpath
-    end
-
-    # New form sends post request
-    post '/', '/:path' do
-      pass if reserved_path?(params[:path])
-
-      on_error :new
-      resource = Page.new(params[:path])
-
-      if action?(:upload) && params[:file]
-        with_hooks :save, resource do
-          Resource.transaction(:page_uploaded.t(:path => resource.path), user) do
-            resource.write(params[:file][:tempfile])
-          end
-        end
-      elsif action?(:new)
-        with_hooks :save, resource do
-          raise :empty_comment.t if params[:comment].blank?
-          Resource.transaction(:page_edited.t(:path => resource.path, :comment => params[:comment]), user) do
-            resource.write(params[:content])
-          end
-        end
-      else
-        redirect '/new'
-      end
-
-      redirect resource.path.urlpath
+      end if logger.debug?
     end
 
     private
@@ -336,13 +345,7 @@ module Olelo
     end
 
     def reserved_path?(path)
-      path = path.to_s.urlpath
-      self.class.routes.any? do |method, routes|
-        routes.any? do |name,pattern|
-          name != '/' && name != '/:path' && (path =~ pattern || path =~ /#{pattern.source[0..-2]}\//)
-        end
-      end
+      @reserved_paths.any? {|pattern| path =~ pattern }
     end
-
   end
 end

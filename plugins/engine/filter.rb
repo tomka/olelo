@@ -7,13 +7,11 @@ class Olelo::Filter
   extend Factory
 
   attr_reader :options
-  attr_accessor :sub, :post
+  attr_accessor :sub, :previous
 
   class MandatoryFilterNotFound < NameError; end
 
   def initialize(options)
-    @sub = nil
-    @post = nil
     @options = options
   end
 
@@ -26,8 +24,8 @@ class Olelo::Filter
   end
 
   def call!(context, content)
-    content = filter(context, content)
-    post ? post.call(context, content) : content
+    content = previous ? previous.call(context, content) : content
+    filter(context, content)
   end
 
   def self.create(name, &block)
@@ -37,9 +35,9 @@ class Olelo::Filter
   end
 
   class Builder
-    def initialize(name)
+    def initialize(name, filter = nil)
       @name = name
-      @filter = []
+      @filter = filter
     end
 
     # Add optional filter
@@ -61,25 +59,23 @@ class Olelo::Filter
 
     def build(&block)
       instance_eval(&block)
-      @filter.first
+      @filter
     end
 
     private
 
     def add(name, mandatory, options = nil, &block)
-      filter = Filter[name] rescue nil
-      if filter
-        filter = filter.new((options || {}).with_indifferent_access)
-        @filter.last.post = filter if @filter.last
-        @filter << filter
-        filter.sub = Filter::Builder.new(@name).build(&block) if block
+      klass = Filter[name] rescue nil
+      if klass
+        @filter = klass.new((options || {}).with_indifferent_access).tap {|filter| filter.previous = @filter }
+        @filter.sub = Filter::Builder.new(@name).build(&block) if block
       else
         if mandatory
           raise MandatoryFilterNotFound, "Engine '#{@name}' not created because mandatory filter '#{name}' is not available"
         else
           Plugin.current.logger.warn "Optional filter '#{name}' not available"
         end
-        @filter << Filter::Builder.new(@name).build(&block) if block
+        @filter = Filter::Builder.new(@name, @filter).build(&block) if block
       end
       self
     end
@@ -117,7 +113,7 @@ class Olelo::FilterEngine < Engine
     def accepts(accepts);   @options[:accepts] = accepts; self; end
     def needs_layout;       @options[:layout] = true;     self; end
     def has_priority(prio); @options[:priority] = prio;   self; end
-    def is_cacheable;       @options[:cacheable] = true;  self; end
+    def is_cacheable(prio); @options[:cacheable] = true;  self; end
   end
 
   class Registrator
@@ -139,7 +135,7 @@ class Olelo::FilterEngine < Engine
   end
 end
 
-def setup
+Application.hook :start do
   file = File.join(Config.config_path, 'engines.rb')
   FilterEngine::Registrator.new.instance_eval(File.read(file), file)
 end

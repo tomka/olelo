@@ -1,9 +1,6 @@
 require 'olelo/extensions'
 
 describe 'String extensions' do
-  before { String.root_path = 'root' }
-  after { String.root_path = nil }
-
   it 'should have unindent' do
     %{a
       b
@@ -25,24 +22,6 @@ describe 'String extensions' do
     '/a/b/c/../'.cleanpath.should.equal 'a/b'
     '/a/./b/../c/../d/./'.cleanpath.should.equal 'a/d'
     '1///2'.cleanpath.should.equal '1/2'
-    'root'.cleanpath.should.equal ''
-    '///root/1/../2'.cleanpath.should.equal '2'
-  end
-
-  it 'should have #urlpath' do
-    '/'.urlpath.should.equal '/'
-    '/a/b/c/../'.urlpath.should.equal '/a/b'
-    '/a/./b/../c/../d/./'.urlpath.should.equal '/a/d'
-    '1///2'.urlpath.should.equal '/1/2'
-    'root'.urlpath.should.equal '/'
-    '///root/1/../2'.urlpath.should.equal '/2'
-  end
-
-  it 'should have #root_path' do
-    'root'.cleanpath.should.equal ''
-    String.root_path = 'test'
-    'test'.cleanpath.should.equal ''
-    'root'.cleanpath.should.equal 'root'
   end
 
   it 'should have #truncate' do

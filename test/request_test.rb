@@ -24,16 +24,11 @@ describe 'requests' do
       :views_path        => File.join(@app_path, 'views'),
       :themes_path       => File.join(@app_path, 'static', 'themes'),
       :tmp_path          => File.join(@test_path, 'tmp'),
+      :base_path         => '/',
       :production        => true,
       :locale	         => 'en_US',
-      :root_path         => 'Root',
-      :index_page        => 'Index',
       :sidebar_page      => 'Sidebar',
       :external_images   => false,
-      :namespaces => {
-        :main       => ['', 'Metadata:'],
-        :discussion => ['Discussion:', 'DiscussionMetadata:']
-      },
       :authentication => {
         :service  => :yamlfile,
         :yamlfile => {
@@ -62,7 +57,6 @@ describe 'requests' do
 
     Olelo::Config.update(default_config)
     Olelo::Repository.instance = nil
-    Olelo::Namespace.reset
 
     FileUtils.mkpath Olelo::Config.tmp_path, :mode => 0755
     logger = Logger.new(File.join(@app_path, 'test.log'))
@@ -70,11 +64,13 @@ describe 'requests' do
     @app = Rack::Builder.new do
       run Olelo::Application.new(nil, :logger => logger)
     end
+
   end
 
   after do
     FileUtils.rm_rf(@test_path)
     @app = nil
+    Olelo::Filter.registry.clear
   end
 
   it 'should have empty repository' do
@@ -99,25 +95,22 @@ describe 'requests' do
     get '/not-existing'
     last_response.should.be.redirect
     last_response.location.should.equal '/not-existing/new'
-
-    get '/not-existing/edit'
-    last_response.should.be.redirect
-    last_response.location.should.equal '/not-existing/new'
   end
 
   it 'should not redirect to /new' do
-    get '/not-existing/history'
+    get '/not-existing/edit'
     last_response.should.be.not_found
 
-    get '/not-existing/compare'
+    get '/not-existing/history'
     last_response.should.be.not_found
   end
 
   it 'should create page' do
     data = {
-      'action' => 'new',
+      'action' => 'edit',
       'content' => 'Content of the Testpage',
-      'comment' => 'My Comment'
+      'comment' => 'My Comment',
+      'button' => 'close'
     }
     post('/Testfolder/Testpage', data)
 
@@ -142,9 +135,10 @@ describe 'requests' do
 
   it 'should create page with special characters' do
     data = {
-      'action' => 'new',
+      'action' => 'edit',
       'content' => 'すみませんわかりません',
-      'comment' => '测试'
+      'comment' => '测试',
+      'button' => 'close'
     }
     post(escape('/子供を公園/中文'), data)
     last_response.should.be.redirect

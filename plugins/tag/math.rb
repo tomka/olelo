@@ -88,7 +88,8 @@ class BlahtexImageRenderer < Renderer
   def render(code, display)
     content = Shell.run("blahtex --png --png-directory '#{directory}'", code.strip)
     content =~ %r{<md5>(.*)</md5>}m
-    %{<img src="/_/tag/math/blahtex/#{$1}.png" alt="#{escape_html code}" class="math #{display}"/>}
+    path = absolute_path "_/tag/math/blahtex/#{$1}.png"
+    %{<img src="#{escape_html path}" alt="#{escape_html code}" class="math #{display}"/>}
   end
 end
 
@@ -110,7 +111,7 @@ Renderer.registry = {
 
 Tag.define :math, :description => 'Render LaTeX' do |context, attrs, code|
   raise('Limits exceeded') if code.size > 10240
-  mode = attrs['mode'] || context.page.metadata['math'] || 'image'
+  mode = attrs['mode'] || context.page.attributes['math'] || 'image'
   Renderer.choose(mode).render(code, attrs['display'] == 'block' ? 'block' : 'inline')
 end
 

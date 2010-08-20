@@ -17,8 +17,8 @@ end
 __END__
 @@ info.haml
 %p
-  %a{:href => resource_path(@page, :output => 'image') }
-    %img{:src=> resource_path(@page, :output => 'image', :geometry => '640x480>'), :alt=>@page.name}
+  %a{:href => page_path(@page, :output => 'image') }
+    %img{:src=> page_path(@page, :output => 'image', :geometry => '640x480>'), :alt=>@page.name}
 %h3&= :information.t
 %table.zebra
   %tbody

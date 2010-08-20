@@ -17,28 +17,14 @@ locale:          'en_US'
 # Debugging mode disables caching and enables exception backtraces.
 production:      true
 
-# Path of the root directory.
-# Example: /Root is mapped to /
-root_path:       'Root'
-
-# Index pages are displayed instead of a directory view by default.
-# This configures the name of the index pages.
-# Examples: / displays the contents of /Index, /Directory displays the contents of /Directory/Index
-index_page:      'Index'
-
 # Page used for the sidebar. This can be a path.
 sidebar_page:    'Sidebar'
 
+# Use a different base directory as root to support installation in user homes
+base_path:      '/'
+
 # Allow embedding of external images.
 external_images: false
-
-# Namespace configuration
-# Every namespace is a list of two prefixes, the main prefix and the metadata prefix.
-# Example: 'Discussion:' and 'DiscussionMetadata:'
-# In the main namespace (default namespace) only the metadata pages are prefixed.
-namespaces:
-  main:       ['', 'Metadata:']
-  discussion: ['Discussion:', 'DiscussionMetadata:']
 
 # Temporary directory used for caches etc. Uncomment this!
 #tmp_path:        '/home/user/wiki/tmp'
@@ -101,8 +87,6 @@ disabled_plugins:
 rack:
   # Use the deflater to compress data (Rack::Deflater)
   deflater:      true
-  # Use a different base directory as root to support installation in user homes
-  rewrite_base:  ''
   # Specify a list of blacklisted ips which cannot post data
   blacklist:     []
 

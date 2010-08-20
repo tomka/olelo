@@ -37,36 +37,23 @@ __END__
     %td External images enabled:
     %td&= Olelo::Config.external_images?
   %tr
-    %td Root path:
-    %td
-      %a{:href=>Olelo::Config.root_path.urlpath}&= Olelo::Config.root_path
-  %tr
     %td Sidebar page:
     %td
-      %a{:href=>Olelo::Config.sidebar_page.urlpath}&= Olelo::Config.sidebar_page
-  %tr
-    %td Directory index pages:
-    %td&= Olelo::Config.index_page
+      %a{:href => absolute_path(Olelo::Config.sidebar_page)}&= Olelo::Config.sidebar_page
   %tr
     %td Mime type detection order:
     %td&= Olelo::Config.mime.join(', ')
 - if Olelo.const_defined? 'Engine'
   %h2 Engines
   %p
-    \Every resource is rendered by an appropriate rendering engine. The engine is selected automatically, where engines with lower priority are preferred. An alternative output engine
-    \can be selected using the view menu or manually using the "output" query parameter. Examples:
-    %ul
-      %li
-        %a(href='/?output=index_page') ?output=index_page
-      %li
-        %a(href='/?output=tree') ?output=tree
+    \Every page is rendered by an appropriate rendering engine. The engine is selected automatically, where engines with lower priority are preferred. An alternative output engine
+    \can be selected using the view menu or manually using the "output" query parameter.
   %table.zebra.full
     %thead
       %tr
         %th Name
         %th Output Mime Type
         %th Accepted mime types
-        %th Cacheable
         %th Hidden
         %th Priority
     %tbody
@@ -75,7 +62,6 @@ __END__
           %td&= engine.name
           %td&= engine.mime
           %td&= engine.accepts
-          %td= engine.cacheable?
           %td= engine.hidden?
           %td= engine.priority
 - if Olelo.const_defined? 'Tag'

@@ -1,36 +1,37 @@
-- title params[:pos] ? :edit_page_section.t(:page => @resource.title) : :edit_page.t(:page => @resource.title)
+- title params[:pos] ? :edit_page_section.t(:page => page.title) : :edit_page.t(:page => page.title)
 %h1&= title
 .tabs
   %ul
     = tab :edit
     = tab :upload
-  %form(action='#{@resource.path.urlpath}' method='post')
+  %form(action='#{absolute_path page}' method='post')
     #tab-edit.box
       %h2= :edit.t
       = flash_messages if action? :edit
       %input(type='hidden' name='_method' value='put')
       %input(type='hidden' name='action' value='edit')
-      %input(type='hidden' name='version' value='#{@resource.version}')
+      %input(type='hidden' name='version' value='#{page.version}')
       - if params[:pos]
         %input(type='hidden' name='pos' value='#{params[:pos]}')
         - if params[:len]
           %input(type='hidden' name='len' value='#{params[:len]}')
       %label(for='edit-content')= :content.t
       %br
-      %textarea#edit-content(name='content' cols='100' rows='20')&= edit_content(@resource)
+      %textarea#edit-content(name='content' cols='100' rows='20')&= edit_content(page)
       %br
       %label(for='edit-comment')= :comment.t
-      %input#edit-comment(type='text' name='comment' size='50' value='#{params[:comment]}')
+      %input#edit-comment(type='text' name='comment' value='#{params[:comment]}' size='50')
       %button(type='submit' accesskey='s')= :save.t
       %button(type='reset' accesskey='r')= :reset.t
       %br
-  %form(action='#{@resource.path.urlpath}' method='post' enctype='multipart/form-data')
+  %form(action='#{absolute_path page}' method='post' enctype='multipart/form-data')
     #tab-upload.box
       %input(type='hidden' name='_method' value='put')
       %input(type='hidden' name='action'  value='upload')
-      %input(type='hidden' name='version' value='#{@resource.version}')
+      %input(type='hidden' name='version' value='#{page.version}')
       %h2= :upload_file.t
-      %p= :upload_warning.t
+      - if page.content
+        %p= :upload_warning.t
       = flash_messages if action? :upload
       %label(for='upload-file')= :file.t
       %input#upload-file(name='file' type='file')

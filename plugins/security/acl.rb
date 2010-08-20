@@ -1,13 +1,13 @@
 description 'Access control lists'
 
-class Olelo::Resource
-  # Resource must be readable and parents must recursively be readable
+class Olelo::Page
+  # Page must be readable and parents must recursively be readable
   def readable?(user)
     access?(:read, user) && (root? || parent.readable?(user))
   end
 
-  # New resource is writable if parent is writable
-  # Existing resource is writable if resource is writable and parents are readable
+  # New page is writable if parent is writable
+  # Existing page is writable if page is writable and parents are readable
   def writable?(user)
     if root?
       access?(:write, user)
@@ -18,20 +18,20 @@ class Olelo::Resource
     end
   end
 
-  # Resource is deletable if parent is writable
+  # Page is deletable if parent is writable
   def deletable?(user)
     parent.writable?(user)
   end
 
-  # Resource is movable if parent is writable and destination is writable
+  # Page is movable if parent is writable and destination is writable
   def movable?(user, destination = nil)
-    deletable?(user) && (!destination || (Resource.find(destination) || Page.new(destination)).writable?(user))
+    deletable?(user) && (!destination || (Page.find(destination) || Page.new(destination)).writable?(user))
   end
 
   private
 
   def access?(type, user = nil)
-    acl = metadata['acl'] || {}
+    acl = attributes['acl'] || {}
     names = [*acl[type.to_s]].compact
     names.empty? ||
     names.include?(user.name) ||
@@ -51,38 +51,38 @@ end
 
 class Olelo::Application
   hook :layout, 999 do |name, doc|
-    if @resource
-      doc.css('#menu .action-edit').each {|link| link.delete('href') } if !@resource.writable?(user)
-      if !@resource.root?
-        doc.css('#menu .action-delete').each {|link| link.parent.remove } if !@resource.deletable?(user)
-        doc.css('#menu .action-move').each {|link| link.parent.remove } if !@resource.movable?(user)
+    if page
+      doc.css('#menu .action-edit').each {|link| link.delete('href') } if !page.writable?(user)
+      if !page.root?
+        doc.css('#menu .action-delete').each {|link| link.parent.remove } if !page.deletable?(user)
+        doc.css('#menu .action-move').each {|link| link.parent.remove } if !page.movable?(user)
       end
     end
   end
 
   hook AccessDenied do |ex|
     cache_control :no_cache => true
-    @resource = nil
+    @page = nil
     session[:goto] = request.path_info if request.path_info !~ %r{^/_/}
     halt render(:access_denied)
   end
 
   after :action do |method, action|
-    if @resource && method == :get
-      @resource.readable?(user) || raise(AccessDenied)
+    if page && method == :get
+      page.readable?(user) || raise(AccessDenied)
     end
   end
 
-  before(:save, 999) do |resource|
-    resource.writable?(user) || raise(AccessDenied)
+  before(:save, 999) do |page|
+    page.writable?(user) || raise(AccessDenied)
   end
 
-  before(:delete, 999) do |resource|
-    resource.deletable?(user) || raise(AccessDenied)
+  before(:delete, 999) do |page|
+    page.deletable?(user) || raise(AccessDenied)
   end
 
-  before(:move, 999) do |resource, destination|
-    resource.movable?(user, destination) || raise(AccessDenied)
+  before(:move, 999) do |page, destination|
+    page.movable?(user, destination) || raise(AccessDenied)
   end
 end
 

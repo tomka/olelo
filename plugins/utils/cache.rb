@@ -1,62 +1,52 @@
 description  'Caching support'
 dependencies 'utils/worker'
 
-# Cache base class
 class Olelo::Cache
-  include Util
-
-  class<< self
-    def instance
-      @instance ||= Disk.new(File.join(Config.tmp_path, 'cache'))
-    end
-
-    def cache(*args, &block)
-      instance.cache(*args, &block)
-    end
+  def initialize(store)
+    @store = store
+    @disabled = false
   end
 
-  class Disabler
-    attr_reader? :disabled
-
-    def initialize
-      @disabled = false
-    end
-
-    def disable!
-      @disabled = true
-    end
+  def disable!
+    @disabled = true
   end
 
   # Block around cacheable return value identified by a <i>key</i>.
   # The following options can be specified:
   # * :disable Disable caching
-  # * :update Force cache update
+  # * :update  Force cache update
+  # * :marshal Marshal data before storing
+  # * :defer   Deferred cache update
   def cache(key, opts = {}, &block)
-    key = md5(key)
+    key = Util.md5(key)
     if opts[:disable] || !Config.production?
-      yield(Disabler.new)
-    elsif exist?(key) && (!opts[:update] || opts[:defer])
+      yield(self)
+    elsif @store.include?(key) && (!opts[:update] || opts[:defer])
       Worker.defer { update(key, opts, &block) } if opts[:update]
-      load(key, opts)
+      opts[:marshal] ? Marshal.restore(@store[key]) : @store[key]
     else
       update(key, opts, &block)
     end
   end
 
-  def load(key, opts = {})
-    content = read(key)
-    opts[:marshal] ? Marshal.restore(content) : content
-  end
-
   def update(key, opts = {}, &block)
-    disabler = Disabler.new
-    content = block.call(disabler)
-    write(key, opts[:marshal] ? Marshal.dump(content) : content) if !disabler.disabled?
+    content = block.call(self)
+    @store[key] = opts[:marshal] ? Marshal.dump(content) : content if !@disabled
     content
   end
 
+  class<< self
+    def global_store
+      @global_store ||= FileStore.new(File.join(Config.tmp_path, 'cache'))
+    end
+
+    def cache(*args, &block)
+      Cache.new(global_store).cache(*args, &block)
+    end
+  end
+
   # File based cache
-  class Disk < Cache
+  class FileStore
     attr_reader :root
 
     # Cache constructor which specifies a <i>root</i> directory
@@ -66,19 +56,19 @@ class Olelo::Cache
     end
 
     # Exists the entry with <i>key</i>
-    def exist?(key)
+    def include?(key)
       File.exist?(cache_path(key))
     end
 
     # Read entry with <i>key</i>
-    def read(key)
+    def [](key)
       File.read(cache_path(key))
     rescue Errno::ENOENT
       nil
     end
 
     # Write entry <i>content</i> with <i>key</i>.
-    def write(key, content)
+    def []=(key, content)
       temp_file = File.join(root, ['tmp', $$, Thread.current.object_id].join('-'))
       File.open(temp_file, 'wb') do |dest|
         if content.respond_to? :to_str
@@ -92,14 +82,14 @@ class Olelo::Cache
       File.unlink path if File.exist?(path)
       FileUtils.mkdir_p File.dirname(path), :mode => 0755
       FileUtils.mv temp_file, path
-      true
     rescue
-      File.unlink temp_file rescue false
-      false
+      File.unlink temp_file rescue nil
+    ensure
+      content
     end
 
-    # Remove entry with <i>key</i>
-    def remove(key)
+    # Delete entry with <i>key</i>
+    def delete(key)
       File.unlink cache_path(key)
     rescue Errno::ENOENT
     end

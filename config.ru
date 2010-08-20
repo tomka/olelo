@@ -54,12 +54,6 @@ end
 use Rack::DegradeMimeType
 use Rack::RelativeRedirect
 
-if !Olelo::Config.rack.rewrite_base.blank?
-  logger.info "Use rack rewrite base=#{Olelo::Config.rack.rewrite_base}"
-  require 'rack/rewrite'
-  use Rack::Rewrite, :base => Olelo::Config.rack.rewrite_base
-end
-
 if Olelo::Config.rack.deflater?
   logger.info 'Use rack deflater'
   use Rack::Deflater

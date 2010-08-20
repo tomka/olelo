@@ -1,43 +1,51 @@
 description 'Simple webdav interface to the wiki files'
 
 class Olelo::Application
-  put '/:path' do
-    return super() if request.form_data?
-    begin
-      page = Page.find!(params[:path])
-      with_hooks :save, page do
-        Resource.transaction(:page_uploaded.t(:path => page.path), user) do
-	  page.write(request.body)
-	end
+  def self.add_webdav_routes
+    put '/:path' do
+      return super() if request.form_data?
+      begin
+        page = Page.find!(params[:path])
+        with_hooks :save, page do
+          Resource.transaction(:page_uploaded.t(:path => page.path), user) do
+            page.content = request.body
+            page.save
+          end
+        end
+        :ok
+      rescue NotFound => ex
+        logger.error ex
+        :not_found
+      rescue Exception => ex
+        logger.error ex
+        :bad_request
       end
-      :ok
-    rescue NotFound => ex
-      logger.error ex
-      :not_found
-    rescue Exception => ex
-      logger.error ex
-      :bad_request
+    end
+
+    post '/:path' do
+      return super() if request.form_data?
+      begin
+        raise :reserved_path.t if reserved_path?(params[:path])
+        page = Page.new(params[:path])
+        with_hooks :save, page do
+          Resource.transaction(:page_uploaded.t(:path => page.path), user) do
+            page.content = request.body
+            page.save
+          end
+        end
+        :created
+      rescue NotFound => ex
+        logger.error ex
+        :not_found
+      rescue Exception => ex
+        logger.error ex
+        :bad_request
+      end
     end
   end
 
-  post '/:path' do
-    return super() if request.form_data?
-    begin
-      raise :reserved_path.t if reserved_path?(params[:path])
-      page = Page.new(params[:path])
-      with_hooks :save, page do
-        Resource.transaction(:page_uploaded.t(:path => page.path), user) do
-	  page.write(request.body)
-	end
-      end
-      :created
-    rescue NotFound => ex
-      logger.error ex
-      :not_found
-    rescue Exception => ex
-      logger.error ex
-      :bad_request
-    end
+  hook :final_routes do
+    self.class.add_webdav_routes
   end
 
   # TODO: Implement more methods if they are needed

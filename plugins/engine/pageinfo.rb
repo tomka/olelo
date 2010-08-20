@@ -1,8 +1,7 @@
-description 'File information engine'
+description 'Page information engine'
 dependencies 'engine/engine'
 
-Engine.create(:fileinfo, :priority => 4, :layout => true, :cacheable => true) do
-  def accepts?(page); page.page?; end
+Engine.create(:pageinfo, :priority => 4, :layout => true, :cacheable => true) do
   def output(context)
     @page = context.page
     render :info
@@ -26,7 +25,8 @@ __END__
     %tr
       %td&= :type.t
       %td #{@page.mime.comment} (#{@page.mime})
-    %tr
-      %td&= :download.t
-      %td
-        %a{:href=> resource_path(@page, :output => 'download')} Download File
+    - if @page.content
+      %tr
+        %td&= :download.t
+        %td
+          %a{:href=> page_path(@page, :output => 'download')}&= :download.t

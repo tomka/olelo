@@ -24,7 +24,7 @@ jQuery.fn.historyTable = function() {
                     path = location.pathname;
 	        if (toVersion != fromVersion) {
 		    path = path.substr(0, path.length - 7);
-	            location.href = path + 'compare?from=' + fromVersion + '&to=' + toVersion;
+	            location.href = path + 'compare/' + fromVersion + '...' + toVersion;
 		}
             }
             return true;

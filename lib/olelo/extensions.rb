@@ -132,21 +132,7 @@ class Object
   end
 end
 
-class Struct
-  def to_hash
-    Hash[*members.zip(values).flatten]
-  end
-
-  def update(attrs = {})
-    attrs.each_pair {|k, v| self[k] = v }
-  end
-end
-
 class String
-  class << self
-    attr_accessor :root_path
-  end
-
   # Unindent string
   def unindent
     result = ''
@@ -167,8 +153,6 @@ class String
   # Clean up path
   def cleanpath
     names = split('/').reject(&:blank?)
-    # /root_path maps to /
-    names.delete_at(0) if String.root_path && names[0] == String.root_path
     i = 0
     while i < names.length
       case names[i]
@@ -185,11 +169,6 @@ class String
       end
     end
     names.join('/')
-  end
-
-  # Convert string to url path
-  def urlpath
-    '/' << cleanpath
   end
 
   # Truncate string and add omission

@@ -3,7 +3,7 @@ dependencies 'engine/filter', 'filter/tag'
 
 class Toc < Filter
   def filter(context, content)
-    return content if !context.page.metadata[:toc]
+    return content if !context.page.attributes['toc']
 
     @toc = ''
     @level = 0

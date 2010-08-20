@@ -80,8 +80,6 @@
         @include menu-action("history");
         @include menu-action("delete");
         @include menu-action("move");
-        @include menu-action("metadata");
-        @include menu-action("discussion");
         @include menu-action("page");
         &:hover, &:focus, &:active {
           text-shadow: #333333 1px 1px 2px;

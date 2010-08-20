@@ -8,10 +8,10 @@ module Olelo
     # Invoke before/after hooks
     def with_hooks(type, *args)
       result = []
-      result.push(*invoke_hook("before #{type}", *args))
+      result.push(*invoke_hook("BEFORE #{type}", *args))
       result << yield
     ensure
-      result.push(*invoke_hook("after #{type}", *args))
+      result.push(*invoke_hook("AFTER #{type}", *args))
     end
 
     # Invoke hooks
@@ -40,12 +40,12 @@ module Olelo
 
       # Register before hook
       def before(type, priority = 99, &block)
-        hook("before #{type}", priority, &block)
+        hook("BEFORE #{type}", priority, &block)
       end
 
       # Register after hook
       def after(type, priority = 99, &block)
-        hook("after #{type}", priority, &block)
+        hook("AFTER #{type}", priority, &block)
       end
     end
   end

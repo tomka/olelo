@@ -1,23 +1,20 @@
 # Register some mime types
 
-MimeMagic.add('inode/directory', :comment => 'Directory')
+MimeMagic.add('application/x-empty', :comment => 'Empty file')
 
 MimeMagic.add('text/x-creole',
               :extensions => %w(creole text),
               :parents => 'text/plain',
-              :magic => [[0..64, 'creole']],
               :comment => 'Creole Wiki Text File')
 
 MimeMagic.add('text/x-markdown',
               :extensions => %w(markdown md mdown mkdn mdown),
               :parents => 'text/plain',
-              :magic => [[0..64, 'markdown'], [0..64, 'kramdown'], [0..64, 'maruku']],
               :comment => 'Markdown Text File')
 
 MimeMagic.add('text/x-textile',
               :extensions => 'textile',
               :parents => 'text/plain',
-              :magic => [[0..64, 'textile']],
               :comment => 'Textile Text File')
 
 MimeMagic.add('text/x-yaml',

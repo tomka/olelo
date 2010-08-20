@@ -9,15 +9,15 @@ class Olelo::Application
     redirect '/login' if user.anonymous? && request.path_info == '/signup'
   end
 
-  before(:save, 999) do |resource|
+  before(:save, 999) do |page|
     raise(AccessDenied) if user.anonymous?
   end
 
-  before(:delete, 999) do |resource|
+  before(:delete, 999) do |page|
     raise(AccessDenied) if user.anonymous?
   end
 
-  before(:move, 999) do |resource, destination|
+  before(:move, 999) do |page, destination|
     raise(AccessDenied) if user.anonymous?
   end
 end

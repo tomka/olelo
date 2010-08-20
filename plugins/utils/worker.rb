@@ -19,6 +19,6 @@ module Olelo::Worker
   end
 end
 
-def setup
+Application.hook :start do
   Worker.start
 end

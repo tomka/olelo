@@ -27,10 +27,10 @@ end
 __END__
 
 @@ browser.haml
-= pagination(@page, @last_page, @page_nr, :output => 'documentbrowser')
+= pagination(page_path(@page), @last_page, @page_nr, :output => 'documentbrowser')
 %p
-  %img#pdf{:src=> resource_path(@page, :output => 'image', :geometry => '480x>', :trim => 1, :page => @page_nr)}
-= pagination(@page, @last_page, @page_nr, :output => 'documentbrowser')
+  %img#pdf{:src=> page_path(@page, :output => 'image', :geometry => '480x>', :trim => 1, :page => @page_nr)}
+= pagination(page_path(@page), @last_page, @page_nr, :output => 'documentbrowser')
 %h3&= :information.t
 %table.zebra
   %tbody
@@ -50,4 +50,4 @@ __END__
     %tr
       %td&= :download.t
       %td
-        %a{:href=> resource_path(@page, :output => 'download')} Download File
+        %a{:href=> page_path(@page, :output => 'download')} Download File

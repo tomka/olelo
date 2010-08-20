@@ -1,43 +1,34 @@
 %ul
-  = breadcrumbs(@resource)
-  - if @resource && !@resource.current?
+  = breadcrumbs(page)
+  - if page && !page.current?
     %li.noborder
-      = date @resource.tree_version.date
+      = date page.tree_version.date
 %ul.wiki
-  - if @resource
+  - if page
     - if @menu_versions
-      - if @resource.previous_version
+      - if page.previous_version
         %li
-          %a.action-older{:href=>resource_path(@resource, :version => @resource.previous_version), :accesskey=>'o'}= :older.t
-      - if !@resource.current?
+          %a.action-older{:href=>page_path(page, :version => page.previous_version), :accesskey=>'o'}= :older.t
+      - if !page.current?
         %li
-          %a.action-current{:href=> @resource.path.urlpath, :accesskey=>'c'}= :current.t
-      - if @resource.next_version
+          %a.action-current{:href=> absolute_path(page), :accesskey=>'c'}= :current.t
+      - if page.next_version
         %li
-          %a.action-newer{:href=>resource_path(@resource, :version => @resource.next_version), :accesskey=>'n'}= :newer.t
+          %a.action-newer{:href=>page_path(page, :version => page.next_version), :accesskey=>'n'}= :newer.t
     %li
-      %a.action-view{:href=> @resource.path.urlpath, :accesskey=>'v'}= :view.t
+      %a.action-view{:href=> absolute_path(page), :accesskey=>'v'}= :view.t
     %li
-      - if @resource.page?
-        %a.action-edit{:href=>action_path(@resource, :edit), :accesskey=>'e'}= :edit.t
-      - else
-        %a.action-edit= :edit.t
+      %a.action-edit{:href=>action_path(page, :edit), :accesskey=>'e'}= :edit.t
       %ul
         %li
-          %a.action-new{:href=> (@resource.tree? ? @resource.path/'new' : @resource.path/'..'/'new').urlpath, :accesskey=>'n'}= :new_page.t
-        - if !@resource.root?
+          %a.action-new{:href=> action_path(page, :new), :accesskey=>'n'}= :new_page.t
+        - if !page.root?
           %li
-            %a.action-move{:href=> action_path(@resource, :move) }= :move.t
+            %a.action-move{:href=> action_path(page, :move) }= :move.t
           %li
-            %a.action-delete{:href=> action_path(@resource, :delete) }= :delete.t
-        - if !@resource.namespace.metadata?
-          %li
-            %a.action-metadata{:href=> action_path(@resource.namespace_path(Olelo::Namespace.metadata(@resource.namespace.name)), :edit) }= :metadata.t
+            %a.action-delete{:href=> action_path(page, :delete) }= :delete.t
     %li
-      %a.action-history{:href=>action_path(@resource, :history), :accesskey=>'h'}= :history.t
-    - if @resource.namespace.metadata?
-      %li
-        %a.action-page{:href=> @resource.namespace_path(Olelo::Namespace.page(@resource.namespace.name)).urlpath }= :page.t
+      %a.action-history{:href=>action_path(page, :history), :accesskey=>'h'}= :history.t
   - else
     %li
       %a.action-new{:href=>'/new', :accesskey=>'n'}= :new_page.t

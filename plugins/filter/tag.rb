@@ -145,9 +145,10 @@ class Olelo::Tag < Filter
   BLOCK_ELEMENTS = %w(style script address blockquote div h1 h2 h3 h4 h5 h6 ul p ol pre table hr br)
   BLOCK_ELEMENT_REGEX = /<(#{BLOCK_ELEMENTS.join('|')})/
 
-  class TagInfo < Struct.new(:limit, :requires, :immediate, :method, :description, :plugin)
+  class TagInfo
+    attr_reader :limit, :requires, :immediate, :method, :description, :plugin
     def initialize(opts)
-      update(opts)
+      opts.each_pair {|k,v| instance_variable_set("@#{k}", v) }
     end
   end
 
@@ -161,12 +162,13 @@ class Olelo::Tag < Filter
     elsif attr = tag.requires.find {|a| !attrs.include?(a) }
       %{#{name}: Attribute "#{attr}" is required}
     else
-      content = begin
-               send(tag.method, context, attrs, content).to_s
-             rescue Exception => ex
-               Plugin.current.logger.error ex
-               "#{name}: #{escape_html ex.message}"
-             end
+      content =
+        begin
+          send(tag.method, context, attrs, content).to_s
+        rescue Exception => ex
+          Plugin.current.logger.error ex
+          "#{name}: #{escape_html ex.message}"
+        end
       if tag.immediate
         content
       else

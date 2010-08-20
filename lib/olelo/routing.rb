@@ -36,12 +36,21 @@ module Olelo
       throw :halt, response.length == 1 ? response.first : response
     end
 
-    def redirect(uri); throw :redirect, uri end
-    def pass; throw :pass end
-    def forward; throw :forward end
+    def redirect(uri)
+      throw :redirect, uri
+    end
+
+    def pass
+      throw :pass
+    end
+
+    def forward
+      throw :forward
+    end
 
     private
 
+    # Interpret everything as utf-8
     def encode(x)
       case x
       when Hash
@@ -80,10 +89,9 @@ module Olelo
         response.body = [result]
       elsif result.respond_to?(:to_ary)
         result = result.to_ary
-        status, body = result
-        if result.length == 2 && Symbol === status
-          response.status = Rack::Utils.status_code(status)
-          response.body = body if body
+        if result.length == 2 && Symbol === result.first
+          response.status = Rack::Utils.status_code(result.first)
+          response.body = result.last
         else
           response.body = result
         end
@@ -99,38 +107,61 @@ module Olelo
     def route!
       path = unescape(request.path_info)
       method = request.request_method
-      routes = self.class.routes[method]
-      routes.each do |name, pattern, keys|
-        if match = pattern.match(path)
-          captures = match.captures.to_a
-          params =
-            if keys.any?
-              keys.zip(captures).inject({}) do |hash,(k,v)|
-                hash[k] = v
-                hash
-              end
-            elsif captures.any?
-              {:captures => captures}
-            else
-              {}
-            end
-          @params = @original_params.merge(params)
-          catch(:pass) do
-            with_hooks(:action, method.downcase.to_sym, name) do
-              halt send("#{method} #{name}")
-            end
+      self.class.router[method].find(path) do |name, params|
+        @params = @original_params.merge(params)
+        catch(:pass) do
+          with_hooks(:action, method.downcase.to_sym, name) do
+            halt send("#{method} #{name}")
           end
         end
       end
-
       raise NotFound, path
     rescue ::Exception => ex
       halt error!(ex)
     end
 
+    class Router
+      SYNTAX = {
+        '\(' => '(?:', '\)' => ')?',
+        '\{' => '(?:', '\}' => ')',
+        '\|' => '|'
+      }
+
+      include Enumerable
+
+      def initialize
+        @routes = []
+      end
+
+      def find(path)
+        each do |name, pattern, keys|
+          if match = pattern.match(path)
+            params = {}
+            keys.zip(match.captures.to_a).each {|k, v| params[k] = v }
+            yield(name, params)
+          end
+        end
+      end
+
+      def each(&block)
+        @routes.each(&block)
+      end
+
+      def add(path, patterns = {})
+        pattern = Regexp.escape(path)
+        SYNTAX.each {|k,v| pattern.gsub!(k, v) }
+        keys = []
+        pattern.gsub!(/:(\w+)/) do
+          keys << $1
+          patterns.key?($1) ? "(#{patterns[$1]})" : "([^/?&#\.]+)"
+        end
+        @routes << [path, /^#{pattern}$/, keys]
+      end
+    end
+
     module ClassMethods
-      def routes
-        @routes ||= {}
+      def router
+        @router ||= {}
       end
 
       def patterns(patterns = nil)
@@ -138,54 +169,34 @@ module Olelo
         patterns ? @patterns.merge!(patterns) : @patterns
       end
 
-      def get(*paths, &block);    add_route(['GET', 'HEAD'], paths, &block) end
-      def put(*paths, &block);    add_route('PUT',    paths, &block) end
-      def post(*paths, &block);   add_route('POST',   paths, &block) end
-      def delete(*paths, &block); add_route('DELETE', paths, &block) end
+      def get(path, patterns = {}, &block)
+        add_route('GET',  path, patterns, &block)
+        add_route('HEAD', path, patterns, &block)
+      end
 
-      def dump_routes
-        s = "=== ROUTES ===\n"
-        routes.each do |method,list|
-          s << "  #{method}:\n"
-          list.each {|x,y| s << "    #{x} -> #{y.source}\n" }
-        end
-        s
+      def put(path, patterns = {}, &block)
+        add_route('PUT', path, patterns, &block)
+      end
+
+      def post(path, patterns = {}, &block)
+        add_route('POST', path, patterns, &block)
+      end
+
+      def delete(path, patterns = {}, &block)
+        add_route('DELETE', path, patterns, &block)
       end
 
       private
 
-      def compile_route(path, patterns)
-        keys = []
-        if path.respond_to? :to_str
-          pattern = Regexp.escape(path).gsub('\?', '?').gsub(/:(\w+)/) do |match|
-            keys << $1
-            patterns.key?($1) ? "(#{patterns[$1]})" : "([^/?&#\.]+)"
-          end
-          [path, /^#{pattern}$/, keys]
-        elsif path.respond_to? :match
-          [path.source, path, keys]
+      def add_route(method, path, patterns = {}, &block)
+        name = "#{method} #{path}"
+        if method_defined?(name)
+          redefine_method(name, &block)
         else
-          raise TypeError, path
+          define_method(name, &block)
+          (router[method] ||= Router.new).add(path, self.patterns.merge(patterns))
         end
       end
-
-      def add_route(methods, paths, &block)
-        paths = [*paths]
-        patterns = self.patterns.merge(Hash === paths.last ? paths.pop : {})
-        paths.each do |path|
-          path, pattern, keys = compile_route(path, patterns)
-          [*methods].each do |m|
-            name = "#{m} #{path}"
-            if method_defined?(name)
-              redefine_method(name, &block)
-            else
-              define_method(name, &block)
-              (routes[m] ||= []) << [path, pattern, keys]
-            end
-          end
-        end
-      end
-
     end
   end
 end
