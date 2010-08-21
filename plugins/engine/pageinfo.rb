@@ -15,6 +15,9 @@ __END__
     %tr
       %td&= :name.t
       %td&= @page.name
+    %tr
+      %td&= :title.t
+      %td&= @page.title
     - if @page.version
       %tr
         %td&= :last_modified.t

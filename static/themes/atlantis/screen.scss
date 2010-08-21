@@ -259,6 +259,18 @@ table.full, #history-table, #tree-table {
   @include file-type("zip");
 }
 
+.flash {
+  margin: 0.5em 0;
+}
+
+.info {
+  color: #009900;
+}
+
+.warn {
+  color: #aa5500;
+}
+
 .error {
   color: #aa0000;
 }
@@ -310,7 +322,7 @@ form {
     white-space: nowrap;
   }
   .fieldset label {
-    width: 8em;
+    min-width: 9em;
     &.inline {
       width: auto;
     }

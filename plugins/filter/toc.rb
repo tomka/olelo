@@ -1,6 +1,8 @@
 description  'Auto-generated table of contents'
 dependencies 'engine/filter', 'filter/tag'
 
+Application.register_attribute :toc, :boolean
+
 class Toc < Filter
   def filter(context, content)
     return content if !context.page.attributes['toc']

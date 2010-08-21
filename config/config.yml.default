@@ -79,7 +79,6 @@ disabled_plugins:
   - security/readonly_wiki
   - security/private_wiki
   - editor/antispam
-  - filter/benchmark
 
 ##################################################
 # Rack middleware configurations

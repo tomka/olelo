@@ -14,8 +14,12 @@ class Olelo::Application
           begin
             line = git.set_encoding(io.readline)
             line = unescape_backslash(line)
-            if line =~ /(.*?)\:(.*?)([^\/\0]+)\0(.*)/ && Namespace.find($3) == Namespace.main
-              (@matches["#{$2}#{$3}"] ||= []) << $4
+            if line =~ /(.*?)\:([^\0]+)\0(.*)/
+              path, match = $2, $3
+              path = path.split('/')
+              path.pop if Repository.instance.reserved_name?(path.last)
+              path = path.join('/')
+              (@matches[path] ||= []) << match
             end
           rescue => ex
             logger.error ex
@@ -28,9 +32,12 @@ class Olelo::Application
           begin
             line = git.set_encoding(io.readline)
             line = unescape_backslash(line).strip
-            if line =~ /#{params[:pattern]}/i && !@matches[line] && Namespace.find(line.split('/').last) == Namespace.main
-              page = Page.find!(line)
-              @matches[line] = [page.content.truncate(500)] if page.mime.text?
+            if line =~ /#{params[:pattern]}/i && !@matches[line]
+              path = line.split('/')
+              path.pop if Repository.instance.reserved_name?(path.last)
+              path = path.join('/')
+              page = Page.find!(path)
+              @matches[path] = [page.content.truncate(500)] if page.mime.text?
             end
           rescue => ex
             logger.error ex
@@ -62,5 +69,5 @@ __END__
   - @matches.each do |path, content|
     .match
       %h2
-        %a.name{:href => absolute_path path}= emphasize(path)
+        %a.name{:href => absolute_path(path)}= emphasize(path)
       .content= emphasize(content)

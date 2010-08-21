@@ -39,6 +39,7 @@ class GitRepository < Repository
   end
 
   def find_page(path, tree_version, current)
+    check_path(path)
     commit = !tree_version.blank? ? git.get_commit(tree_version.to_s) : git.head
     return nil if !commit
     object = commit.tree[path]
@@ -69,13 +70,11 @@ class GitRepository < Repository
     [commits[1] ? commits[1].to_olelo : nil, commits[0].to_olelo, child ? child.to_olelo : nil]
   end
 
-  def children(page)
+  def load_children(page)
     object = git.get_commit(page.tree_version.to_s).tree[page.path]
     if object.type == :tree
       object.map do |name, child|
-        if name != CONTENT_FILE || name != ATTRIBUTE_FILE
-          Page.new(page.path/name, page.tree_version, page.current?)
-        end
+        Page.new(page.path/name, page.tree_version, page.current?) if !reserved_name?(name)
       end.compact
     else
       []
@@ -92,6 +91,8 @@ class GitRepository < Repository
         content.force_encoding(Encoding::BINARY) if !content.valid_encoding?
       end
       content
+    else
+      ''
     end
   end
 
@@ -102,14 +103,67 @@ class GitRepository < Repository
   end
 
   def save(page)
-    # TODO
-    # FIXME: Gitrb should handle files directly
-    #content = content.read if content.respond_to? :read
-    #git.root[page.path] = Gitrb::Blob.new(:data => content)
-    #current_transaction << proc {|tree_version| page.committed(page.path, tree_version) }
+    path = page.path
+
+    check_path(path)
+
+    content = page.content
+    content = content.read if content.respond_to? :read
+    attributes = page.attributes.empty? ? nil : YAML.dump(page.attributes).sub(/\A\-\-\-\s*\n/s, '')
+
+    names = path.split('/')
+    names.pop
+    parent = git.root
+    names.each do |name|
+      object = parent[name]
+      break if !object
+      if object.type == :blob
+        parent.move(name, name/CONTENT_FILE)
+        break
+      end
+      parent = object
+    end
+
+    object = git.root[path]
+
+    # Page exists
+    if object
+      # Page is a tree
+      if object.type == :tree
+        if attributes
+          (object[ATTRIBUTE_FILE] ||= Gitrb::Blob.new).data = attributes
+        else
+          object.delete(ATTRIBUTE_FILE)
+        end
+        (object[CONTENT_FILE] ||= Gitrb::Blob.new).data = content
+      # Page is a blob
+      else
+        if attributes
+          git.root.move(path, path/CONTENT_FILE)
+          git.root[path/CONTENT_FILE].data = content
+          git.root[path/ATTRIBUTE_FILE] = Gitrb::Blob.new(:data => attributes)
+        else
+          git.root[path].data = content
+          puts git.root[path].modified?
+          puts git.root.modified?
+        end
+      end
+    # Page does not yet exist
+    else
+      if attributes
+        git.root[path/ATTRIBUTE_FILE] = Gitrb::Blob.new(:data => attributes)
+        git.root[path/CONTENT_FILE] = Gitrb::Blob.new(:data => content) if !content.blank?
+      else
+        git.root[path] = Gitrb::Blob.new(:data => content) if !content.blank?
+      end
+    end
+
+    current_transaction << proc {|tree_version| page.committed(path, tree_version) }
   end
 
   def move(page, destination)
+    check_path(destination)
+
     git.root.move(page.path, destination)
     current_transaction << proc {|tree_version| page.committed(destination, tree_version) }
   end
@@ -135,7 +189,15 @@ class GitRepository < Repository
     end
   end
 
+  def reserved_name?(name)
+    ATTRIBUTE_FILE == name || CONTENT_FILE == name
+  end
+
   private
+
+  def check_path(path)
+    raise :reserved_path.t if path.split('/').any? {|name| reserved_name?(name) }
+  end
 
   def current_transaction
     @current_transaction[Thread.current.object_id] || raise('No transaction running')

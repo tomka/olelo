@@ -4,6 +4,8 @@ dependencies 'filter/tag', 'utils/asset_manager'
 AssetManager.register_scripts '*.css'
 
 class Olelo::Application
+  register_attribute :tags, :stringlist
+
   get '(/:path)/:year(/:month)', :year => '20\d{2}', :month => '(?:0[1-9])|(?:1[1-2])' do
     params[:output] = 'blog'
     send('GET /')
@@ -60,7 +62,7 @@ Engine.create(:blog, :priority => 3, :layout => true, :cacheable => true, :hidde
           end
         end
       else
-        content = %{#{:engine_not_available.t(:page => page.name, :type => "#{page.mime.comment} (#{page.mime})", :engine => nil)}}
+        content = %{#{:engine_not_available.t(:page => page.title, :type => "#{page.mime.comment} (#{page.mime})", :engine => nil)}}
       end
       [page, content]
     end

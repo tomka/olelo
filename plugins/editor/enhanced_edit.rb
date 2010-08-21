@@ -17,7 +17,7 @@ class Olelo::Application
   end
 
   before :save do |page|
-    if (action?(:new) || action?(:edit)) && params[:content]
+    if action?(:edit) && params[:content]
       if params[:preview]
         flash.error :empty_comment.t if params[:comment].blank?
 
@@ -34,16 +34,16 @@ class Olelo::Application
           @preview = engine.output(Context.new(:page => page, :engine => engine))
         end
 
-        halt render(request.put? ? :edit : :new)
+        halt render(:edit)
       elsif params[:changes]
         flash.error :empty_comment.t if params[:comment].blank?
 
         original = Tempfile.new('original')
-        original.write(page.content[params[:pos].to_i, params[:len].to_i])
+        original.write(params[:pos] ? page.content[params[:pos].to_i, params[:len].to_i] : page.content)
         original.close
 
         new = Tempfile.new('new')
-        new.write(params[:content].gsub("\r\n", "\n"))
+        new.write(params[:content])
         new.close
 
         # Read in binary mode and fix encoding afterwards
@@ -51,7 +51,7 @@ class Olelo::Application
         patch.force_encoding(__ENCODING__) if patch.respond_to? :force_encoding
         @patch = PatchParser.parse(patch, PatchFormatter.new).html
 
-	halt render(request.put? ? :edit : :new)
+	halt render(:edit)
       end
     end
   end

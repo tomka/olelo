@@ -9,7 +9,7 @@ class Olelo::XSLT < Filter
   end
 
   def params(context)
-    context.page.attributes.merge(:title => context.page.title, :path => context.page.path)
+    context.page.attributes.merge('title' => context.page.title, 'path' => context.page.path)
   end
 
   def filter(context, content)

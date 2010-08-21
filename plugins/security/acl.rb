@@ -31,8 +31,7 @@ class Olelo::Page
   private
 
   def access?(type, user = nil)
-    acl = attributes['acl'] || {}
-    names = [*acl[type.to_s]].compact
+    names = attributes["acl_#{type}"].to_a
     names.empty? ||
     names.include?(user.name) ||
     user.groups.any? {|group| names.include?('@'+group) }
@@ -41,7 +40,7 @@ end
 
 class Olelo::AccessDenied < RuntimeError
   def initialize
-    super('Access denied')
+    super(:access_denied.t)
   end
 
   def status
@@ -50,6 +49,9 @@ class Olelo::AccessDenied < RuntimeError
 end
 
 class Olelo::Application
+  register_attribute :acl_read, :stringlist
+  register_attribute :acl_write, :stringlist
+
   hook :layout, 999 do |name, doc|
     if page
       doc.css('#menu .action-edit').each {|link| link.delete('href') } if !page.writable?(user)
@@ -88,7 +90,6 @@ end
 
 __END__
 @@ access_denied.haml
-- title 'Access denied'
-%h1 Access denied
-Access denied. Please
-%a(href='/login') login.
+- title :access_denied.t
+%h1&= :access_denied.t
+&= :access_denied_long.t

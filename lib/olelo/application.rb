@@ -6,6 +6,10 @@ module Olelo
     include Routing
     include Templates
     include ApplicationHelper
+    include AttributeEditor
+
+    register_attribute :title, :string
+    register_attribute :mime,  :string
 
     patterns :path => Page::PATH_PATTERN
     attr_reader :logger, :user, :theme_links, :timer, :page
@@ -59,10 +63,7 @@ module Olelo
 
     def init_plugins
       # Load locales for loaded plugins
-      Plugin.after :load do
-        I18n.load(file.sub(/\.rb$/, '_locale.yml'))
-        I18n.load(File.join(File.dirname(file), 'locale.yml'))
-      end
+      Plugin.after(:load) { I18n.load(File.join(File.dirname(file), 'locale.yml')) }
 
       # Configure plugin system
       Plugin.logger = logger
@@ -166,7 +167,7 @@ module Olelo
     get '(/:path)/changes/:version' do
       @page = Page.find!(params[:path])
       @version = Version.find!(params[:version])
-      @diff = @page.diff(nil, @version)
+      @diff = page.diff(nil, @version)
       cache_control :etag => @version, :last_modified => @version.date
       render :changes
     end
@@ -178,7 +179,7 @@ module Olelo
       @history = page.history(@page_nr * @per_page)
       @last_page = @page_nr + @history.length / @per_page
       @history = @history[0...@per_page]
-      cache_control :etag => @page.version, :last_modified => @page.version.date
+      cache_control :etag => page.version, :last_modified => page.version.date
       render :history, :layout => !request.xhr?
     end
 
@@ -194,13 +195,13 @@ module Olelo
 
     post '/:path/move' do
       on_error :move
-      Page.transaction(:page_moved.t(:path => params[:path].cleanpath, :destination => params[:destination].cleanpath), user) do
+      Page.transaction(:page_moved.t(:page => params[:path].cleanpath, :destination => params[:destination].cleanpath), user) do
         @page = Page.find!(params[:path])
         with_hooks(:move, @page, params[:destination]) do
-          @page.move(params[:destination])
+          page.move(params[:destination])
         end
       end
-      redirect absolute_path(@page)
+      redirect absolute_path(page)
     end
 
     get '(/:path)/compare' do
@@ -212,32 +213,32 @@ module Olelo
     get '(/:path)/compare/:versions', :versions => '(?:\w+)\.{2,3}(?:\w+)' do
       @page = Page.find!(params[:path])
       versions = params[:versions].split(/\.{2,3}/)
-      @diff = @page.diff(versions.first, versions.last)
+      @diff = page.diff(versions.first, versions.last)
       render :compare
     end
 
     get '(/:path)/edit' do
       @page = Page.find!(params[:path])
-      flash.warn :warn_binary.t(:page => @page.path,
-                                :type => "#{@page.mime.comment} (#{@page.mime})") if @page.content =~ /[^[:print:][:space:]]/
+      flash.warn :warn_binary.t(:page => page.title,
+                                :type => "#{page.mime.comment} (#{page.mime})") if page.content =~ /[^[:print:][:space:]]/
       render :edit
     end
 
     get '(/:path)/new' do
-      @page = Page.find(params[:path])
-      redirect action_path(@page, :edit) if @page
-      flash.error :reserved_path.t if reserved_path?(params[:path])
-      render :new
+      @page = Page.new(params[:path])
+      flash.error :reserved_path.t if reserved_path?(page.path)
+      params[:path] = !page.root? && Page.find(page.path) ? page.path + '/' : page.path
+      render :edit
     end
 
     def self.final_routes
       get '(/:path)/version(/:version)|/(:path)' do
         begin
           @page = Page.find!(params[:path], params[:version])
-          cache_control :etag => @page.version, :last_modified => @page.version.date
+          cache_control :etag => page.version, :last_modified => page.version.date
           @menu_versions = true
           with_hooks(:show) do
-            halt render(:show, :locals => {:content => @page.try(:content)})
+            halt render(:show, :locals => {:content => page.try(:content)})
           end
         rescue NotFound
           redirect absolute_path(params[:path].to_s/'new') if params[:version].blank?
@@ -246,76 +247,66 @@ module Olelo
       end
 
       delete '/:path' do
-        Page.transaction(:page_deleted.t(:path => params[:path].cleanpath), user) do
+        Page.transaction(:page_deleted.t(:page => params[:path].cleanpath), user) do
           @page = Page.find!(params[:path])
-          with_hooks(:delete, @page) do
-            @page.delete
+          with_hooks(:delete, page) do
+            page.delete
           end
         end
         render :deleted
       end
 
-      # Edit form sends put requests
-      put '/:path' do
-        @page = Page.find!(params[:path])
-
+      post '/(:path)' do
         on_error :edit
+        @page = Page.find(params[:path]) || Page.new(params[:path])
 
-        # TODO: Implement conflict diffs
-        raise :version_conflict.t if @page.version.to_s != params[:version]
-
-        if action?(:upload) && params[:file]
-          with_hooks :save, @page do
-            Page.transaction(:page_uploaded.t(:path => params[:path].cleanpath), user) do
-              page.content = params[:file][:tempfile]
-              @page.save
-            end
-          end
-        elsif action?(:edit) && params[:content]
-          with_hooks :save, @page do
+        if action?(:edit) && params[:content]
+          with_hooks :save, page do
             raise :empty_comment.t if params[:comment].blank?
-            Page.transaction(:page_edited.t(:path => @page.path, :comment => params[:comment]), user) do
-              @page.content = if params[:pos]
-                                [@page.content[0, params[:pos].to_i].to_s,
+            Page.transaction(:page_edited.t(:page => page.title, :comment => params[:comment]), user) do
+              # TODO: Implement conflict diffs
+              raise :version_conflict.t if !page.new? && page.version.to_s != params[:version]
+              page.content = if params[:pos]
+                                [page.content[0, params[:pos].to_i].to_s,
                                  params[:content],
-                                 @page.content[params[:pos].to_i + params[:len].to_i .. -1]].join
+                                 page.content[params[:pos].to_i + params[:len].to_i .. -1]].join
                               else
                                 params[:content]
                               end
-              @page.save
+              page.save
             end
+            params.delete(:comment)
+            flash.info :page_saved.t(:page => page.title)
           end
-        else
-          redirect action_path(@page, :edit)
-        end
-        redirect absolute_path(@page)
-      end
-
-      # New form sends put requests
-      post '/(:path)' do
-        on_error :new
-        page = Page.new(params[:path])
-
-        if action?(:upload) && params[:file]
+        elsif action?(:upload) && params[:file]
           with_hooks :save, page do
-            Page.transaction(:page_uploaded.t(:path => page.path), user) do
+            Page.transaction(:page_uploaded.t(:page => page.title), user) do
+              # TODO: Implement conflict diffs
+              raise :version_conflict.t if !page.new? && page.version.to_s != params[:version]
               page.content = params[:file][:tempfile]
               page.save
             end
+            flash.info :page_saved.t(:page => page.title)
           end
-        elsif action?(:new)
+        elsif action?(:attributes)
           with_hooks :save, page do
-            raise :empty_comment.t if params[:comment].blank?
-            Page.transaction(:page_edited.t(:path => page.path, :comment => params[:comment]), user) do
-              page.content = params[:content]
+            Page.transaction(:attributes_edited.t(:page => page.title), user) do
+              # TODO: Implement conflict diffs
+              raise :version_conflict.t if !page.new? && page.version.to_s != params[:version]
+              update_attributes(page.attributes)
               page.save
             end
+            flash.info :page_saved.t(:page => page.title)
           end
         else
-          redirect '/new'
+          raise 'Invalid action'
         end
-
-        redirect absolute_path(page)
+        if params[:button] == 'close'
+          flash.clear
+          redirect absolute_path(page)
+        else
+          render :edit
+        end
       end
     end
 

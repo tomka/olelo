@@ -18,13 +18,16 @@ __END__
 @@ info.haml
 %p
   %a{:href => page_path(@page, :output => 'image') }
-    %img{:src=> page_path(@page, :output => 'image', :geometry => '640x480>'), :alt=>@page.name}
+    %img{:src=> page_path(@page, :output => 'image', :geometry => '640x480>'), :alt => @page.title}
 %h3&= :information.t
 %table.zebra
   %tbody
     %tr
       %td&= :name.t
       %td&= @page.name
+    %tr
+      %td&= :title.t
+      %td&= @page.title
     %tr
       %td&= :type.t
       %td&= @type

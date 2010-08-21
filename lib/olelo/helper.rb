@@ -32,7 +32,7 @@ module Olelo
 
     def flash_messages
       if !flash.empty?
-        li = flash.map {|level, list| list.map {|msg| %{<li class="#{level}">#{escape_html msg}</li>} } }.flatten
+        li = flash.map {|level, list| list.map {|msg| %{<li class="flash #{level}">#{escape_html msg}</li>} } }.flatten
         flash.clear
         "<ul>#{li.join}</ul>"
       end
@@ -124,7 +124,7 @@ module Olelo
       if params[:content]
         params[:content]
       elsif page.content.respond_to?(:encoding) && page.content.encoding != __ENCODING__
-	:error_binary.t(:page => page.path, :type => "#{page.mime.comment} (#{page.mime})")
+	:error_binary.t(:page => page.title, :type => "#{page.mime.comment} (#{page.mime})")
       elsif params[:pos]
         page.content[params[:pos].to_i, params[:len].to_i].to_s
       else
@@ -200,9 +200,8 @@ module Olelo
     include PageHelper
     include HttpHelper
 
-    def tab(action, id = nil)
-      id ||= action
-      %{<li id="tabheader-#{id}"#{action?(action) ? ' class="selected"' : ''}><a href="#tab-#{id}">#{escape_html id.t}</a></li>}
+    def tab(action)
+      %{<li id="tabheader-#{action}"#{action?(action) ? ' class="selected"' : ''}><a href="#tab-#{action}">#{escape_html action.t}</a></li>}
     end
 
     def action?(name)

@@ -137,7 +137,7 @@ module Olelo
         each do |name, pattern, keys|
           if match = pattern.match(path)
             params = {}
-            keys.zip(match.captures.to_a).each {|k, v| params[k] = v }
+            keys.zip(match.captures.to_a).each {|k, v| params[k] = v if !v.blank? }
             yield(name, params)
           end
         end

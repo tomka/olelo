@@ -9,7 +9,7 @@ class Olelo::Application
         if engine
           engine.output(Context.new(:page => page))
         else
-          %{<span class="error">#{:engine_not_available.t(:page => page.name, :type => "#{page.mime.comment} (#{page.mime})", :engine => nil)}</span>}
+          %{<span class="error">#{:engine_not_available.t(:page => page.title, :type => "#{page.mime.comment} (#{page.mime})", :engine => nil)}</span>}
         end
       end
     else

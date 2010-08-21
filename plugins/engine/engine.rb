@@ -7,6 +7,8 @@ dependencies 'utils/cache'
 # It is possible for a engine to run sub-engines. For this
 # purpose you create a subcontext which inherits the variables.
 class Olelo::Context
+  include Hooks
+
   attr_reader :page, :parent, :private, :params, :response
 
   def initialize(attrs = {})
@@ -15,6 +17,7 @@ class Olelo::Context
     @private  = attrs[:private]  || Hash.with_indifferent_access
     @params   = attrs[:params]   || Hash.with_indifferent_access
     @response = attrs[:response] || Hash.with_indifferent_access
+    invoke_hook(:initialized)
   end
 
   def subcontext(attrs = {})
@@ -111,22 +114,28 @@ end
 
 # Plug-in the engine subsystem
 class Olelo::Application
+  register_attribute(:output) do
+    Hash[*Engine.engines.keys.map do |name|
+           [name, Olelo::I18n.translate("engine_#{name}", :fallback => name.tr('_', ' ').capitalize)]
+         end.flatten]
+  end
+
   before :show do
     @engine_name, layout, response, content =
     Cache.cache("engine-#{page.path}-#{page.version}-#{build_query(params)}",
                 :marshal => true, :update => request.no_cache?, :defer => true) do |cache|
-      engine = Engine.find!(@page, :name => params[:output])
+      engine = Engine.find!(page, :name => params[:output])
       cache.disable! if !engine.cacheable?
       context = Context.new(:page => page, :params => params)
       content = engine.output(context)
       context.response['Content-Type'] ||= engine.mime.to_s if engine.mime
-      context.response['Content-Type'] ||= @page.mime.to_s if !engine.layout?
+      context.response['Content-Type'] ||= page.mime.to_s if !engine.layout?
       [engine.name, engine.layout?, context.response.to_hash, content]
     end
     self.response.header.merge!(response)
     if layout
       if request.xhr?
-        content = "<h1>#{escape_html @page.title}</h1>#{content}"
+        content = "<h1>#{escape_html page.title}</h1>#{content}"
       else
         content = render(:show, :locals => {:content => content})
       end
@@ -140,7 +149,7 @@ class Olelo::Application
                          :update => request.no_cache?, :defer => true) do
         engines = Olelo::Engine.find_all(page)
         li = engines.select {|e| e.layout? }.map do |e|
-          name = escape_html Olelo::I18n.translate("engine_#{e.name}", :fallback => e.name.tr('_', ' '))
+          name = escape_html Olelo::I18n.translate("engine_#{e.name}", :fallback => e.name.tr('_', ' ').capitalize)
           %{<li#{e.name == @engine_name ? ' class="selected"': ''}>
           <a href="#{escape_html page_path(page, :output => e.name)}">#{name}</a></li>}.unindent
         end +

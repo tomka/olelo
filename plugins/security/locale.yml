@@ -1,0 +1,10 @@
+en:
+  access_denied:       'Access denied'
+  access_denied_long:  'Access denied. Please login or switch user.'
+  attribute_acl_read:  'ACL Read access'
+  attribute_acl_write: 'ACL Write access'
+de:
+  access_denied:       'Zugriff verweigert'
+  access_denied_long:  'Der Zugriff wurde verweigert. Melden Sie sich an oder wechseln Sie den Benutzer.'
+  attribute_acl_read:  'ACL Lesezugriff'
+  attribute_acl_write: 'ACL Schreibzugriff'

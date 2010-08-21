@@ -116,6 +116,8 @@ Tag.define :math, :description => 'Render LaTeX' do |context, attrs, code|
 end
 
 class Olelo::Application
+  register_attribute :math, Renderer.registry.keys
+
   get '/_/tag/math/blahtex/:name', :name => /[\w\.]+/ do
     begin
       file = File.join(Renderer.get('blahteximage').directory, params[:name])

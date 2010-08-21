@@ -2,12 +2,11 @@ description 'Simple webdav interface to the wiki files'
 
 class Olelo::Application
   def self.add_webdav_routes
-    put '/:path' do
-      return super() if request.form_data?
+    put '/(:path)' do
       begin
         page = Page.find!(params[:path])
         with_hooks :save, page do
-          Resource.transaction(:page_uploaded.t(:path => page.path), user) do
+          Page.transaction(:page_uploaded.t(:page => page.title), user) do
             page.content = request.body
             page.save
           end
@@ -22,13 +21,13 @@ class Olelo::Application
       end
     end
 
-    post '/:path' do
+    post '/(:path)' do
       return super() if request.form_data?
       begin
         raise :reserved_path.t if reserved_path?(params[:path])
         page = Page.new(params[:path])
         with_hooks :save, page do
-          Resource.transaction(:page_uploaded.t(:path => page.path), user) do
+          Page.transaction(:page_uploaded.t(:page => page.title), user) do
             page.content = request.body
             page.save
           end

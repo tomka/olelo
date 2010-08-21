@@ -104,14 +104,14 @@ class Olelo::Application
   end
 
   before(:save, 1000) do |page|
-    if (action?(:new) || action?(:edit)) && !captcha_valid?
+    if action?(:edit) && !captcha_valid?
       level = SpamEvaluator.new(user, params, page).evaluate
       flash.info :spam_level.t(:level => level) if !Config.production?
       if level >= 100
         flash.error :empty_comment.t if params[:comment].blank? && !params[:minor]
         flash.info :enter_captcha.t
         @show_captcha = true
-        halt render(request.put? ? :edit : :new)
+        halt render(:edit)
       end
     end
   end

@@ -4,7 +4,7 @@
     %li.noborder
       = date page.tree_version.date
 %ul.wiki
-  - if page
+  - if page && !page.new?
     - if @menu_versions
       - if page.previous_version
         %li

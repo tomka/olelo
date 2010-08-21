@@ -1,8 +1,8 @@
-- title :history_of.t(:path => page.title)
+- title :history_of.t(:page => page.title)
 %h1&= title
 %div
   %p&= :drag_drop_for_compare.t
-= pagination(action_path(page, 'history'), @last_page, @page_nr)
+= pagination(action_path(page, :history), @last_page, @page_nr)
 %table#history-table
   %thead
     %tr

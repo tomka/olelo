@@ -78,9 +78,9 @@
       <xsl:if test="$fadeDuration"><meta name="fadeDuration" content="{$fadeDuration}"/></xsl:if>
       <xsl:if test="$incrDuration"><meta name="incrDuration" content="{$incrDuration}"/></xsl:if>
       <meta name="themes" content="{$themes}"/>
-      <xsl:value-of select="concat('&lt;script src=&quot;', $s5_path, 'ui/common/jquery.js&quot; type=&quot;text/javascript&quot;&gt;&lt;/script&gt;')"
+      <xsl:value-of select="concat('&lt;script src=&quot;', $s5_path, '/ui/common/jquery.js&quot; type=&quot;text/javascript&quot;&gt;&lt;/script&gt;')"
 		    disable-output-escaping="yes"/>
-      <xsl:value-of select="concat('&lt;script src=&quot;', $s5_path, 'ui/common/s5.js&quot; type=&quot;text/javascript&quot;&gt;&lt;/script&gt;')"
+      <xsl:value-of select="concat('&lt;script src=&quot;', $s5_path, '/ui/common/s5.js&quot; type=&quot;text/javascript&quot;&gt;&lt;/script&gt;')"
 		    disable-output-escaping="yes"/>
     </xsl:copy>
   </xsl:template>

@@ -1,4 +1,5 @@
 en:
+  attribute_output: 'Output Engine'
   download: 'Download'
   engine_documentbrowser: 'Document Browser'
   engine_download: 'Raw Download'
@@ -18,6 +19,7 @@ en:
   type: 'Type'
   value: 'Wert'
 de:
+  attribute_output: 'Ausgabe-Engine'
   download: 'Herunterladen'
   engine_documentbrowser: 'Dokumentenbrowser'
   engine_download: 'Herunterladen'

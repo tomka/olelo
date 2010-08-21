@@ -2,9 +2,10 @@ description 'Download engine'
 dependencies 'engine/engine'
 
 Engine.create(:download) do
-  def accepts?(page); page.content; end
+  def accepts?(page); !page.content.empty?; end
   def output(context)
-    context.response['Content-Disposition'] = 'attachment; filename="%s"' % context.page.safe_name
+    name = context.page.root ? :root.t : context.page.name.gsub(/[^\w.\-_]/, '_')
+    context.response['Content-Disposition'] = %{attachment; filename="#{name}"}
     context.page.content
   end
 end

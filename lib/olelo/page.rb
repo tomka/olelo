@@ -46,6 +46,8 @@ module Olelo
     include Util
 
     PATH_PATTERN = '[^\s](?:.*[^\s]+)?'
+    EMPTY_MIME = MimeMagic.new('application/x-empty')
+    DIRECTORY_MIME = MimeMagic.new('inode/directory')
 
     attr_reader :path, :tree_version
     attr_reader? :current
@@ -91,6 +93,7 @@ module Olelo
     end
 
     def history(skip = nil, limit = nil)
+      raise 'Page is new' if new?
       repository.load_history(self, skip, limit)
     end
 
@@ -100,16 +103,19 @@ module Olelo
     end
 
     def move(destination)
+      raise 'Page is new' if new?
       destination = destination.to_s.cleanpath
-      raise :already_exists.t(:path => destination) if Page.find(destination)
+      raise :already_exists.t(:page => destination) if Page.find(destination)
       repository.move(self, destination)
     end
 
     def delete
+      raise 'Page is new' if new?
       repository.delete(self)
     end
 
     def diff(from, to)
+      raise 'Page is new' if new?
       repository.diff(from, to, path)
     end
 
@@ -122,25 +128,17 @@ module Olelo
     end
 
     def name
-      if root?
-        :root.t
-      else
-        i = path.rindex('/')
-        name = i ? path[i+1..-1] : path
-      end
+      i = path.rindex('/')
+      name = i ? path[i+1..-1] : path
     end
 
     def title
-      attributes['title'] || name
+      attributes['title'] || (root? ? :root.t : name)
     end
 
     def extension
       i = path.index('.')
       i ? path[i+1..-1] : ''
-    end
-
-    def safe_name
-      name.gsub(/[^\w.\-_]/, '_')
     end
 
     def committed(path, tree_version)
@@ -157,7 +155,7 @@ module Olelo
     end
 
     def content
-      @content ||= new? ? nil : repository.load_content(self)
+      @content ||= new? ? '' : repository.load_content(self)
     end
 
     def content=(content)
@@ -167,7 +165,7 @@ module Olelo
     end
 
     def save
-      raise :already_exists.t(:path => path) if new? && Page.find(path)
+      raise :already_exists.t(:page => path) if new? && Page.find(path)
       repository.save(self)
     end
 
@@ -176,13 +174,15 @@ module Olelo
     end
 
     def children
-      @children ||= repository.children(self).sort_by(&:name)
+      @children ||= new? ? [] : repository.load_children(self).sort_by(&:name)
     end
 
     private
 
     def detect_mime
-      return MimeMagic.new('application/x-empty') if !content
+      if content.blank?
+        return children.empty? ? EMPTY_MIME : DIRECTORY_MIME
+      end
       return MimeMagic.new(attributes['mime']) if attributes['mime']
       Config.mime.each do |mime|
         mime = case mime
@@ -199,6 +199,7 @@ module Olelo
 
     def init_versions
       if !@version && @tree_version
+        raise 'Page is new' if new?
         @previous_version, @version, @next_version = repository.load_version(self)
       end
     end

@@ -1,6 +1,7 @@
 # Register some mime types
 
 MimeMagic.add('application/x-empty', :comment => 'Empty file')
+MimeMagic.add('inode/directory',     :comment => 'Directory')
 
 MimeMagic.add('text/x-creole',
               :extensions => %w(creole text),

@@ -28,5 +28,6 @@ __END__
         - thumb_path = page_path(image, :output => 'image', :geometry => '150x150>')
         - image_path = page_path(image, :output => 'image', :geometry => '600x600>')
         %td
-          %a(href=image_path rel='thumb')
+          %a(href=image_path rel='thumb' title="#{image.title}")
             %img(src=thumb_path alt='')
+            &= image.title
