@@ -2,11 +2,13 @@ description  'Gallery engine'
 dependencies 'engine/engine', 'utils/asset_manager'
 
 AssetManager.register_scripts '*.js', '*.css'
+AssetManager.register_assets 'images/*'
 
 Engine.create(:gallery, :priority => 3, :layout => true, :hidden => true, :cacheable => true) do
   def accepts?(page); !page.children.empty?; end
   def output(context)
-    per_page = 16
+    @per_row = 5
+    per_page = @per_row * 4
     @page_nr = context.params[:page].to_i
     @page = context.page
     @images = @page.children.select {|page| page.mime.image? }
@@ -18,15 +20,13 @@ end
 
 __END__
 @@ gallery.haml
-- per_row = 4
 = pagination(page_path(@page), @last_page, @page_nr, :output => 'gallery')
-%table#gallery-thumbs
-  - @images.each_slice(per_row) do |row|
+%table.gallery
+  - @images.each_slice(@per_row) do |row|
     %tr
       - row.each do |image|
-        - thumb_path = page_path(image, :output => 'image', :geometry => '100x>')
-        - image_path = page_path(image, :output => 'image', :geometry => '500x>')
+        - thumb_path = page_path(image, :output => 'image', :geometry => '150x150>')
+        - image_path = page_path(image, :output => 'image', :geometry => '600x600>')
         %td
-          %a(href=image_path)
+          %a(href=image_path rel='thumb')
             %img(src=thumb_path alt='')
-  #gallery-screen

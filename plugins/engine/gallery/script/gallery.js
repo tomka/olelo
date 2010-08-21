@@ -1,31 +1,12 @@
 (function() {
-    var preloaded = [];
-    function preloadImage(src) {
-        var preload = document.createElement('img');
-        preload.src = src;
-        preloaded.push(preload);
-    }
-
     function initGallery() {
-        var screen = $('#gallery-screen');
-        if (screen.length) {
-            var img1 = $('<img/>'),
-                img2 = $('<img/>');
-
-            screen.append(img1).append(img2);
-
-            $('#gallery-thumbs a').click(function() {
-                img2.hide().attr('src', this.href);
-                img1.fadeOut('slow');
-                img2.fadeIn('slow');
-                var tmp = img1;
-                img1 = img2;
-                img2 = tmp;
-                return false;
-            }).each(function() {
-                preloadImage(this.href);
-            });
-        }
+        $('.gallery a').fancybox({
+            'transitionIn'  : 'fade',
+            'transitionOut' : 'fade',
+            'titlePosition' : 'over',
+            'titleFormat'   : function(title, currentArray, currentIndex, currentOpts) {
+            return '<span id="fancybox-title-over">' + (currentIndex + 1) + ' / ' + currentArray.length + (title.length ? ' &nbsp; ' + title : '') + '</span>';
+        }});
     }
 
     $('#content').bind('pageLoaded', initGallery);
