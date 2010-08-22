@@ -1,6 +1,6 @@
 (function() {
     function initGallery() {
-        $('.gallery a').fancybox({
+        $('.gallery a[rel=thumb]').fancybox({
             'transitionIn'  : 'fade',
             'transitionOut' : 'fade',
             'titlePosition' : 'over',
