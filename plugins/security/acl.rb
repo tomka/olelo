@@ -31,7 +31,8 @@ class Olelo::Page
   private
 
   def access?(type, user = nil)
-    names = attributes["acl_#{type}"].to_a
+    acl = attributes['acl'] || {}
+    names = [*acl[type.to_s]].compact
     names.empty? ||
     names.include?(user.name) ||
     user.groups.any? {|group| names.include?('@'+group) }
@@ -49,8 +50,12 @@ class Olelo::AccessDenied < RuntimeError
 end
 
 class Olelo::Application
-  register_attribute :acl_read, :stringlist
-  register_attribute :acl_write, :stringlist
+  attribute_editor do
+    group :acl do
+      attribute :read, :stringlist
+      attribute :write, :stringlist
+    end
+  end
 
   hook :layout, 999 do |name, doc|
     if page

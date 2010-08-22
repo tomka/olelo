@@ -14,7 +14,7 @@ class Olelo::XSLT < Filter
 
   def filter(context, content)
     @xslt.apply_to(Nokogiri::XML(content),
-                   Nokogiri::XSLT.quote_params(params(context).to_hash))
+                   Nokogiri::XSLT.quote_params(params(context)))
   end
 end
 

@@ -5,67 +5,132 @@ module Olelo
       base.extend(ClassMethods)
     end
 
-    module ClassMethods
-      def attributes
-        @attributes ||= {}
+    class Attribute
+      include Util
+
+      attr_reader :key, :name
+
+      def initialize(name, parent, type)
+        @name = name.to_s
+        @key = [parent.key, name].compact.join('_')
+        @type = type
       end
 
-      def register_attribute(name, type = nil, &block)
-        attributes[name.to_s] = block ? block : type
+      def label
+        @label ||= I18n.translate("attribute_#{@key}", :fallback => name.tr('_', ' ').capitalize)
       end
-    end
 
-    def update_attributes(attributes)
-      self.class.attributes.map do |key, type|
-        value = params["attribute_#{key}"]
-        attributes.delete(key)
-        type = type.call if type.respond_to? :call
-        case type
-        when :integer
-          attributes[key] = value.to_i if !value.blank?
-        when :boolean
-          attributes[key] = true if value == 'true'
-        when :string
-          attributes[key] = value if !value.blank?
-        when :stringlist
-          attributes[key] = value.split(/\s*,\s*/) if !value.blank?
-        when Array, Hash
-          attributes[key] = value if type.include?(value)
-        else
-          raise "Invalid attribute type #{type}"
-        end
-      end
-    end
-
-    def attribute_editor(attributes)
-      self.class.attributes.map do |key, type|
-        label = escape_html I18n.translate("attribute_#{key}", :fallback => key.tr('_', ' ').capitalize)
+      def build_form(attr)
         html = %{<label for="attribute_#{key}">#{label}</label>}
-        type = type.call if type.respond_to? :call
+        type = @type.respond_to?(:call) ? @type.call : @type
         case type
         when :integer, :string
-          html << %{<input type="text" id="attribute_#{key}" name="attribute_#{key}" value="#{escape_html attributes[key]}"/><br/>}
+          html << %{<input type="text" id="attribute_#{key}" name="attribute_#{key}" value="#{escape_html attr}"/>}
         when :stringlist
-          html << %{<input type="text" id="attribute_#{key}" name="attribute_#{key}" value="#{escape_html attributes[key].to_a.join(', ')}"/><br/>}
+          html << %{<input type="text" id="attribute_#{key}" name="attribute_#{key}" value="#{escape_html attr.to_a.join(', ')}"/>}
         when :boolean
-          html << %{<input type="checkbox" id="attribute_#{key}" name="attribute_#{key}" value="true"#{attributes[key] ? ' checked="checked"' : ''}/><br/>}
+          html << %{<input type="checkbox" id="attribute_#{key}" name="attribute_#{key}" value="true"#{attr ? ' checked="checked"' : ''}/>}
         when Hash
           html << %{<select id="attribute_#{key}" name="attribute_#{key}"><option></option>}
           type.each do |value,label|
-            html << %{<option value="#{escape_html value}"#{attributes[key] == value ? ' selected="selected"' : ''}>#{escape_html label}</option>}
+            html << %{<option value="#{escape_html value}"#{attr == value ? ' selected="selected"' : ''}>#{escape_html label}</option>}
           end
-          html << '</select><br/>'
+          html << '</select>'
         when Array
           html << %{<select id="attribute_#{key}" name="attribute_#{key}"><option></option>}
           type.each do |value|
-            html << %{<option#{attributes[key] == value ? ' selected="selected"' : ''}>#{escape_html value}</option>}
+            html << %{<option#{attr == value ? ' selected="selected"' : ''}>#{escape_html value}</option>}
           end
-          html << '</select><br/>'
+          html << '</select>'
         else
           raise "Invalid attribute type #{type}"
         end
-        [label, html]
-      end.sort_by(&:first).map(&:last).join
+        html + "<br/>\n"
+      end
+
+      def parse(params)
+        value = params["attribute_#{key}"]
+        type = @type.respond_to?(:call) ? @type.call : @type
+        case type
+        when :integer
+          value.to_i if !value.blank?
+        when :boolean
+          true if value == 'true'
+        when :string
+          value if !value.blank?
+        when :stringlist
+          value.split(/\s*,\s*/) if !value.blank?
+        when Array, Hash
+          value if type.include?(value)
+        else
+          raise "Invalid attribute type #{type}"
+        end
+      end
+    end
+
+    class AttributeGroup
+      include Util
+
+      attr_reader :name, :key, :children, :label
+
+      def initialize(name, parent)
+        @name = name.to_s
+        @key = parent ? [parent.key, name].compact.join('_') : nil
+        @children = {}
+      end
+
+      def label
+        @label ||= name.blank? ? '' : I18n.translate("group_#{@key}",
+                                                     :fallback => [@parent ? @parent.label : nil, name.tr('_', ' ').capitalize].join(' '))
+      end
+
+      def build_form(attr)
+        html = label.blank? ? '' : "<h3>#{escape_html label}</h3>\n"
+        html << children.sort_by {|name, child| [Attribute === child ? 0 : 1, child.label] }.
+          map { |name, child| child.build_form(attr ? attr[name] : nil) }.join
+      end
+
+      def parse(params)
+        attr = {}
+        children.each do |name, child|
+          value = child.parse(params)
+          attr[name] = value if value
+        end
+        attr.empty? ? nil : attr
+      end
+
+      class DSL
+        def initialize(group, &block)
+          @group = group
+          instance_eval(&block)
+        end
+
+        def attribute(name, type = nil, &block)
+          @group.children[name.to_s] = Attribute.new(name, @group, block ? block : type)
+        end
+
+        def group(name, &block)
+          DSL.new(@group.children[name.to_s] ||= AttributeGroup.new(name, @group), &block)
+        end
+      end
+    end
+
+    module ClassMethods
+      def attribute_editor_group
+        @attribute_editor_group ||= AttributeGroup.new(nil, nil)
+      end
+
+      def attribute_editor(&block)
+        AttributeGroup::DSL.new(attribute_editor_group, &block)
+      end
+    end
+
+    def parse_attributes
+      self.class.attribute_editor_group.parse(params)
+    end
+
+    def attribute_editor(attr)
+      self.class.attribute_editor_group.build_form(attr)
     end
   end
 end

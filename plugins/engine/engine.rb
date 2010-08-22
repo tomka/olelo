@@ -114,10 +114,12 @@ end
 
 # Plug-in the engine subsystem
 class Olelo::Application
-  register_attribute(:output) do
-    Hash[*Engine.engines.keys.map do |name|
-           [name, Olelo::I18n.translate("engine_#{name}", :fallback => name.tr('_', ' ').capitalize)]
-         end.flatten]
+  attribute_editor do
+    attribute(:output) do
+      Hash[*Engine.engines.keys.map do |name|
+             [name, Olelo::I18n.translate("engine_#{name}", :fallback => name.tr('_', ' ').capitalize)]
+           end.flatten]
+    end
   end
 
   before :show do

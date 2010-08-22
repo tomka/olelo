@@ -8,8 +8,10 @@ module Olelo
     include ApplicationHelper
     include AttributeEditor
 
-    register_attribute :title, :string
-    register_attribute :mime,  :string
+    attribute_editor do
+      attribute :title, :string
+      attribute :mime,  :string
+    end
 
     patterns :path => Page::PATH_PATTERN
     attr_reader :logger, :user, :theme_links, :timer, :page
@@ -291,7 +293,7 @@ module Olelo
             Page.transaction(:attributes_edited.t(:page => page.title), user) do
               # TODO: Implement conflict diffs
               raise :version_conflict.t if !page.new? && page.version.to_s != params[:version]
-              update_attributes(page.attributes)
+              page.attributes = parse_attributes
               page.save
             end
             flash.info :page_saved.t(:page => page.title)

@@ -1,7 +1,9 @@
 description  'Auto-generated table of contents'
 dependencies 'engine/filter', 'filter/tag'
 
-Application.register_attribute :toc, :boolean
+Application.attribute_editor do
+  attribute :toc, :boolean
+end
 
 class Toc < Filter
   def filter(context, content)

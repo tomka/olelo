@@ -1,7 +1,7 @@
 description  'LaTeX rendering (math tags)'
 dependencies 'filter/tag'
 
-class Renderer
+class Olelo::MathRenderer
   include Util
 
   def initialize
@@ -43,7 +43,7 @@ class Renderer
   end
 end
 
-class RitexRenderer < Renderer
+class RitexRenderer < MathRenderer
   def load
     require 'ritex'
     true
@@ -54,7 +54,7 @@ class RitexRenderer < Renderer
   end
 end
 
-class ItexRenderer < Renderer
+class ItexRenderer < MathRenderer
   def load
     `itex2MML --version`
   end
@@ -64,7 +64,7 @@ class ItexRenderer < Renderer
   end
 end
 
-class BlahtexMLRenderer < Renderer
+class BlahtexMLRenderer < MathRenderer
   def load
     `blahtex`
   end
@@ -76,7 +76,7 @@ class BlahtexMLRenderer < Renderer
   end
 end
 
-class BlahtexImageRenderer < Renderer
+class BlahtexImageRenderer < MathRenderer
   def load
     `blahtex`
   end
@@ -93,13 +93,13 @@ class BlahtexImageRenderer < Renderer
   end
 end
 
-class GoogleRenderer < Renderer
+class GoogleRenderer < MathRenderer
   def render(code, display)
     %{<img src="http://chart.apis.google.com/chart?cht=tx&amp;chl=#{escape code}" alt="#{escape_html code}" class="math #{display}"/>}
   end
 end
 
-Renderer.registry = {
+MathRenderer.registry = {
   'itex'         => ItexRenderer.new,
   'ritex'        => RitexRenderer.new,
   'blahtexml'    => BlahtexMLRenderer.new,
@@ -112,15 +112,17 @@ Renderer.registry = {
 Tag.define :math, :description => 'Render LaTeX' do |context, attrs, code|
   raise('Limits exceeded') if code.size > 10240
   mode = attrs['mode'] || context.page.attributes['math'] || 'image'
-  Renderer.choose(mode).render(code, attrs['display'] == 'block' ? 'block' : 'inline')
+  MathRenderer.choose(mode).render(code, attrs['display'] == 'block' ? 'block' : 'inline')
 end
 
 class Olelo::Application
-  register_attribute :math, Renderer.registry.keys
+  attribute_editor do
+    attribute :math, MathRenderer.registry.keys
+  end
 
   get '/_/tag/math/blahtex/:name', :name => /[\w\.]+/ do
     begin
-      file = File.join(Renderer.get('blahteximage').directory, params[:name])
+      file = File.join(MathRenderer.get('blahteximage').directory, params[:name])
       response['Content-Type'] = 'image/png'
       response['Content-Length'] ||= File.stat(file).size.to_s
       halt BlockFile.open(file, 'rb')

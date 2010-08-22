@@ -1,14 +1,16 @@
 description  'S5 presentation filter'
 dependencies 'filter/xslt', 'utils/asset_manager'
 
-class Olelo::Application
-  register_attribute :presdate, :string
-  register_attribute :author, :string
-  register_attribute :company, :string
-  register_attribute :theme, :string
-  register_attribute :transitions, :string
-  register_attribute :fadeDuration, :integer
-  register_attribute :incrDuration, :integer
+Application.attribute_editor do
+  group :s5 do
+    attribute :presdate, :string
+    attribute :author, :string
+    attribute :company, :string
+    attribute :theme, :string
+    attribute :transitions, :string
+    attribute :fadeDuration, :integer
+    attribute :incrDuration, :integer
+  end
 end
 
 class S5 < XSLT
@@ -21,7 +23,8 @@ class S5 < XSLT
     themes.delete('common')
     themes.delete('default')
     themes.unshift(context.page.attributes['theme'] || 'default')
-    super.merge('themes' => themes.join(' '), 's5_path' => absolute_path('_/assets/filter/s5'))
+    super.merge(context.page.attributes['s5'] || {}).
+      merge('themes' => themes.join(' '), 's5_path' => absolute_path('_/assets/filter/s5'))
   end
 end
 
