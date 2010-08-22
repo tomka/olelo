@@ -35,7 +35,9 @@ HTML_TAGS = {
   :h6 => [],
   :blockquote => %w(cite),
   :div => %w(style),
-  :span => %w(style)
+  :span => %w(style),
+  :video => %w(autoplay controls height width loop preload src poster),
+  :audio => %w(autoplay controls loop preload src)
 }
 
 # Extra function because of ruby 1.8 block scoping

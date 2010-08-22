@@ -4,6 +4,14 @@ dependencies 'engine/filter'
 class TagSoupParser
   include Util
 
+  NAME            = /[:\-\w]+/
+  QUOTED_VALUE    = /"[^"]*"|'[^']*'/
+  UNQUOTED_VALUE  = /(?:[^\s'"\/>]|\/+[^'"\/>])+/
+  QUOTED_ATTR     = /(#{NAME})=(#{QUOTED_VALUE})/
+  UNQUOTED_ATTR   = /(#{NAME})=(#{UNQUOTED_VALUE})/
+  BOOL_ATTR       = /(#{NAME})/
+  ATTRIBUTE       = /\A\s*(#{QUOTED_ATTR}|#{UNQUOTED_ATTR}|#{BOOL_ATTR})/
+
   def initialize(tags, content)
     @content = content
     @tags = tags
@@ -14,7 +22,7 @@ class TagSoupParser
   def parse(&block)
     @callback = block
 
-    while @content =~ /<([:\-\w]+)/
+    while @content =~ /<(#{NAME})/
       @output << $`
       @content = $'
       name = $1.downcase
@@ -32,21 +40,30 @@ class TagSoupParser
 
   private
 
-  def parse_tag
-    # Allowed argument formats
+  def parse_attributes
+    # Allowed attribute formats
     #   name="value"
     #   name='value'
     #   name=value (no space, ' or " allowed in value)
-    if @content =~ /\A(\s*([:\-\w]+)=("[^"]+"|'[^']+'|([^\s'"\/>]|\/[^'"\/>])+))+/
+    #   name (for boolean values)
+    @attrs = Hash.with_indifferent_access
+    while @content =~ ATTRIBUTE
       @content = $'
       @parsed << $&
-      attrs = $&
-      attrs = (attrs.scan(/([:\-\w]+)=("[^"]+"|'[^']+')/).map {|a,b| [a, b[1...-1]] } +
-               attrs.scan(/([:\-\w]+)=((?:[^\s'"\/>]|\/[^'"\/>])+)/)).flatten.map {|x| unescape_html(x) }
-      @attrs = Hash[*attrs].with_indifferent_access
-      else
-      @attrs = {}
+      match = $&
+      case match
+      when QUOTED_ATTR
+        @attrs[$1] = unescape_html($2[1...-1])
+      when UNQUOTED_ATTR
+        @attrs[$1] = unescape_html($2)
+      when BOOL_ATTR
+        @attrs[$1] = $1
+      end
     end
+  end
+
+  def parse_tag
+    parse_attributes
 
     case @content
     when /\A\s*\/>/
@@ -70,31 +87,28 @@ class TagSoupParser
     text = ''
     while !stack.empty?
       case @content
-      when /\A<([:\-\w]+)/
+      # Tag begins
+      when /\A<(#{NAME})/
         @content = $'
-        text << $` << $&
+        text << $&
         stack << $1
-      when /\A<\/([:\-\w]+)>/
+      # Tag ends
+      when /\A<\/(#{NAME})>/
         @content = $'
-        text << $`
         if i = stack.rindex($1.downcase)
           stack = stack[0...i]
           text << $& if !stack.empty?
         else
           text << $&
         end
-      else
-        i = @content.index('<')
-        if i == 0
-          text << '<'
-          @content = @content[1..-1]
-        elsif i
-          text << @content[0...i]
-          @content = @content[i..-1]
-        else
-          text << @content
-          break
-        end
+      # Text till the next tag beginning
+      when /\A[^<]+/
+        text << $&
+        @content = $'
+      # Suprious <
+      when /\A</
+        text << '<'
+        @content = $'
       end
     end
     text
