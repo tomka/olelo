@@ -17,7 +17,7 @@ en:
   geometry: 'Geometry'
   information: 'Information'
   type: 'Type'
-  value: 'Wert'
+  value: 'Value'
 de:
   attribute_output: 'Ausgabe-Engine'
   download: 'Herunterladen'
