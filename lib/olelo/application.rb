@@ -219,8 +219,6 @@ module Olelo
 
     get '(/:path)/edit' do
       @page = Page.find!(params[:path])
-      flash.warn :warn_binary.t(:page => page.title,
-                                :type => "#{page.mime.comment} (#{page.mime})") if page.content =~ /[^[:print:][:space:]]/
       render :edit
     end
 

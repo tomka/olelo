@@ -121,15 +121,18 @@ module Olelo
     end
 
     def edit_content(page)
-      if params[:content]
-        params[:content]
-      elsif page.content.respond_to?(:encoding) && page.content.encoding != __ENCODING__
-	:error_binary.t(:page => page.title, :type => "#{page.mime.comment} (#{page.mime})")
-      elsif params[:pos]
-        page.content[params[:pos].to_i, params[:len].to_i].to_s
+      return params[:content] if params[:content]
+      if page.content.respond_to?(:encoding)
+        return :error_binary.t(:page => page.title, :type => "#{page.mime.comment} (#{page.mime})") if page.content.encoding != __ENCODING__
       else
-        page.content
+        begin
+          require 'iconv'
+          Iconv.conv('utf-8', 'utf-8', page.content)
+        rescue
+          return :error_binary.t(:page => page.title, :type => "#{page.mime.comment} (#{page.mime})")
+        end
       end
+      params[:pos] ? page.content[params[:pos].to_i, params[:len].to_i].to_s : page.content
     end
   end
 
@@ -220,7 +223,8 @@ module Olelo
       layout = opts.delete(:layout)
       output = super(name, opts)
       if layout != false
-        doc = Nokogiri::XML(super(:layout, opts) { output })
+        content = super(:layout, opts) { output }
+        doc = Nokogiri::XML(content) # Nokogiri::XML(content, nil, 'UTF-8', Nokogiri::XML::ParseOptions::STRICT)
         invoke_hook :layout, name, doc
         output = doc.to_xhtml(:encoding => 'UTF-8')
       end

@@ -88,7 +88,6 @@ en:
   version:                'Version'
   version_conflict:       'Version conflict detected'
   view:                   'View'
-  warn_binary:            '#{page} is a #{type} and seems to be a binary file.'
   wrong_user_or_pw:       'Wrong username or password'
   wrong_password:         'Wrong password'
 de:
