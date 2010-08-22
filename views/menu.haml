@@ -1,8 +1,8 @@
 %ul
-  = breadcrumbs(page)
+  != breadcrumbs(page)
   - if page && !page.current?
     %li.noborder
-      = date page.tree_version.date
+      != date page.tree_version.date
 %ul.wiki
   - if page && !page.new?
     - if @menu_versions

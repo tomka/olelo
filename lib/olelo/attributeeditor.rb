@@ -129,8 +129,8 @@ module Olelo
       self.class.attribute_editor_group.parse(params)
     end
 
-    def attribute_editor(attr)
-      self.class.attribute_editor_group.build_form(attr)
+    def attribute_editor
+      self.class.attribute_editor_group.build_form(page.attributes)
     end
   end
 end

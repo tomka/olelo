@@ -19,37 +19,37 @@ __END__
 %p
   %a{:href => page_path(@page, :output => 'image') }
     %img{:src=> page_path(@page, :output => 'image', :geometry => '640x480>'), :alt => @page.title}
-%h3&= :information.t
+%h3= :information.t
 %table.zebra
   %tbody
     %tr
-      %td&= :name.t
-      %td&= @page.name
+      %td= :name.t
+      %td= @page.name
     %tr
-      %td&= :title.t
-      %td&= @page.title
+      %td= :title.t
+      %td= @page.title
     %tr
-      %td&= :type.t
-      %td&= @type
+      %td= :type.t
+      %td= @type
     %tr
-      %td&= :geometry.t
-      %td&= @geometry
+      %td= :geometry.t
+      %td= @geometry
     - if @page.version
       %tr
-        %td&= :last_modified.t
-        %td= date @page.version.date
+        %td= :last_modified.t
+        %td!= date @page.version.date
       %tr
-        %td&= :version.t
-        %td.version&= @page.version
+        %td= :version.t
+        %td.version= @page.version
 - if @exif
-  %h3&= :exif.t
+  %h3= :exif.t
   %table.zebra
     %thead
       %tr
-        %th&= :entry.t
-        %th&= :value.t
+        %th= :entry.t
+        %th= :value.t
     %tbody
       - @exif.each do |key, value|
         %tr
-          %td&= key
-          %td&= value
+          %td= key
+          %td= value

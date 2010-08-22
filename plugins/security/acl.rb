@@ -96,5 +96,5 @@ end
 __END__
 @@ access_denied.haml
 - title :access_denied.t
-%h1&= :access_denied.t
-&= :access_denied_long.t
+%h1= :access_denied.t
+= :access_denied_long.t

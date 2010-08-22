@@ -32,8 +32,8 @@ describe 'Olelo::Templates' do
   end
 
   it 'should support haml options' do
-    render(:test, :locals => {:text => '< bad characters >'}).should.equal "<h1>< bad characters ></h1>\n"
-    render(:test, :escape_html => true, :locals => {:text => '< bad characters >'}).should.equal "<h1>&lt; bad characters &gt;</h1>\n"
+    render(:test, :escape_html => false, :locals => {:text => '< bad characters >'}).should.equal "<h1>< bad characters ></h1>\n"
+    render(:test, :locals => {:text => '< bad characters >'}).should.equal "<h1>&lt; bad characters &gt;</h1>\n"
   end
 end
 

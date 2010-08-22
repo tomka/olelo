@@ -77,18 +77,18 @@ __END__
   - @articles.each do |page, content|
     .article
       %h2
-        %a.name{:href => absolute_path(page) }&= page.name
-      .date= date page.version.date
-      .author&= :written_by.t(:author => page.version.author.name)
+        %a.name{:href => absolute_path(page) }= page.name
+      .date!= date page.version.date
+      .author= :written_by.t(:author => page.version.author.name)
       - tags = page.attributes['tags'].to_a
       - if !tags.empty?
         %ul.tags
-          = list_of(tags) do |tag|
+          != list_of(tags) do |tag|
             = tag
-      .content= content
+      .content!= content
       - if !full
-        %a.full{:href => absolute_path(page.path) }&= :full_article.t
-= pagination(page_path(@page), @last_page, @page_nr, :output => 'blog')
+        %a.full{:href => absolute_path(page.path) }= :full_article.t
+!= pagination(page_path(@page), @last_page, @page_nr, :output => 'blog')
 @@ menu.haml
 %table.blog-menu
   - years.keys.sort.each do |year|

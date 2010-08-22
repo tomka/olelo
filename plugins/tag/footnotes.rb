@@ -33,4 +33,4 @@ __END__
     %li(id="note#{id}")
       - refs.each do |ref|
         %a.backref(href="#ref#{ref}") ↑
-      = note
+      != note

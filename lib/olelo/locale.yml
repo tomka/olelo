@@ -1,7 +1,6 @@
 en:
   actions:                'Actions'
   already_exists:         '#{page} exists already'
-  anonymous_profile:      "Anonymous users don't have a profile."
   attribute_mime:         'Mime-Type'
   attribute_title:        'Title'
   attributes:             'Attributes'
@@ -70,7 +69,6 @@ en:
   root:                   'Root'
   page_deleted:           '#{page} deleted.'
   page_moved:             '#{page} moved to #{destination}.'
-  page_saved:             '#{page} saved.'
   save:                   'Save'
   save_and_close:         'Save & Close'
   search:                 'Search'
@@ -82,7 +80,6 @@ en:
   tree:                   'Tree'
   upload_file:            'Upload a file'
   upload:                 'Upload'
-  upload_warning:         'The existing page will be overwritten by the upload.'
   user:                   'User'
   user_already_exists:    'User #{name} already exists'
   version:                'Version'
@@ -93,7 +90,6 @@ en:
 de:
   actions:                'Aktionen'
   already_exists:         '#{page} existiert bereits'
-  anonymous_profile:      'Anonyme Benutzer haben kein Profil.'
   attribute_mime:         'Mime-Typ'
   attribute_title:        'Titel'
   attributes:             'Attribute'
@@ -162,7 +158,6 @@ de:
   root:                   'Root'
   page_deleted:           '#{page} gelöscht.'
   page_moved:             '#{page} verschoben nach #{destination}.'
-  page_saved:             '#{page} gespeichert.'
   save:                   'Speichern'
   save_and_close:         'Speichern & Schließen'
   search:                 'Suche'
@@ -174,7 +169,6 @@ de:
   tree:                   'Baum'
   upload_file:            'Datei hochladen'
   upload:                 'Hochladen'
-  upload_warning:         'Die bestehende Seite wird durchs Hochladen überschrieben.'
   user:                   'Benutzer'
   user_already_exists:    'Benutzer #{name} existiert bereits'
   version:                'Version'

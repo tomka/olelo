@@ -5,6 +5,8 @@
     |
   = :version.t
   %a.version{:href => page_path(page, :version => page.version), :title => page.version }= page.version.short
-  = "#{:by.t} #{page.version.author.name}, #{date page.version.date}"
-%h1&= title
-~ content
+  = :by.t
+  = page.version.author.name
+  ! , #{date page.version.date}
+%h1= title
+!= content

@@ -15,7 +15,7 @@ __END__
 %table.zebra
   %tr
     %td Ruby version:
-    %td&= RUBY_VERSION
+    %td= RUBY_VERSION
   %tr
     %td Memory usage:
     %td #{@memory} MiB
@@ -26,23 +26,23 @@ __END__
     %td= Olelo::Config.production?
   %tr
     %td Repository backend:
-    %td&= Olelo::Config.repository.type
+    %td= Olelo::Config.repository.type
   %tr
     %td Authentication backend:
-    %td&= Olelo::Config.authentication.service
+    %td= Olelo::Config.authentication.service
   %tr
     %td Locale:
-    %td&= Olelo::Config.locale
+    %td= Olelo::Config.locale
   %tr
     %td External images enabled:
-    %td&= Olelo::Config.external_images?
+    %td= Olelo::Config.external_images?
   %tr
     %td Sidebar page:
     %td
-      %a{:href => absolute_path(Olelo::Config.sidebar_page)}&= Olelo::Config.sidebar_page
+      %a{:href => absolute_path(Olelo::Config.sidebar_page)}= Olelo::Config.sidebar_page
   %tr
     %td Mime type detection order:
-    %td&= Olelo::Config.mime.join(', ')
+    %td= Olelo::Config.mime.join(', ')
 - if Olelo.const_defined? 'Engine'
   %h2 Engines
   %p
@@ -59,9 +59,9 @@ __END__
     %tbody
       - Olelo::Engine.engines.values.flatten.each do |engine|
         %tr
-          %td&= engine.name
-          %td&= engine.mime
-          %td&= engine.accepts
+          %td= engine.name
+          %td= engine.mime
+          %td= engine.accepts
           %td= engine.hidden?
           %td= engine.priority
 - if Olelo.const_defined? 'Tag'
@@ -77,10 +77,10 @@ __END__
     %tbody
       - Olelo::Tag.tags.each do |name, tag|
         %tr
-          %td&= name
-          %td&= tag.description
-          %td&= tag.plugin.name
-          %td&= tag.requires.join(', ')
+          %td= name
+          %td= tag.description
+          %td= tag.plugin.name
+          %td= tag.requires.join(', ')
 %h2 Plugins
 %p These plugins are currently available on your installation.
 %table.zebra.full
@@ -93,23 +93,19 @@ __END__
   %tbody
     - Olelo::Plugin.plugins.sort_by(&:name).each do |plugin|
       %tr
-        %td&= plugin.name
-        %td&= plugin.author
-        %td&= plugin.description
-        %td&= plugin.dependencies.join(', ')
+        %td= plugin.name
+        %td= plugin.author
+        %td= plugin.description
+        %td= plugin.dependencies.join(', ')
     - Olelo::Plugin.disabled.sort.each do |plugin|
       %tr
-        %td
-          &= plugin
-          (disabled)
+        %td #{plugin} (disabled)
         %td unknown
         %td unknown
         %td unknown
     - Olelo::Plugin.failed.sort.each do |plugin|
       %tr
-        %td
-          &= plugin
-          (failed)
+        %td #{plugin} (failed)
         %td unknown
         %td unknown
         %td unknown

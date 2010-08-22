@@ -36,7 +36,7 @@ Engine.create(:image, :priority => 5, :accepts => 'application/pdf|postscript|im
       context.response['Content-Type'] = 'image/png'
       cmd.run(page.content)
     else
-      super
+      page.content
     end
   end
 end

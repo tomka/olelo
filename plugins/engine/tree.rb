@@ -18,7 +18,7 @@ AssetManager.register_assets 'tree.haml'
 __END__
 
 @@ tree.haml
-= pagination(page_path(@page), @last_page, @page_nr, :output => 'tree')
+!= pagination(page_path(@page), @last_page, @page_nr, :output => 'tree')
 %table#tree-table
   %thead
     %tr
@@ -35,12 +35,12 @@ __END__
       %tr
         %td.link
           %a{:href=>page_path(child), :class => classes}= child.name
-        %td= date(child.version.date)
+        %td!= date(child.version.date)
         %td= child.version.author.name.truncate(30)
-        %td&= child.version.comment.truncate(30)
+        %td= child.version.comment.truncate(30)
         %td.actions
           %a.action-edit{:href=>action_path(child, :edit), :title => :edit.t}= :edit.t
           %a.action-history{:href=>action_path(child, :history), :title => :history.t}= :history.t
           %a.action-move{:href=>action_path(child, :move), :title => :move.t}= :move.t
           %a.action-delete{:href=>action_path(child, :delete), :title => :delete.t}= :delete.t
-= pagination(page_path(@page), @last_page, @page_nr, :output => 'tree')
+!= pagination(page_path(@page), @last_page, @page_nr, :output => 'tree')

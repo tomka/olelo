@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 module Olelo
   module Templates
-    HAML_OPTIONS = { :format => :xhtml, :attr_wrapper  => '"', :ugly => true }
+    HAML_OPTIONS = { :format => :xhtml, :attr_wrapper  => '"', :ugly => true, :escape_html => true }
 
     class << self
       attr_reader :cache

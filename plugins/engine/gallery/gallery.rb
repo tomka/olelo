@@ -20,7 +20,7 @@ end
 
 __END__
 @@ gallery.haml
-= pagination(page_path(@page), @last_page, @page_nr, :output => 'gallery')
+!= pagination(page_path(@page), @last_page, @page_nr, :output => 'gallery')
 %table.gallery
   - @images.each_slice(@per_row) do |row|
     %tr
@@ -31,4 +31,4 @@ __END__
         %td
           %a(href=image_path rel='thumb' title="#{image.title}")
             %img(src=thumb_path alt='')
-          %a(href=info_path)&= image.title
+          %a(href=info_path)= image.title

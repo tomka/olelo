@@ -4,4 +4,4 @@
   %a.version{:href=>page_path(page, :version => @diff.from)}= @diff.from.short
   &#8594;
   %a.version{:href=>page_path(page, :version => @diff.to)}= @diff.to.short
-~ format_diff(@diff)
+!= format_diff(@diff)

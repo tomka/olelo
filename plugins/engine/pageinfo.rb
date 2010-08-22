@@ -13,23 +13,23 @@ __END__
 %table.zebra
   %tbody
     %tr
-      %td&= :name.t
-      %td&= @page.name
+      %td= :name.t
+      %td= @page.name
     %tr
-      %td&= :title.t
-      %td&= @page.title
+      %td= :title.t
+      %td= @page.title
     - if @page.version
       %tr
-        %td&= :last_modified.t
-        %td= date @page.version.date
+        %td= :last_modified.t
+        %td!= date @page.version.date
       %tr
-        %td&= :version.t
+        %td= :version.t
         %td.version= @page.version
     %tr
-      %td&= :type.t
+      %td= :type.t
       %td #{@page.mime.comment} (#{@page.mime})
     - if @page.content
       %tr
-        %td&= :download.t
+        %td= :download.t
         %td
-          %a{:href=> page_path(@page, :output => 'download')}&= :download.t
+          %a{:href=> page_path(@page, :output => 'download')}= :download.t

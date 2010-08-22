@@ -150,19 +150,19 @@ module Olelo
     end
 
     get '/profile' do
+      raise 'Anonymous users don not have a profile.' if user.anonymous?
       render :profile
     end
 
     post '/profile' do
+      raise 'Anonymous users don not have a profile.' if user.anonymous?
       on_error :profile
-      if !user.anonymous?
-        user.modify do |u|
-          u.change_password(params[:oldpassword], params[:password], params[:confirm]) if !params[:password].blank?
-          u.email = params[:email]
-        end
-        flash.info :changes_saved.t
-        session[:user] = user
+      user.modify do |u|
+        u.change_password(params[:oldpassword], params[:password], params[:confirm]) if !params[:password].blank?
+        u.email = params[:email]
       end
+      flash.info :changes_saved.t
+      session[:user] = user
       render :profile
     end
 
@@ -257,60 +257,71 @@ module Olelo
       end
 
       post '/(:path)' do
-        on_error :edit
-        @page = Page.find(params[:path]) || Page.new(params[:path])
+        save_page
+      end
 
-        if action?(:edit) && params[:content]
-          params[:content].gsub!("\r\n", "\n")
-          with_hooks :save, page do
-            Page.transaction(:page_edited.t(:page => page.title, :comment => params[:comment]), user) do
-              page.content = if params[:pos]
-                                [page.content[0, params[:pos].to_i].to_s,
-                                 params[:content],
-                                 page.content[params[:pos].to_i + params[:len].to_i .. -1]].join
-                              else
-                                params[:content]
-                              end
-              check do |errors|
-                errors << :empty_comment.t if params[:comment].blank?
-                errors << :version_conflict.t if !page.new? && page.version.to_s != params[:version]
-                errors << :no_changes.t if !page.modified?
-              end
-              page.save
+      put '/(:path)' do
+        save_page
+      end
+    end
+
+    def save_page
+      @page = request.put? ? Page.find!(params[:path]) : Page.new(params[:path])
+      raise :reserved_path.t if reserved_path?(page.path)
+      on_error :edit
+
+      if action?(:edit) && params[:content]
+        params[:content].gsub!("\r\n", "\n")
+        with_hooks :save, page do
+          Page.transaction(:page_edited.t(:page => page.title, :comment => params[:comment]), user) do
+            page.content = if params[:pos]
+                             [page.content[0, params[:pos].to_i].to_s,
+                              params[:content],
+                              page.content[params[:pos].to_i + params[:len].to_i .. -1]].join
+                           else
+                             params[:content]
+                           end
+            redirect absolute_path(page) if params[:close] && !page.modified?
+            check do |errors|
+              errors << :empty_comment.t if params[:comment].blank?
+              errors << :version_conflict.t if !page.new? && page.version.to_s != params[:version]
+              errors << :no_changes.t if !page.modified?
             end
-            params.delete(:comment)
-            flash.info :page_saved.t(:page => page.title)
+            page.save
           end
-        elsif action?(:upload) && params[:file]
-          with_hooks :save, page do
-            Page.transaction(:page_uploaded.t(:page => page.title), user) do
-              raise :version_conflict.t if !page.new? && page.version.to_s != params[:version]
-              page.content = params[:file][:tempfile]
-              page.save
-            end
-            flash.info :page_saved.t(:page => page.title)
-          end
-        elsif action?(:attributes)
-          with_hooks :save, page do
-            Page.transaction(:attributes_edited.t(:page => page.title), user) do
-              page.attributes = parse_attributes
-              check do |errors|
-                errors << :version_conflict.t if !page.new? && page.version.to_s != params[:version]
-                errors << :no_changes.t if !page.modified?
-              end
-              page.save
-            end
-            flash.info :page_saved.t(:page => page.title)
-          end
-        else
-          raise 'Invalid action'
+          params.delete(:comment)
+          flash.info :changes_saved.t
         end
-        if params[:close]
-          flash.clear
-          redirect absolute_path(page)
-        else
-          render :edit
+      elsif action?(:upload) && params[:file]
+        with_hooks :save, page do
+          Page.transaction(:page_uploaded.t(:page => page.title), user) do
+            raise :version_conflict.t if !page.new? && page.version.to_s != params[:version]
+            page.content = params[:file][:tempfile]
+            page.save
+          end
+          flash.info :changes_saved.t
         end
+      elsif action?(:attributes)
+        with_hooks :save, page do
+          Page.transaction(:attributes_edited.t(:page => page.title), user) do
+            page.attributes = parse_attributes
+            redirect absolute_path(page) if params[:close] && !page.modified?
+            check do |errors|
+              errors << :version_conflict.t if !page.new? && page.version.to_s != params[:version]
+              errors << :no_changes.t if !page.modified?
+            end
+            page.save
+          end
+          flash.info :changes_saved.t
+        end
+      else
+        raise 'Invalid action'
+      end
+      if params[:close]
+        flash.clear
+        redirect absolute_path(page)
+      else
+        render :edit
       end
     end
 
@@ -319,7 +330,6 @@ module Olelo
         router.map { |name, pattern, keys| [pattern, /#{pattern.source[0..-2]}/] }
       end.flatten
       self.class.final_routes
-      invoke_hook(:final_routes)
       self.class.router.each do |method, router|
         logger.debug method
         router.each do |name, pattern, keys|
