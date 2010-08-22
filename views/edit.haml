@@ -29,8 +29,8 @@
       %br
       %label(for='edit-comment')&= :comment.t
       %input#edit-comment(type='text' name='comment' value='#{params[:comment]}' size='50')
-      %button(type='submit' name='button' value='save')&= :save.t
-      %button(type='submit' name='button' value='close')&= :save_and_close.t
+      %button(type='submit')&= :save.t
+      %button(type='submit' name='close' value='1')&= :save_and_close.t
       %button(type='reset')&= :reset.t
       %br
   %form(action='#{absolute_path page}' method='post' enctype='multipart/form-data')
@@ -49,8 +49,8 @@
       %label(for='upload-file')&= :file.t
       %input#upload-file(name='file' type='file')
       %br
-      %button(type='submit' name='button' value='save')&= :save.t
-      %button(type='submit' name='button' value='close')&= :save_and_close.t
+      %button(type='submit')&= :save.t
+      %button(type='submit' name='close' value='1')&= :save_and_close.t
       %button(type='reset')&= :reset.t
       %br
   %form(action='#{absolute_path page}' method='post')
@@ -65,7 +65,7 @@
         %input(type='hidden' name='version' value='#{page.version}')
       = flash_messages if action? :attributes
       = attribute_editor(page.attributes)
-      %button(type='submit' name='button' value='save')&= :save.t
-      %button(type='submit' name='button' value='close')&= :save_and_close.t
+      %button(type='submit')&= :save.t
+      %button(type='submit' name='close' value='1')&= :save_and_close.t
       %button(type='reset')&= :reset.t
       %br

@@ -154,9 +154,10 @@ module Olelo
       @attributes ||= new? ? {} : repository.load_attributes(self)
     end
 
-    def attributes=(attributes)
-      if @attributes != attributes
-        @attributes = attributes
+    def attributes=(a)
+      a ||= {}
+      if attributes != a
+        @attributes = a
         @mime = nil
         @modified = true
       end
@@ -166,11 +167,11 @@ module Olelo
       @content ||= new? ? '' : repository.load_content(self)
     end
 
-    def content=(content)
-      if @content != content
+    def content=(c)
+      if content != c
         @modified = true
         @mime = nil
-        @content = content
+        @content = c
       end
     end
 

@@ -81,7 +81,7 @@ module Olelo
 
       def label
         @label ||= name.blank? ? '' : I18n.translate("group_#{@key}",
-                                                     :fallback => [@parent ? @parent.label : nil, name.tr('_', ' ').capitalize].join(' '))
+                                                     :fallback => [@parent ? @parent.label : nil, name.tr('_', ' ').capitalize].compact.join(' '))
       end
 
       def build_form(attr)

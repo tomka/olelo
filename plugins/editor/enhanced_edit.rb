@@ -11,8 +11,8 @@ class Olelo::Application
       end
 
       doc.css('#tab-edit button[type=submit]').before(
-        %{<button type="submit" name="preview" accesskey="p">#{:preview.t}</button>
-          <button type="submit" name="changes" accesskey="c">#{:changes.t}</button>}.unindent)
+        %{<button type="submit" name="preview" value="1" accesskey="p">#{:preview.t}</button>
+          <button type="submit" name="changes" value="1" accesskey="c">#{:changes.t}</button>}.unindent)
     end
   end
 

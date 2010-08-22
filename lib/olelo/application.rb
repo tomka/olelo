@@ -261,11 +261,9 @@ module Olelo
         @page = Page.find(params[:path]) || Page.new(params[:path])
 
         if action?(:edit) && params[:content]
+          params[:content].gsub!("\r\n", "\n")
           with_hooks :save, page do
-            raise :empty_comment.t if params[:comment].blank?
             Page.transaction(:page_edited.t(:page => page.title, :comment => params[:comment]), user) do
-              # TODO: Implement conflict diffs
-              raise :version_conflict.t if !page.new? && page.version.to_s != params[:version]
               page.content = if params[:pos]
                                 [page.content[0, params[:pos].to_i].to_s,
                                  params[:content],
@@ -273,6 +271,11 @@ module Olelo
                               else
                                 params[:content]
                               end
+              check do |errors|
+                errors << :empty_comment.t if params[:comment].blank?
+                errors << :version_conflict.t if !page.new? && page.version.to_s != params[:version]
+                errors << :no_changes.t if !page.modified?
+              end
               page.save
             end
             params.delete(:comment)
@@ -281,7 +284,6 @@ module Olelo
         elsif action?(:upload) && params[:file]
           with_hooks :save, page do
             Page.transaction(:page_uploaded.t(:page => page.title), user) do
-              # TODO: Implement conflict diffs
               raise :version_conflict.t if !page.new? && page.version.to_s != params[:version]
               page.content = params[:file][:tempfile]
               page.save
@@ -291,9 +293,11 @@ module Olelo
         elsif action?(:attributes)
           with_hooks :save, page do
             Page.transaction(:attributes_edited.t(:page => page.title), user) do
-              # TODO: Implement conflict diffs
-              raise :version_conflict.t if !page.new? && page.version.to_s != params[:version]
               page.attributes = parse_attributes
+              check do |errors|
+                errors << :version_conflict.t if !page.new? && page.version.to_s != params[:version]
+                errors << :no_changes.t if !page.modified?
+              end
               page.save
             end
             flash.info :page_saved.t(:page => page.title)
@@ -301,7 +305,7 @@ module Olelo
         else
           raise 'Invalid action'
         end
-        if params[:button] == 'close'
+        if params[:close]
           flash.clear
           redirect absolute_path(page)
         else
