@@ -22,16 +22,9 @@ class Olelo::Application
         flash.error :empty_comment.t if params[:comment].blank?
 
         if page.mime.text?
-          if params[:pos]
-            # We assume that engine stays the same if section is edited
-            engine = Engine.find!(page, :layout => true)
-            page.content = params[:content]
-          else
-            # Whole page edited, assign new content before engine search
-            page.content = params[:content]
-            engine = Engine.find!(page, :layout => true)
-          end
-          @preview = engine.output(Context.new(:page => page, :engine => engine))
+          page.content = params[:content]
+          engine = Engine.find(page, :layout => true)
+          @preview = engine && engine.output(Context.new(:page => page))
         end
 
         halt render(:edit)

@@ -52,9 +52,8 @@ Engine.create(:blog, :priority => 3, :layout => true, :cacheable => true, :hidde
     articles = articles[(@page_nr * per_page) ... ((@page_nr + 1) * per_page)].to_a
 
     @articles = articles.map do |page|
-      engine = Engine.find(page, :layout => true)
-      if engine
-        content = engine.output(context.subcontext(:engine => engine, :page => page))
+      begin
+        content =  Engine.find!(page, :layout => true).output(context.subcontext(:page => page))
         if !context.params[:full]
           paragraphs = Nokogiri::XML::DocumentFragment.parse(content).xpath('p')
           content = ''
@@ -63,8 +62,8 @@ Engine.create(:blog, :priority => 3, :layout => true, :cacheable => true, :hidde
             break if content.length > 10000
           end
         end
-      else
-        content = %{#{:engine_not_available.t(:page => page.title, :type => "#{page.mime.comment} (#{page.mime})", :engine => nil)}}
+      rescue Engine::NotAvailable => ex
+        %{<span class="error">#{escape_html ex.message}</span>}
       end
       [page, content]
     end

@@ -47,7 +47,7 @@ describe 'requests' do
                             'filter/benchmark',
                            ],
       :repository => {
-        :type  => :git,
+        :type  => 'git',
         :git => {
           :path => File.join(@test_path, 'repository'),
           :bare => true,
@@ -110,7 +110,7 @@ describe 'requests' do
       'action' => 'edit',
       'content' => 'Content of the Testpage',
       'comment' => 'My Comment',
-      'button' => 'close'
+      'close' => '1'
     }
     post('/Testfolder/Testpage', data)
 
@@ -138,7 +138,7 @@ describe 'requests' do
       'action' => 'edit',
       'content' => 'すみませんわかりません',
       'comment' => '测试',
-      'button' => 'close'
+      'close' => '1'
     }
     post(escape('/子供を公園/中文'), data)
     last_response.should.be.redirect

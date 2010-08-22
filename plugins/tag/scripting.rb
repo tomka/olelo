@@ -39,9 +39,8 @@ Tag.define :include, :requires => :page, :limit => 10, :description => 'Include 
   path = attrs['page']
   path = context.page.path/'..'/path if !path.begins_with? '/'
   if page = Page.find(path, context.page.current? ? nil : context.page.tree_version)
-    engine = Engine.find(page, :name => attrs['output'], :layout => true)
-    raise NameError, "No engine found for #{path}" if !engine
-    engine.output(context.subcontext(:engine => engine, :params => attrs, :page => page, :private => {:included => true}))
+    Engine.find!(page, :name => attrs['output'], :layout => true).
+      output(context.subcontext(:params => attrs, :page => page, :private => {:included => true}))
   else
     %{<a href="/#{escape_html path}/new">Create #{escape_html path}</a>}
   end

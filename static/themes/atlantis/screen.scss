@@ -327,12 +327,15 @@ form {
       width: auto;
     }
   }
-  input[type=text], textarea {
+  input[type=text], input[type=password] {
     font-family: "Bitstream Vera Mono", monospace;
     font-size: 100%;
+    width: 20em;
   }
   textarea {
-    width: 98%;
+    width: 100%;
+    font-family: "Bitstream Vera Mono", monospace;
+    font-size: 100%;
   }
   input {
     &[type=image], &[type=image]:focus, &[type=checkbox] {

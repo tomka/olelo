@@ -144,8 +144,6 @@ class GitRepository < Repository
           git.root[path/ATTRIBUTE_FILE] = Gitrb::Blob.new(:data => attributes)
         else
           git.root[path].data = content
-          puts git.root[path].modified?
-          puts git.root.modified?
         end
       end
     # Page does not yet exist

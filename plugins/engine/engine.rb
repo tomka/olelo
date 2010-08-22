@@ -37,6 +37,13 @@ class Olelo::Engine
 
   @engines = {}
 
+  class NotAvailable < NameError
+    def initialize(name, page)
+      super(:engine_not_available.t(:engine => name, :page => page.path,
+                                    :type => "#{page.mime.comment} (#{page.mime})"))
+    end
+  end
+
   # Constructor for engine
   # Options:
   # * layout: Engine output should be wrapped in HTML layout (Not used for download/image engines for example)
@@ -88,9 +95,7 @@ class Olelo::Engine
     opts[:name] ||= page.attributes['output']
     engines = opts[:name] ? @engines[opts[:name].to_s] : @engines.values.flatten
     engine = engines.to_a.sort_by {|e| e.priority }.find { |e| e.accepts?(page) && (!opts[:layout] || e.layout?) }
-    raise(:engine_not_available.t(:engine => opts[:name],
-                                  :page => page.path,
-                                  :type => "#{page.mime.comment} (#{page.mime})")) if !engine
+    raise NotAvailable.new(opts[:name], page) if !engine
     engine.dup
   end
 
@@ -123,26 +128,31 @@ class Olelo::Application
   end
 
   before :show do
-    @engine_name, layout, response, content =
-    Cache.cache("engine-#{page.path}-#{page.version}-#{build_query(params)}",
-                :marshal => true, :update => request.no_cache?, :defer => true) do |cache|
-      engine = Engine.find!(page, :name => params[:output])
-      cache.disable! if !engine.cacheable?
-      context = Context.new(:page => page, :params => params)
-      content = engine.output(context)
-      context.response['Content-Type'] ||= engine.mime.to_s if engine.mime
-      context.response['Content-Type'] ||= page.mime.to_s if !engine.layout?
-      [engine.name, engine.layout?, context.response.to_hash, content]
-    end
-    self.response.header.merge!(response)
-    if layout
-      if request.xhr?
-        content = "<h1>#{escape_html page.title}</h1>#{content}"
-      else
-        content = render(:show, :locals => {:content => content})
+    begin
+      @engine_name, layout, response, content =
+        Cache.cache("engine-#{page.path}-#{page.version}-#{build_query(params)}",
+                    :marshal => true, :update => request.no_cache?, :defer => true) do |cache|
+        engine = Engine.find!(page, :name => params[:output])
+        cache.disable! if !engine.cacheable?
+        context = Context.new(:page => page, :params => params)
+        content = engine.output(context)
+        context.response['Content-Type'] ||= engine.mime.to_s if engine.mime
+        context.response['Content-Type'] ||= page.mime.to_s if !engine.layout?
+        [engine.name, engine.layout?, context.response.to_hash, content]
       end
+      self.response.header.merge!(response)
+      if layout
+        if request.xhr?
+          content = "<h1>#{escape_html page.title}</h1>#{content}"
+        else
+          content = render(:show, :locals => {:content => content})
+        end
+      end
+      halt content
+    rescue Engine::NotAvailable => ex
+      flash.error ex.message
+      redirect action_path(page, 'edit')
     end
-    halt content
   end
 
   hook :layout do |name, doc|
