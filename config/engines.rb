@@ -17,7 +17,7 @@ regexp :textile_nowiki,  /<pre>.*?<\/pre>/m, '<notags>\0</notags>'
 ################################################################################
 
 engine :creole do
-  needs_layout.has_priority(1)
+  is_cacheable.needs_layout.has_priority(1)
   accepts 'text/x-creole'
   filter do
     remove_comments
@@ -30,6 +30,7 @@ engine :creole do
 end
 
 engine :s5 do
+  is_cacheable
   accepts 'text/x-creole'
   mime 'application/xhtml+xml; charset=utf-8'
   filter do
@@ -40,6 +41,7 @@ engine :s5 do
 end
 
 engine :latex do
+  is_cacheable
   accepts 'text/x-creole'
   mime 'text/plain; charset=utf-8'
   filter do
@@ -54,7 +56,7 @@ end
 ################################################################################
 
 engine :textile do
-  needs_layout.has_priority(1)
+  is_cacheable.needs_layout.has_priority(1)
   accepts 'text/x-textile'
   filter do
     remove_comments.math_shortcuts
@@ -64,6 +66,7 @@ engine :textile do
 end
 
 engine :s5 do
+  is_cacheable
   accepts 'text/x-textile'
   mime 'application/xhtml+xml; charset=utf-8'
   filter do
@@ -74,6 +77,7 @@ engine :s5 do
 end
 
 engine :latex do
+  is_cacheable
   accepts 'text/x-textile'
   mime 'text/plain; charset=utf-8'
   filter do
@@ -88,7 +92,7 @@ end
 ################################################################################
 
 engine :markdown do
-  needs_layout.has_priority(1)
+  is_cacheable.needs_layout.has_priority(1)
   accepts 'text/x-markdown'
   filter do
     remove_comments.math_shortcuts
@@ -98,6 +102,7 @@ engine :markdown do
 end
 
 engine :s5 do
+  is_cacheable
   accepts 'text/x-markdown'
   mime 'application/xhtml+xml; charset=utf-8'
   filter do
@@ -108,6 +113,7 @@ engine :s5 do
 end
 
 engine :latex do
+  is_cacheable
   accepts 'text/x-markdown'
   mime 'text/plain; charset=utf-8'
   filter do
@@ -122,7 +128,7 @@ end
 ################################################################################
 
 engine :kramdown do
-  needs_layout.has_priority(2)
+  is_cacheable.needs_layout.has_priority(2)
   accepts 'text/x-markdown'
   filter do
     remove_comments.math_shortcuts
@@ -132,6 +138,7 @@ engine :kramdown do
 end
 
 engine :s5 do
+  is_cacheable
   accepts 'text/x-markdown'
   mime 'application/xhtml+xml; charset=utf-8'
   filter do
@@ -142,6 +149,7 @@ engine :s5 do
 end
 
 engine :latex do
+  is_cacheable
   accepts 'text/x-markdown'
   mime 'text/plain; charset=utf-8'
   filter do
@@ -156,7 +164,7 @@ end
 ################################################################################
 
 engine :maruku do
-  needs_layout.has_priority(3)
+  is_cacheable.needs_layout.has_priority(3)
   accepts 'text/x-markdown'
   filter do
     remove_comments.math_shortcuts
@@ -166,6 +174,7 @@ engine :maruku do
 end
 
 engine :s5 do
+  is_cacheable
   accepts 'text/x-markdown'
   mime 'application/xhtml+xml; charset=utf-8'
   filter do
@@ -176,6 +185,7 @@ engine :s5 do
 end
 
 engine :latex do
+  is_cacheable
   accepts 'text/x-markdown'
   mime 'text/plain; charset=utf-8'
   filter do
@@ -190,7 +200,7 @@ end
 ################################################################################
 
 engine :orgmode do
-  needs_layout.has_priority(1)
+  is_cacheable.needs_layout.has_priority(1)
   accepts 'text/x-orgmode'
   filter do
     remove_comments.math_shortcuts
@@ -200,6 +210,7 @@ engine :orgmode do
 end
 
 engine :s5 do
+  is_cacheable
   accepts 'text/x-orgmode'
   mime 'application/xhtml+xml; charset=utf-8'
   filter do
@@ -210,6 +221,7 @@ engine :s5 do
 end
 
 engine :latex do
+  is_cacheable
   accepts 'text/x-orgmode'
   mime 'text/plain; charset=utf-8'
   filter do
