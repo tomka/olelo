@@ -54,7 +54,7 @@
       %button(type='reset')&= :reset.t
       %br
   %form(action='#{absolute_path page}' method='post')
-    #tab-attributes.box.fieldset
+    #tab-attributes.fieldset
       %input(type='hidden' name='action'  value='attributes')
       %h2&= :attributes.t
       - if page.new?

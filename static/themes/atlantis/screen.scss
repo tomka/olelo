@@ -392,7 +392,7 @@ table input {
       background: $light_bg1;
       float: left;
       padding: 0;
-      margin: 0 0 0 4px;
+      margin: 0 4px 0 0;
       height: 1.5em;
       line-height: 1.5em;
       border: $border;
@@ -413,6 +413,9 @@ table input {
 	}
       }
     }
+  }
+  .box, .fieldset {
+    @include rounded-tl(0px);
   }
 }
 
