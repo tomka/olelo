@@ -129,6 +129,7 @@ class Olelo::Application
 
   before :show do
     begin
+      params[:output] ||= 'tree' if params[:path].to_s.ends_with? '/'
       @engine_name, layout, response, content =
         Cache.cache("engine-#{page.path}-#{page.version}-#{build_query(params)}",
                     :marshal => true, :update => request.no_cache?, :defer => true) do |cache|
@@ -151,6 +152,7 @@ class Olelo::Application
       halt content
     rescue Engine::NotAvailable => ex
       cache_control :no_cache => true
+      redirect absolute_path(page) if params[:path].to_s.ends_with? '/'
       raise if params[:output]
       flash.error ex.message
       redirect action_path(page, 'edit')
