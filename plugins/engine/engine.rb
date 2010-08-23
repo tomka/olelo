@@ -150,6 +150,8 @@ class Olelo::Application
       end
       halt content
     rescue Engine::NotAvailable => ex
+      cache_control :no_cache => true
+      raise if params[:output]
       flash.error ex.message
       redirect action_path(page, 'edit')
     end
