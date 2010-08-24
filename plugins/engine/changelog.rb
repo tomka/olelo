@@ -1,44 +1,47 @@
-description 'RSS Changelogs'
+description 'Changelog Engine'
+dependencies 'engine/engine'
 require     'rss/maker'
 
-class Olelo::Application
-  hook :layout do |name, doc|
-    doc.css('head').first << %{<link rel="alternate" href="#{escape_html absolute_path('changelog.atom')}"
-                               type="application/atom+xml" title="Sitewide Atom Changelog"/>
-                               <link rel="alternate" href="#{escape_html absolute_path('changelog.rss')}"
-                               type="application/rss+xml" title="Sitewide RSS Changelog"/>}.unindent
-    if page && !page.new?
-      doc.css('head').first << %{<link rel="alternate" href="#{escape_html(action_path(page, 'changelog.atom'))}" type="application/atom+xml"
-                                 title="#{escape_html page.path} Atom Changelog"/>
-                                 <link rel="alternate" href="#{escape_html(action_path(page, 'changelog.rss'))}" type="application/rss+xml"
-                                 title="#{escape_html page.path} RSS Changelog"/>}.unindent if !page.root?
-    end
-  end
+Engine.create(:changelog, :cacheable => true, :hidden => true) do
+  def output(context)
+    page, format = context.page, context.params[:format]
 
-  get '(/:path)/changelog.:format', :format => /rss|atom/  do
-    page = Page.find!(params[:path])
-    cache_control :etag => page.version, :last_modified => page.version.date
+    url = context.request.scheme + '://' +
+      context.request.host + ':' +
+      context.request.port.to_s + '/'
 
-    response['Content-Type'] = "application/#{params[:format]}+xml; charset=utf-8"
-    prefix = request.scheme + '://' +  request.host + ':' + request.port.to_s + '/'
+    context.response['Content-Type'] = "application/#{format == 'rss' ? 'rss' : 'atom'}+xml; charset=utf-8"
 
-    content = RSS::Maker.make(params[:format] == 'rss' ? '2.0' : 'atom') do |feed|
+    content = RSS::Maker.make(format == 'rss' ? '2.0' : 'atom') do |feed|
       feed.channel.generator = 'Ōlelo'
       feed.channel.title = Config.title
-      feed.channel.link = prefix + page.path
+      feed.channel.link = url + page.path
       feed.channel.description = Config.title + ' Changelog'
-      feed.channel.id = prefix + page.path
+      feed.channel.id = url + page.path
       feed.channel.updated = Time.now
       feed.channel.author = Config.title
       feed.items.do_sort = true
       page.history.each do |version|
         i = feed.items.new_item
         i.title = version.comment
-        i.link = prefix + 'changes'/version
+        i.link = url + 'changes'/version
         i.date = version.date
         i.dc_creator = version.author.name
       end
     end
     content.to_s
+  end
+end
+
+Application.hook :layout do |name, doc|
+  doc.css('head').first << %{<link rel="alternate" href="#{escape_html page_path(page, :output => 'changelog', :format => 'atom')}"
+                             type="application/atom+xml" title="Sitewide Atom Changelog"/>
+                             <link rel="alternate" href="#{escape_html page_path(page, :output => 'changelog', :format => 'rss')}"
+                             type="application/rss+xml" title="Sitewide RSS Changelog"/>}.unindent
+  if page && !page.new?
+    doc.css('head').first << %{<link rel="alternate" href="#{escape_html(page_path(page, :output => 'changelog', :format => 'atom'))}"
+                               type="application/atom+xml" title="#{escape_html page.path} Atom Changelog"/>
+                               <link rel="alternate" href="#{escape_html(page_path(page, :output => 'changelog', :format => 'rss'))}"
+                               type="application/rss+xml" title="#{escape_html page.path} RSS Changelog"/>}.unindent if !page.root?
   end
 end

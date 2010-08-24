@@ -9,22 +9,24 @@ dependencies 'utils/cache'
 class Olelo::Context
   include Hooks
 
-  attr_reader :page, :parent, :private, :params, :response
+  attr_reader :page, :parent, :private, :params, :request, :response
 
   def initialize(attrs = {})
     @page     = attrs[:page]
     @parent   = attrs[:parent]
     @private  = attrs[:private]  || Hash.with_indifferent_access
     @params   = attrs[:params]   || Hash.with_indifferent_access
+    @request  = attrs[:request]
     @response = attrs[:response] || Hash.with_indifferent_access
     invoke_hook(:initialized)
   end
 
   def subcontext(attrs = {})
-    Context.new(:page    => attrs[:page] || @page,
-                :parent  => self,
-                :private => @private.merge(attrs[:private] || {}),
-                :params  => @params.merge(attrs[:params] || {}),
+    Context.new(:page     => attrs[:page] || @page,
+                :parent   => self,
+                :private  => @private.merge(attrs[:private] || {}),
+                :params   => @params.merge(attrs[:params] || {}),
+                :request  => @request,
                 :response => @response)
   end
 end
@@ -135,7 +137,7 @@ class Olelo::Application
                     :marshal => true, :update => request.no_cache?, :defer => true) do |cache|
         engine = Engine.find!(page, :name => params[:output])
         cache.disable! if !engine.cacheable?
-        context = Context.new(:page => page, :params => params)
+        context = Context.new(:page => page, :params => params, :request => request)
         content = engine.output(context)
         context.response['Content-Type'] ||= engine.mime.to_s if engine.mime
         context.response['Content-Type'] ||= page.mime.to_s if !engine.layout?
