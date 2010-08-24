@@ -26,9 +26,9 @@ __END__
     %tr
       - row.each do |image|
         - thumb_path = page_path(image, :output => 'image', :geometry => '150x150>')
-        - image_path = page_path(image, :output => 'image', :geometry => '600x600>')
+        - image_path = page_path(image, :output => 'image', :geometry => '800x800>')
         - info_path  = page_path(image, :output => 'imageinfo')
         %td
           %a(href=image_path rel='thumb' title="#{image.title}")
             %img(src=thumb_path alt='')
-          %a(href=info_path)= image.title
+          %a.title(href=info_path)= image.title

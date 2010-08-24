@@ -10,7 +10,6 @@
     border: none;
     color: #ffffc2;
     font-size: 200%;
-    font-variant: small-caps;
     font-weight: bold;
     float: left;
   }
@@ -67,12 +66,11 @@ html, body {
   float: left;
   padding-bottom: 3.5em;
   margin-left: -$sidebar_width;
-  font-variant: small-caps;
   h1, h2, h3, h4, h5, h6 {
     font-size: 140%;
     background: white;
     font-weight: normal;
-    padding: 0 5px;
+    line-height: 1.2em;
     margin: 1em 0 0 0;
     border-top: 1px solid #85aaff;
     border-bottom: 1px solid #85aaff;

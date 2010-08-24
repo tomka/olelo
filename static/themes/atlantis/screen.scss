@@ -98,7 +98,6 @@ table {
   th, thead tr {
     background: url(images/button_bg.png) repeat-x left bottom $light_bg1;
     border-bottom: $border;
-    font-variant: small-caps;
   }
   td, th {
     padding: 0.2em 0.5em;
@@ -328,13 +327,13 @@ form {
     }
   }
   input[type=text], input[type=password] {
-    font-family: "Bitstream Vera Mono", monospace;
+    font-family: $monospace_font;
     font-size: 100%;
     width: 20em;
   }
   textarea {
     width: 100%;
-    font-family: "Bitstream Vera Mono", monospace;
+    font-family: $monospace_font;
     font-size: 100%;
   }
   input {
@@ -388,7 +387,6 @@ table input {
     > li {
       @include rounded-tl;
       @include rounded-tr;
-      font-variant: small-caps;
       background: $light_bg1;
       float: left;
       padding: 0;

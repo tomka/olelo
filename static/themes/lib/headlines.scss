@@ -1,4 +1,4 @@
-@mixin headlines($size: 180%, $factor: 10%) {
+@mixin headlines($size: 200%, $factor: 15%) {
   @for $i from 1 through 6 {
     h#{$i} {
       font-size: $size - $factor * $i;
