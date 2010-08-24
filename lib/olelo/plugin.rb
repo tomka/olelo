@@ -31,6 +31,11 @@ module Olelo
         @failed
       end
 
+      # Start plugins
+      def start
+        @plugins.each_value {|plugin| plugin.start }
+      end
+
       # Load plugins by name and return a boolean for success
       def load(*list)
         files = list.map do |name|
@@ -79,12 +84,28 @@ module Olelo
     end
 
     attr_reader :name, :file
+    attr_reader? :started
     attr_setter :author, :description, :logger
 
     def initialize(name, file, logger)
       @name = name
       @file = file
       @logger = logger
+      @started = false
+    end
+
+    # Start the plugin
+    def start
+      return true if @started
+      with_hooks :start do
+        setup if respond_to?(:setup)
+        @started = true
+        logger.debug "Plugin #{name} successfully started"
+      end
+    rescue Exception => ex
+      logger.error "Plugin #{name} failed to start due to: #{ex.message}"
+      logger.error ex
+      false
     end
 
     # Load specified plugins and fail if

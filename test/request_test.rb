@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 require 'helper'
 require 'rack/force_encoding'
 
@@ -17,7 +16,7 @@ describe 'requests' do
     @app_path = File.expand_path(File.join(File.dirname(__FILE__), '..'))
 
     default_config = {
-      :title             => 'Ōlelo',
+      :title             => 'Olelo',
       :app_path          => @app_path,
       :plugins_path      => File.join(@app_path, 'plugins'),
       :config_path       => File.join(@app_path, 'config'),
@@ -69,13 +68,10 @@ describe 'requests' do
       end
       run Olelo::Application.new(nil, :logger => logger)
     end
-
   end
 
   after do
     FileUtils.rm_rf(@test_path)
-    @app = nil
-    Olelo::Filter.registry.clear
   end
 
   it 'should have empty repository' do
@@ -117,7 +113,7 @@ describe 'requests' do
       'comment' => 'My Comment',
       'close' => '1'
     }
-    post('/Testfolder/Testpage', data)
+    post '/Testfolder/Testpage', data
 
     last_response.should.be.redirect
     last_response.location.should.equal '/Testfolder/Testpage'
@@ -141,22 +137,25 @@ describe 'requests' do
   it 'should create page with special characters' do
     data = {
       'action' => 'edit',
-      'content' => 'すみませんわかりません',
-      'comment' => '测试',
+      'content' => "\343\201\231\343\201\277\343\201\276\343\201\233\343\202\223\343\202\217\343\201\213\343\202\212\343\201\276\343\201\233\343\202\223",
+      'comment' => "\346\265\213\350\257\225",
       'close' => '1'
     }
-    post(escape('/子供を公園/中文'), data)
+    post '/%E5%AD%90%E4%BE%9B%E3%82%92%E5%85%AC%E5%9C%92/%E4%B8%AD%E6%96%87', data
     last_response.should.be.redirect
 
-    unescape(last_response.location).should.equal '/子供を公園/中文'
+    loc1, loc2 = '', ''
+    last_response.location.each_byte {|c| loc1 << c}
+    unescape('/%E5%AD%90%E4%BE%9B%E3%82%92%E5%85%AC%E5%9C%92/%E4%B8%AD%E6%96%87').each_byte {|c| loc2 << c }
+    loc1.should.equal loc2
 
-    get escape('/子供を公園/中文')
+    get '/%E5%AD%90%E4%BE%9B%E3%82%92%E5%85%AC%E5%9C%92/%E4%B8%AD%E6%96%87'
     last_response.should.be.ok
 
-    get escape('/history/子供を公園/中文')
+    get '/history/%E5%AD%90%E4%BE%9B%E3%82%92%E5%85%AC%E5%9C%92/%E4%B8%AD%E6%96%87'
     last_response.should.be.ok
 
-    get escape('/edit/子供を公園/中文')
+    get '/edit/%E5%AD%90%E4%BE%9B%E3%82%92%E5%85%AC%E5%9C%92/%E4%B8%AD%E6%96%87'
     last_response.should.be.ok
   end
 end

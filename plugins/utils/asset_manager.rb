@@ -34,11 +34,15 @@ end
 class Olelo::Application
   hook :layout, 1 do |name, doc|
     asset = AssetManager.assets['assets.css']
-    path = absolute_path "_/assets/assets.css?#{asset[2].to_i}"
-    doc.css('head').first << %{<link rel="stylesheet" href="#{escape_html path}" type="text/css"/>} if asset
+    if asset
+      path = absolute_path "_/assets/assets.css?#{asset[2].to_i}"
+      doc.css('head').first << %{<link rel="stylesheet" href="#{escape_html path}" type="text/css"/>}
+    end
     asset = AssetManager.assets['assets.js']
-    path = absolute_path "_/assets/assets.js?#{asset[2].to_i}"
-    doc.css('body').first << %{<script src="#{escape_html path}" type="text/javascript"/>} if asset
+    if asset
+      path = absolute_path "_/assets/assets.js?#{asset[2].to_i}"
+      doc.css('body').first << %{<script src="#{escape_html path}" type="text/javascript"/>}
+    end
   end
 
   get "/_/assets/:name", :name => '.*' do
@@ -52,14 +56,14 @@ class Olelo::Application
       pass
     end
   end
+end
 
-  hook :start do
-    fs = DirectoryFS.new(Olelo::Config.tmp_path)
-    AssetManager.scripts.each do |type, s|
-      name = 'assets.' + type
-      File.open(File.join(Olelo::Config.tmp_path, name), 'w') {|out| out << s.sort_by(&:first).map(&:last).join("\n") }
-      AssetManager.assets[name] = [fs, name, s.map {|x| x[1] }.max]
-    end
-    AssetManager.scripts.clear
+def setup
+  fs = DirectoryFS.new(Olelo::Config.tmp_path)
+  AssetManager.scripts.each do |type, s|
+    name = 'assets.' + type
+    File.open(File.join(Olelo::Config.tmp_path, name), 'w') {|out| out << s.sort_by(&:first).map(&:last).join("\n") }
+    AssetManager.assets[name] = [fs, name, s.map {|x| x[1] }.max]
   end
+  AssetManager.scripts.clear
 end

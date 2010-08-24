@@ -3,7 +3,7 @@
             :class => page && !page.current? ? 'archive' : nil}
   %head
     %title= Olelo::Config.title + ' - ' + title
-    != theme_links
+    != self.class.theme_links
     %link(rel='shortcut icon' href='#{absolute_path "static/images/favicon.png?1"}' type='image/png')
   %body
     #header

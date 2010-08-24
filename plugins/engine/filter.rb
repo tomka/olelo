@@ -135,7 +135,7 @@ class Olelo::FilterEngine < Engine
   end
 end
 
-Application.hook :start do
+def setup
   file = File.join(Config.config_path, 'engines.rb')
   FilterEngine::Registrator.new.instance_eval(File.read(file), file)
 end

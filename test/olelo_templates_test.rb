@@ -6,7 +6,7 @@ class Bacon::Context
   include Olelo::Templates
 end
 
-class TemplateLoader
+class TestTemplateLoader
   def context
     nil
   end
@@ -19,7 +19,7 @@ end
 describe 'Olelo::Templates' do
   before do
     Olelo::Templates.enable_caching
-    Olelo::Templates.loader = TemplateLoader.new
+    Olelo::Templates.loader = TestTemplateLoader.new
   end
 
   after do
