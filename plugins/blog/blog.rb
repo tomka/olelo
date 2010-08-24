@@ -53,7 +53,7 @@ Engine.create(:blog, :priority => 3, :layout => true, :cacheable => true, :hidde
 
     @articles = articles.map do |page|
       begin
-        content =  Engine.find!(page, :layout => true).output(context.subcontext(:page => page))
+        content =  Engine.find!(page, :layout => true).output(context.subcontext(:page => page, :params => {:included => true}))
         if !context.params[:full]
           paragraphs = Nokogiri::XML::DocumentFragment.parse(content).xpath('p')
           content = ''

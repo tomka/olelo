@@ -6,7 +6,7 @@ class Olelo::Application
     doc.css('#sidebar').first << if page = Page.find(Config.sidebar_page)
       Cache.cache("sidebar-#{page.version}", :update => request.no_cache?, :defer => true) do |context|
         begin
-          Engine.find!(page, :layout => true).output(Context.new(:page => page))
+          Engine.find!(page, :layout => true).output(Context.new(:page => page, :params => {:included => true}))
         rescue Engine::NotAvailable => ex
           %{<span class="error">#{escape_html ex.message}</span>}
         end

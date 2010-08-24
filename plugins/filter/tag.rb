@@ -131,12 +131,13 @@ class Olelo::Tag < Filter
   end
 
   def nested_tags(context, content)
-    @tag_level += 1
-    return 'Maximum tag nesting exceeded' if @tag_level > MAX_RECURSION
+    context.private[:tag_level] ||= 0
+    context.private[:tag_level] += 1
+    return 'Maximum tag nesting exceeded' if context.private[:tag_level] > MAX_RECURSION
     result = TagSoupParser.new(@@tags, content).parse do |name, attrs, text|
       process_tag(name, attrs, text, context)
     end
-    @tag_level -= 1
+    context.private[:tag_level] -= 1
     result
   end
 
@@ -147,15 +148,12 @@ class Olelo::Tag < Filter
   def filter(context, content)
     @protected_elements = []
     @protection_prefix = "TAG_#{object_id}_"
-    @tag_level = 0
-    @tag_counter = {}
     replace_protected_elements(subfilter(context, content))
   end
 
   private
 
   MAX_RECURSION = 100
-  MAX_NESTING = 10
   BLOCK_ELEMENTS = %w(style script address blockquote div h1 h2 h3 h4 h5 h6 ul p ol pre table hr br)
   BLOCK_ELEMENT_REGEX = /<(#{BLOCK_ELEMENTS.join('|')})/
 
@@ -168,10 +166,12 @@ class Olelo::Tag < Filter
 
   def process_tag(name, attrs, content, context)
     tag = @@tags[name]
-    @tag_counter[name] ||= 0
-    @tag_counter[name] += 1
 
-    if tag.limit && @tag_counter[name] > tag.limit
+    tag_counter = context.private[:tag_counter] ||= {}
+    tag_counter[name] ||= 0
+    tag_counter[name] += 1
+
+    if tag.limit && tag_counter[name] > tag.limit
       "#{name}: Tag limit exceeded"
     elsif attr = tag.requires.find {|a| !attrs.include?(a) }
       %{#{name}: Attribute "#{attr}" is required}
@@ -194,7 +194,7 @@ class Olelo::Tag < Filter
 
   def replace_protected_elements(content)
     # Protected elements can be nested into each other
-    MAX_NESTING.times do
+    MAX_RECURSION.times do
       break if !content.gsub!(/#{@protection_prefix}(\d+)/) do
         element = @protected_elements[$1.to_i]
 
