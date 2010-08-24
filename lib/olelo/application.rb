@@ -165,7 +165,7 @@ module Olelo
       render :profile
     end
 
-    get '(/:path)/changes/:version' do
+    get '/changes/:version(/:path)' do
       @page = Page.find!(params[:path])
       @version = Version.find!(params[:version])
       @diff = page.diff(nil, @version)
@@ -173,7 +173,7 @@ module Olelo
       render :changes
     end
 
-    get '(/:path)/history' do
+    get '/history(/:path)' do
       @page = Page.find!(params[:path])
       @per_page = 30
       @page_nr = params[:page].to_i
@@ -184,17 +184,17 @@ module Olelo
       render :history, :layout => !request.xhr?
     end
 
-    get '/:path/move' do
+    get '/move/:path' do
       @page = Page.find!(params[:path])
       render :move
     end
 
-    get '/:path/delete' do
+    get '/delete/:path' do
       @page = Page.find!(params[:path])
       render :delete
     end
 
-    post '/:path/move' do
+    post '/move/:path' do
       on_error :move
       Page.transaction(:page_moved.t(:page => params[:path].cleanpath, :destination => params[:destination].cleanpath), user) do
         @page = Page.find!(params[:path])
@@ -205,25 +205,25 @@ module Olelo
       redirect absolute_path(page)
     end
 
-    get '(/:path)/compare' do
-      versions = params[:versions] || []
-      redirect absolute_path(versions.size < 2 ? "#{params[:path]}/history" :
-                             "#{params[:path]}/compare/#{versions.first}...#{versions.last}")
-    end
-
-    get '(/:path)/compare/:versions', :versions => '(?:\w+)\.{2,3}(?:\w+)' do
+    get '/compare/:versions(/:path)', :versions => '(?:\w+)\.{2,3}(?:\w+)' do
       @page = Page.find!(params[:path])
       versions = params[:versions].split(/\.{2,3}/)
       @diff = page.diff(versions.first, versions.last)
       render :compare
     end
 
-    get '(/:path)/edit' do
+    get '/compare(/:path)' do
+      versions = params[:versions] || []
+      redirect absolute_path(versions.size < 2 ? "#{params[:path]}/history" :
+                             "/compare/#{versions.first}...#{versions.last}/#{params[:path]}")
+    end
+
+    get '/edit(/:path)' do
       @page = Page.find!(params[:path])
       render :edit
     end
 
-    get '(/:path)/new' do
+    get '/new(/:path)' do
       @page = Page.new(params[:path])
       flash.error :reserved_path.t if reserved_path?(page.path)
       params[:path] = !page.root? && Page.find(page.path) ? page.path + '/' : page.path
@@ -231,7 +231,7 @@ module Olelo
     end
 
     def self.final_routes
-      get '(/:path)/version(/:version)|/(:path)' do
+      get '/version/:version(/:path)|/(:path)' do
         begin
           @page = Page.find!(params[:path], params[:version])
           cache_control :etag => page.version, :last_modified => page.version.date
@@ -240,7 +240,7 @@ module Olelo
             halt render(:show, :locals => {:content => page.try(:content)})
           end
         rescue NotFound
-          redirect absolute_path(params[:path].to_s/'new') if params[:version].blank?
+          redirect absolute_path('new'/params[:path].to_s) if params[:version].blank?
           raise
         end
       end
@@ -269,7 +269,7 @@ module Olelo
       raise :reserved_path.t if reserved_path?(page.path)
       on_error :edit
 
-      if action?(:edit) && params[:content]
+      if params[:action] == 'edit' && params[:content]
         params[:content].gsub!("\r\n", "\n")
         with_hooks :save, page do
           Page.transaction(:page_edited.t(:page => page.title, :comment => params[:comment]), user) do
@@ -291,7 +291,7 @@ module Olelo
           params.delete(:comment)
           flash.info :changes_saved.t
         end
-      elsif action?(:upload) && params[:file]
+      elsif params[:action] == 'upload' && params[:file]
         with_hooks :save, page do
           Page.transaction(:page_uploaded.t(:page => page.title), user) do
             raise :version_conflict.t if !page.new? && page.version.to_s != params[:version]
@@ -300,7 +300,7 @@ module Olelo
           end
           flash.info :changes_saved.t
         end
-      elsif action?(:attributes)
+      elsif params[:action] == 'attributes'
         with_hooks :save, page do
           Page.transaction(:attributes_edited.t(:page => page.title), user) do
             page.attributes = parse_attributes

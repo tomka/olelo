@@ -155,7 +155,7 @@ class Olelo::Application
       redirect absolute_path(page) if params[:path].to_s.ends_with? '/'
       raise if params[:output]
       flash.error ex.message
-      redirect action_path(page, 'edit')
+      redirect action_path(page, :edit)
     end
   end
 
@@ -170,7 +170,7 @@ class Olelo::Application
           <a href="#{escape_html page_path(page, :output => e.name)}">#{name}</a></li>}.unindent
         end +
           engines.select {|e| !e.layout? }.map do |e|
-          name = escape_html Olelo::I18n.translate("engine_#{e.name}", :fallback => e.name.tr('_', ' '))
+          name = escape_html Olelo::I18n.translate("engine_#{e.name}", :fallback => e.name.tr('_', ' ').capitalize)
           %{<li class="download#{e.name == @engine_name ? 'selected': ''}">
                 <a href="#{escape_html page_path(page, :output => e.name)}">#{name}</a></li>}.unindent
         end

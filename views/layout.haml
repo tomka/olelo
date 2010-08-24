@@ -16,7 +16,7 @@
           |
           %a{:href => absolute_path(:logout)}= :logout.t
       #search
-        %form{:action=> absolute_path(:search), :method=> 'get'}
+        %form(action='#{absolute_path :search}' method='get')
           %div
             %label.hidden(for='pattern')= :search.t
             %input{:type=>'text',:id=>'pattern',:name=>'pattern', :value=> params[:pattern] || :search.t, :class=> !params[:pattern] && 'placeholder'}
@@ -31,4 +31,4 @@
         Powered by
         %a(href='http://github.com/minad/olelo') &#332;lelo
         | #{timer.stop.elapsed_ms}ms
-    %script(src='#{absolute_path "static/script.js?10"}' type='text/javascript')
+    %script(src='#{absolute_path "static/script.js?11"}' type='text/javascript')

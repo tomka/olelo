@@ -12,7 +12,7 @@ class Olelo::Application
         end
       end
     else
-      %{<a href="/#{Config.sidebar_page}/new">#{:create_page.t(:page => Config.sidebar_page)}</a>}
+      %{<a href="#{escape_html absolute_path('new'/Config.sidebar_page)}">#{escape_html :create_page.t(:page => Config.sidebar_page)}</a>}
     end
   end
 end

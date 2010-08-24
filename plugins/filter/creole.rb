@@ -6,15 +6,6 @@ class OleloCreoleParser < Creole
   include PageHelper
   include Util
 
-  def initialize(content, page)
-    super(content, :extensions => true)
-    @page = page
-  end
-
-  def make_local_link(path)
-    page_path(@page, :path => path)
-  end
-
   def make_image(path, title)
     args = title.to_s.split('|')
     if path =~ %r{^(http|ftp)://}
@@ -23,13 +14,13 @@ class OleloCreoleParser < Creole
       page_path = path.dup
     else
       geometry = args.grep(/(\d+x)|(x\d+)|(\d+%)/).first
-      opts = {:path => path, :output => 'image'}
+      opts = {:output => 'image'}
       if geometry
         args.delete(geometry)
         opts[:geometry] = geometry
       end
-      image_path = page_path(@page, opts)
-      page_path = page_path(@page, :path => path)
+      image_path = absolute_path(path, opts)
+      page_path = absolute_path(path)
     end
     image_path = escape_html(image_path)
     page_path = escape_html(page_path)
@@ -48,5 +39,5 @@ class OleloCreoleParser < Creole
 end
 
 Filter.create :creole do |context, content|
-  OleloCreoleParser.new(content, context.page).to_html
+  OleloCreoleParser.new(content, :extensions => true, :no_escape => true).to_html
 end

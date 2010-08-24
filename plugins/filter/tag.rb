@@ -160,9 +160,9 @@ class Olelo::Tag < Filter
   BLOCK_ELEMENT_REGEX = /<(#{BLOCK_ELEMENTS.join('|')})/
 
   class TagInfo
-    attr_reader :limit, :requires, :immediate, :method, :description, :plugin
+    attr_accessor :limit, :requires, :immediate, :method, :description, :plugin
     def initialize(opts)
-      opts.each_pair {|k,v| instance_variable_set("@#{k}", v) }
+      opts.each_pair {|k,v| send("#{k}=", v) }
     end
   end
 

@@ -29,8 +29,8 @@ module Olelo
       session[:flash] ||= Flash.new
     end
 
-    def flash_messages
-      if !flash.empty?
+    def flash_messages(action = nil)
+      if !flash.empty? && (!action || params[:action] == action.to_s)
         li = flash.map {|level, list| list.map {|msg| %{<li class="flash #{level}">#{escape_html msg}</li>} } }.flatten
         flash.clear
         "<ul>#{li.join}</ul>"
@@ -88,35 +88,38 @@ module Olelo
     def breadcrumbs(page)
       path = page.try(:path) || ''
       li = [%{<li class="first breadcrumb#{path.empty? ? ' last' : ''}">
-              <a accesskey="z" class="root" href="#{escape_html page_path(page, :path => '/')}">#{escape_html :root.t}</a></li>}.unindent]
+              <a accesskey="z" href="#{escape_html absolute_path('', :version => page)}">#{escape_html :root.t}</a></li>}.unindent]
       path.split('/').inject('') do |parent,elem|
         current = parent/elem
         li << %{<li class="breadcrumb#{current == path ? ' last' : ''}">
-                <a href="#{escape_html page_path(page, :path => '/' + current)}">#{escape_html elem}</a></li>}.unindent
+                <a href="#{escape_html absolute_path('/' + current, :version => page)}">#{escape_html elem}</a></li>}.unindent
         current
       end
       li.join('<li class="breadcrumb">/</li>')
     end
 
     def absolute_path(path, opts = {})
-      path = '/' + Config.base_path/(path.try(:path) || path).to_s
+      path = Config.base_path / (path.try(:path) || path).to_s
+
+      # Append version string
+      version = opts.delete(:version)
+      # Use version of page
+      version = version.current? ? nil : version.tree_version if Page === version
+      path = 'version'/version/path if !version.blank?
+
+      # Append query parameters
       path += '?' + build_query(opts) if !opts.empty?
-      path
+
+      '/' + path
     end
 
     def page_path(page, opts = {})
-      version = opts.delete(:version) || (page && !page.current? && page.tree_version) || ''
-      if path = opts.delete(:path)
-        path = page.path/'..'/path if !path.begins_with? '/'
-      else
-        path = page.path
-      end
-      path = path/'version'/version if !version.blank?
-      absolute_path(path, opts)
+      opts[:version] ||= page
+      absolute_path(page, opts)
     end
 
     def action_path(path, action)
-      absolute_path((path.try(:path) || path).to_s / action.to_s)
+      absolute_path(action.to_s / (path.try(:path) || path).to_s)
     end
 
     def edit_content(page)
@@ -198,15 +201,7 @@ module Olelo
     include HttpHelper
 
     def tab(action)
-      %{<li id="tabheader-#{action}"#{action?(action) ? ' class="selected"' : ''}><a href="#tab-#{action}">#{escape_html action.t}</a></li>}
-    end
-
-    def action?(name)
-      if params[:action]
-        params[:action] == name.to_s
-      else
-        unescape(request.path_info).ends_with? '/' + name.to_s
-      end
+      %{<li id="tabheader-#{action}"#{params[:action] == action.to_s ? ' class="selected"' : ''}><a href="#tab-#{action}">#{escape_html action.t}</a></li>}
     end
 
     def session

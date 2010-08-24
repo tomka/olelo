@@ -11,7 +11,7 @@
   %form(action='#{absolute_path page}' method='post')
     #tab-edit.box
       %h2= :edit.t
-      != flash_messages if action? :edit
+      != flash_messages :edit
       %input(type='hidden' name='action' value='edit')
       - if page.new?
         %label(for='edit-path')= :path.t
@@ -45,7 +45,7 @@
       - else
         %input(type='hidden' name='_method' value='put')
         %input(type='hidden' name='version' value='#{page.version}')
-      != flash_messages if action? :upload
+      != flash_messages :upload
       %label(for='upload-file')= :file.t
       %input#upload-file(name='file' type='file')
       %br
@@ -64,7 +64,7 @@
       - else
         %input(type='hidden' name='_method' value='put')
         %input(type='hidden' name='version' value='#{page.version}')
-      != flash_messages if action? :attributes
+      != flash_messages :attributes
       != attribute_editor
       %button(type='submit')= :save.t
       %button(type='submit' name='close' value='1')= :save_and_close.t

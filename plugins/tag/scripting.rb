@@ -42,7 +42,7 @@ Tag.define :include, :requires => :page, :limit => 10, :description => 'Include 
     Engine.find!(page, :name => attrs['output'], :layout => true).
       output(context.subcontext(:params => attrs, :page => page, :private => {:included => true}))
   else
-    %{<a href="/#{escape_html path}/new">Create #{escape_html path}</a>}
+    %{<a href="#{escape_html absolute_path('new'/path)}">#{escape_html :create_page.t(:page => path)}</a>}
   end
 end
 

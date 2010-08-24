@@ -3,13 +3,15 @@ require     'rss/maker'
 
 class Olelo::Application
   hook :layout do |name, doc|
-    doc.css('head').first << %{<link rel="alternate" href="/changelog.atom" type="application/atom+xml" title="Sitewide Atom Changelog"/>
-                               <link rel="alternate" href="/changelog.rss" type="application/rss+xml" title="Sitewide RSS Changelog"/>}.unindent
+    doc.css('head').first << %{<link rel="alternate" href="#{escape_html absolute_path('changelog.atom')}"
+                               type="application/atom+xml" title="Sitewide Atom Changelog"/>
+                               <link rel="alternate" href="#{escape_html absolute_path('changelog.rss')}"
+                               type="application/rss+xml" title="Sitewide RSS Changelog"/>}.unindent
     if page && !page.new?
-      doc.css('head').first << %{<link rel="alternate" href="#{escape_html(action_path(page.path, 'changelog.atom'))}" type="application/atom+xml"
-                                  title="#{escape_html page.path} Atom Changelog"/>
-                                  <link rel="alternate" href="#{escape_html(action_path(page.path, 'changelog.rss'))}" type="application/rss+xml"
-                                  title="#{escape_html page.path} RSS Changelog"/>}.unindent if !page.root?
+      doc.css('head').first << %{<link rel="alternate" href="#{escape_html(action_path(page, 'changelog.atom'))}" type="application/atom+xml"
+                                 title="#{escape_html page.path} Atom Changelog"/>
+                                 <link rel="alternate" href="#{escape_html(action_path(page, 'changelog.rss'))}" type="application/rss+xml"
+                                 title="#{escape_html page.path} RSS Changelog"/>}.unindent if !page.root?
     end
   end
 

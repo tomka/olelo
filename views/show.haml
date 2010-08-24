@@ -1,10 +1,10 @@
 - title page.title
 - footer do
   %span.noprint
-    %a{:href=> page_path(page, :version => page.version) }= :permalink.t
+    %a{:href=> absolute_path(page, :version => page.version) }= :permalink.t
     |
   = :version.t
-  %a.version{:href => page_path(page, :version => page.version), :title => page.version }= page.version.short
+  %a.version{:href => absolute_path(page, :version => page.version), :title => page.version }= page.version.short
   = :by.t
   = page.version.author.name
   ! , #{date page.version.date}

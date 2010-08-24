@@ -8,13 +8,13 @@
     - if @menu_versions
       - if page.previous_version
         %li
-          %a.action-older{:href=>page_path(page, :version => page.previous_version), :accesskey=>'o'}= :older.t
+          %a.action-older{:href=>absolute_path(page, :version => page.previous_version), :accesskey=>'o'}= :older.t
       - if !page.current?
         %li
           %a.action-current{:href=> absolute_path(page), :accesskey=>'c'}= :current.t
       - if page.next_version
         %li
-          %a.action-newer{:href=>page_path(page, :version => page.next_version), :accesskey=>'n'}= :newer.t
+          %a.action-newer{:href=>absolute_path(page, :version => page.next_version), :accesskey=>'n'}= :newer.t
     %li
       %a.action-view{:href=> absolute_path(page), :accesskey=>'v'}= :view.t
     %li
@@ -29,6 +29,6 @@
             %a.action-delete{:href=> action_path(page, :delete) }= :delete.t
     %li
       %a.action-history{:href=>action_path(page, :history), :accesskey=>'h'}= :history.t
-  - else
+  - elsif !page
     %li
       %a.action-new{:href=>'/new', :accesskey=>'n'}= :new_page.t

@@ -43,16 +43,14 @@
         border: none;
         a {
           padding: 0 0.3em;
-          &.root {
-            text-indent: -999px;
-            display: block;
-            width: 16px;
-            background: url(images/actions/home.png) no-repeat 1em 0.1em;
-	  }
 	}
         &.first a {
           padding-left: 1em;
-	}
+          text-indent: -999px;
+          display: block;
+          width: 16px;
+          background: url(images/actions/home.png) no-repeat 1em 0.1em;
+        }
         &.last {
           border-right: $border;
           a {

@@ -1,12 +1,12 @@
-- title action?(:login) ? :login.t : :signup.t
+- title :login.t
 %p.tabs
   %ul
     != tab :login
     != tab :signup
-  %form(action='/login' method='post')
+  %form(action='#{absolute_path :login}' method='post')
     #tab-login.fieldset
       %h2 Login
-      != flash_messages if action? :login
+      != flash_messages :login
       %label(for='login-user')= :user.t
       %input#login-user(type='text' name='user')
       %br
@@ -15,10 +15,10 @@
       %br
       %button(type='submit')= :login.t
       %br
-  %form(action='/signup' method='post')
+  %form(action='#{absolute_path :signup}' method='post')
     #tab-signup.fieldset
       %h2= :signup.t
-      != flash_messages if action? :signup
+      != flash_messages :signup
       %label(for='signup-user')= :user.t
       %input#signup-user(type='text' name='user')
       %br

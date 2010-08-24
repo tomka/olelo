@@ -1,6 +1,6 @@
 - title :profile_title.t(:user => user.name)
 %h1= title
-%form(action='/profile' method='post')
+%form(action='#{absolute_path :profile}' method='post')
   .fieldset
     != flash_messages
     %h2= :change_password.t

@@ -92,21 +92,21 @@ describe 'requests' do
   end
 
   it 'should show to /new' do
-    get '/not-existing/new'
+    get '/new/not-existing'
     last_response.should.be.ok
   end
 
   it 'should redirect to /new' do
     get '/not-existing'
     last_response.should.be.redirect
-    last_response.location.should.equal '/not-existing/new'
+    last_response.location.should.equal '/new/not-existing'
   end
 
   it 'should not redirect to /new' do
-    get '/not-existing/edit'
+    get '/edit/not-existing'
     last_response.should.be.not_found
 
-    get '/not-existing/history'
+    get '/history/not-existing'
     last_response.should.be.not_found
   end
 
@@ -130,11 +130,11 @@ describe 'requests' do
     last_response.body.should.include '<h1>Testpage</h1>'
     last_response.body.should.include 'Content of the Testpage'
 
-    get '/Testfolder/Testpage/history'
+    get '/history/Testfolder/Testpage'
     last_response.should.be.ok
     last_response.body.should.include 'My Comment'
 
-    get '/Testfolder/Testpage/edit'
+    get '/edit/Testfolder/Testpage'
     last_response.should.be.ok
   end
 
@@ -153,10 +153,10 @@ describe 'requests' do
     get escape('/子供を公園/中文')
     last_response.should.be.ok
 
-    get escape('/子供を公園/中文/history')
+    get escape('/history/子供を公園/中文')
     last_response.should.be.ok
 
-    get escape('/子供を公園/中文/edit')
+    get escape('/edit/子供を公園/中文')
     last_response.should.be.ok
   end
 end
