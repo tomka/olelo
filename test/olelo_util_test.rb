@@ -49,4 +49,9 @@ describe 'Olelo::Util' do
   it 'should have #build_query' do
     Olelo::Util.build_query(:a => 1, :b => [1, 2, 3]).should.equal 'a=1&b=1&b=2&b=3'
   end
+
+  it 'should have #truncate' do
+    Olelo::Util.truncate('Annabel Lee It was many and many a year ago', 11).should.equal 'Annabel Lee...'
+    Olelo::Util.truncate('In a kingdom by the sea', 39).should.equal 'In a kingdom by the sea'
+  end
 end

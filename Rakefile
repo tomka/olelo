@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 task :default => %w(test:spec)
 
 def shrink_js(t)
@@ -70,7 +69,7 @@ end
 desc 'Generate documentation'
 task :doc => 'doc/api/index.html'
 file 'doc/api/index.html' => FileList['**/*.rb'] do |f|
-  sh "rdoc -o doc/api --title 'Ōlelo Source Documentation' --inline-source --format=html #{f.prerequisites.join(' ')}"
+  sh "rdoc -o doc/api --title 'Olelo Source Documentation' --inline-source --format=html #{f.prerequisites.join(' ')}"
 end
 
 namespace :notes do

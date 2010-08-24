@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 module Olelo
   # Main class of the application
   class Application

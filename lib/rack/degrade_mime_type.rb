@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 module Rack
   class DegradeMimeType
     def initialize(app)

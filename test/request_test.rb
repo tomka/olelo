@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 require 'helper'
+require 'rack/force_encoding'
 
 Rack::MockRequest::DEFAULT_ENV['REMOTE_ADDR'] = 'localhorst'
 
@@ -62,6 +63,10 @@ describe 'requests' do
     logger = Logger.new(File.join(@app_path, 'test.log'))
 
     @app = Rack::Builder.new do
+      if ''.respond_to? :encoding
+        require 'rack/force_encoding'
+        use Rack::ForceEncoding
+      end
       run Olelo::Application.new(nil, :logger => logger)
     end
 

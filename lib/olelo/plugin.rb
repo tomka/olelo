@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 module Olelo
   # Olelo plugin system
   class Plugin

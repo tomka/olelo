@@ -47,7 +47,7 @@ class Olelo::Application
 
         # Read in binary mode and fix encoding afterwards
         patch = IO.popen("diff -u '#{original.path}' '#{new.path}'", 'rb') {|io| io.read }
-        patch.force_encoding(__ENCODING__) if patch.respond_to? :force_encoding
+        patch.force_encoding(Encoding::UTF_8) if patch.respond_to? :force_encoding
         @patch = PatchParser.parse(patch, PatchFormatter.new).html
 
 	halt render(:edit)

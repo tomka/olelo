@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 module Olelo
   class NotFound < NameError
     def initialize(id)
@@ -64,32 +63,39 @@ module Olelo
 
     # Like CGI.escape but escapes space not as +
     def escape(s)
+      s = s.to_s
       s.gsub(/([^a-zA-Z0-9_.-]+)/) do
         '%' + $1.unpack('H2' * $1.bytesize).join('%').upcase
       end
     end
 
     # Like CGI.unescape but does not unescape +
-    def unescape(s)
-      if s.respond_to? :encoding
+    if ''.respond_to? :encoding
+      def unescape(s)
+        s = s.to_s
         enc = s.encoding
         s.gsub(/((?:%[0-9a-fA-F]{2})+)/) do
           [$1.delete('%')].pack('H*').force_encoding(enc)
         end
-      else
-        s.gsub(/((?:%[0-9a-fA-F]{2})+)/) do
+      end
+    else
+      def unescape(s)
+        s.to_s.gsub(/((?:%[0-9a-fA-F]{2})+)/) do
           [$1.delete('%')].pack('H*')
         end
       end
     end
 
-    def unescape_backslash(s)
-      if s.respond_to? :encoding
+    if ''.respond_to? :encoding
+      def unescape_backslash(s)
+        s = s.to_s
         enc = s.encoding
         s.gsub(/\\([0-7]{3})/) { $1.to_i(8).chr.force_encoding(enc) }.
           gsub(/\\x([\da-f]{2})/i) { $1.to_i(16).chr.force_encoding(enc) }
-      else
-        s.gsub(/\\([0-7]{3})/) { $1.to_i(8).chr }.
+      end
+    else
+      def unescape_backslash(s)
+        s.to_s.gsub(/\\([0-7]{3})/) { $1.to_i(8).chr }.
           gsub(/\\x([\da-f]{2})/i) { $1.to_i(16).chr }
       end
     end
@@ -125,5 +131,24 @@ module Olelo
         end
       end.join('&')
     end
+
+    # Truncate string and add omission
+    if ''.respond_to?(:encoding)
+      def truncate(s, max, omission = '...')
+        s = s.to_s
+        (s.length > max ? s[0...max] + omission : s)
+      end
+    else
+      def truncate(s, max, omission = '...')
+        s = s.to_s
+        if s.length > max
+          max += 1 until max >= s.length || s[0...max].valid_text_encoding?
+          s[0...max] + omission
+        else
+          s
+        end
+      end
+    end
+
   end
 end

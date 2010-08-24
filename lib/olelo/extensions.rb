@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 class Module
   # Generate accessor method with question mark
   def attr_reader?(*attrs)
@@ -133,6 +132,21 @@ class Object
 end
 
 class String
+  # Check if string is valid text encoding
+  if ''.respond_to?(:encoding)
+    def valid_text_encoding?
+      Encoding.compatible?('', self)
+    end
+  else
+    require 'iconv'
+    def valid_text_encoding?
+      Iconv.conv('utf-8', 'utf-8', self)
+      true
+    rescue
+      false
+    end
+  end
+
   # Unindent string
   def unindent
     result = ''
@@ -169,11 +183,6 @@ class String
       end
     end
     names.join('/')
-  end
-
-  # Truncate string and add omission
-  def truncate(max, omission = '...')
-    (length > max ? self[0...max] + omission : self)
   end
 
   # Concatenate path components

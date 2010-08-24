@@ -37,7 +37,7 @@ class Olelo::Application
               path.pop if Repository.instance.reserved_name?(path.last)
               path = path.join('/')
               page = Page.find!(path)
-              @matches[path] = [page.content.truncate(500)] if page.mime.text?
+              @matches[path] = [truncate(page.content, 500)] if page.mime.text?
             end
           rescue => ex
             logger.error ex
@@ -56,7 +56,7 @@ class Olelo::Application
   private
 
   def emphasize(s)
-    escape_html(s.truncate(500)).gsub(/(#{params[:pattern]})/i, '<b>\1</b>')
+    escape_html(truncate(s, 500)).gsub(/(#{params[:pattern]})/i, '<b>\1</b>')
   end
 end
 

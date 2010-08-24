@@ -24,11 +24,6 @@ describe 'String extensions' do
     '1///2'.cleanpath.should.equal '1/2'
   end
 
-  it 'should have #truncate' do
-    'Annabel Lee It was many and many a year ago'.truncate(11).should.equal 'Annabel Lee...'
-    'In a kingdom by the sea'.truncate(39).should.equal 'In a kingdom by the sea'
-  end
-
   it 'should have #/' do
     (''/'').should.equal ''
     ('//a/b///'/'').should.equal 'a/b'

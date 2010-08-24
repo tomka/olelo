@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 module Olelo
   module BlockHelper
     def blocks
@@ -46,8 +45,8 @@ module Olelo
       if last_page > 0
         li = []
         if page_nr > 0
-          li << %{<a href="#{escape_html absolute_path(path, opts.merge(:page => 0))}">«</a>}
-          li << %{<a href="#{escape_html absolute_path(path, opts.merge(:page => page_nr - 1))}">‹</a>}
+          li << %{<a href="#{escape_html absolute_path(path, opts.merge(:page => 0))}">&#171;</a>}
+          li << %{<a href="#{escape_html absolute_path(path, opts.merge(:page => page_nr - 1))}">&#8249;</a>}
         end
         min = page_nr - 3
         max = page_nr + 3
@@ -58,7 +57,7 @@ module Olelo
         end
         max = [max, last_page].min
         min = [min, 0].max
-        li << '…' if min != 0
+        li << '&#8230;' if min != 0
         (min..max).each do |i|
           if i == page_nr
             li << %{<a class="current" href="#">#{i + 1}</a>}
@@ -66,10 +65,10 @@ module Olelo
             li << %{<a href="#{escape_html absolute_path(path, opts.merge(:page => i))}">#{i + 1}</a>}
           end
         end
-        li << '…' if max != last_page
+        li << '&#8230;' if max != last_page
         if page_nr < last_page
-          li << %{<a href="#{escape_html absolute_path(path, opts.merge(:page => page_nr + 1))}">›</a>}
-          li << %{<a href="#{escape_html absolute_path(path, opts.merge(:page => last_page))}">»</a>}
+          li << %{<a href="#{escape_html absolute_path(path, opts.merge(:page => page_nr + 1))}">&#8250;</a>}
+          li << %{<a href="#{escape_html absolute_path(path, opts.merge(:page => last_page))}">&#187;</a>}
         end
         '<ul class="pagination">' + li.map {|x| "<li>#{x}</li>"}.join + '</ul>'
       end
@@ -121,18 +120,13 @@ module Olelo
     end
 
     def edit_content(page)
-      return params[:content] if params[:content]
-      if page.content.respond_to?(:encoding)
-        return :error_binary.t(:page => page.title, :type => "#{page.mime.comment} (#{page.mime})") if page.content.encoding != __ENCODING__
+      if params[:content]
+        params[:content]
+      elsif !page.content.valid_text_encoding?
+        :error_binary.t(:page => page.title, :type => "#{page.mime.comment} (#{page.mime})")
       else
-        begin
-          require 'iconv'
-          Iconv.conv('utf-8', 'utf-8', page.content)
-        rescue
-          return :error_binary.t(:page => page.title, :type => "#{page.mime.comment} (#{page.mime})")
-        end
+        params[:pos] ? page.content[params[:pos].to_i, params[:len].to_i].to_s : page.content
       end
-      params[:pos] ? page.content[params[:pos].to_i, params[:len].to_i].to_s : page.content
     end
   end
 

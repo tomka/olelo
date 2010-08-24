@@ -36,8 +36,8 @@ __END__
         %td.link
           %a{:href=>page_path(child), :class => classes}= child.name
         %td!= date(child.version.date)
-        %td= child.version.author.name.truncate(30)
-        %td= child.version.comment.truncate(30)
+        %td= truncate(child.version.author.name, 30)
+        %td= truncate(child.version.comment, 30)
         %td.actions
           %a.action-edit{:href=>action_path(child, :edit), :title => :edit.t}= :edit.t
           %a.action-history{:href=>action_path(child, :history), :title => :history.t}= :history.t

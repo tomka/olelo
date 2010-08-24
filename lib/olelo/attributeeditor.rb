@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 module Olelo
   module AttributeEditor
     def self.included(base)

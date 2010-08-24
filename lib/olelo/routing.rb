@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 module Olelo
   module Routing
     def self.included(base)
@@ -18,17 +17,12 @@ module Olelo
       @response = Rack::Response.new
       @params = @original_params = @request.params.with_indifferent_access
 
-      # Interpret everything as utf-8
-      if ''.respond_to? :encoding
-        encode(@env)
-        encode(@params)
-      end
-
       catch(:forward) do
         with_hooks(:request) { perform! }
         status, header, body = response.finish
         return [status, header, request.head? ? [] : body]
       end
+
       @app ? @app.call(env) : error!(NotFound.new(@request.path_info))
     end
 
@@ -49,25 +43,6 @@ module Olelo
     end
 
     private
-
-    # Interpret everything as utf-8
-    def encode(x)
-      case x
-      when Hash
-        x.each { |k,v| x[k] = encode(v) }
-      when Array
-        x.each_with_index {|v,i| x[i] = encode(v) }
-      when String
-        if x.encoding != __ENCODING__
-          x = x.dup if x.frozen?
-          x.force_encoding(__ENCODING__)
-        else
-          x
-        end
-      else
-        x
-      end
-    end
 
     def error!(ex)
       response.status = Rack::Utils.status_code(ex.try(:status) || :internal_server_error)

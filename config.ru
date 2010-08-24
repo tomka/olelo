@@ -1,5 +1,4 @@
 #!/usr/bin/env rackup
-# -*- coding: utf-8 -*-
 
 path = ::File.expand_path(::File.dirname(__FILE__))
 $: << ::File.join(path, 'lib')
@@ -70,6 +69,12 @@ end
 
 use Rack::MethodOverride
 use Rack::CommonLogger, LoggerOutput.new(logger)
+
+if ''.respond_to? :encoding
+  require 'rack/force_encoding'
+  use Rack::ForceEncoding
+end
+
 run Olelo::Application.new(nil, :logger => logger)
 
 logger.info "Olelo started in #{timer.stop.elapsed_ms}ms (#{Olelo::Config.production? ? 'Production' : 'Development'} mode)"

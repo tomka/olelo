@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 module Olelo
   class Version
     attr_reader :id, :author, :date, :comment, :parents
