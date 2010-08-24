@@ -7,7 +7,7 @@ AssetManager.register_assets 'images/*'
 Engine.create(:gallery, :priority => 3, :layout => true, :hidden => true, :cacheable => true) do
   def accepts?(page); !page.children.empty?; end
   def output(context)
-    @per_row = 5
+    @per_row = 4
     per_page = @per_row * 4
     @page_nr = context.params[:page].to_i
     @page = context.page
@@ -25,10 +25,14 @@ __END__
   - @images.each_slice(@per_row) do |row|
     %tr
       - row.each do |image|
-        - thumb_path = page_path(image, :output => 'image', :geometry => '150x150>')
-        - image_path = page_path(image, :output => 'image', :geometry => '800x800>')
-        - info_path  = page_path(image, :output => 'imageinfo')
+        :ruby
+          thumb_path = page_path(image, :output => 'image', :geometry => '150x150>')
+          image_path = page_path(image, :output => 'image', :geometry => '800x800>')
+          info_path  = page_path(image, :output => 'imageinfo')
+          description = image.attributes[:description] ||
+                        image.attributes[:title] ||
+                        image.name.gsub(/([^\s])[_\-]/, '\1 ')
         %td
-          %a(href=image_path rel='thumb' title="#{image.title}")
+          %a(href=image_path rel='thumb' title="#{description}")
             %img(src=thumb_path alt='')
-          %a.title(href=info_path)= image.title
+          %a.title(href=info_path)= description

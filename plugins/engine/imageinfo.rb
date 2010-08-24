@@ -29,6 +29,9 @@ __END__
       %td= :title.t
       %td= @page.title
     %tr
+      %td= :description.t
+      %td= @page.attributes[:description]
+    %tr
       %td= :type.t
       %td= @type
     %tr

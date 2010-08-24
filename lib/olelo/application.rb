@@ -9,6 +9,7 @@ module Olelo
 
     attribute_editor do
       attribute :title, :string
+      attribute :description, :string
       attribute :mime,  :string
     end
 

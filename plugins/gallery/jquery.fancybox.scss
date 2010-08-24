@@ -1,34 +1,3 @@
-@import "lib/reset.scss";
-@import "lib/rounded.scss";
-@import "lib/shadow.scss";
-
-.gallery {
-  @include no-box-shadow;
-  @include reset-table;
-  @include reset-box-model;
-  width: 100%;
-  td {
-    vertical-align: top;
-    text-align: center;
-  }
-  img {
-    @include box-shadow(3px, 3px, 10px, #333333);
-    margin: 5px;
-    display: block;
-    &:hover {
-      @include no-box-shadow;
-      margin: 7px 3px 3px 7px;
-    }
-  }
-  a.title {
-    display: block;
-    width: 180px;
-    overflow: hidden;
-    font-size: 80%;
-    color: #555;
-  }
-}
-
 /*
  * FancyBox - jQuery Plugin
  * Simple and fancy lightbox alternative
@@ -70,7 +39,7 @@
 	left: 0;
 	width: 40px;
 	height: 480px;
-	background-image: url('engine/gallery/images/fancybox.png');
+	background-image: url('gallery/images/fancybox.png');
 }
 
 #fancybox-overlay {
@@ -141,7 +110,7 @@
 	right: -15px;
 	width: 30px;
 	height: 30px;
-	background-image: url('engine/gallery/images/fancybox.png');
+	background-image: url('gallery/images/fancybox.png');
 	background-position: -40px 0px;
 	cursor: pointer;
 	z-index: 1103;
@@ -211,7 +180,7 @@
 
 #fancybox-title-over {
 	padding: 10px;
-	background-image: url('engine/gallery/images/fancy_title_over.png');
+	background-image: url('gallery/images/fancy_title_over.png');
 	display: block;
 }
 
@@ -226,7 +195,7 @@
 
 #fancybox-title-left {
 	padding-left: 15px;
-	background-image: url('engine/gallery/images/fancybox.png');
+	background-image: url('gallery/images/fancybox.png');
 	background-position: -40px -90px;
 	background-repeat: no-repeat;
 }
@@ -234,14 +203,14 @@
 #fancybox-title-main {
 	font-weight: bold;
 	line-height: 29px;
-	background-image: url('engine/gallery/images/fancybox-x.png');
+	background-image: url('gallery/images/fancybox-x.png');
 	background-position: 0px -40px;
 	color: #FFF;
 }
 
 #fancybox-title-right {
 	padding-left: 15px;
-	background-image: url('engine/gallery/images/fancybox.png');
+	background-image: url('gallery/images/fancybox.png');
 	background-position: -55px -90px;
 	background-repeat: no-repeat;
 }
@@ -253,7 +222,7 @@
 	width: 35%;
 	cursor: pointer;
 	outline: none;
-	background-image: url('engine/gallery/images/blank.gif');
+	background-image: url('gallery/images/blank.gif');
 	z-index: 1102;
 	display: none;
 }
@@ -279,12 +248,12 @@
 }
 
 #fancybox-left-ico {
-	background-image: url('engine/gallery/images/fancybox.png');
+	background-image: url('gallery/images/fancybox.png');
 	background-position: -40px -30px;
 }
 
 #fancybox-right-ico {
-	background-image: url('engine/gallery/images/fancybox.png');
+	background-image: url('gallery/images/fancybox.png');
 	background-position: -40px -60px;
 }
 
@@ -315,13 +284,13 @@
 	top: -20px;
 	left: 0;
 	width: 100%;
-	background-image: url('engine/gallery/images/fancybox-x.png');
+	background-image: url('gallery/images/fancybox-x.png');
 }
 
 #fancy-bg-ne {
 	top: -20px;
 	right: -20px;
-	background-image: url('engine/gallery/images/fancybox.png');
+	background-image: url('gallery/images/fancybox.png');
 	background-position: -40px -162px;
 }
 
@@ -329,14 +298,14 @@
 	top: 0;
 	right: -20px;
 	height: 100%;
-	background-image: url('engine/gallery/images/fancybox-y.png');
+	background-image: url('gallery/images/fancybox-y.png');
 	background-position: -20px 0px;
 }
 
 #fancy-bg-se {
 	bottom: -20px;
 	right: -20px;
-	background-image: url('engine/gallery/images/fancybox.png');
+	background-image: url('gallery/images/fancybox.png');
 	background-position: -40px -182px;
 }
 
@@ -344,14 +313,14 @@
 	bottom: -20px;
 	left: 0;
 	width: 100%;
-	background-image: url('engine/gallery/images/fancybox-x.png');
+	background-image: url('gallery/images/fancybox-x.png');
 	background-position: 0px -20px;
 }
 
 #fancy-bg-sw {
 	bottom: -20px;
 	left: -20px;
-	background-image: url('engine/gallery/images/fancybox.png');
+	background-image: url('gallery/images/fancybox.png');
 	background-position: -40px -142px;
 }
 
@@ -359,12 +328,12 @@
 	top: 0;
 	left: -20px;
 	height: 100%;
-	background-image: url('engine/gallery/images/fancybox-y.png');
+	background-image: url('gallery/images/fancybox-y.png');
 }
 
 #fancy-bg-nw {
 	top: -20px;
 	left: -20px;
-	background-image: url('engine/gallery/images/fancybox.png');
+	background-image: url('gallery/images/fancybox.png');
 	background-position: -40px -122px;
 }

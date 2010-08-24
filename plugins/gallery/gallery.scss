@@ -1,0 +1,28 @@
+@import 'lib/reset.scss';
+@import 'lib/rounded.scss';
+@import 'lib/shadow.scss';
+@import 'jquery.fancybox.scss';
+
+.gallery {
+  @include no-box-shadow;
+  @include reset-table;
+  @include reset-box-model;
+  width: 100%;
+  td {
+    vertical-align: top;
+    text-align: center;
+  }
+  img {
+    @include box-shadow(3px, 3px, 10px, #333333);
+    margin: 5px;
+    &:hover {
+      @include no-box-shadow;
+      margin: 7px 3px 3px 7px;
+    }
+  }
+  a.title {
+    display: block;
+    font-size: 80%;
+    color: #555;
+  }
+}
