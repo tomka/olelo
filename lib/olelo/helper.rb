@@ -126,7 +126,6 @@ module Olelo
       if params[:content]
         params[:content]
       elsif !page.content.valid_text_encoding?
-        puts "binary"
 	:error_binary.t(:page => page.title, :type => "#{page.mime.comment} (#{page.mime})")
       else
         params[:pos] ? page.content[params[:pos].to_i, params[:len].to_i].to_s : page.content

@@ -34,9 +34,6 @@ __END__
     %td Locale:
     %td= Olelo::Config.locale
   %tr
-    %td External images enabled:
-    %td= Olelo::Config.external_images?
-  %tr
     %td Sidebar page:
     %td
       %a{:href => absolute_path(Olelo::Config.sidebar_page)}= Olelo::Config.sidebar_page

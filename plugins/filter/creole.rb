@@ -8,10 +8,8 @@ class OleloCreoleParser < Creole
 
   def make_image(path, title)
     args = title.to_s.split('|')
-    if path =~ %r{^(http|ftp)://}
-      return %{<span class="error">External images are not allowed</span>} if !Config.external_images?
-      image_path = path.dup
-      page_path = path.dup
+    if path =~ %r{^(\w+)://}
+      image_path = page_path = path
     else
       geometry = args.grep(/(\d+x)|(x\d+)|(\d+%)/).first
       opts = {:output => 'image'}

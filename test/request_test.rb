@@ -28,7 +28,6 @@ describe 'requests' do
       :production        => true,
       :locale	         => 'en_US',
       :sidebar_page      => 'Sidebar',
-      :external_images   => false,
       :authentication => {
         :service  => :yamlfile,
         :yamlfile => {

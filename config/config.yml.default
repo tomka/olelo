@@ -23,9 +23,6 @@ sidebar_page:    'Sidebar'
 # Use a different base directory as root to support installation in user homes
 base_path:      '/'
 
-# Allow embedding of external images.
-external_images: false
-
 # Temporary directory used for caches etc. Uncomment this!
 #tmp_path:        '/home/user/wiki/tmp'
 
