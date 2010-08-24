@@ -30,7 +30,7 @@ module Olelo
     end
 
     def flash_messages(action = nil)
-      if !flash.empty? && (!action || params[:action] == action.to_s)
+      if !flash.empty? && (!action || action?(action))
         li = flash.map {|level, list| list.map {|msg| %{<li class="flash #{level}">#{escape_html msg}</li>} } }.flatten
         flash.clear
         "<ul>#{li.join}</ul>"
@@ -126,7 +126,8 @@ module Olelo
       if params[:content]
         params[:content]
       elsif !page.content.valid_text_encoding?
-        :error_binary.t(:page => page.title, :type => "#{page.mime.comment} (#{page.mime})")
+        puts "binary"
+	:error_binary.t(:page => page.title, :type => "#{page.mime.comment} (#{page.mime})")
       else
         params[:pos] ? page.content[params[:pos].to_i, params[:len].to_i].to_s : page.content
       end
@@ -200,8 +201,18 @@ module Olelo
     include PageHelper
     include HttpHelper
 
-    def tab(action)
-      %{<li id="tabheader-#{action}"#{params[:action] == action.to_s ? ' class="selected"' : ''}><a href="#tab-#{action}">#{escape_html action.t}</a></li>}
+    def tabs(*actions)
+      '<ul class="tabs">' + actions.map do |action|
+        %{<li id="tabhead-#{action}"#{action?(action) ? ' class="selected"' : ''}><a href="#tab-#{action}">#{escape_html action.t}</a></li>}
+      end.join + '</ul>'
+    end
+
+    def action?(action)
+      if params[:action]
+        params[:action] == action.to_s
+      else
+        unescape(request.path_info).begins_with?("/#{action}")
+      end
     end
 
     def session

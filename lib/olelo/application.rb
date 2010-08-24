@@ -220,7 +220,7 @@ module Olelo
       raise :reserved_path.t if reserved_path?(page.path)
       on_error :edit
 
-      if params[:action] == 'edit' && params[:content]
+      if action?(:edit) && params[:content]
         params[:content].gsub!("\r\n", "\n")
         with_hooks :save, page do
           Page.transaction(:page_edited.t(:page => page.title, :comment => params[:comment]), user) do
@@ -242,7 +242,7 @@ module Olelo
           params.delete(:comment)
           flash.info :changes_saved.t
         end
-      elsif params[:action] == 'upload' && params[:file]
+      elsif action?(:upload) && params[:file]
         with_hooks :save, page do
           Page.transaction(:page_uploaded.t(:page => page.title), user) do
             raise :version_conflict.t if !page.new? && page.version.to_s != params[:version]
@@ -251,7 +251,7 @@ module Olelo
           end
           flash.info :changes_saved.t
         end
-      elsif params[:action] == 'attributes'
+      elsif action?(:attributes)
         with_hooks :save, page do
           Page.transaction(:attributes_edited.t(:page => page.title), user) do
             page.attributes = parse_attributes

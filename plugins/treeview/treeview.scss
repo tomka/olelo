@@ -1,17 +1,24 @@
-#treeview-tabs {
-  li {
-    background: white;
-    border-bottom: 1px solid #85aaff;
-    display: block !important;
-    &.selected {
-      display: none !important;
-    }
+#sidebar-tab-menu, #sidebar-tab-tree {
+  a {
+    text-indent: -999px;
+    width: 16px;
   }
+  &.selected {
+    display: none !important;
+  }
+}
+
+#sidebar-tab-menu {
+  background: url(treeview/images/tree.png) no-repeat center center !important;
+}
+
+#sidebar-tab-tree {
+  background: url(treeview/images/menu.png) no-repeat center center !important;
 }
 
 @mixin file-type($type) {
   .file-type-#{$type} {
-    background: url(/static/themes/default/images/filetypes/#{$type}.png) no-repeat center center !important;
+    background: url(../../static/themes/default/images/filetypes/#{$type}.png) no-repeat center center !important;
   }
 }
 
@@ -85,22 +92,22 @@
       }
     }
     .wait .arrow {
-      background: url(treeview/spinner.gif) no-repeat center center !important;
+      background: url(treeview/images/wait.gif) no-repeat center center !important;
     }
     .collapsed .arrow {
-      background: url(treeview/collapsed.png) no-repeat center center;
+      background: url(treeview/images/collapsed.png) no-repeat center center;
     }
     .expanded .arrow {
-      background: url(treeview/expanded.png) no-repeat center center;
+      background: url(treeview/images/expanded.png) no-repeat center center;
     }
     .page {
-      background: url(/static/themes/default/images/page.png) no-repeat center center;
+      background: url(../../static/themes/default/images/page.png) no-repeat center center;
     }
     .expanded .tree {
-      background: url(/static/themes/default/images/tree_open.png) no-repeat center center;
+      background: url(../../static/themes/default/images/tree_open.png) no-repeat center center;
     }
     .collapsed .tree {
-      background: url(/static/themes/default/images/tree.png) no-repeat center center;
+      background: url(../../static/themes/default/images/tree.png) no-repeat center center;
     }
   }
 }

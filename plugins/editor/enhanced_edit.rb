@@ -17,7 +17,7 @@ class Olelo::Application
   end
 
   before :save do |page|
-    if params[:action] == 'edit' && params[:content]
+    if action?(:edit) && params[:content]
       if params[:preview]
         flash.error :empty_comment.t if params[:comment].blank?
 

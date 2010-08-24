@@ -104,7 +104,7 @@ class Olelo::Application
   end
 
   before(:save, 1000) do |page|
-    if params[:action] == 'edit' && !captcha_valid?
+    if action?(:edit) && !captcha_valid?
       level = SpamEvaluator.new(user, params, page).evaluate
       flash.info :spam_level.t(:level => level) if !Config.production?
       if level >= 100

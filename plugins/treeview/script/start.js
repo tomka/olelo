@@ -11,15 +11,11 @@ $.translations({
 });
 
 // Start tree view
-(function() {
-    var sidebar = $('#sidebar');
-    sidebar.wrapInner('<div id="sidebar-menu"/>').prepend(
-            '<div id="treeview-tabs"><ul><li class="selected"><a href="#sidebar-menu">' + $.t('menu') +
-            '</a></li><li><a href="#sidebar-treeview">' + $.t('tree') + '</a></li></ul></div>' +
-            '<div id="sidebar-treeview"><h1>' + $.t('tree') +
-            '</h1><div id="treeview"/></div>');
-    $('#treeview-tabs').tabs({store: 'treeview-tabs'});
-    $('#treeview').treeView({stateStore: 'treeview-state', cacheStore: 'treeview-cache', ajax: function(path, success, error) {
-        $.ajax({url: path, data: { output: 'treeview.json' }, success: success, error: error});
-    }});
-})();
+$('#sidebar').wrapInner('<div id="sidebar-menu"/>').prepend('<div id="sidebar-tree" style="display: none"><h1>' + $.t('tree') +
+                                                            '</h1><div id="treeview"/></div>');
+$('#menu > ul:first').prepend('<li class="selected" id="sidebar-tab-menu"><a href="#sidebar-menu">' + $.t('menu') +
+                              '</a></li><li id="sidebar-tab-tree"><a href="#sidebar-tree">' + $.t('tree') + '</a></li>');
+$('#sidebar-tab-menu, #sidebar-tab-tree').tabs({store: 'sidebar-tab'});
+$('#treeview').treeView({stateStore: 'treeview-state', cacheStore: 'treeview-cache', ajax: function(path, success, error) {
+    $.ajax({url: path, data: { output: 'treeview.json' }, success: success, error: error});
+}});

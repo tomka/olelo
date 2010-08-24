@@ -3,7 +3,7 @@
   - if page && !page.current?
     %li.noborder
       != date page.tree_version.date
-%ul.wiki
+%ul.actions
   - if page && !page.new?
     - if @menu_versions
       - if page.previous_version

@@ -3,7 +3,7 @@ dependencies 'engine/engine', 'utils/asset_manager'
 require      'yajl/json_gem'
 
 AssetManager.register_scripts '*.js', '*.css'
-AssetManager.register_assets '*.png', '*.gif'
+AssetManager.register_assets 'images/*'
 
 Engine.create('treeview.json', :hidden => true, :cacheable => true, :mime => 'application/json; charset=utf-8') do
   def output(context)

@@ -14,11 +14,17 @@
   ul {
     @include list-bar;
     height: 1.6em;
-    &.wiki {
+    &.actions {
       float: right;
       li {
         border-left: $border;
         border-right: none;
+      }
+      .selected a:before {
+        content: "\2022\00a0";
+      }
+      .download {
+        background: $light_bg;
       }
     }
     li {
@@ -29,12 +35,6 @@
       line-height: 1.6em;
       border-right: $border;
       color: $dark_color;
-      &.selected a:before {
-        content: "\2022\00a0";
-      }
-      &.download {
-        background: $light_bg;
-      }
       &.noborder {
         padding: 0 1em;
         border: none;

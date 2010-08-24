@@ -135,7 +135,7 @@ class String
   # Check if string is valid text encoding
   if ''.respond_to?(:encoding)
     def valid_text_encoding?
-      Encoding.compatible?('', self)
+      encoding == Encoding::UTF_8
     end
   else
     require 'iconv'

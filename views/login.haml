@@ -1,10 +1,8 @@
 - title :login.t
-%p.tabs
-  %ul
-    != tab :login
-    != tab :signup
+%p
+  != tabs :login, :signup
   %form(action='#{absolute_path :login}' method='post')
-    #tab-login.fieldset
+    #tab-login.tab.fieldset
       %h2 Login
       != flash_messages :login
       %label(for='login-user')= :user.t
@@ -16,7 +14,7 @@
       %button(type='submit')= :login.t
       %br
   %form(action='#{absolute_path :signup}' method='post')
-    #tab-signup.fieldset
+    #tab-signup.tab.fieldset
       %h2= :signup.t
       != flash_messages :signup
       %label(for='signup-user')= :user.t

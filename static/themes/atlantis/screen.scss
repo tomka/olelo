@@ -362,7 +362,7 @@ table input {
   border: $border;
 }
 
-.box, .fieldset {
+.box, .fieldset, .tab {
   @include rounded;
   @include box-shadow;
   clear: both;
@@ -376,8 +376,8 @@ table input {
   }
 }
 
-.js .tabs {
-  > ul {
+.js {
+  .tabs {
     @include list-bar;
     margin: 0 0 1px 0;
     height: 1.5em;
@@ -386,7 +386,7 @@ table input {
     position: relative;
     > li {
       @include rounded-tl;
-      @include rounded-tr;
+        @include rounded-tr;
       background: $light_bg1;
       float: left;
       padding: 0;
@@ -408,16 +408,16 @@ table input {
         color: $dark_color;
         &:hover, &:active, &:focus {
           text-shadow: #333333 1px 1px 2px;
-	}
+        }
       }
     }
   }
-  .box, .fieldset {
+  .tab {
     @include rounded-tl(0px);
   }
 }
 
-.no-js .tabs > ul {
+.no-js .tabs {
   display: none;
 }
 

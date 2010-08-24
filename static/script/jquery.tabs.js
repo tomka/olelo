@@ -5,12 +5,12 @@
         var store = options && options.store;
 
         // Find all tabs
-	var links = $("ul:first > li > a[href^='#']", this).each(function() {
+	var links = $("> a[href^='#']", this).each(function() {
 	    	        this.tabName = this.href.match(/(#.*)$/)[1];
 		    });
 
         // Handle tab clicks
-	$("ul:first > li > a[href^='#']", this).click(function() {
+	$(" > a[href^='#']", this).click(function() {
 	    links.each(function() { $(this.tabName).hide(); });
 	    links.parent().removeClass('selected');
 	    $(this).parent().addClass('selected');
@@ -25,15 +25,15 @@
 	if (store) {
 	    var name = jStorage.get(store);
 	    if (name)
-		selected = $("ul:first > li > a[href='" + name + "']", this);
+                selected = $("> a[href='" + name + "']", this);
 	}
 
         // Get selected tab by class
 	if (!selected || selected.get().length == 0) {
-	    selected = $("ul:first > li.selected > a[href^='#']", this);
+                selected = $(this).filter('.selected').find("> a[href^='#']");
             // Select first tab
             if (selected.get().length == 0)
-                selected = $("ul:first > li:first > a[href^='#']", this);
+                selected = $(this).filter(':first').find("> a[href^='#']");
         }
 	selected.click();
     };

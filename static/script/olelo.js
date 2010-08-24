@@ -16,11 +16,11 @@
                 });
             }
         });
-        $('label, #menu, .tabs > ul, .pagination', parent).disableSelection();
+        $('label, #menu, .tabhead, .pagination', parent).disableSelection();
         $('#history-table', parent).historyTable();
         $('.zebra, #history-table, #tree-table', parent).zebra();
 	$('.date', parent).dateToggler();
-        $('.tabs', parent).tabs();
+        $('.tabs > li', parent).tabs();
         $('input.placeholder', parent).placeholder();
         $('*[accesskey]', parent).underlineAccessKey();
     }
