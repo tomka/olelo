@@ -49,7 +49,7 @@ module Olelo
     DIRECTORY_MIME = MimeMagic.new('inode/directory')
 
     attr_reader :path, :tree_version
-    attr_reader? :current
+    attr_reader? :current, :modified
 
     def initialize(path, tree_version = nil, current = true)
       @path = path.to_s.cleanpath.freeze
@@ -122,10 +122,6 @@ module Olelo
       !tree_version
     end
 
-    def modified?
-      @modified || new?
-    end
-
     def name
       i = path.rindex('/')
       name = i ? path[i+1..-1] : path
@@ -190,16 +186,17 @@ module Olelo
     private
 
     def detect_mime
-      if content.blank?
-        return children.empty? ? EMPTY_MIME : DIRECTORY_MIME
-      end
       return MimeMagic.new(attributes['mime']) if attributes['mime']
       Config.mime.each do |mime|
         mime = case mime
                when 'extension'
                  MimeMagic.by_extension(extension)
                when 'content', 'magic'
-                 MimeMagic.by_magic(content)
+                 if content.blank?
+                   children.empty? ? EMPTY_MIME : DIRECTORY_MIME
+                 else
+                   MimeMagic.by_magic(content)
+                 end
                else
                  MimeMagic.new(mime)
                end
