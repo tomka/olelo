@@ -20,7 +20,7 @@ __END__
       %td= @page.title
     %tr
       %td= :description.t
-      %td= @page.attributes[:description]
+      %td= @page.attributes['description']
     - if @page.version
       %tr
         %td= :last_modified.t

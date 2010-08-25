@@ -29,8 +29,8 @@ __END__
           thumb_path = page_path(image, :output => 'image', :geometry => '150x150>')
           image_path = page_path(image, :output => 'image', :geometry => '800x800>')
           info_path  = page_path(image, :output => 'imageinfo')
-          description = image.attributes[:description] ||
-                        image.attributes[:title] ||
+          description = image.attributes['description'] ||
+                        image.attributes['title'] ||
                         image.name.gsub(/([^\s])[_\-]/, '\1 ')
         %td
           %a(href=image_path rel='thumb' title="#{description}")

@@ -30,7 +30,7 @@ __END__
       %td= @page.title
     %tr
       %td= :description.t
-      %td= @page.attributes[:description]
+      %td= @page.attributes['description']
     %tr
       %td= :type.t
       %td= @type
