@@ -22,12 +22,9 @@ module Rack
         x.each_with_index {|v,i| x[i] = encode(v) }
       when String
         # Try to force encoding and revert to old encoding if this doesn't work
-        encoding = x.encoding
-        if encoding != @encoding
+        if x.encoding != @encoding
           x = x.dup if x.frozen?
-          x.force_encoding(@encoding)
-          x.force_encoding(encoding) if !x.valid_encoding?
-          x
+          x.try_encoding(@encoding)
         else
           x
         end

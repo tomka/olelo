@@ -132,12 +132,21 @@ class Object
 end
 
 class String
-  # Check if string is valid text encoding
   if ''.respond_to?(:encoding)
+    # Try to force encoding and revert to old encoding if this doesn't work
+    def try_encoding(new_enc)
+      old_enc = encoding
+      force_encoding(new_enc)
+      force_encoding(old_enc) if !valid_encoding?
+      self
+    end
+
+    # Check if string is valid text encoding
     def valid_text_encoding?
-      encoding == Encoding::UTF_8
+      try_encoding(Encoding::UTF_8).encoding == Encoding::UTF_8
     end
   else
+    # Check if string is valid text encoding
     require 'iconv'
     def valid_text_encoding?
       Iconv.conv('utf-8', 'utf-8', self)

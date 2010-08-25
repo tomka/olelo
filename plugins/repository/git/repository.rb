@@ -87,12 +87,7 @@ class GitRepository < Repository
     if object
       content = object.data
       # Try to force utf-8 encoding and revert to old encoding if this doesn't work
-      if content.respond_to? :force_encoding
-        encoding = content.encoding
-        content.force_encoding(Encoding::UTF_8)
-        content.force_encoding(encoding) if !content.valid_encoding?
-      end
-      content
+      content.respond_to?(:try_encoding) ? content.try_encoding(Encoding::UTF_8) : content
     else
       ''
     end
