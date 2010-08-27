@@ -51,7 +51,7 @@ describe 'Olelo::Page' do
   it 'write content' do
     page = Olelo::Page.new('test')
     page.should.be.new
-    page.should.be.modified
+    page.should.not.be.modified
     page.content.should.equal ''
     Olelo::Page.transaction "comment1\ntext", Olelo::User.new('Author1', 'author1@localhorst') do
       page.content = 'old content'

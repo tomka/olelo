@@ -26,3 +26,11 @@ class Symbol
     end
   end
 end
+
+class String
+  unless ''.respond_to? :bytesize
+    def bytesize
+      length
+    end
+  end
+end
