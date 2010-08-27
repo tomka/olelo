@@ -125,7 +125,7 @@ module Olelo
     def edit_content(page)
       if params[:content]
         params[:content]
-      elsif !page.content.valid_text_encoding?
+      elsif !(String === page.content) || !page.content.valid_text_encoding?
 	:error_binary.t(:page => page.title, :type => "#{page.mime.comment} (#{page.mime})")
       else
         params[:pos] ? page.content[params[:pos].to_i, params[:len].to_i].to_s : page.content
