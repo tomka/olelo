@@ -20,9 +20,10 @@ module Olelo
       end
 
       def build_form(attr)
-        html = %{<label for="attribute_#{key}">#{label}</label>}
         type = @type.respond_to?(:call) ? @type.call : @type
-        case type
+        title = Symbol === type ? I18n.translate("type_#{type}", :fallback => type.to_s.capitalize) : :type_select.t
+        html = %{<label for="attribute_#{key}" title="#{escape_html title}">#{label}</label>}
+	case type
         when :integer, :string
           html << %{<input type="text" id="attribute_#{key}" name="attribute_#{key}" value="#{escape_html attr}"/>}
         when :stringlist
