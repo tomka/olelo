@@ -23,11 +23,14 @@ class Olelo::Application
   end
 
   # TODO: Implement more methods if they are needed
-  add_route('PROPFIND', '/:path')  { :not_found }
-  add_route('PROPPATCH', '/:path') { :not_implemented }
-  add_route('MKCOL', '/:path')     { :not_implemented }
-  add_route('COPY', '/:path')      { :not_implemented }
-  add_route('MOVE', '/:path')      { :not_implemented }
-  add_route('LOCK', '/:path')      { :not_implemented }
-  add_route('UNLOCK', '/:path')    { :not_implemented }
+  metaclass.redefine_method :final_routes do
+    super()
+    add_route('PROPFIND', '/(:path)')  { :not_found }
+    add_route('PROPPATCH', '/(:path)') { :not_implemented }
+    add_route('MKCOL', '/(:path)')     { :not_implemented }
+    add_route('COPY', '/(:path)')      { :not_implemented }
+    add_route('MOVE', '/(:path)')      { :not_implemented }
+    add_route('LOCK', '/(:path)')      { :not_implemented }
+    add_route('UNLOCK', '/(:path)')    { :not_implemented }
+  end
 end

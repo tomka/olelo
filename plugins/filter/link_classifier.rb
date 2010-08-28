@@ -10,8 +10,12 @@ Filter.create :link_classifier do |context, content|
       classes << 'external'
     elsif !href.begins_with?('#')
       path, query = href.split('?')
-      path = context.page.path/'..'/path if !path.begins_with? '/'
-      classes << 'internal' << (Page.find(path) ? 'present' : 'absent')
+      if path.begins_with? Config.base_path
+        path = path[Config.base_path.length-1..-1]
+      elsif !path.begins_with? '/'
+        path = context.page.path/'..'/path
+      end
+      classes << 'internal' << (Page.find(path) ? 'present' : 'absent') if !Application.reserved_path?(path)
     end
     link['class'] = classes.join(' ') if !classes.empty?
   end

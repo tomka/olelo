@@ -20,6 +20,11 @@ module Olelo
     class<< self
       attr_accessor :theme_links
       attr_accessor :reserved_paths
+
+      def reserved_path?(path)
+        path = '/' + path.cleanpath
+        reserved_paths.any? {|pattern| path =~ pattern }
+      end
     end
 
     def user=(user)
@@ -177,7 +182,7 @@ module Olelo
 
     get '/new(/:path)' do
       @page = Page.new(params[:path])
-      flash.error :reserved_path.t if reserved_path?(page.path)
+      flash.error :reserved_path.t if self.class.reserved_path?(page.path)
       params[:path] = !page.root? && Page.find(page.path) ? page.path + '/' : page.path
       render :edit
     end
@@ -218,8 +223,8 @@ module Olelo
 
     def save_page
       @page = request.put? ? Page.find!(params[:path]) : Page.new(params[:path])
-      raise :reserved_path.t if reserved_path?(page.path)
       on_error :edit
+      raise :reserved_path.t if self.class.reserved_path?(page.path)
 
       if action?(:edit) && params[:content]
         params[:content].gsub!("\r\n", "\n")
@@ -274,12 +279,6 @@ module Olelo
       else
         render :edit
       end
-    end
-
-    private
-
-    def reserved_path?(path)
-      self.class.reserved_paths.any? {|pattern| path =~ pattern }
     end
   end
 end

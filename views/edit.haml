@@ -7,7 +7,7 @@
 %form(action='#{absolute_path(page.new? ? nil : page)}' method='post')
   #tab-edit.tab
     %h2= :edit.t
-    != flash_messages :edit
+    != flash_messages if action?(:edit) || page.new?
     %input(type='hidden' name='action' value='edit')
     - if page.new?
       %label(for='edit-path')= :path.t
