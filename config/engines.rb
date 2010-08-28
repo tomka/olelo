@@ -25,7 +25,7 @@ engine :creole do
       remove_comments.math_shortcuts
       creole_nowiki.tag { creole!.rubypants }
     end
-    toc
+    toc.link_classifier
   end
 end
 
@@ -36,7 +36,7 @@ engine :s5 do
   filter do
     remove_comments.math_shortcuts
     creole_nowiki.tag { creole!.rubypants }
-    toc.html_wrapper!.s5!
+    toc.link_classifier.html_wrapper!.s5!
   end
 end
 
@@ -61,7 +61,7 @@ engine :textile do
   filter do
     remove_comments.math_shortcuts
     textile_nowiki.tag { textile!.rubypants }
-    toc
+    toc.link_classifier.link_classifier
   end
 end
 
@@ -72,7 +72,7 @@ engine :s5 do
   filter do
     remove_comments.math_shortcuts
     textile_nowiki.tag { textile!.rubypants }
-    toc.html_wrapper!.s5!
+    toc.link_classifier.html_wrapper!.s5!
   end
 end
 
@@ -97,7 +97,7 @@ engine :markdown do
   filter do
     remove_comments.math_shortcuts
     markdown_nowiki.tag { markdown! }
-    toc
+    toc.link_classifier
   end
 end
 
@@ -108,7 +108,7 @@ engine :s5 do
   filter do
     remove_comments.math_shortcuts
     markdown_nowiki.tag { markdown! }
-    toc.html_wrapper!.s5!
+    toc.link_classifier.html_wrapper!.s5!
   end
 end
 
@@ -133,7 +133,7 @@ engine :kramdown do
   filter do
     remove_comments.math_shortcuts
     markdown_nowiki.tag { kramdown! }
-    toc
+    toc.link_classifier
   end
 end
 
@@ -144,7 +144,7 @@ engine :s5 do
   filter do
     remove_comments.math_shortcuts
     markdown_nowiki.tag { kramdown! }
-    toc.html_wrapper!.s5!
+    toc.link_classifier.html_wrapper!.s5!
   end
 end
 
@@ -169,7 +169,7 @@ engine :maruku do
   filter do
     remove_comments.math_shortcuts
     markdown_nowiki.tag { maruku! }
-    toc
+    toc.link_classifier
   end
 end
 
@@ -180,7 +180,7 @@ engine :s5 do
   filter do
     remove_comments.math_shortcuts
     markdown_nowiki.tag { maruku! }
-    toc.html_wrapper!.s5!
+    toc.link_classifier.html_wrapper!.s5!
   end
 end
 
@@ -205,7 +205,7 @@ engine :orgmode do
   filter do
     remove_comments.math_shortcuts
     tag { orgmode!.rubypants }
-    toc
+    toc.link_classifier
   end
 end
 
@@ -216,7 +216,7 @@ engine :s5 do
   filter do
     remove_comments.math_shortcuts
     tag { orgmode!.rubypants }
-    toc.html_wrapper!.s5!
+    toc.link_classifier.html_wrapper!.s5!
   end
 end
 
