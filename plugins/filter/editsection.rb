@@ -1,8 +1,12 @@
 description  'Adds links for section editing for creole'
 dependencies 'engine/filter'
 
+Application.attribute_editor do
+  attribute :noeditlinks, :boolean
+end
+
 Filter.create :editsection do |context, content|
-  if context.page.new? || context.page.modified? || !context.page.current?
+  if context.page.new? || context.page.modified? || !context.page.current? || context.page.attributes['noeditlinks']
     subfilter(context, content)
   else
     prefix = "EDIT_#{object_id}_"

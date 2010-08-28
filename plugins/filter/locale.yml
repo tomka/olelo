@@ -1,4 +1,6 @@
 en:
   attribute_toc: 'Generate Table of Contents'
+  attribute_noeditlinks: 'Disable Section Editing'
 de:
   attribute_toc: 'Inhaltsverzeichnis erzeugen'
+  attribute_noeditlinks: 'Bearbeiten von Bereichen deaktivieren'
