@@ -8,9 +8,12 @@ module Olelo
 
     def initialize(logger)
       @logger = logger
-      self.class.private_instance_methods.each do |name|
-        send(name) if name.to_s.begins_with? 'init_'
-      end
+      init_locale
+      init_templates
+      init_plugins
+      init_themes
+      init_routes
+      init_custom
     end
 
     private
