@@ -1,7 +1,9 @@
 task :default => %w(test:spec)
 
 def shrink_js(t)
-  sh "java -jar tools/google-compiler*.jar --dev_mode EVERY_PASS --compilation_level SIMPLE_OPTIMIZATIONS #{t.prerequisites.sort.map {|x| "--js #{x}" }.join(' ')} > #{t.name}"
+  #sh "cat #{t.prerequisites.sort.join(' ')} > #{t.name}"
+  sh 'java -jar tools/google-compiler*.jar --dev_mode EVERY_PASS --compilation_level SIMPLE_OPTIMIZATIONS ' +
+     t.prerequisites.sort.map {|x| "--js #{x}" }.join(' ')  + " > #{t.name}"
 end
 
 def sass(file)
@@ -30,10 +32,11 @@ end
 file('static/script.js' => Dir.glob('static/script/*.js')) { |t| shrink_js(t) }
 file('plugins/treeview/script.js' => Dir.glob('plugins/treeview/script/*.js')) {|t| shrink_js(t) }
 file('plugins/gallery/script.js' => Dir.glob('plugins/gallery/script/*.js')) {|t| shrink_js(t) }
+file('plugins/editor/markup/script.js' => Dir.glob('plugins/editor/markup/script/*.js')) {|t| shrink_js(t) }
 
 namespace :gen do
   desc('Shrink JS files')
-  task :js => %w(static/script.js plugins/treeview/script.js plugins/gallery/script.js)
+  task :js => %w(static/script.js plugins/treeview/script.js plugins/gallery/script.js plugins/editor/markup/script.js)
 
   desc('Compile CSS files')
   task :css => %w(static/themes/atlantis/style.css plugins/treeview/treeview.css

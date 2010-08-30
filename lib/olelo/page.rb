@@ -188,14 +188,15 @@ module Olelo
     def detect_mime
       return MimeMagic.new(attributes['mime']) if attributes['mime']
       Config.mime.each do |mime|
-        mime = case mime
-               when 'extension'
+        mime = if mime == 'extension'
                  MimeMagic.by_extension(extension)
-               when 'content', 'magic'
-                 if content.blank?
-                   children.empty? ? EMPTY_MIME : DIRECTORY_MIME
-                 else
-                   MimeMagic.by_magic(content)
+               elsif %w(content magic).include?(mime)
+                 if !new?
+                   if content.blank?
+                     children.empty? ? EMPTY_MIME : DIRECTORY_MIME
+                   else
+                     MimeMagic.by_magic(content)
+                   end
                  end
                else
                  MimeMagic.new(mime)

@@ -21,8 +21,6 @@
         %input(type='hidden' name='pos' value='#{params[:pos]}')
         - if params[:len]
           %input(type='hidden' name='len' value='#{params[:len]}')
-    %label(for='edit-content')= :content.t
-    %br
     %textarea#edit-content(name='content' cols='100' rows='20')= edit_content(page)
     %br
     %label(for='edit-comment')= :comment.t
