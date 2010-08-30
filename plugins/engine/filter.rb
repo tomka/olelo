@@ -1,22 +1,25 @@
 description 'Filter pipeline engine'
 dependencies 'engine/engine'
 
+class Olelo::MandatoryFilterNotFound < NameError; end
+
+# Basic linear filter
 class Olelo::Filter
   include PageHelper
   include Templates
   extend Factory
 
-  attr_reader :options
-  attr_accessor :sub, :previous
+  attr_accessor :previous
+  attr_reader :name, :description, :plugin, :options
 
-  class MandatoryFilterNotFound < NameError; end
-
-  def initialize(options)
-    @options = options
+  def initialize(name, options)
+    @name        = name.to_s
+    @plugin      = options[:plugin] || Plugin.current(1) || Plugin.current
+    @description = options[:description] || @plugin.description
   end
 
-  def subfilter(context, content)
-    sub ? sub.call(context, content) : content
+  def configure(options)
+    @options = options
   end
 
   def call(context, content)
@@ -28,13 +31,53 @@ class Olelo::Filter
     filter(context, content)
   end
 
-  def self.create(name, &block)
-    filter = Class.new(Filter)
-    filter.class_eval { define_method(:filter, &block) }
-    register(name, filter)
+  def definition
+    previous ? "#{previous.definition} > #{name}" : name
   end
 
-  class Builder
+  def self.register(name, klass, options = {})
+    super(name, klass.new(name, options))
+  end
+
+  def self.create(name, options = {}, &block)
+    klass = Class.new(self)
+    klass.class_eval { define_method(:filter, &block) }
+    register(name, klass, options)
+  end
+end
+
+# Filter which supports subfilters
+class Olelo::AroundFilter < Olelo::Filter
+  attr_accessor :sub
+
+  def subfilter(context, content)
+    sub ? sub.call(context, content) : content
+  end
+
+  def definition
+    sub ? "#{super} (#{sub.definition})" : super
+  end
+end
+
+class Olelo::FilterEngine < Engine
+  def initialize(name, options, filter)
+    super(name, options)
+    @filter = filter
+  end
+
+  def output(context)
+    @filter.call(context, context.page.content.dup)
+  end
+
+  def definition
+    @filter.definition
+  end
+end
+
+# Filter DSL
+class FilterDSL
+  # Build filter class
+  class FilterBuilder
     def initialize(name, filter = nil)
       @name = name
       @filter = filter
@@ -65,34 +108,30 @@ class Olelo::Filter
     private
 
     def add(name, mandatory, options = nil, &block)
-      klass = Filter[name] rescue nil
-      if klass
-        @filter = klass.new((options || {}).with_indifferent_access).tap {|filter| filter.previous = @filter }
-        @filter.sub = Filter::Builder.new(@name).build(&block) if block
+      filter = Filter[name] rescue nil
+      if filter
+        filter = filter.dup
+        filter.configure((options || {}).with_indifferent_access)
+        filter.previous = @filter
+        @filter = filter
+        if block
+          raise "Filter '#{name}' does not support subfilters" if !(AroundFilter === @filter)
+          @filter.sub = FilterBuilder.new(@name).build(&block)
+        end
       else
         if mandatory
           raise MandatoryFilterNotFound, "Engine '#{@name}' not created because mandatory filter '#{name}' is not available"
         else
           Plugin.current.logger.warn "Optional filter '#{name}' not available"
         end
-        @filter = Filter::Builder.new(@name, @filter).build(&block) if block
+        @filter = FilterBuilder.new(@name, @filter).build(&block) if block
       end
       self
     end
   end
-end
 
-class Olelo::FilterEngine < Engine
-  def initialize(name, options, filter)
-    super(name, options)
-    @filter = filter
-  end
-
-  def output(context)
-    @filter.call(context, context.page.content.dup)
-  end
-
-  class Builder
+  # Build engine class
+  class EngineBuilder
     def initialize(name)
       @name = name
       @options = {}
@@ -105,7 +144,7 @@ class Olelo::FilterEngine < Engine
     end
 
     def filter(&block)
-      @filter = Filter::Builder.new(@name).build(&block)
+      @filter = FilterBuilder.new(@name).build(&block)
       self
     end
 
@@ -116,26 +155,26 @@ class Olelo::FilterEngine < Engine
     def is_cacheable;       @options[:cacheable] = true;  self; end
   end
 
-  class Registrator
-    def regexp(name, *regexps)
-      Filter.create(name) do |context, content|
-        regexps.each_slice(2) { |regexp, sub| content.gsub!(regexp, sub) }
-        content
-      end
+  # Register regexp filter
+  def regexp(name, *regexps)
+    Filter.create(name, :description => 'Regular expression filter') do |context, content|
+      regexps.each_slice(2) { |regexp, sub| content.gsub!(regexp, sub) }
+      content
     end
+  end
 
-    def engine(name, &block)
-      Engine.register(Builder.new(name).build(&block))
-      Plugin.current.logger.debug "Filter engine '#{name}' successfully created"
-    rescue Filter::MandatoryFilterNotFound => ex
-      Plugin.current.logger.warn ex.message
-    rescue Exception => ex
-      Plugin.current.logger.error ex
-    end
+  # Register engine
+  def engine(name, &block)
+    Engine.register(EngineBuilder.new(name).build(&block))
+    Plugin.current.logger.debug "Filter engine '#{name}' successfully created"
+  rescue MandatoryFilterNotFound => ex
+    Plugin.current.logger.warn ex.message
+  rescue Exception => ex
+    Plugin.current.logger.error ex
   end
 end
 
 def setup
   file = File.join(Config.config_path, 'engines.rb')
-  FilterEngine::Registrator.new.instance_eval(File.read(file), file)
+  FilterDSL.new.instance_eval(File.read(file), file)
 end

@@ -90,7 +90,6 @@ ul.button-bar, ul.pagination {
 }
 
 table {
-  @include box-shadow;
   border-collapse: collapse;
   border-spacing: 0;
   border: $border;
@@ -370,7 +369,7 @@ table input {
   border: $border;
   padding: 0.5em 1em;
   margin: 1em 0;
-  overflow: hidden;
+  overflow: auto;
   h1, h2, h3, h4, h5, h6 {
     margin: 0.2em 0;
   }

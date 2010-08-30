@@ -23,7 +23,7 @@ module Olelo
 
   module Factory
     def registry
-      @registry ||= {}
+      @registry ||= superclass.try(:registry) || {}
     end
 
     def register(name, klass)

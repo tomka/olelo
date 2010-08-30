@@ -42,7 +42,7 @@ HTML_TAGS = {
 
 # Extra function because of ruby 1.8 block scoping
 def define_html_tag(name, allowed)
-  Tag.define name, :description => "html tag #{name}" do |context, attrs, content|
+  Tag.define name do |context, attrs, content|
     attrs = attrs.map {|(k,v)| %{#{k}="#{escape_html v}"} if allowed.include? k }.compact.join(' ')
     content = subfilter(context.subcontext, content)
     content.gsub!(/(\A<p>)|(<\/p>\Z)/, '')

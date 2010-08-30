@@ -52,16 +52,18 @@ class Olelo::Engine
   # * priority: Engine priority. The engine with the lowest priority will be used for a page.
   # * cacheable: Engine is cacheable
   def initialize(name, options)
-    @name      = name.to_s
-    @layout    = !!options[:layout]
-    @hidden    = !!options[:hidden]
-    @cacheable = !!options[:cacheable]
-    @priority  = (options[:priority] || 99).to_i
-    @accepts   = options[:accepts]
-    @mime      = options[:mime]
+    @name        = name.to_s
+    @layout      = !!options[:layout]
+    @hidden      = !!options[:hidden]
+    @cacheable   = !!options[:cacheable]
+    @priority    = (options[:priority] || 99).to_i
+    @accepts     = options[:accepts]
+    @mime        = options[:mime]
+    @plugin      = options[:plugin] || Plugin.current(1)
+    @description = options[:description] || @plugin.description
   end
 
-  attr_reader :name, :priority, :mime, :accepts
+  attr_reader :name, :priority, :mime, :accepts, :description, :plugin
   attr_reader? :layout, :hidden, :cacheable
 
   # Engines hash
@@ -71,10 +73,10 @@ class Olelo::Engine
 
   # Create engine class. This is sugar to create and
   # register an engine class in one step.
-  def self.create(name, opts = {}, &block)
-    engine = Class.new(Engine)
-    engine.class_eval(&block)
-    register engine.new(name, opts)
+  def self.create(name, options = {}, &block)
+    klass = Class.new(Engine)
+    klass.class_eval(&block)
+    register klass.new(name, options)
   end
 
   # Register engine instance
@@ -93,19 +95,19 @@ class Olelo::Engine
   # Find appropiate engine for page. An optional
   # name can be given to claim a specific engine.
   # If no engine is found a exception is raised.
-  def self.find!(page, opts = {})
-    opts[:name] ||= page.attributes['output']
-    engines = opts[:name] ? @engines[opts[:name].to_s] : @engines.values.flatten
-    engine = engines.to_a.sort_by {|e| e.priority }.find { |e| e.accepts?(page) && (!opts[:layout] || e.layout?) }
-    raise NotAvailable.new(opts[:name], page) if !engine
+  def self.find!(page, options = {})
+    options[:name] ||= page.attributes['output']
+    engines = options[:name] ? @engines[options[:name].to_s] : @engines.values.flatten
+    engine = engines.to_a.sort_by {|e| e.priority }.find { |e| e.accepts?(page) && (!options[:layout] || e.layout?) }
+    raise NotAvailable.new(options[:name], page) if !engine
     engine.dup
   end
 
   # Find appropiate engine for page. An optional
   # name can be given to claim a specific engine.
   # If no engine is found nil is returned.
-  def self.find(page, opts = {})
-    find!(page, opts) rescue nil
+  def self.find(page, options = {})
+    find!(page, options) rescue nil
   end
 
   # Acceptor should return true if page would be accepted by this engine.

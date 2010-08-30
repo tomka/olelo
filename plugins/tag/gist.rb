@@ -1,11 +1,11 @@
-description  'Embed github gists'
+description  'Tag to embed github gist'
 dependencies 'filter/tag', 'utils/asset_manager'
 require      'open-uri'
 require      'yajl/json_gem'
 
 AssetManager.register_scripts 'gist.css', :priority => 0
 
-Tag.define :gist, :requires => :id, :description => 'Include github gist' do |context, attrs, content|
+Tag.define :gist, :requires => :id do |context, attrs, content|
   if attrs['id'] =~ /^\d+$/
     body = open("http://gist.github.com/#{attrs['id']}.json").read
     gist = JSON.parse(body)

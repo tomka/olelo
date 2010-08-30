@@ -1,8 +1,12 @@
 # Filter engine configuration engines.rb
-# Filter engines consist of multiple filters
 
 ################################################################################
+#
 # Register some simple regular expression filters which are used later
+#
+# Usage:
+#   regexp :filter_name, /regex1/, 'replacement1', /regex2/, 'replacement2'
+#
 ################################################################################
 
 regexp :remove_comments, /<!--.*?-->/m,      ''
@@ -13,6 +17,35 @@ regexp :creole_nowiki,   /\{\{\{.*?\}\}\}/m, '<notags>\0</notags>'
 regexp :textile_nowiki,  /<pre>.*?<\/pre>/m, '<notags>\0</notags>'
 
 ################################################################################
+#
+# Define filter output engines which process pages by sending them
+# through multiple filters. DSL methods can be chained.
+# Available filters are listed on the /system page.
+#
+# Example DSL usage:
+#
+# engine :engine_name do          # Create engine with name "engine_name"
+#  is_cacheable                   # Engine supports caching (renders static content)
+#  needs_layout                   # Engine needs a html layout around the generated content
+#  has_priority 1                 # Engine has priority 1, lower priorities are preferred
+#  accepts 'text/x-creole'        # Accepted mime types. This is a regular expression
+#  mime    'text/html'            # Generated mime type. Only interesting for engines which don't need a layout.
+#  filter do                      # Define filter chain
+#    remove_comments              # First filter removes html comments <!--...-->. This filter is defined above.
+#    math_shortcuts               # Replace math shortcuts with math tags
+#    creole_nowiki                # Replace creole nowiki tags with <notags> to disable tag interpretation (next filter)
+#    tag do                       # Interpret wiki tags. Wiki tags are an extension to default wiki text
+#      creole!                    # Transform creole to html
+#      rubypants                  # Execute rubypants (e.g. replace ... with &hellip;)
+#    end
+#    toc                          # Auto-generate table of contents
+#    link_classifier              # Classify links: Insert classes present for present pages, absent for absent pages, internal, external
+#  end
+# end
+#
+################################################################################
+
+################################################################################
 # Creole engines configuration
 ################################################################################
 
@@ -20,7 +53,6 @@ engine :creole do
   is_cacheable.needs_layout.has_priority(1)
   accepts 'text/x-creole'
   filter do
-    remove_comments
     editsection do
       remove_comments.math_shortcuts
       creole_nowiki.tag { creole!.rubypants }
@@ -61,7 +93,7 @@ engine :textile do
   filter do
     remove_comments.math_shortcuts
     textile_nowiki.tag { textile!.rubypants }
-    toc.link_classifier.link_classifier
+    toc.link_classifier
   end
 end
 
@@ -154,8 +186,7 @@ engine :latex do
   mime 'text/plain; charset=utf-8'
   filter do
     remove_comments.math_shortcuts
-    markdown_nowiki.tag { kramdown! }
-    toc.html_wrapper!.xslt!(:stylesheet => 'xhtml2latex.xsl')
+    markdown_nowiki.tag { kramdown!(:latex => true) }
   end
 end
 

@@ -1,4 +1,4 @@
-description  'S5 presentation filter'
+description  'XSLT filter which transforms a html page to a S5 presentation'
 dependencies 'filter/xslt', 'utils/asset_manager'
 
 Application.attribute_editor do
@@ -14,8 +14,8 @@ Application.attribute_editor do
 end
 
 class S5 < XSLT
-  def initialize(options)
-    super(:stylesheet => 's5/s5.xsl')
+  def configure(options)
+    super(options.merge(:stylesheet => 's5/s5.xsl'))
   end
 
   def params(context)

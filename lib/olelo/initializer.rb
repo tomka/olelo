@@ -20,11 +20,11 @@ module Olelo
 
     class TemplateLoader
       def context
-        Plugin.current.name rescue nil
+        Plugin.current.try(:name)
       end
 
       def load(name)
-        plugin = Plugin.current rescue nil
+        plugin = Plugin.current
         fs = []
         fs << DirectoryFS.new(File.dirname(plugin.file)) << InlineFS.new(plugin.file) if plugin
         fs << DirectoryFS.new(Config.views_path)

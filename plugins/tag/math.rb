@@ -1,4 +1,4 @@
-description  'LaTeX rendering (math tags)'
+description  'Math tag for LaTeX rendering'
 dependencies 'filter/tag'
 
 class Olelo::MathRenderer
@@ -109,7 +109,7 @@ MathRenderer.registry = {
   'mathml'       => %w(blahtexml itex ritex),
 }
 
-Tag.define :math, :description => 'Render LaTeX' do |context, attrs, code|
+Tag.define :math do |context, attrs, code|
   raise('Limits exceeded') if code.size > 10240
   mode = attrs['mode'] || context.page.attributes['math'] || 'image'
   MathRenderer.choose(mode).render(code, attrs['display'] == 'block' ? 'block' : 'inline')

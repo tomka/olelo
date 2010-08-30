@@ -25,7 +25,7 @@ module Olelo::AssetManager
     private
 
     def fs
-      file = Plugin.current(2).file
+      file = Plugin.current(1).file
       UnionFS.new(Config.production? ? CacheInlineFS.new(file) : InlineFS.new(file), DirectoryFS.new(File.dirname(file)))
     end
   end

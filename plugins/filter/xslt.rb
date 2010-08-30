@@ -1,8 +1,8 @@
-description  'Basic XSLT filter'
+description  'XSLT filter which transforms XML'
 dependencies 'engine/filter'
 
 class Olelo::XSLT < Filter
-  def initialize(options)
+  def configure(options)
     super
     content = File.read(File.join(File.dirname(__FILE__), options[:stylesheet]))
     @xslt   = Nokogiri::XSLT(content)

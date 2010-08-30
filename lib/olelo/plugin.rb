@@ -13,12 +13,17 @@ module Olelo
     class<< self
       attr_accessor :dir, :logger, :disabled
 
-      # Current loading plugin
-      def current(start = 0)
-        caller(start + 1).each do |line|
-          return @plugins[$1] if line =~ %r{^#{@dir}/(.+?)\.rb}
+      # Current plugin
+      def current(level = 0)
+        last = nil
+        caller.each do |line|
+          if line =~ %r{^#{@dir}/(.+?)\.rb} && $1 != last
+            last = $1
+            level -= 1
+            return @plugins[$1] if level < 0
+          end
         end
-        raise 'No plugin context'
+        nil
       end
 
       # Get all plugins
@@ -85,7 +90,7 @@ module Olelo
 
     attr_reader :name, :file
     attr_reader? :started
-    attr_setter :author, :description, :logger
+    attr_setter :description, :logger
 
     def initialize(name, file, logger)
       @name = name

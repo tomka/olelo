@@ -115,19 +115,19 @@ class TagSoupParser
   end
 end
 
-class Olelo::Tag < Filter
+class Olelo::Tag < AroundFilter
   @@tags = {}
 
   def self.tags
     @@tags
   end
 
-  def self.define(tag, opts = {}, &block)
-    name = "TAG #{tag}"
-    define_method(name, &block)
-    @@tags[tag.to_s] = TagInfo.new(opts.merge(:method => name,
-                                              :plugin => Plugin.current(1),
-                                              :requires => [opts[:requires] || []].flatten))
+  def self.define(tag, options = {}, &block)
+    method = "TAG #{tag}"
+    define_method(method, &block)
+    plugin = Plugin.current(1) || Plugin.current
+    options = { :plugin => plugin, :description => plugin.description }.merge(options)
+    @@tags[tag.to_s] = TagInfo.new(method, options)
   end
 
   def nested_tags(context, content)
@@ -159,8 +159,10 @@ class Olelo::Tag < Filter
 
   class TagInfo
     attr_accessor :limit, :requires, :immediate, :method, :description, :plugin
-    def initialize(opts)
-      opts.each_pair {|k,v| send("#{k}=", v) }
+    def initialize(method, options)
+      @method = method
+      options.each_pair {|k,v| send("#{k}=", v) }
+      @requires = [*@requires].compact
     end
   end
 
@@ -213,7 +215,7 @@ class Olelo::Tag < Filter
   end
 end
 
-Filter.register :tag, Tag
+Filter.register :tag, Tag, :description => 'Process extension tags'
 
 Tag.define :nowiki, :description => 'Disable tag and wikitext filtering' do |context, attrs, content|
   escape_html(content)
