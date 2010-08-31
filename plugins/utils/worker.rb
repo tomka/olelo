@@ -14,6 +14,10 @@ module Olelo::Worker
     end
   end
 
+  def self.jobs
+    @queue.length
+  end
+
   def self.defer(&block)
     @queue << block
   end

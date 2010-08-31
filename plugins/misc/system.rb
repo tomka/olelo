@@ -41,6 +41,10 @@ __END__
     %tr
       %td Memory usage:
       %td #{@memory} MiB
+    - if Olelo.const_defined? 'Worker'
+      %tr
+        %td Worker jobs
+        %td= Olelo::Worker.jobs
 #tab-configuration.tab
   %h2 Configuration
   %table.zebra

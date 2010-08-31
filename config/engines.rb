@@ -49,7 +49,7 @@ regexp :textile_nowiki,  /<pre>.*?<\/pre>/m, '<notags>\0</notags>'
 # Creole engines configuration
 ################################################################################
 
-engine :creole do
+engine :page do
   is_cacheable.needs_layout.has_priority(1)
   accepts 'text/x-creole'
   filter do
@@ -87,7 +87,7 @@ end
 # Textile engines configuration
 ################################################################################
 
-engine :textile do
+engine :page do
   is_cacheable.needs_layout.has_priority(1)
   accepts 'text/x-textile'
   filter do
@@ -123,7 +123,7 @@ end
 # Markdown engines configuration
 ################################################################################
 
-engine :markdown do
+engine :page do
   is_cacheable.needs_layout.has_priority(1)
   accepts 'text/x-markdown'
   filter do
@@ -159,7 +159,7 @@ end
 # Kramdown engines configuration
 ################################################################################
 
-engine :kramdown do
+engine :page do
   is_cacheable.needs_layout.has_priority(2)
   accepts 'text/x-markdown'
   filter do
@@ -194,7 +194,7 @@ end
 # Maruku engines configuration
 ################################################################################
 
-engine :maruku do
+engine :page do
   is_cacheable.needs_layout.has_priority(3)
   accepts 'text/x-markdown'
   filter do
@@ -230,7 +230,7 @@ end
 # Orgmode engines configuration
 ################################################################################
 
-engine :orgmode do
+engine :page do
   is_cacheable.needs_layout.has_priority(1)
   accepts 'text/x-orgmode'
   filter do
