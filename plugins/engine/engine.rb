@@ -84,11 +84,10 @@ class Olelo::Engine
     (@engines[engine.name] ||= []) << engine
   end
 
-  # Find all accepting engines for a page which are not hidden
+  # Find all accepting engines for a page
   def self.find_all(page)
-    name = page.attributes['output']
     @engines.values.map do |engines|
-      engines.sort_by {|e| e.priority }.find {|e| (e.name == name || !e.hidden?) && e.accepts?(page) }
+      engines.sort_by {|e| e.priority }.find {|e| e.accepts?(page) }
     end.compact.sort_by {|e| e.name }
   end
 
@@ -168,15 +167,14 @@ class Olelo::Application
       menu = Cache.cache("engine-menu-#{page.path}-#{page.version}-#{build_query(params)}",
                          :update => request.no_cache?, :defer => true) do
         engines = Olelo::Engine.find_all(page)
-        li = engines.select {|e| e.layout? }.map do |e|
+        li = engines.select {|e| e.layout? && (!e.hidden? || e.name == @engine_name) }.map do |e|
           name = escape_html Olelo::I18n.translate("engine_#{e.name}", :fallback => e.name.tr('_', ' ').capitalize)
           %{<li#{e.name == @engine_name ? ' class="selected"': ''}>
           <a href="#{escape_html page_path(page, :output => e.name)}">#{name}</a></li>}.unindent
         end +
-          engines.select {|e| !e.layout? }.map do |e|
+        engines.select {|e| !e.layout? && !e.hidden? }.map do |e|
           name = escape_html Olelo::I18n.translate("engine_#{e.name}", :fallback => e.name.tr('_', ' ').capitalize)
-          %{<li class="download#{e.name == @engine_name ? 'selected': ''}">
-                <a href="#{escape_html page_path(page, :output => e.name)}">#{name}</a></li>}.unindent
+          %{<li class="download"><a href="#{escape_html page_path(page, :output => e.name)}">#{name}</a></li>}
         end
         "<ul>#{li.join}</ul>"
       end
