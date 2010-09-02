@@ -45,7 +45,7 @@ def define_html_tag(name, allowed)
   Tag.define name do |context, attrs, content|
     attrs = attrs.map {|(k,v)| %{#{k}="#{escape_html v}"} if allowed.include? k }.compact.join(' ')
     content = subfilter(context.subcontext, content)
-    content.gsub!(/(\A<p>)|(<\/p>\Z)/, '')
+    content.gsub!(/(\A<p[^>]*>)|(<\/p>\Z)/, '')
     "<#{name}#{attrs.blank? ? '' : ' '+attrs}>#{content}</#{name}>"
   end
 end

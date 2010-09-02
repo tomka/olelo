@@ -147,7 +147,7 @@ class Olelo::Tag < AroundFilter
 
   def filter(context, content)
     @protected_elements = []
-    @protection_prefix = "TAG_#{object_id}_"
+    @protection_prefix = "TAG#{object_id}X"
     replace_protected_elements(subfilter(context, content))
   end
 
@@ -168,7 +168,6 @@ class Olelo::Tag < AroundFilter
 
   def process_tag(name, attrs, content, context)
     tag = @@tags[name]
-
     tag_counter = context.private[:tag_counter] ||= {}
     tag_counter[name] ||= 0
     tag_counter[name] += 1

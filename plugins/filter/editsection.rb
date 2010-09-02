@@ -9,7 +9,7 @@ AroundFilter.create :editsection do |context, content|
   if context.page.new? || context.page.modified? || !context.page.current? || context.page.attributes['noeditlinks']
     subfilter(context, content)
   else
-    prefix = "EDIT_#{object_id}_"
+    prefix = "EDIT#{object_id}X"
     len = content.length
     pos, off = [], 0
     while (off = content.index(/^([ \t]*(=+)(.*?))=*\s*$/, off))
