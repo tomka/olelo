@@ -223,7 +223,7 @@ module Olelo
       output = super(name, opts)
       if layout != false
         content = super(:layout, opts) { output }
-        doc = Nokogiri::XML(content) # Nokogiri::XML(content, nil, 'UTF-8', Nokogiri::XML::ParseOptions::STRICT)
+        doc = Nokogiri::HTML(content)
         invoke_hook :layout, name, doc
         output = doc.to_xhtml(:encoding => 'UTF-8')
       end

@@ -1,6 +1,5 @@
 !!! 5
-%html.no-js{:xmlns=>'http://www.w3.org/1999/xhtml', 'xml:lang' => Olelo::Config.locale.sub('_', '-'),
-            :class => page && !page.current? ? 'archive' : nil}
+%html.no-js{:lang => Olelo::Config.locale.sub('_', '-'), :class => page && !page.current? ? 'archive' : nil}
   %head
     %title= Olelo::Config.title + ' - ' + title
     != self.class.theme_links
