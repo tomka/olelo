@@ -45,6 +45,8 @@ regexp :textile_nowiki,  /<pre>.*?<\/pre>/m, '<notags>\0</notags>'
 #
 ################################################################################
 
+interwiki_map = YAML.load_file(File.join(Config.config_path, 'interwiki.yml'))
+
 ################################################################################
 # Creole engines configuration
 ################################################################################
@@ -57,7 +59,7 @@ engine :page do
       remove_comments.math_shortcuts
       creole_nowiki.tag { creole!.rubypants }
     end
-    toc.link_classifier
+    toc.interwiki(:map => interwiki_map).link_classifier
   end
 end
 
@@ -68,7 +70,8 @@ engine :s5 do
   filter do
     remove_comments.math_shortcuts
     creole_nowiki.tag { creole!.rubypants }
-    toc.link_classifier.html_wrapper!.s5!
+    toc.interwiki(:map => interwiki_map).link_classifier
+    html_wrapper!.s5!
   end
 end
 
@@ -79,7 +82,8 @@ engine :latex do
   filter do
     remove_comments.math_shortcuts
     creole_nowiki.tag { creole!.rubypants }
-    toc.html_wrapper!.xslt!(:stylesheet => 'xhtml2latex.xsl')
+    toc.interwiki(:map => interwiki_map)
+    html_wrapper!.xslt!(:stylesheet => 'xhtml2latex.xsl')
   end
 end
 
@@ -93,7 +97,7 @@ engine :page do
   filter do
     remove_comments.math_shortcuts
     textile_nowiki.tag { textile!.rubypants }
-    toc.link_classifier
+    toc.interwiki(:map => interwiki_map).link_classifier
   end
 end
 
@@ -104,7 +108,8 @@ engine :s5 do
   filter do
     remove_comments.math_shortcuts
     textile_nowiki.tag { textile!.rubypants }
-    toc.link_classifier.html_wrapper!.s5!
+    toc.interwiki(:map => interwiki_map).link_classifier
+    html_wrapper!.s5!
   end
 end
 
@@ -115,7 +120,8 @@ engine :latex do
   filter do
     remove_comments.math_shortcuts
     textile_nowiki.tag { textile!.rubypants }
-    toc.html_wrapper!.xslt!(:stylesheet => 'xhtml2latex.xsl')
+    toc.interwiki(:map => interwiki_map)
+    html_wrapper!.xslt!(:stylesheet => 'xhtml2latex.xsl')
   end
 end
 
@@ -129,7 +135,7 @@ engine :page do
   filter do
     remove_comments.math_shortcuts
     markdown_nowiki.tag { markdown! }
-    toc.link_classifier
+    toc.interwiki(:map => interwiki_map).link_classifier
   end
 end
 
@@ -140,7 +146,8 @@ engine :s5 do
   filter do
     remove_comments.math_shortcuts
     markdown_nowiki.tag { markdown! }
-    toc.link_classifier.html_wrapper!.s5!
+    toc.interwiki(:map => interwiki_map).link_classifier
+    html_wrapper!.s5!
   end
 end
 
@@ -151,7 +158,8 @@ engine :latex do
   filter do
     remove_comments.math_shortcuts
     markdown_nowiki.tag { markdown! }
-    toc.html_wrapper!.xslt!(:stylesheet => 'xhtml2latex.xsl')
+    toc.interwiki(:map => interwiki_map)
+    html_wrapper!.xslt!(:stylesheet => 'xhtml2latex.xsl')
   end
 end
 
@@ -165,7 +173,7 @@ engine :page do
   filter do
     remove_comments.math_shortcuts
     markdown_nowiki.tag { kramdown! }
-    toc.link_classifier
+    toc.interwiki(:map => interwiki_map).link_classifier
   end
 end
 
@@ -176,7 +184,8 @@ engine :s5 do
   filter do
     remove_comments.math_shortcuts
     markdown_nowiki.tag { kramdown! }
-    toc.link_classifier.html_wrapper!.s5!
+    toc.interwiki(:map => interwiki_map).link_classifier
+    html_wrapper!.s5!
   end
 end
 
@@ -200,7 +209,7 @@ engine :page do
   filter do
     remove_comments.math_shortcuts
     markdown_nowiki.tag { maruku! }
-    toc.link_classifier
+    toc.interwiki(:map => interwiki_map).link_classifier
   end
 end
 
@@ -211,7 +220,8 @@ engine :s5 do
   filter do
     remove_comments.math_shortcuts
     markdown_nowiki.tag { maruku! }
-    toc.link_classifier.html_wrapper!.s5!
+    toc.interwiki(:map => interwiki_map).link_classifier
+    html_wrapper!.s5!
   end
 end
 
@@ -222,7 +232,8 @@ engine :latex do
   filter do
     remove_comments.math_shortcuts
     markdown_nowiki.tag { maruku! }
-    toc.html_wrapper!.xslt!(:stylesheet => 'xhtml2latex.xsl')
+    toc.interwiki(:map => interwiki_map)
+    html_wrapper!.xslt!(:stylesheet => 'xhtml2latex.xsl')
   end
 end
 
@@ -236,7 +247,7 @@ engine :page do
   filter do
     remove_comments.math_shortcuts
     tag { orgmode!.rubypants }
-    toc.link_classifier
+    toc.interwiki(:map => interwiki_map).link_classifier
   end
 end
 
@@ -247,7 +258,8 @@ engine :s5 do
   filter do
     remove_comments.math_shortcuts
     tag { orgmode!.rubypants }
-    toc.link_classifier.html_wrapper!.s5!
+    toc.interwiki(:map => interwiki_map).link_classifier
+    html_wrapper!.s5!
   end
 end
 
@@ -258,6 +270,7 @@ engine :latex do
   filter do
     remove_comments.math_shortcuts
     tag { orgmode!.rubypants }
-    toc.html_wrapper!.xslt!(:stylesheet => 'xhtml2latex.xsl')
+    toc.interwiki(:map => interwiki_map)
+    html_wrapper!.xslt!(:stylesheet => 'xhtml2latex.xsl')
   end
 end
