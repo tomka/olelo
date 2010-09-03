@@ -1,12 +1,14 @@
 en:
   access_denied:       'Access denied'
   access_denied_long:  'Access denied. Please login or switch user.'
-  group_acl:           'Access control lists'
   attribute_acl_read:  'Read access'
   attribute_acl_write: 'Write access'
+  group_acl:           'Access control lists'
+  persistent_login:    'Persistent login'
 de:
   access_denied:       'Zugriff verweigert'
   access_denied_long:  'Der Zugriff wurde verweigert. Melden Sie sich an oder wechseln Sie den Benutzer.'
-  group_acl:           'Zugriffslisten'
   attribute_acl_read:  'Lesezugriff'
   attribute_acl_write: 'Schreibzugriff'
+  group_acl:           'Zugriffslisten'
+  persistent_login:    'Dauerhaft anmelden'

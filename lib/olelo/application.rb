@@ -229,7 +229,9 @@ module Olelo
       if action?(:edit) && params[:content]
         params[:content].gsub!("\r\n", "\n")
         with_hooks :save, page do
-          Page.transaction(:page_edited.t(:page => page.title, :comment => params[:comment]), user) do
+          message = :page_edited.t(:page => page.title)
+          message << " - #{params[:comment]}" if !params[:comment].blank?
+          Page.transaction(message, user) do
             page.content = if params[:pos]
                              [page.content[0, params[:pos].to_i].to_s,
                               params[:content],
@@ -239,7 +241,6 @@ module Olelo
                            end
             redirect absolute_path(page) if params[:close] && !page.modified?
             check do |errors|
-              errors << :empty_comment.t if params[:comment].blank?
               errors << :version_conflict.t if !page.new? && page.version.to_s != params[:version]
               errors << :no_changes.t if !page.modified?
             end

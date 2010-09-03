@@ -7,7 +7,6 @@ AssetManager.register_assets 'images/*'
 
 Engine.create('treeview.json', :hidden => true, :cacheable => true, :mime => 'application/json; charset=utf-8') do
   def output(context)
-    context.response['Content-Type'] = 'application/json'
     # Format [[has-children, classes, path, name], ...]
     # Example: [[0, 'file-type-pdf', '/a/b.pdf', 'b.pdf'], ...]
     context.page.children.map do |child|

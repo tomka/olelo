@@ -108,7 +108,6 @@ class Olelo::Application
       level = SpamEvaluator.new(user, params, page).evaluate
       flash.info :spam_level.t(:level => level) if !Config.production?
       if level >= 100
-        flash.error :empty_comment.t if params[:comment].blank? && !params[:minor]
         flash.info :enter_captcha.t
         @show_captcha = true
         halt render(:edit)

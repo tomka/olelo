@@ -19,8 +19,6 @@ class Olelo::Application
   before :save do |page|
     if action?(:edit) && params[:content]
       if params[:preview]
-        flash.error :empty_comment.t if params[:comment].blank?
-
         if page.new? || !params[:pos]
           # Whole page edited, assign new content before engine search
           page.content = params[:content]
@@ -35,8 +33,6 @@ class Olelo::Application
 
         halt render(:edit)
       elsif params[:changes]
-        flash.error :empty_comment.t if params[:comment].blank?
-
         original = Tempfile.new('original')
         original.write(params[:pos] ? page.content[params[:pos].to_i, params[:len].to_i] : page.content)
         original.close

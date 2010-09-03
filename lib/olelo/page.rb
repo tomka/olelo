@@ -58,7 +58,6 @@ module Olelo
     end
 
     def self.transaction(comment, user = nil, &block)
-      raise :empty_comment.t if comment.blank?
       repository.transaction(comment, user, &block)
     end
 

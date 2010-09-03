@@ -26,8 +26,8 @@ AroundFilter.create :editsection do |context, content|
     content.gsub!(/#{prefix}(\d+)/) do |match|
       i = $1.to_i
       l = pos[i+1] ? pos[i+1][1] - pos[i][1] - 1 : len - pos[i][1]
-      path = action_path(context.page, :edit) + "?pos=#{pos[i][1]}&len=#{l}&comment=#{pos[i][3]} edited"
-      %{<a class="editlink" href="#{escape_html path}" title="Edit section #{escape_html pos[i][3]}">Edit</a>}
+      path = action_path(context.page, :edit) + "?pos=#{pos[i][1]}&len=#{l}&comment=#{:section_edited.t(:section => pos[i][3])}"
+      %{<a class="editlink" href="#{escape_html path}" title="#{:edit_section.t(:section => pos[i][3])}">#{escape_html :edit.t}</a>}
     end
     content
   end
