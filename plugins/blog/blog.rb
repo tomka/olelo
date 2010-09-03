@@ -1,7 +1,6 @@
-description  'Blog engine'
-dependencies 'filter/tag', 'utils/asset_manager'
-
-AssetManager.register_scripts '*.css'
+description    'Blog engine'
+dependencies   'filter/tag', 'utils/assets'
+export_scripts '*.css'
 
 class Olelo::Application
   attribute_editor do
@@ -53,7 +52,7 @@ Engine.create(:blog, :priority => 3, :layout => true, :cacheable => true, :hidde
 
     @articles = articles.map do |page|
       begin
-        content =  Engine.find!(page, :layout => true).output(context.subcontext(:page => page, :params => {:included => true}))
+        content = Engine.find!(page, :layout => true).output(context.subcontext(:page => page, :params => {:included => true}))
         if !context.params[:full]
           paragraphs = Nokogiri::XML::DocumentFragment.parse(content).xpath('p')
           content = ''

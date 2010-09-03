@@ -9,12 +9,13 @@
 #
 ################################################################################
 
-regexp :remove_comments, /<!--.*?-->/m,      ''
-regexp :math_shortcuts,  /\$\$(.*?)\$\$/m,   '<math display="inline">\1</math>',
-                         /\\\((.*?)\\\)/m,   '<math display="inline">\1</math>',
-                         /\\\[(.*?)\\\]/m,   '<math display="block">\1</math>'
-regexp :creole_nowiki,   /\{\{\{.*?\}\}\}/m, '<notags>\0</notags>'
-regexp :textile_nowiki,  /<pre>.*?<\/pre>/m, '<notags>\0</notags>'
+regexp :remove_comments, /<!--.*?-->/m,         ''
+regexp :tag_shortcuts,   /\$\$(.*?)\$\$/m,      '<math display="inline">\1</math>',
+                         /\\\((.*?)\\\)/m,      '<math display="inline">\1</math>',
+                         /\\\[(.*?)\\\]/m,      '<math display="block">\1</math>',
+                         /<<(.*?)(\|(.*?))?>>/, '<include page="\1" \3/>'
+regexp :creole_nowiki,   /\{\{\{.*?\}\}\}/m,    '<notags>\0</notags>'
+regexp :textile_nowiki,  /<pre>.*?<\/pre>/m,    '<notags>\0</notags>'
 
 ################################################################################
 #
@@ -32,7 +33,7 @@ regexp :textile_nowiki,  /<pre>.*?<\/pre>/m, '<notags>\0</notags>'
 #  mime    'text/html'            # Generated mime type. Only interesting for engines which don't need a layout.
 #  filter do                      # Define filter chain
 #    remove_comments              # First filter removes html comments <!--...-->. This filter is defined above.
-#    math_shortcuts               # Replace math shortcuts with math tags
+#    tag_shortcuts                # Replace tag shortcuts with tags (e.g $$...$$ -> <math>...</math>, <<page>> -> <include page"page"/>)
 #    creole_nowiki                # Replace creole nowiki tags with <notags> to disable tag interpretation (next filter)
 #    tag do                       # Interpret wiki tags. Wiki tags are an extension to default wiki text
 #      creole!                    # Transform creole to html
@@ -56,7 +57,7 @@ engine :page do
   accepts 'text/x-creole'
   filter do
     editsection do
-      remove_comments.math_shortcuts
+      remove_comments.tag_shortcuts
       creole_nowiki.tag { creole!.rubypants }
     end
     toc.interwiki(:map => interwiki_map).link_classifier
@@ -68,7 +69,7 @@ engine :s5 do
   accepts 'text/x-creole'
   mime 'application/xhtml+xml; charset=utf-8'
   filter do
-    remove_comments.math_shortcuts
+    remove_comments.tag_shortcuts
     creole_nowiki.tag { creole!.rubypants }
     toc.interwiki(:map => interwiki_map).link_classifier
     html_wrapper!.s5!
@@ -80,7 +81,7 @@ engine :latex do
   accepts 'text/x-creole'
   mime 'text/plain; charset=utf-8'
   filter do
-    remove_comments.math_shortcuts
+    remove_comments.tag_shortcuts
     creole_nowiki.tag { creole!.rubypants }
     toc.interwiki(:map => interwiki_map)
     html_wrapper!.xslt!(:stylesheet => 'xhtml2latex.xsl')
@@ -95,7 +96,7 @@ engine :page do
   is_cacheable.needs_layout.has_priority(1)
   accepts 'text/x-textile'
   filter do
-    remove_comments.math_shortcuts
+    remove_comments.tag_shortcuts
     textile_nowiki.tag { textile!.rubypants }
     toc.interwiki(:map => interwiki_map).link_classifier
   end
@@ -106,7 +107,7 @@ engine :s5 do
   accepts 'text/x-textile'
   mime 'application/xhtml+xml; charset=utf-8'
   filter do
-    remove_comments.math_shortcuts
+    remove_comments.tag_shortcuts
     textile_nowiki.tag { textile!.rubypants }
     toc.interwiki(:map => interwiki_map).link_classifier
     html_wrapper!.s5!
@@ -118,7 +119,7 @@ engine :latex do
   accepts 'text/x-textile'
   mime 'text/plain; charset=utf-8'
   filter do
-    remove_comments.math_shortcuts
+    remove_comments.tag_shortcuts
     textile_nowiki.tag { textile!.rubypants }
     toc.interwiki(:map => interwiki_map)
     html_wrapper!.xslt!(:stylesheet => 'xhtml2latex.xsl')
@@ -133,7 +134,7 @@ engine :page do
   is_cacheable.needs_layout.has_priority(1)
   accepts 'text/x-markdown'
   filter do
-    remove_comments.math_shortcuts
+    remove_comments.tag_shortcuts
     markdown_nowiki.tag { markdown! }
     toc.interwiki(:map => interwiki_map).link_classifier
   end
@@ -144,7 +145,7 @@ engine :s5 do
   accepts 'text/x-markdown'
   mime 'application/xhtml+xml; charset=utf-8'
   filter do
-    remove_comments.math_shortcuts
+    remove_comments.tag_shortcuts
     markdown_nowiki.tag { markdown! }
     toc.interwiki(:map => interwiki_map).link_classifier
     html_wrapper!.s5!
@@ -156,7 +157,7 @@ engine :latex do
   accepts 'text/x-markdown'
   mime 'text/plain; charset=utf-8'
   filter do
-    remove_comments.math_shortcuts
+    remove_comments.tag_shortcuts
     markdown_nowiki.tag { markdown! }
     toc.interwiki(:map => interwiki_map)
     html_wrapper!.xslt!(:stylesheet => 'xhtml2latex.xsl')
@@ -171,7 +172,7 @@ engine :page do
   is_cacheable.needs_layout.has_priority(2)
   accepts 'text/x-markdown'
   filter do
-    remove_comments.math_shortcuts
+    remove_comments.tag_shortcuts
     markdown_nowiki.tag { kramdown! }
     toc.interwiki(:map => interwiki_map).link_classifier
   end
@@ -182,7 +183,7 @@ engine :s5 do
   accepts 'text/x-markdown'
   mime 'application/xhtml+xml; charset=utf-8'
   filter do
-    remove_comments.math_shortcuts
+    remove_comments.tag_shortcuts
     markdown_nowiki.tag { kramdown! }
     toc.interwiki(:map => interwiki_map).link_classifier
     html_wrapper!.s5!
@@ -194,7 +195,7 @@ engine :latex do
   accepts 'text/x-markdown'
   mime 'text/plain; charset=utf-8'
   filter do
-    remove_comments.math_shortcuts
+    remove_comments.tag_shortcuts
     markdown_nowiki.tag { kramdown!(:latex => true) }
   end
 end
@@ -207,7 +208,7 @@ engine :page do
   is_cacheable.needs_layout.has_priority(3)
   accepts 'text/x-markdown'
   filter do
-    remove_comments.math_shortcuts
+    remove_comments.tag_shortcuts
     markdown_nowiki.tag { maruku! }
     toc.interwiki(:map => interwiki_map).link_classifier
   end
@@ -218,7 +219,7 @@ engine :s5 do
   accepts 'text/x-markdown'
   mime 'application/xhtml+xml; charset=utf-8'
   filter do
-    remove_comments.math_shortcuts
+    remove_comments.tag_shortcuts
     markdown_nowiki.tag { maruku! }
     toc.interwiki(:map => interwiki_map).link_classifier
     html_wrapper!.s5!
@@ -230,7 +231,7 @@ engine :latex do
   accepts 'text/x-markdown'
   mime 'text/plain; charset=utf-8'
   filter do
-    remove_comments.math_shortcuts
+    remove_comments.tag_shortcuts
     markdown_nowiki.tag { maruku! }
     toc.interwiki(:map => interwiki_map)
     html_wrapper!.xslt!(:stylesheet => 'xhtml2latex.xsl')
@@ -245,7 +246,7 @@ engine :page do
   is_cacheable.needs_layout.has_priority(1)
   accepts 'text/x-orgmode'
   filter do
-    remove_comments.math_shortcuts
+    remove_comments.tag_shortcuts
     tag { orgmode!.rubypants }
     toc.interwiki(:map => interwiki_map).link_classifier
   end
@@ -256,7 +257,7 @@ engine :s5 do
   accepts 'text/x-orgmode'
   mime 'application/xhtml+xml; charset=utf-8'
   filter do
-    remove_comments.math_shortcuts
+    remove_comments.tag_shortcuts
     tag { orgmode!.rubypants }
     toc.interwiki(:map => interwiki_map).link_classifier
     html_wrapper!.s5!
@@ -268,7 +269,7 @@ engine :latex do
   accepts 'text/x-orgmode'
   mime 'text/plain; charset=utf-8'
   filter do
-    remove_comments.math_shortcuts
+    remove_comments.tag_shortcuts
     tag { orgmode!.rubypants }
     toc.interwiki(:map => interwiki_map)
     html_wrapper!.xslt!(:stylesheet => 'xhtml2latex.xsl')

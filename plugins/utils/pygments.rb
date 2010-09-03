@@ -1,7 +1,6 @@
-description  'Pygments syntax highlighter'
-dependencies 'utils/asset_manager', 'utils/shell'
-
-AssetManager.register_scripts 'pygments.css'
+description    'Pygments syntax highlighter'
+dependencies   'utils/assets', 'utils/shell'
+export_scripts 'pygments.css'
 
 module Olelo::Pygments
   include Util

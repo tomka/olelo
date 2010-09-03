@@ -1,3 +1,4 @@
+# encoding: UTF-8
 require 'cgi'
 require 'digest/md5'
 require 'digest/sha2'
@@ -53,5 +54,12 @@ describe 'Olelo::Util' do
   it 'should have #truncate' do
     Olelo::Util.truncate('Annabel Lee It was many and many a year ago', 11).should.equal 'Annabel Lee...'
     Olelo::Util.truncate('In a kingdom by the sea', 39).should.equal 'In a kingdom by the sea'
+    Olelo::Util.truncate("\346\254\242\350\277\216\350\277\233\345\205\245", 1).should.equal "\346\254\242..."
+  end
+
+  it 'should have #valid_xml_chars?' do
+    Olelo::Util.valid_xml_chars?('test').should.equal true
+    Olelo::Util.valid_xml_chars?("\346\254\242\350\277\216\350\277\233\345\205\245").should.equal true
+    Olelo::Util.valid_xml_chars?("\032").should.equal false
   end
 end

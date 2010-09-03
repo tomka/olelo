@@ -3,13 +3,12 @@ require     'rack/auth/basic'
 
 class Olelo::Application
   hook :auto_login do
-    if params[:auth] && !user
+    if params[:auth] && !User.current
       auth = Rack::Auth::Basic::Request.new(env)
       unauthorized if !auth.provided?
       halt :bad_request if !auth.basic?
-      user = User.authenticate(auth.credentials[0], auth.credentials[1]) rescue nil
-      unauthorized if !user
-      self.user = user
+      User.current = User.authenticate(auth.credentials[0], auth.credentials[1]) rescue nil
+      unauthorized if !User.current
     end
   end
 

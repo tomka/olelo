@@ -1,5 +1,6 @@
 description  'XSLT filter which transforms a html page to a S5 presentation'
-dependencies 'filter/xslt', 'utils/asset_manager'
+dependencies 'filter/xslt', 'utils/assets'
+export_assets 'ui/**/*', 'ui/default/*'
 
 Application.attribute_editor do
   group :s5 do
@@ -29,4 +30,3 @@ class S5 < XSLT
 end
 
 Filter.register :s5, S5
-AssetManager.register_assets 'ui/**/*', 'ui/default/*'

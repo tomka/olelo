@@ -129,6 +129,11 @@ class Object
   def try(name, *args)
     respond_to?(name) ? send(name, *args) : nil
   end
+
+  # Hack to create deep copy
+  def deep_copy
+    Marshal.load(Marshal.dump(self))
+  end
 end
 
 class String
@@ -139,20 +144,6 @@ class String
       force_encoding(new_enc)
       force_encoding(old_enc) if !valid_encoding?
       self
-    end
-
-    # Check if string is valid text encoding
-    def valid_text_encoding?
-      try_encoding(Encoding::UTF_8).encoding == Encoding::UTF_8
-    end
-  else
-    # Check if string is valid text encoding
-    require 'iconv'
-    def valid_text_encoding?
-      Iconv.conv('utf-8', 'utf-8', self)
-      true
-    rescue
-      false
     end
   end
 

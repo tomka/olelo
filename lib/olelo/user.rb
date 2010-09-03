@@ -7,15 +7,10 @@ module Olelo
     attr_reader :name, :groups
     attr_accessor :email
 
-    def anonymous?
-      @groups.include? 'anonymous'
-    end
-
     def initialize(name, email, groups = nil)
       @name = name
       @email = email
       @groups = Set.new(groups.to_a)
-      @groups << 'user' if !anonymous?
     end
 
     def change_password(oldpassword, password, confirm)
@@ -49,7 +44,25 @@ module Olelo
       end
     end
 
+    @user = {}
+
     class<< self
+      def current
+        @user[Thread.current.object_id]
+      end
+
+      def current=(user)
+        if user
+          @user[Thread.current.object_id] = user
+        else
+          @user.delete(Thread.current.object_id)
+        end
+      end
+
+      def logged_in?
+        current && current.groups.include?('user')
+      end
+
       def service
         @service ||= Service[Config.authentication.service].new(Config.authentication[Config.authentication.service])
       end
@@ -64,7 +77,7 @@ module Olelo
       def anonymous(request)
         ip = request.ip || 'unknown-ip'
         name = request.remote_host ? "#{request.remote_host} (#{ip})" : ip
-        new(name, "anonymous@#{ip}", %w(anonymous))
+        new(name, "anonymous@#{ip}")
       end
 
       def find!(name)
@@ -76,12 +89,12 @@ module Olelo
       end
 
       def authenticate(name, password)
-        service.authenticate(name, password)
+        service.authenticate(name, password).tap {|user| user.groups << 'user' }
       end
 
       def create(name, password, confirm, email)
         validate_password(password, confirm)
-        user = new(name, email)
+        user = new(name, email, %w(user))
         user.validate
         service.create(user, password)
         user

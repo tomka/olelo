@@ -1,9 +1,11 @@
-description  'Tag to embed github gist'
-dependencies 'filter/tag', 'utils/asset_manager'
-require      'open-uri'
-require      'yajl/json_gem'
+description    'Tag to embed github gist'
+dependencies   'filter/tag'
+require        'open-uri'
+require        'yajl/json_gem'
 
-AssetManager.register_scripts 'gist.css', :priority => 0
+Application.hook :layout, 1 do |name, doc|
+  doc.css('head').first << '<link rel="stylesheet" href="http://gist.github.com/stylesheets/gist/embed.css" type="text/css"/>'
+end
 
 Tag.define :gist, :requires => :id do |context, attrs, content|
   if attrs['id'] =~ /^\d+$/
@@ -14,7 +16,3 @@ Tag.define :gist, :requires => :id do |context, attrs, content|
     raise ArgumentError, 'Invalid gist id'
   end
 end
-
-__END__
-@@ gist.css
-@import url("http://gist.github.com/stylesheets/gist/embed.css");

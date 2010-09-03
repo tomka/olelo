@@ -3,7 +3,7 @@ dependencies 'engine/engine'
 
 class Olelo::Application
   hook :layout do |name, doc|
-    if name == :edit || name == :new
+    if name == :edit
       if @preview
         doc.css('#content .tabs').before %{<div class="preview">#{@preview}</div>}
       elsif @patch
@@ -11,43 +11,45 @@ class Olelo::Application
       end
 
       doc.css('#tab-edit button[type=submit]').before(
-        %{<button type="submit" name="preview" value="1" accesskey="p">#{:preview.t}</button>
-          <button type="submit" name="changes" value="1" accesskey="c">#{:changes.t}</button>}.unindent)
+        %{<button type="submit" name="action" value="preview" accesskey="p">#{:preview.t}</button>
+          <button type="submit" name="action" value="changes" accesskey="c">#{:changes.t}</button>}.unindent)
     end
   end
 
-  before :save do |page|
-    if action?(:edit) && params[:content]
-      if params[:preview]
-        if page.new? || !params[:pos]
-          # Whole page edited, assign new content before engine search
-          page.content = params[:content]
-          engine = Engine.find(page, :layout => true)
-        else
-          # We assume that engine stays the same if section is edited
-          engine = Engine.find(page, :layout => true)
-          page.content = params[:content]
-        end
+  def post_preview
+    raise 'No content' if !params[:content]
+    params[:content].gsub!("\r\n", "\n")
 
-        @preview = engine && engine.output(Context.new(:page => page))
-
-        halt render(:edit)
-      elsif params[:changes]
-        original = Tempfile.new('original')
-        original.write(params[:pos] ? page.content[params[:pos].to_i, params[:len].to_i] : page.content)
-        original.close
-
-        new = Tempfile.new('new')
-        new.write(params[:content])
-        new.close
-
-        # Read in binary mode and fix encoding afterwards
-        patch = IO.popen("diff -u '#{original.path}' '#{new.path}'", 'rb') {|io| io.read }
-        patch.force_encoding(Encoding::UTF_8) if patch.respond_to? :force_encoding
-        @patch = PatchParser.parse(patch, PatchFormatter.new).html
-
-	halt render(:edit)
-      end
+    if page.new? || !params[:pos]
+      # Whole page edited, assign new content before engine search
+      page.content = params[:content]
+      engine = Engine.find(page, :layout => true)
+    else
+      # We assume that engine stays the same if section is edited
+      engine = Engine.find(page, :layout => true)
+      page.content = params[:content]
     end
+    @preview = engine && engine.output(Context.new(:page => page))
+    halt render(:edit)
+  end
+
+  def post_changes
+    raise 'No content' if !params[:content]
+    params[:content].gsub!("\r\n", "\n")
+
+    original = Tempfile.new('original')
+    original.write(params[:pos] ? page.content[params[:pos].to_i, params[:len].to_i] : page.content)
+    original.close
+
+    new = Tempfile.new('new')
+    new.write(params[:content].to_s)
+    new.close
+
+    # Read in binary mode and fix encoding afterwards
+    patch = IO.popen("diff -u '#{original.path}' '#{new.path}'", 'rb') {|io| io.read }
+    patch.force_encoding(Encoding::UTF_8) if patch.respond_to? :force_encoding
+    @patch = PatchParser.parse(patch, PatchFormatter.new).html
+
+    halt render(:edit)
   end
 end

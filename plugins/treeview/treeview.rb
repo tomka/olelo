@@ -1,9 +1,8 @@
-description  'Tree Viewer'
-dependencies 'engine/engine', 'utils/asset_manager'
-require      'yajl/json_gem'
-
-AssetManager.register_scripts '*.js', '*.css'
-AssetManager.register_assets 'images/*'
+description    'Tree Viewer'
+dependencies   'engine/engine', 'utils/assets'
+export_scripts '*.js', '*.css'
+export_assets  'images/*'
+require        'yajl/json_gem'
 
 Engine.create('treeview.json', :hidden => true, :cacheable => true, :mime => 'application/json; charset=utf-8') do
   def output(context)

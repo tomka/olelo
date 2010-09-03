@@ -1,8 +1,7 @@
-description  'Gallery engine'
-dependencies 'engine/engine', 'utils/asset_manager'
-
-AssetManager.register_scripts '*.js', '*.css'
-AssetManager.register_assets 'images/*'
+description    'Gallery engine'
+dependencies   'engine/engine', 'utils/assets'
+export_scripts '*.js', '*.css'
+export_assets  'images/*'
 
 Engine.create(:gallery, :priority => 3, :layout => true, :hidden => true, :cacheable => true) do
   def accepts?(page); !page.children.empty?; end

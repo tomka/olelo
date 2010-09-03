@@ -18,17 +18,13 @@ def variables(page)
 end
 
 # Export variables to engine context
-Olelo::Context.hook(:initialized) do
+Context.hook(:initialized) do
   params.merge!(Plugin.current.variables(page))
 end
 
 # Export variables to javascript for client extensions
-class Olelo::Application
-  hook :layout do |name, doc|
-    vars = page ? params.merge(Plugin.current.variables(page)) : params
-    vars.merge!('user_anonymous' => user.anonymous?, 'user_name' => user.name)
-    doc.css('head').children.before %{<script type="text/javascript">
-                                      Olelo = #{escape_json(vars.to_json)};
-                                      </script>}.unindent
-  end
+Application.hook :layout do |name, doc|
+  vars = page ? params.merge(Plugin.current.variables(page)) : params
+  vars.merge!('user_logged_in' => !User.logged_in?, 'user_name' => User.current.name)
+  doc.css('head').children.before %{<script type="text/javascript">Olelo = #{escape_json(vars.to_json)};</script>}
 end

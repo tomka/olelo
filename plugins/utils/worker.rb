@@ -6,9 +6,13 @@ module Olelo::Worker
     Thread.new do
       loop do
         begin
-          @queue.pop.call
+          user, task = @queue.pop
+          User.current = user
+          task.call
         rescue => ex
           Plugin.current.logger.error(ex)
+        ensure
+          User.current = nil
         end
       end
     end
@@ -19,7 +23,7 @@ module Olelo::Worker
   end
 
   def self.defer(&block)
-    @queue << block
+    @queue << [User.current, block]
   end
 end
 

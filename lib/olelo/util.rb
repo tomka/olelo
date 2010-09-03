@@ -142,11 +142,45 @@ module Olelo
       def truncate(s, max, omission = '...')
         s = s.to_s
         if s.length > max
-          max += 1 until max >= s.length || s[0...max].valid_text_encoding?
+          max += 1 until max >= s.length || valid_xml_chars?(s[0...max])
           s[0...max] + omission
         else
           s
         end
+      end
+    end
+
+    # See http://www.w3.org/TR/REC-xml/#charsets for details.
+    VALID_XML_CHARS = [
+      0x9, 0xA, 0xD,
+      (0x20..0xD7FF),
+      (0xE000..0xFFFD),
+      (0x10000..0x10FFFF)
+    ]
+
+    # Check if string contains only valid chars
+    if ''.respond_to?(:encoding)
+      def valid_xml_chars?(s)
+        s = s.to_s
+        if s.encoding == Encoding::UTF_8
+          return false if !s.valid_encoding?
+        else
+          s = s.dup if s.frozen?
+          return false if s.try_encoding(Encoding::UTF_8).encoding != Encoding::UTF_8
+        end
+        s.codepoints do |n|
+          return false if !VALID_XML_CHARS.any? {|v| v === n }
+        end
+        true
+      end
+    else
+      require 'iconv'
+      def valid_xml_chars?(s)
+        s = s.to_s
+        Iconv.conv('utf-8', 'utf-8', s)
+        s.unpack('U*').all? {|n| VALID_XML_CHARS.any? {|v| v === n } }
+      rescue
+        false
       end
     end
 

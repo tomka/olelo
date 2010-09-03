@@ -102,11 +102,9 @@ module Olelo
     # Start the plugin
     def start
       return true if @started
-      with_hooks :start do
-        setup if respond_to?(:setup)
-        @started = true
-        logger.debug "Plugin #{name} successfully started"
-      end
+      setup if respond_to?(:setup)
+      @started = true
+      logger.debug "Plugin #{name} successfully started"
     rescue Exception => ex
       logger.error "Plugin #{name} failed to start due to: #{ex.message}"
       logger.error ex

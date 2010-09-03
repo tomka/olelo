@@ -43,32 +43,34 @@ module Olelo
 
   class Page
     include Util
+    include Hooks
 
     PATH_PATTERN = '[^\s](?:.*[^\s]+)?'
     EMPTY_MIME = MimeMagic.new('application/x-empty')
     DIRECTORY_MIME = MimeMagic.new('inode/directory')
 
     attr_reader :path, :tree_version
-    attr_reader? :current, :modified
+    attr_reader? :current
 
     def initialize(path, tree_version = nil, current = true)
       @path = path.to_s.cleanpath.freeze
       @tree_version = tree_version
       @current = current
+      Page.check_path(path)
     end
 
-    def self.transaction(comment, user = nil, &block)
-      repository.transaction(comment, user, &block)
-    end
-
-    def self.find(path, tree_version = nil)
-      path = path.to_s.cleanpath
-      raise :invalid_path.t if !path.blank? && path !~ /^#{PATH_PATTERN}$/
-      repository.find_page(path, tree_version, tree_version.blank?)
+    def self.transaction(comment, &block)
+      repository.transaction(comment, &block)
     end
 
     def self.find!(path, tree_version = nil)
-      find(path, tree_version) || raise(NotFound, path)
+      path = path.to_s.cleanpath
+      check_path(path)
+      repository.find_page(path, tree_version, tree_version.blank?) || raise(NotFound, path)
+    end
+
+    def self.find(path, tree_version = nil)
+      find!(path, tree_version) rescue nil
     end
 
     def root?
@@ -102,14 +104,17 @@ module Olelo
 
     def move(destination)
       raise 'Page is new' if new?
+      raise 'Page is not current' unless current?
       destination = destination.to_s.cleanpath
-      raise :already_exists.t(:page => destination) if Page.find(destination)
-      repository.move(self, destination)
+      Page.check_path(destination)
+      raise :already_exists.t(:page => destination) if repository.find_page(destination, nil, true)
+      with_hooks(:move, destination) { repository.move(self, destination) }
     end
 
     def delete
       raise 'Page is new' if new?
-      repository.delete(self)
+      raise 'Page is not current' unless current?
+      with_hooks(:delete) { repository.delete(self) }
     end
 
     def diff(from, to)
@@ -138,14 +143,18 @@ module Olelo
     def committed(path, tree_version)
       @path = path.freeze
       @tree_version = tree_version
-      @modified = false
       @version = @next_version = @previous_version =
-        @attributes = @parent = @children =
-        @content = @mime = nil
+        @parent = @children = @mime =
+        @attributes = @saved_attributes =
+        @content = @saved_content = nil
     end
 
     def attributes
-      @attributes ||= new? ? {} : repository.load_attributes(self)
+      @attributes ||= saved_attributes.deep_copy
+    end
+
+    def saved_attributes
+      @saved_attributes ||= new? ? {} : repository.load_attributes(self)
     end
 
     def attributes=(a)
@@ -153,25 +162,32 @@ module Olelo
       if attributes != a
         @attributes = a
         @mime = nil
-        @modified = true
       end
     end
 
+    def saved_content
+      @saved_content ||= new? ? '' : repository.load_content(self)
+    end
+
     def content
-      @content ||= new? ? '' : repository.load_content(self)
+      @content ||= saved_content
     end
 
     def content=(c)
       if content != c
-        @modified = true
         @mime = nil
         @content = c
       end
     end
 
+    def modified?
+      content != saved_content || attributes != saved_attributes
+    end
+
     def save
-      raise :already_exists.t(:page => path) if new? && Page.find(path)
-      repository.save(self)
+      raise 'Page is not current' unless current?
+      raise :already_exists.t(:page => path) if new? && repository.find_page(path, nil, true)
+      with_hooks(:save) { repository.save(self) }
     end
 
     def mime
@@ -183,6 +199,10 @@ module Olelo
     end
 
     private
+
+    def self.check_path(path)
+      raise :invalid_path.t if !valid_xml_chars?(path) || !(path.blank? || path =~ /^#{PATH_PATTERN}$/)
+    end
 
     def detect_mime
       return MimeMagic.new(attributes['mime']) if attributes['mime']
@@ -211,11 +231,11 @@ module Olelo
       end
     end
 
-    def self.repository
+    def repository
       Repository.instance
     end
 
-    def repository
+    def self.repository
       Repository.instance
     end
   end

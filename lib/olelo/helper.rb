@@ -125,7 +125,7 @@ module Olelo
     def edit_content(page)
       if params[:content]
         params[:content]
-      elsif !(String === page.content) || !page.content.valid_text_encoding?
+      elsif !(String === page.content) || !valid_xml_chars?(page.content)
 	:error_binary.t(:page => page.title, :type => "#{page.mime.comment} (#{page.mime})")
       else
         params[:pos] ? page.content[params[:pos].to_i, params[:len].to_i].to_s : page.content
@@ -152,12 +152,12 @@ module Olelo
       last_modified = last_modified.try(:to_time) || last_modified
       last_modified = last_modified.try(:httpdate) || last_modified
 
-      if @user && !@user.anonymous?
+      if User.logged_in?
         # Always private mode if user is logged in
         opts[:private] = true
 
         # Special etag for authenticated user
-        opts[:etag] = "#{@user.name}-#{opts[:etag]}" if opts[:etag]
+        opts[:etag] = "#{User.current.name}-#{opts[:etag]}" if opts[:etag]
       end
 
       # Spcial etag for ajax request
@@ -208,7 +208,7 @@ module Olelo
 
     def action?(action)
       if params[:action]
-        params[:action] == action.to_s
+        params[:action].split('-').include?(action.to_s)
       else
         unescape(request.path_info).begins_with?("/#{action}")
       end
@@ -225,6 +225,8 @@ module Olelo
         content = super(:layout, opts) { output }
         doc = Nokogiri::HTML(content)
         invoke_hook :layout, name, doc
+        # FIXME: Nokogiri bug #339 - duplicate xml:lang attribute
+        doc.xpath('//*[@lang]').each {|elem| elem.delete('xml:lang') }
         output = doc.to_xhtml(:encoding => 'UTF-8')
       end
       output

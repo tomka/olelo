@@ -46,5 +46,5 @@ Filter.create :toc do |context, content|
     toc << '</li></ol>'
   end
 
-  toc + doc.to_xhtml
+  toc + doc.to_xhtml(:encoding => 'UTF-8')
 end

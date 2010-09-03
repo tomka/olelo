@@ -28,9 +28,10 @@ class GitRepository < Repository
     @counter = 0
   end
 
-  def transaction(comment, user = nil, &block)
+  def transaction(comment, &block)
     raise 'Transaction already running' if @current_transaction[Thread.current.object_id]
     @current_transaction[Thread.current.object_id] = []
+    user = User.current
     git.transaction(comment, user && Gitrb::User.new(user.name, user.email), &block)
     tree_version = git.head.to_olelo
     current_transaction.each {|f| f.call(tree_version) }

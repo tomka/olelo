@@ -13,10 +13,7 @@ Engine.create(:tree, :priority => 2, :layout => true, :cacheable => true) do
   end
 end
 
-AssetManager.register_assets 'tree.haml'
-
 __END__
-
 @@ tree.haml
 != pagination(page_path(@page), @last_page, @page_nr, :output => 'tree')
 %table#tree-table

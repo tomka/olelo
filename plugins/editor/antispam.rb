@@ -9,8 +9,7 @@ class SpamEvaluator
     @bad_words ||= File.read(File.join(File.dirname(__FILE__), 'antispam.words')).split("\n")
   end
 
-  def initialize(user, params, page)
-    @user = user
+  def initialize(params, page)
     @params = params
     @page = page
   end
@@ -55,8 +54,8 @@ class SpamEvaluator
     @params[:comment].to_s =~ %r{http://} ? 100 : 0
   end
 
-  def eval_anonymous
-    @user.anonymous? ? 50 : -50
+  def eval_logged_in
+    User.logged_in? ? -50 : 50
   end
 
   def eval_invalid_encoding
@@ -85,12 +84,10 @@ end
 
 class Olelo::Application
   hook(:layout, 1000) do |name, doc|
-    if name == :edit || name == :new
+    if @show_captcha
       doc.css('#tab-edit button[type=submit]').before(
-        %{<br/><label for="recaptcha">#{:captcha.t}</label><br/><div id="recaptcha"></div><br/>}) if @show_captcha
-    end
-
-    doc.css('body').first <<\
+        %{<br/><label for="recaptcha">#{:captcha.t}</label><br/><div id="recaptcha"></div><br/>})
+      doc.css('body').first <<\
       %{<script type="text/javascript"  src="https://api-secure.recaptcha.net/js/recaptcha_ajax.js"/>
         <script type="text/javascript">
           $(function() {
@@ -100,18 +97,17 @@ class Olelo::Application
               callback: Recaptcha.focus_response_field
             });
           });
-        </script>}.unindent if @show_captcha
+        </script>}.unindent
+    end
   end
 
-  before(:save, 1000) do |page|
-    if action?(:edit) && !captcha_valid?
-      level = SpamEvaluator.new(user, params, page).evaluate
-      flash.info :spam_level.t(:level => level) if !Config.production?
-      if level >= 100
-        flash.info :enter_captcha.t
-        @show_captcha = true
-        halt render(:edit)
-      end
+  redefine_method :post_edit do
+    if !captcha_valid? && SpamEvaluator.new(params, page).evaluate >= 100
+      flash.info :enter_captcha.t
+      @show_captcha = true
+      halt render(:edit)
+    else
+      super()
     end
   end
 

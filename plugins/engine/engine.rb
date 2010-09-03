@@ -130,6 +130,16 @@ class Olelo::Application
     end
   end
 
+  before :include do
+    begin
+      halt Cache.cache("include-#{page.version}", :update => request.no_cache?, :defer => true) do |context|
+        Engine.find!(page, :layout => true).output(Context.new(:page => page, :params => {:included => true}))
+      end
+    rescue Engine::NotAvailable => ex
+      halt %{<span class="error">#{escape_html ex.message}</span>}
+    end
+  end
+
   before :show do
     begin
       params[:output] ||= 'tree' if params[:path].to_s.ends_with? '/'

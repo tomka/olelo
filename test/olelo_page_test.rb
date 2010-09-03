@@ -6,9 +6,9 @@ describe 'Olelo::Page' do
 
   it 'check for path validity' do
     lambda do
-      Olelo::Page.find(' spaces ')
+      Olelo::Page.check_path(' spaces ')
     end.should.raise RuntimeError
-    Olelo::Page.find('spaces in the path').should.equal nil
+    Olelo::Page.check_path('spaces in the path')
   end
 
   it 'should have no root before the first page is created' do
@@ -53,7 +53,7 @@ describe 'Olelo::Page' do
     page.should.be.new
     page.should.not.be.modified
     page.content.should.equal ''
-    Olelo::Page.transaction "comment1\ntext", Olelo::User.new('Author1', 'author1@localhorst') do
+    Olelo::Page.transaction "comment1\ntext" do
       page.content = 'old content'
       page.save
     end
@@ -63,41 +63,35 @@ describe 'Olelo::Page' do
     page.should.not.be.modified
 
     page.tree_version.comment.should.equal "comment1\ntext"
-    page.tree_version.author.name.should.equal 'Author1'
-    page.tree_version.author.email.should.equal 'author1@localhorst'
 
     page.content = 'new content'
     page.should.not.be.new
     page.should.be.modified
     page.content.should.equal 'new content'
-    Olelo::Page.transaction 'comment2', Olelo::User.new('Author2', 'author2@localhorst') do
+    Olelo::Page.transaction 'comment2' do
       page.content = 'new content'
       page.save
     end
 
     page.tree_version.comment.should.equal 'comment2'
-    page.tree_version.author.name.should.equal 'Author2'
-    page.tree_version.author.email.should.equal 'author2@localhorst'
 
     page = Olelo::Page.find!('test')
     page.should.not.be.new
     page.content.should.equal 'new content'
 
     page.tree_version.comment.should.equal 'comment2'
-    page.tree_version.author.name.should.equal 'Author2'
-    page.tree_version.author.email.should.equal 'author2@localhorst'
   end
 
   it 'fail on duplicates' do
     page = Olelo::Page.new('test')
-    Olelo::Page.transaction 'comment', Olelo::User.new('Author', 'author@localhorst') do
+    Olelo::Page.transaction 'comment' do
       page.content = 'content'
       page.save
     end
 
     page = Olelo::Page.new('test')
     lambda do
-      Olelo::Page.transaction 'comment', Olelo::User.new('Author', 'author@localhorst') do
+      Olelo::Page.transaction 'comment' do
         page.content = 'content'
         page.save
       end

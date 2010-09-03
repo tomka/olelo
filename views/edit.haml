@@ -8,14 +8,12 @@
   #tab-edit.tab
     %h2= :edit.t
     != flash_messages if action?(:edit) || page.new?
-    %input(type='hidden' name='action' value='edit')
     - if page.new?
       %label(for='edit-path')= :path.t
       %input#edit-path(name='path' type='text' value='#{params[:path]}')
       %br
       %hr
     - else
-      %input(type='hidden' name='_method' value='put')
       %input(type='hidden' name='version' value='#{page.version}')
       - if params[:pos]
         %input(type='hidden' name='pos' value='#{params[:pos]}')
@@ -25,13 +23,12 @@
     %br
     %label(for='edit-comment')= :comment.t
     %input#edit-comment(type='text' name='comment' value='#{params[:comment]}' size='50')
-    %button(type='submit')= :save.t
-    %button(type='submit' name='close' value='1')= :save_and_close.t
+    %button(type='submit' name='action' value='edit')= :save.t
+    %button(type='submit' name='action' value='edit-close')= :save_and_close.t
     %button(type='reset')= :reset.t
     %br
 %form(action='#{absolute_path(page.new? ? nil : page)}' method='post' enctype='multipart/form-data')
   #tab-upload.tab
-    %input(type='hidden' name='action'  value='upload')
     %h2= :upload_file.t
     - if page.new?
       %label(for='upload-path')= :path.t
@@ -39,19 +36,17 @@
       %br
       %hr
     - else
-      %input(type='hidden' name='_method' value='put')
       %input(type='hidden' name='version' value='#{page.version}')
     != flash_messages :upload
     %label(for='upload-file')= :file.t
     %input#upload-file(name='file' type='file')
     %br
-    %button(type='submit')= :save.t
-    %button(type='submit' name='close' value='1')= :save_and_close.t
+    %button(type='submit' name='action' value='upload')= :save.t
+    %button(type='submit' name='action' value='upload-close')= :save_and_close.t
     %button(type='reset')= :reset.t
     %br
-%form(action='#{absolute_path page}' method='post')
+%form(action='#{absolute_path(page.new? ? nil : page)}' method='post')
   #tab-attributes.tab.fieldset
-    %input(type='hidden' name='action'  value='attributes')
     %h2= :attributes.t
     - if page.new?
       %label(for='attributes-path')= :path.t
@@ -59,11 +54,10 @@
       %br
       %hr
     - else
-      %input(type='hidden' name='_method' value='put')
       %input(type='hidden' name='version' value='#{page.version}')
     != flash_messages :attributes
     != attribute_editor
-    %button(type='submit')= :save.t
-    %button(type='submit' name='close' value='1')= :save_and_close.t
+    %button(type='submit' name='action' value='attributes')= :save.t
+    %button(type='submit' name='action' value='attributes-close')= :save_and_close.t
     %button(type='reset')= :reset.t
     %br

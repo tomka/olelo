@@ -19,5 +19,5 @@ Filter.create :link_classifier do |context, content|
     end
     link['class'] = classes.join(' ') if !classes.empty?
   end
-  doc.to_xhtml
+  doc.to_xhtml(:encoding => 'UTF-8')
 end

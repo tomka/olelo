@@ -107,10 +107,9 @@ describe 'requests' do
 
   it 'should create page' do
     data = {
-      'action' => 'edit',
+      'action' => 'edit-close',
       'content' => 'Content of the Testpage',
-      'comment' => 'My Comment',
-      'close' => '1'
+      'comment' => 'My Comment'
     }
     post '/Testfolder/Testpage', data
 
@@ -135,10 +134,9 @@ describe 'requests' do
 
   it 'should create page with special characters' do
     data = {
-      'action' => 'edit',
+      'action' => 'edit-close',
       'content' => "\343\201\231\343\201\277\343\201\276\343\201\233\343\202\223\343\202\217\343\201\213\343\202\212\343\201\276\343\201\233\343\202\223",
       'comment' => "\346\265\213\350\257\225",
-      'close' => '1'
     }
     post '/%E5%AD%90%E4%BE%9B%E3%82%92%E5%85%AC%E5%9C%92/%E4%B8%AD%E6%96%87', data
     last_response.should.be.redirect
