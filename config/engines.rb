@@ -244,6 +244,42 @@ engine :latex do
 end
 
 ################################################################################
+# Wikicloth engines configuration
+################################################################################
+
+engine :page do
+  is_cacheable.needs_layout.has_priority(1)
+  accepts 'text/x-wikicloth'
+  filter do
+    remove_comments.tag_shortcuts
+    tag { wikicloth!.rubypants }
+    toc
+  end
+end
+
+engine :s5 do
+  is_cacheable
+  accepts 'text/x-wikicloth'
+  mime 'application/xhtml+xml; charset=utf-8'
+  filter do
+    remove_comments.tag_shortcuts
+    tag { wikicloth!.rubypants }
+    toc.html_wrapper!.s5!
+  end
+end
+
+engine :latex do
+  is_cacheable
+  accepts 'text/x-wikicloth'
+  mime 'text/plain; charset=utf-8'
+  filter do
+    remove_comments.tag_shortcuts
+    tag { wikicloth!.rubypants }
+    toc.html_wrapper!.xslt!(:stylesheet => 'xhtml2latex.xsl')
+  end
+end
+
+################################################################################
 # Orgmode engines configuration
 ################################################################################
 

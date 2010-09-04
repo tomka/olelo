@@ -37,3 +37,7 @@ MimeMagic.add('text/x-orgmode',
               :extensions => 'org',
               :parents => 'text/plain',
               :comment => 'Emacs Orgmode File')
+
+MimeMagic.add('text/x-wikicloth',
+              :parents => 'text/plain',
+              :comment => 'Wikicloth Text File')
