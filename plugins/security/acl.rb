@@ -13,7 +13,13 @@ end
 class Olelo::Page
   # Page must be readable and parents must recursively be readable
   def readable?
-    access?(:read) && (root? || parent.readable?)
+    if root?
+      access?(:read)
+    elsif new?
+      parent.readable?
+    else
+      access?(:read) && parent.readable?
+    end
   end
 
   # New page is writable if parent is writable
