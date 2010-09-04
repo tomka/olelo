@@ -3,7 +3,8 @@ dependencies 'engine/engine'
 
 class Olelo::Application
   hook :layout do |name, doc|
-    doc.css('#sidebar').first << if page = Page.find(Config.sidebar_page)
+    page = Page.find(Config.sidebar_page) rescue nil
+    doc.css('#sidebar').first << if page
       Cache.cache("sidebar-#{page.version}", :update => request.no_cache?, :defer => true) do |context|
         begin
           Engine.find!(page, :layout => true).output(Context.new(:page => page, :params => {:included => true}))

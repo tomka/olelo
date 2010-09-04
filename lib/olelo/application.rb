@@ -267,8 +267,9 @@ module Olelo
       end
 
       delete '/:path' do
+        @page = Page.find!(params[:path])
+        on_error :delete
         Page.transaction(:page_deleted.t(:page => params[:path].cleanpath)) do
-          @page = Page.find!(params[:path])
           page.delete
         end
         render :deleted

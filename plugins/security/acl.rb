@@ -11,27 +11,10 @@ class Olelo::AccessDenied < RuntimeError
 end
 
 class Olelo::Page
-  # Page must be readable and parents must recursively be readable
-  def readable?
-    if root?
-      access?(:read)
-    elsif new?
-      parent.readable?
-    else
-      access?(:read) && parent.readable?
-    end
-  end
-
   # New page is writable if parent is writable
-  # Existing page is writable if page is writable and parents are readable
+  # Existing page is writable if page is writable
   def writable?
-    if root?
-      access?(:read) && access?(:write)
-    elsif new?
-      parent.writable?
-    else
-      access?(:read) && access?(:write) && parent.readable?
-    end
+    new? ? (root? || parent.writable?) : access?(:write)
   end
 
   # Page is deletable if parent is writable
@@ -42,6 +25,14 @@ class Olelo::Page
   # Page is movable if parent is writable and destination is writable
   def movable?(destination = nil)
     deletable? && (!destination || (Page.find(destination) || Page.new(destination)).writable?)
+  end
+
+  def access?(type)
+    acl = saved_attributes['acl'] || {}
+    names = [*acl[type.to_s]].compact
+    names.empty? ||
+    names.include?(User.current.name) ||
+    User.current.groups.any? {|group| names.include?('@'+group) }
   end
 
   before(:save, 999) do
@@ -56,24 +47,12 @@ class Olelo::Page
     raise(AccessDenied) if !movable?(destination)
   end
 
-  metaclass.redefine_method(:find!) do |*args|
-    begin
-      super(*args).tap {|page| raise(AccessDenied) if !page.readable? }
-    rescue NotFound
-      # Forbid probing of pages which are in unreadable folders
-      raise(AccessDenied) if !Page.new(*args).readable?
-      raise
-    end
-  end
-
-  private
-
-  def access?(type)
-    acl = saved_attributes['acl'] || {}
-    names = [*acl[type.to_s]].compact
-    names.empty? ||
-    names.include?(User.current.name) ||
-    User.current.groups.any? {|group| names.include?('@'+group) }
+  metaclass.redefine_method :find do |*args|
+    path, tree_version, current = *args
+    page = super(path, tree_version)
+    raise(AccessDenied) if page && !page.access?(:read)
+    find(path/'..', tree_version, current) if !path.blank?
+    page
   end
 end
 
@@ -96,14 +75,16 @@ class Olelo::Application
   end
 
   hook AccessDenied do |ex|
-    if request.xhr?
-      response['Content-Type'] = 'application/json; charset=utf-8'
-      halt '"Access denied"'
-    else
-      cache_control :no_cache => true
-      @page = nil
-      session[:goto] = request.path_info if request.path_info !~ %r{^/_/}
-      halt render(:access_denied)
+    if !on_error
+      if request.xhr?
+        response['Content-Type'] = 'application/json; charset=utf-8'
+        halt '"Access denied"'
+      else
+        cache_control :no_cache => true
+        @page = nil
+        session[:goto] = request.path_info if request.path_info !~ %r{^/_/}
+        halt render(:access_denied)
+      end
     end
   end
 end
@@ -111,5 +92,6 @@ end
 __END__
 @@ access_denied.haml
 - title :access_denied.t
-%h1= :access_denied.t
-= :access_denied_long.t
+.access_denied_page
+  %h1= :access_denied.t
+  = :access_denied_long.t

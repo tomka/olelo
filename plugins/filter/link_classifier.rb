@@ -15,7 +15,7 @@ Filter.create :link_classifier do |context, content|
       elsif !path.begins_with? '/'
         path = context.page.path/'..'/path
       end
-      classes << 'internal' << (Page.find(path) ? 'present' : 'absent') if !Application.reserved_path?(path)
+      classes << 'internal' << (Page.find(path) rescue nil ? 'present' : 'absent') if !Application.reserved_path?(path)
     end
     link['class'] = classes.join(' ') if !classes.empty?
   end

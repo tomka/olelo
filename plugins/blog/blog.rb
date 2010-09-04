@@ -15,7 +15,7 @@ class Olelo::Application
   hook :layout, 999 do |name, doc|
     doc.css('blog-menu').each do |element|
       menu = Cache.cache("blog-menu-#{element['path']}-#{element['version']}", :update => request.no_cache?, :defer => true) do
-        page = Page.find(element['path'], element['version'])
+        page = Page.find(element['path'], element['version']) rescue nil
         if page
           years = {}
           page.children.each do |child|

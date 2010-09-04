@@ -63,14 +63,16 @@ module Olelo
       repository.transaction(comment, &block)
     end
 
-    def self.find!(path, tree_version = nil)
+    # Throws exceptions if access denied, returns nil if not found
+    def self.find(path, tree_version = nil, current = nil)
       path = path.to_s.cleanpath
       check_path(path)
-      repository.find_page(path, tree_version, tree_version.blank?) || raise(NotFound, path)
+      repository.find_page(path, tree_version, current.nil? ? tree_version.blank? : current)
     end
 
-    def self.find(path, tree_version = nil)
-      find!(path, tree_version) rescue nil
+    # Throws if not found
+    def self.find!(path, tree_version = nil, current = nil)
+      find(path, tree_version, current) || raise(NotFound, path)
     end
 
     def root?
@@ -98,7 +100,7 @@ module Olelo
     end
 
     def parent
-      @parent ||= repository.find_page(path/'..', tree_version, current?) ||
+      @parent ||= Page.find(path/'..', tree_version, current?) ||
         Page.new(path/'..', tree_version, current?) if !root?
     end
 
@@ -107,7 +109,7 @@ module Olelo
       raise 'Page is not current' unless current?
       destination = destination.to_s.cleanpath
       Page.check_path(destination)
-      raise :already_exists.t(:page => destination) if repository.find_page(destination, nil, true)
+      raise :already_exists.t(:page => destination) if Page.find(destination)
       with_hooks(:move, destination) { repository.move(self, destination) }
     end
 
@@ -186,7 +188,7 @@ module Olelo
 
     def save
       raise 'Page is not current' unless current?
-      raise :already_exists.t(:page => path) if new? && repository.find_page(path, nil, true)
+      raise :already_exists.t(:page => path) if new? && Page.find(path)
       with_hooks(:save) { repository.save(self) }
     end
 

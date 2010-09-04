@@ -2,6 +2,7 @@
 %h1= title
 %form(action='#{absolute_path page}' method='post')
   .fieldset
+    != flash_messages
     %input(type='hidden' name='_method' value='delete')
     %label.inline(for='submit')= :really_delete.t
     %button#submit.inline(name='submit' type='submit' accesskey='d')= :delete.t
