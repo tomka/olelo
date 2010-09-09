@@ -12,9 +12,9 @@ class TagSoupParser
   BOOL_ATTR       = /(#{NAME})/
   ATTRIBUTE       = /\A\s*(#{QUOTED_ATTR}|#{UNQUOTED_ATTR}|#{BOOL_ATTR})/
 
-  def initialize(tags, content)
+  def initialize(enabled_tags, content)
+    @enabled_tags = enabled_tags
     @content = content
-    @tags = tags
     @output = ''
     @parsed = nil
   end
@@ -26,7 +26,7 @@ class TagSoupParser
       @output << $`
       @content = $'
       name = $1.downcase
-      if @tags.include?(name)
+      if @enabled_tags.include?(name)
         @name = name
         @parsed = $&
         parse_tag
@@ -130,11 +130,18 @@ class Olelo::Tag < AroundFilter
     @@tags[tag.to_s] = TagInfo.new(method, options)
   end
 
+
+  def configure(options)
+    super
+    @enabled_tags = @options[:enable] ? tag_list(*@options[:enable]) : @@tags.keys
+    @enabled_tags -= tag_list(*@options[:disable]) if @options[:disable]
+  end
+
   def nested_tags(context, content)
     context.private[:tag_level] ||= 0
     context.private[:tag_level] += 1
     return 'Maximum tag nesting exceeded' if context.private[:tag_level] > MAX_RECURSION
-    result = TagSoupParser.new(@@tags, content).parse do |name, attrs, text|
+    result = TagSoupParser.new(@enabled_tags, content).parse do |name, attrs, text|
       process_tag(name, attrs, text, context)
     end
     context.private[:tag_level] -= 1
@@ -152,6 +159,15 @@ class Olelo::Tag < AroundFilter
   end
 
   private
+
+  def tag_list(*list)
+    @@tags.select do |name, tag|
+      namespace = tag.plugin.name.split('/').last
+      list.include?("#{namespace}:#{name}") ||
+      list.include?("#{namespace}:*") ||
+      list.include?(name)
+    end.map(&:first)
+  end
 
   MAX_RECURSION = 100
   BLOCK_ELEMENTS = %w(style script address blockquote div h1 h2 h3 h4 h5 h6 ul p ol pre table hr br)

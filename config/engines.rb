@@ -44,6 +44,11 @@ regexp :textile_nowiki,  /<pre>.*?<\/pre>/m,    '<notags>\0</notags>'
 #  end
 # end
 #
+# tag filter options:
+#   tag(:enable => 'html:*') Enable only html tags
+#   tag(:disable => %w(html:* scripting:include)) Disable html tags and scripting:include
+#   tag(:disable => 'html:*') Disable only html tags
+#
 ################################################################################
 
 interwiki_map = YAML.load_file(File.join(Config.config_path, 'interwiki.yml'))
