@@ -8,7 +8,7 @@ end
 Filter.create :toc do |context, content|
   return content if !context.page.attributes['toc']
 
-  doc = Nokogiri::HTML::DocumentFragment.parse(content)
+  doc = XMLFragment(content)
   toc = ''
   level = 0
   count = [0]
@@ -46,5 +46,5 @@ Filter.create :toc do |context, content|
     toc << '</li></ol>'
   end
 
-  toc + doc.to_xhtml(:encoding => 'UTF-8')
+  toc + doc.to_xhtml
 end

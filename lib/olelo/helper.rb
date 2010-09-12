@@ -223,11 +223,11 @@ module Olelo
       output = super(name, opts)
       if layout != false
         content = super(:layout, opts) { output }
-        doc = Nokogiri::HTML(content)
+        doc = XMLDocument(content)
         invoke_hook :layout, name, doc
         # FIXME: Nokogiri bug #339 - duplicate xml:lang attribute
         doc.xpath('//*[@lang]').each {|elem| elem.delete('xml:lang') }
-        output = doc.to_xhtml(:encoding => 'UTF-8')
+        output = doc.to_xhtml
       end
       output
     end

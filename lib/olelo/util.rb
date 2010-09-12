@@ -132,6 +132,14 @@ module Olelo
       end.join('&')
     end
 
+    def XMLDocument(content)
+      Nokogiri::HTML(content, nil, 'UTF-8')
+    end
+
+    def XMLFragment(content)
+      Nokogiri::HTML::DocumentFragment.new(XMLDocument(nil), content)
+    end
+
     # Truncate string and add omission
     if ''.respond_to?(:encoding)
       def truncate(s, max, omission = '...')

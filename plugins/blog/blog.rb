@@ -54,10 +54,10 @@ Engine.create(:blog, :priority => 3, :layout => true, :cacheable => true, :hidde
       begin
         content = Engine.find!(page, :layout => true).output(context.subcontext(:page => page, :params => {:included => true}))
         if !context.params[:full]
-          paragraphs = Nokogiri::XML::DocumentFragment.parse(content).xpath('p')
+          paragraphs = XMLFragment(content).xpath('p')
           content = ''
           paragraphs.each do |p|
-            content += p.to_xhtml(:encoding => 'UTF-8')
+            content += p.to_xhtml
             break if content.length > 10000
           end
         end

@@ -13,7 +13,7 @@ class Olelo::XSLT < Filter
   end
 
   def filter(context, content)
-    @xslt.apply_to(Nokogiri::XML(content),
+    @xslt.apply_to(Nokogiri::XML(content, nil, 'UTF-8'),
                    Nokogiri::XSLT.quote_params(params(context)))
   end
 end

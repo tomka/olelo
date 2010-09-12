@@ -2,7 +2,7 @@ description  'Classify links as absent/present/external'
 dependencies 'engine/filter'
 
 Filter.create :link_classifier do |context, content|
-  doc = Nokogiri::HTML::DocumentFragment.parse(content)
+  doc = XMLFragment(content)
   doc.css('a[href]').each do |link|
     href =  link['href']
     classes = [link['class']].compact
@@ -19,5 +19,5 @@ Filter.create :link_classifier do |context, content|
     end
     link['class'] = classes.join(' ') if !classes.empty?
   end
-  doc.to_xhtml(:encoding => 'UTF-8')
+  doc.to_xhtml
 end
