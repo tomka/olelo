@@ -10,7 +10,7 @@ Engine.create(:documentbrowser, :priority => 1, :layout => true, :cacheable => t
         last_page += $1.to_i
       end
     else
-      content = Shell.run($1 == 'gz' ? 'gunzip' : 'bunzip2', content) if @page.mime.to_s =~ /(gz|bz)/
+      content = Shell.cmd($1 == 'gz' ? 'gunzip' : 'bunzip2').run(content) if @page.mime.to_s =~ /(gz|bz)/
       last_page = $1.to_i - 1 if content =~ /^%%Pages:\s+(\d+)$/
     end
     @last_page = [last_page, 0].max
@@ -29,7 +29,7 @@ __END__
 @@ browser.haml
 != pagination(page_path(@page), @last_page, @page_nr, :output => 'documentbrowser')
 %p
-  %img#pdf{:src=> page_path(@page, :output => 'image', :geometry => '480x>', :trim => 1, :page => @page_nr)}
+  %img{:src=> page_path(@page, :output => 'image', :geometry => '480x>', :trim => 1, :page => @page_nr)}
 != pagination(page_path(@page), @last_page, @page_nr, :output => 'documentbrowser')
 %h3= :information.t
 %table.zebra

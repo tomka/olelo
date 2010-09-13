@@ -70,7 +70,7 @@ class BlahtexMLRenderer < MathRenderer
   end
 
   def render(code, display)
-    content = Shell.run('blahtex --mathml', code.strip)
+    content = Shell.blahtex('--mathml').run(code.strip)
     content =~ %r{<mathml>(.*)</mathml>}m
     '<mathml xmlns="http://www.w3.org/1998/Math/MathML" display="' + display + '">' + $1.to_s + '</mathml>'
   end
@@ -86,7 +86,7 @@ class BlahtexImageRenderer < MathRenderer
   end
 
   def render(code, display)
-    content = Shell.run("blahtex --png --png-directory '#{directory}'", code.strip)
+    content = Shell.blahtex('--png', '--png-directory', directory).run(code.strip)
     content =~ %r{<md5>(.*)</md5>}m
     path = absolute_path "_/tag/math/blahtex/#{$1}.png"
     %{<img src="#{escape_html path}" alt="#{escape_html code}" class="math #{display}"/>}
@@ -127,8 +127,7 @@ class Olelo::Application
       response['Content-Length'] ||= File.stat(file).size.to_s
       halt BlockFile.open(file, 'rb')
     rescue => ex
-      label = Shell.escape("label:#{ex.message}")
-      ImageMagick.convert("-pointsize 16 -background transparent #{label}  PNG:-") rescue nil
+      ImageMagick.label(ex.message)
     end
   end
 end

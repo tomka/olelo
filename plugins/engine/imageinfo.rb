@@ -4,11 +4,12 @@ dependencies 'utils/imagemagick'
 Engine.create(:imageinfo, :priority => 1, :layout => true, :cacheable => true, :accepts => 'image/') do
   def output(context)
     @page = context.page
-    ImageMagick.identify
-    identify = ImageMagick.identify("-format '%m %h %w' -").run(context.page.content).split(' ')
+    identify = ImageMagick.identify('-format', '%m %h %w', '-').run(context.page.content).split(' ')
     @type = identify[0]
     @geometry = "#{identify[1]}x#{identify[2]}"
-    @exif = Shell.run('exif -m /dev/stdin 2>&1', context.page.content).split("\n").map {|line| line.split("\t") }
+    @exif = Shell.exif('-m', '/dev/stdin').run(context.page.content)
+    @exif.force_encoding(Encoding::UTF_8) if @exif.respond_to? :force_encoding
+    @exif = @exif.split("\n").map {|line| line.split("\t") }
     @exif = nil if !@exif[0] || !@exif[0][1]
     render :info
   end

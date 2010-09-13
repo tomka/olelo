@@ -3,7 +3,7 @@ description 'System information'
 class Olelo::Application
   get '/system' do
     GC.start
-    @memory = `ps -o rss= -p #{Process.pid}`.to_i / 1024
+    @memory = `ps -o rss= -p #{$$}`.to_i / 1024
     render :system
   end
 
