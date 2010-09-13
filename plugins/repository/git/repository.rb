@@ -169,8 +169,8 @@ class GitRepository < Repository
     current_transaction << proc { page.committed(page.path, nil) }
   end
 
-  def diff(from, to, path = nil)
-    git.diff(:from => from && from.to_s, :to => to.to_s, :path => path, :detect_renames => true).to_olelo
+  def diff(page, from, to)
+    git.diff(:from => from && from.to_s, :to => to.to_s, :path => page.path, :detect_renames => true).to_olelo
   end
 
   def short_version(version)

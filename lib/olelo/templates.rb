@@ -21,8 +21,9 @@ module Olelo
     def render(name, opts = {}, &block)
       locals = opts.delete(:locals) || {}
       name = "#{name}.haml"
-      haml_opts = HAML_OPTIONS.merge(opts).merge(:filename => name)
-      id = [Templates.loader.context, name, haml_opts.map {|x| x}].flatten.join('-')
+      path = Templates.loader.context.to_s/name
+      haml_opts = HAML_OPTIONS.merge(opts).merge(:filename => path)
+      id = [path, haml_opts.map {|x| x}].flatten.join('-')
       engine = Templates.with_caching(id) do
         Haml::Engine.new(Templates.loader.load(name), haml_opts)
       end

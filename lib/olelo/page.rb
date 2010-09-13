@@ -121,7 +121,7 @@ module Olelo
 
     def diff(from, to)
       raise 'Page is new' if new?
-      repository.diff(from, to, path)
+      repository.diff(self, from, to)
     end
 
     def new?
