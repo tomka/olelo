@@ -8,6 +8,7 @@
 }
 
 #menu {
+  background: $main_bg;
   height: 1.6em;
   border-top: $border;
   border-bottom: $border;
@@ -83,8 +84,8 @@
 	}
       }
       ul {
-        z-index: 20;
         display: none;
+        z-index: 99;
         position: absolute;
         border-top: $border;
         margin-left: -1px;

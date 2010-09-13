@@ -1,7 +1,7 @@
-$shadow_default_blur: 10px !default;
-$shadow_default_x: 4px !default;
-$shadow_default_y: 4px !default;
-$shadow_default_color: #555555 !default;
+$shadow_default_blur: 8px !default;
+$shadow_default_x: 2px !default;
+$shadow_default_y: 2px !default;
+$shadow_default_color: #bbb !default;
 
 @mixin box-shadow($x: $shadow_default_x, $y: $shadow_default_y, $blur: $shadow_default_blur, $color: $shadow_default_color) {
   box-shadow: $x $y $blur $color;
