@@ -5,9 +5,14 @@ require 'digest/sha2'
 require 'open3'
 require 'set'
 require 'yaml'
-require 'nokogiri'
 require 'mimemagic'
 require 'haml'
+
+# Nokogiri uses dump_html instead of serialize for broken libxml versions
+# Unfortunately this breaks some things here.
+# FIXME: Remove this check as soon as nokogiri works correctly.
+require 'nokogiri'
+raise 'The libxml version used by nokogiri is broken, upgrade to 2.7' if %w[2 6] === Nokogiri::LIBXML_VERSION.split('.')[0..1]
 
 require 'olelo/compatibility'
 require 'olelo/extensions'
