@@ -129,11 +129,6 @@ class Object
   def try(name, *args)
     respond_to?(name) ? send(name, *args) : nil
   end
-
-  # Hack to create deep copy
-  def deep_copy
-    Marshal.load(Marshal.dump(self))
-  end
 end
 
 class String

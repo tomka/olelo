@@ -140,6 +140,11 @@ module Olelo
       Nokogiri::HTML::DocumentFragment.new(XMLDocument(nil), content)
     end
 
+    # Hack to create deep copy
+    def deep_copy(object)
+      Marshal.load(Marshal.dump(object))
+    end
+
     # Truncate string and add omission
     if ''.respond_to?(:encoding)
       def truncate(s, max, omission = '...')

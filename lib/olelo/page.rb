@@ -156,7 +156,7 @@ module Olelo
     end
 
     def attributes
-      @attributes ||= saved_attributes.deep_copy
+      @attributes ||= deep_copy(saved_attributes)
     end
 
     def saved_attributes
