@@ -102,7 +102,7 @@ engine :page do
   accepts 'text/x-textile'
   filter do
     remove_comments.tag_shortcuts
-    textile_nowiki.tag { textile!.rubypants }
+    textile_nowiki.tag(:disable => 'html:*') { textile!.rubypants }
     toc.interwiki(:map => interwiki_map).link_classifier
   end
 end
@@ -113,7 +113,7 @@ engine :s5 do
   mime 'application/xhtml+xml; charset=utf-8'
   filter do
     remove_comments.tag_shortcuts
-    textile_nowiki.tag { textile!.rubypants }
+    textile_nowiki.tag(:disable => 'html:*') { textile!.rubypants }
     toc.interwiki(:map => interwiki_map).link_classifier
     html_wrapper!.s5!
   end
@@ -125,7 +125,7 @@ engine :latex do
   mime 'text/plain; charset=utf-8'
   filter do
     remove_comments.tag_shortcuts
-    textile_nowiki.tag { textile!.rubypants }
+    textile_nowiki.tag(:disable => 'html:*') { textile!.rubypants }
     toc.interwiki(:map => interwiki_map)
     html_wrapper!.xslt!(:stylesheet => 'xhtml2latex.xsl')
   end
@@ -140,7 +140,7 @@ engine :page do
   accepts 'text/x-markdown'
   filter do
     remove_comments.tag_shortcuts
-    markdown_nowiki.tag { markdown! }
+    markdown_nowiki.tag(:disable => 'html:*') { markdown! }
     toc.interwiki(:map => interwiki_map).link_classifier
   end
 end
@@ -151,7 +151,7 @@ engine :s5 do
   mime 'application/xhtml+xml; charset=utf-8'
   filter do
     remove_comments.tag_shortcuts
-    markdown_nowiki.tag { markdown! }
+    markdown_nowiki.tag(:disable => 'html:*') { markdown! }
     toc.interwiki(:map => interwiki_map).link_classifier
     html_wrapper!.s5!
   end
@@ -163,7 +163,7 @@ engine :latex do
   mime 'text/plain; charset=utf-8'
   filter do
     remove_comments.tag_shortcuts
-    markdown_nowiki.tag { markdown! }
+    markdown_nowiki.tag(:disable => 'html:*') { markdown! }
     toc.interwiki(:map => interwiki_map)
     html_wrapper!.xslt!(:stylesheet => 'xhtml2latex.xsl')
   end
@@ -175,21 +175,21 @@ end
 
 engine :page do
   is_cacheable.needs_layout.has_priority(2)
-  accepts 'text/x-markdown'
+  accepts 'text/x-markdown(.kramdown)?'
   filter do
     remove_comments.tag_shortcuts
-    markdown_nowiki.tag { kramdown! }
+    markdown_nowiki.tag(:disable => 'html:*') { kramdown! }
     toc.interwiki(:map => interwiki_map).link_classifier
   end
 end
 
 engine :s5 do
   is_cacheable
-  accepts 'text/x-markdown'
+  accepts 'text/x-markdown(.kramdown)?'
   mime 'application/xhtml+xml; charset=utf-8'
   filter do
     remove_comments.tag_shortcuts
-    markdown_nowiki.tag { kramdown! }
+    markdown_nowiki.tag(:disable => 'html:*') { kramdown! }
     toc.interwiki(:map => interwiki_map).link_classifier
     html_wrapper!.s5!
   end
@@ -197,11 +197,11 @@ end
 
 engine :latex do
   is_cacheable
-  accepts 'text/x-markdown'
+  accepts 'text/x-markdown(.kramdown)?'
   mime 'text/plain; charset=utf-8'
   filter do
     remove_comments.tag_shortcuts
-    markdown_nowiki.tag { kramdown!(:latex => true) }
+    markdown_nowiki.tag(:disable => 'html:*') { kramdown!(:latex => true) }
   end
 end
 
@@ -211,21 +211,21 @@ end
 
 engine :page do
   is_cacheable.needs_layout.has_priority(3)
-  accepts 'text/x-markdown'
+  accepts 'text/x-markdown(.maruku)?'
   filter do
     remove_comments.tag_shortcuts
-    markdown_nowiki.tag { maruku! }
+    markdown_nowiki.tag(:disable => 'html:*') { maruku! }
     toc.interwiki(:map => interwiki_map).link_classifier
   end
 end
 
 engine :s5 do
   is_cacheable
-  accepts 'text/x-markdown'
+  accepts 'text/x-markdown(.maruku)?'
   mime 'application/xhtml+xml; charset=utf-8'
   filter do
     remove_comments.tag_shortcuts
-    markdown_nowiki.tag { maruku! }
+    markdown_nowiki.tag(:disable => 'html:*') { maruku! }
     toc.interwiki(:map => interwiki_map).link_classifier
     html_wrapper!.s5!
   end
@@ -233,11 +233,11 @@ end
 
 engine :latex do
   is_cacheable
-  accepts 'text/x-markdown'
+  accepts 'text/x-markdown(.maruku)?'
   mime 'text/plain; charset=utf-8'
   filter do
     remove_comments.tag_shortcuts
-    markdown_nowiki.tag { maruku! }
+    markdown_nowiki.tag(:disable => 'html:*') { maruku! }
     toc.interwiki(:map => interwiki_map)
     html_wrapper!.xslt!(:stylesheet => 'xhtml2latex.xsl')
   end
