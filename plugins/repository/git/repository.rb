@@ -14,18 +14,20 @@ class Gitrb::Commit
 end
 
 class GitRepository < Repository
-  attr_reader :git
-
   CONTENT_FILE   = 'content'
   ATTRIBUTE_FILE = 'attributes'
 
   def initialize(config)
     logger = Plugin.current.logger
     logger.info "Opening git repository: #{config.path}"
-    @git = Gitrb::Repository.new(:path => config.path, :create => true,
-                                 :bare => config.bare, :logger => logger)
+    @shared_git = Gitrb::Repository.new(:path => config.path, :create => true,
+                                        :bare => config.bare, :logger => logger)
     @current_transaction = {}
-    @counter = 0
+    @git = {}
+  end
+
+  def git
+    @git[Thread.current.object_id] ||= @shared_git.dup
   end
 
   def transaction(&block)
@@ -181,12 +183,8 @@ class GitRepository < Repository
     version[0..4]
   end
 
-  def clear_cache
-    @counter += 1
-    if @counter == 10
-      git.clear
-      @counter = 0
-    end
+  def cleanup
+    @git.delete(Thread.current.object_id)
   end
 
   def reserved_name?(name)
@@ -207,5 +205,5 @@ end
 Repository.register :git, GitRepository
 
 Application.after(:request) do
-  Repository.instance.clear_cache if Repository.instance.respond_to? :clear_cache
+  Repository.instance.cleanup if GitRepository === Repository.instance
 end
