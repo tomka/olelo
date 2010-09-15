@@ -9,7 +9,7 @@
         if (!options.url) options.url = '/treeview.json';
         if (!options.delay) options.delay = 2000;
 	if (!options.ajax) options.ajax = function(path, success, error) {
-            $.ajax({url: options.url, data: { dir: path }, success: success, error: error});
+            $.ajax({url: options.url, data: { dir: path }, success: success, error: error, dataType: 'json'});
         };
 
         // Store if node is expanded

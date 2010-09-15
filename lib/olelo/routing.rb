@@ -89,7 +89,7 @@ module Olelo
             halt send("#{method} #{name}")
           end
         end
-      end
+      end if self.class.router[method]
       raise NotFound, path
     rescue ::Exception => ex
       halt error!(ex)
