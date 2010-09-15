@@ -148,14 +148,15 @@ module Olelo
     end
 
     post '/move/:path' do
-      @page = Page.find!(params[:path])
-      on_error :move
-      destination = params[:destination].cleanpath
-      raise :reserved_path.t if self.class.reserved_path?(destination)
-      Page.transaction(:page_moved.t(:page => page.path, :destination => destination)) do
+      Page.transaction do
+        @page = Page.find!(params[:path])
+        on_error :move
+        destination = params[:destination].cleanpath
+        raise :reserved_path.t if self.class.reserved_path?(destination)
         page.move(destination)
+        Page.commit(:page_moved.t(:page => page.path, :destination => destination))
+        redirect absolute_path(page)
       end
-      redirect absolute_path(page)
     end
 
     get '/compare/:versions(/:path)', :versions => '(?:\w+)\.{2,3}(?:\w+)' do
@@ -189,44 +190,41 @@ module Olelo
       message = :page_edited.t(:page => page.title)
       message << " - #{params[:comment]}" if !params[:comment].blank?
 
-      Page.transaction(message) do
-        page.content = if params[:pos]
-                         [page.content[0, params[:pos].to_i].to_s,
-                          params[:content],
-                          page.content[params[:pos].to_i + params[:len].to_i .. -1]].join
-                       else
-                         params[:content]
-                       end
-        redirect absolute_path(page) if @close && !page.modified?
-        check do |errors|
-          errors << :version_conflict.t if !page.new? && page.version.to_s != params[:version]
-          errors << :no_changes.t if !page.modified?
-        end
-        page.save
+      page.content = if params[:pos]
+                       [page.content[0, params[:pos].to_i].to_s,
+                        params[:content],
+                        page.content[params[:pos].to_i + params[:len].to_i .. -1]].join
+                     else
+                       params[:content]
+                     end
+      redirect absolute_path(page) if @close && !page.modified?
+      check do |errors|
+        errors << :version_conflict.t if !page.new? && page.version.to_s != params[:version]
+        errors << :no_changes.t if !page.modified?
       end
+      page.save
 
+      Page.commit(message)
       params.delete(:comment)
     end
 
     def post_upload
       raise 'No file' if !params[:file]
-      Page.transaction(:page_uploaded.t(:page => page.title)) do
-        raise :version_conflict.t if !page.new? && page.version.to_s != params[:version]
-        page.content = params[:file][:tempfile]
-        page.save
-      end
+      raise :version_conflict.t if !page.new? && page.version.to_s != params[:version]
+      page.content = params[:file][:tempfile]
+      page.save
+      Page.commit(:page_uploaded.t(:page => page.title))
     end
 
     def post_attributes
-      Page.transaction(:attributes_edited.t(:page => page.title)) do
-        page.attributes = parse_attributes
-        redirect absolute_path(page) if @close && !page.modified?
-        check do |errors|
-          errors << :version_conflict.t if !page.new? && page.version.to_s != params[:version]
-          errors << :no_changes.t if !page.modified?
-        end
-        page.save
+      page.attributes = parse_attributes
+      redirect absolute_path(page) if @close && !page.modified?
+      check do |errors|
+        errors << :version_conflict.t if !page.new? && page.version.to_s != params[:version]
+        errors << :no_changes.t if !page.modified?
       end
+      page.save
+      Page.commit(:attributes_edited.t(:page => page.title))
     end
 
     def self.final_routes
@@ -247,12 +245,13 @@ module Olelo
       post '/(:path)' do
         on_error :edit
 
-        @page = Page.find(params[:path]) || Page.new(params[:path])
-        raise :reserved_path.t if self.class.reserved_path?(page.path)
-
         action, @close = params[:action].to_s.split('-')
         if respond_to? "post_#{action}"
-          send("post_#{action}")
+          Page.transaction do
+            @page = Page.find(params[:path]) || Page.new(params[:path])
+            raise :reserved_path.t if self.class.reserved_path?(page.path)
+            send("post_#{action}")
+          end
         else
           raise 'Invalid action'
         end
@@ -267,12 +266,13 @@ module Olelo
       end
 
       delete '/:path' do
-        @page = Page.find!(params[:path])
-        on_error :delete
-        Page.transaction(:page_deleted.t(:page => params[:path].cleanpath)) do
+        Page.transaction do
+          @page = Page.find!(params[:path])
+          on_error :delete
           page.delete
+          Page.commit(:page_deleted.t(:page => page.path))
+          render :deleted
         end
-        render :deleted
       end
     end
   end

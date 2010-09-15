@@ -59,8 +59,12 @@ module Olelo
       Page.check_path(path)
     end
 
-    def self.transaction(comment, &block)
-      repository.transaction(comment, &block)
+    def self.transaction(&block)
+      repository.transaction(&block)
+    end
+
+    def self.commit(comment)
+      repository.commit(comment)
     end
 
     # Throws exceptions if access denied, returns nil if not found

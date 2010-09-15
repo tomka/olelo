@@ -24,10 +24,11 @@ module TestHelper
   end
 
   def create_page(name, content = 'content')
-    p = Olelo::Page.new(name)
-    Olelo::Page.transaction 'comment' do
-      p.content = content
-      p.save
+    Olelo::Page.transaction do
+      page = Olelo::Page.new(name)
+      page.content = content
+      page.save
+      Olelo::Page.commit('comment')
     end
   end
 end

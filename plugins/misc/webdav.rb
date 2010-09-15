@@ -2,13 +2,14 @@ description 'Simple webdav interface to the wiki files'
 
 class Olelo::Application
   def webdav_post
-    page = request.put? ? Page.find!(params[:path]) : Page.new(params[:path])
-    raise :reserved_path.t if self.class.reserved_path?(page.path)
-    Page.transaction(:page_uploaded.t(:page => page.title)) do
+    Page.transaction do
+      page = request.put? ? Page.find!(params[:path]) : Page.new(params[:path])
+      raise :reserved_path.t if self.class.reserved_path?(page.path)
       page.content = request.body
       page.save
+      Page.commit(:page_uploaded.t(:page => page.title))
+      :created
     end
-    :created
   rescue NotFound => ex
     logger.error ex
     :not_found

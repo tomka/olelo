@@ -28,15 +28,19 @@ class GitRepository < Repository
     @counter = 0
   end
 
-  def transaction(comment, &block)
+  def transaction(&block)
     raise 'Transaction already running' if @current_transaction[Thread.current.object_id]
     @current_transaction[Thread.current.object_id] = []
-    user = User.current
-    git.transaction(comment, user && Gitrb::User.new(user.name, user.email), &block)
-    tree_version = git.head.to_olelo
-    current_transaction.each {|f| f.call(tree_version) }
+    git.transaction(&block)
   ensure
     @current_transaction.delete(Thread.current.object_id)
+  end
+
+  def commit(comment)
+    user = User.current
+    git.commit(comment, user && Gitrb::User.new(user.name, user.email))
+    tree_version = git.head.to_olelo
+    current_transaction.each {|f| f.call(tree_version) }
   end
 
   def find_page(path, tree_version, current)

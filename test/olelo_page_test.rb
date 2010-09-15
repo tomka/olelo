@@ -53,9 +53,10 @@ describe 'Olelo::Page' do
     page.should.be.new
     page.should.not.be.modified
     page.content.should.equal ''
-    Olelo::Page.transaction "comment1\ntext" do
+    Olelo::Page.transaction do
       page.content = 'old content'
       page.save
+      Olelo::Page.commit "comment1\ntext"
     end
 
     page.content.should.equal 'old content'
@@ -68,9 +69,10 @@ describe 'Olelo::Page' do
     page.should.not.be.new
     page.should.be.modified
     page.content.should.equal 'new content'
-    Olelo::Page.transaction 'comment2' do
+    Olelo::Page.transaction do
       page.content = 'new content'
       page.save
+      Olelo::Page.commit 'comment2'
     end
 
     page.tree_version.comment.should.equal 'comment2'
@@ -83,17 +85,19 @@ describe 'Olelo::Page' do
   end
 
   it 'fail on duplicates' do
-    page = Olelo::Page.new('test')
-    Olelo::Page.transaction 'comment' do
+    Olelo::Page.transaction do
+      page = Olelo::Page.new('test')
       page.content = 'content'
       page.save
+      Olelo::Page.commit 'comment'
     end
 
-    page = Olelo::Page.new('test')
     lambda do
-      Olelo::Page.transaction 'comment' do
+      Olelo::Page.transaction do
+        page = Olelo::Page.new('test')
         page.content = 'content'
         page.save
+        Olelo::Page.commit 'comment'
       end
     end.should.raise RuntimeError
   end
