@@ -1,5 +1,8 @@
 if (window.Olelo) {
-    var match = match = /text\/x-(\w+)/.exec(Olelo.page_mime);
+    var mime = Olelo.page_mime;
+    if (mime == 'application/x-empty' || mime == 'inode/directory')
+        mime = Olelo.default_mime;
+    var match = match = /text\/x-(\w+)/.exec(mime);
     if (match)
 	$('#edit-content').markupEditor(match[1]);
 }

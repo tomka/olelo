@@ -79,7 +79,7 @@ en:
   tree:                   'Tree'
   type_select:            'Select value'
   type_stringlist:        'Comma-separated strings'
-  upload_file:            'Upload a file'
+  upload_file:            'Upload file'
   upload:                 'Upload'
   user:                   'User'
   user_already_exists:    'User #{name} already exists'

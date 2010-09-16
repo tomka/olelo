@@ -204,6 +204,11 @@ module Olelo
       @children ||= new? ? [] : repository.load_children(self).sort_by(&:name)
     end
 
+    def self.default_mime
+      mime = Config.mime.find {|m| m.include? '/'}
+      mime ? MimeMagic.new(mime) : nil
+    end
+
     private
 
     def self.check_path(path)

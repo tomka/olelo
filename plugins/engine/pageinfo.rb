@@ -31,7 +31,7 @@ __END__
     %tr
       %td= :type.t
       %td #{@page.mime.comment} (#{@page.mime})
-    - if @page.content
+    - if !@page.content.empty?
       %tr
         %td= :download.t
         %td
