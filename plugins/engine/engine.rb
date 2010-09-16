@@ -157,7 +157,7 @@ class Olelo::Application
       self.response.header.merge!(response)
       if layout
         if request.xhr?
-          content = "<h1>#{escape_html page.title}</h1>#{content}"
+          content = "<h1>#{escape_html page.title}</h1>#{content}" if !page.attributes['no_title']
         else
           content = render(:show, :locals => {:content => content})
         end
