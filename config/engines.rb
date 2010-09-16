@@ -33,7 +33,7 @@ regexp :textile_nowiki,  /<pre>.*?<\/pre>/m,    '<notags>\0</notags>'
 #  mime    'text/html'            # Generated mime type. Only interesting for engines which don't need a layout.
 #  filter do                      # Define filter chain
 #    remove_comments              # First filter removes html comments <!--...-->. This filter is defined above.
-#    tag_shortcuts                # Replace tag shortcuts with tags (e.g $$...$$ -> <math>...</math>, <<page>> -> <include page"page"/>)
+#    tag_shortcuts                # Replace tag shortcuts with tags (e.g $$...$$ -> <math>...</math>, <<page>> -> <include page="page"/>)
 #    creole_nowiki                # Replace creole nowiki tags with <notags> to disable tag interpretation (next filter)
 #    tag do                       # Interpret wiki tags. Wiki tags are an extension to default wiki text
 #      creole!                    # Transform creole to html
