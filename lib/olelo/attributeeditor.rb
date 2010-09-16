@@ -16,12 +16,12 @@ module Olelo
       end
 
       def label
-        @label ||= I18n.translate("attribute_#{@key}", :fallback => name.tr('_', ' ').capitalize)
+        @label ||= I18n.translate("attribute_#{@key}", :fallback => capitalize_words(name))
       end
 
       def build_form(attr)
         type = @type.respond_to?(:call) ? @type.call : @type
-        title = Symbol === type ? I18n.translate("type_#{type}", :fallback => type.to_s.capitalize) : :type_select.t
+        title = Symbol === type ? I18n.translate("type_#{type}", :fallback => capitalize_words(type)) : :type_select.t
         html = %{<label for="attribute_#{key}" title="#{escape_html title}">#{label}</label>}
 	case type
         when :integer, :string
@@ -32,13 +32,13 @@ module Olelo
           html << %{<input type="checkbox" id="attribute_#{key}" name="attribute_#{key}" value="true"#{attr ? ' checked="checked"' : ''}/>}
         when Hash
           html << %{<select id="attribute_#{key}" name="attribute_#{key}"><option></option>}
-          type.each do |value,label|
+          type.sort_by(&:last).each do |value,label|
             html << %{<option value="#{escape_html value}"#{attr == value ? ' selected="selected"' : ''}>#{escape_html label}</option>}
           end
           html << '</select>'
         when Array
           html << %{<select id="attribute_#{key}" name="attribute_#{key}"><option></option>}
-          type.each do |value|
+          type.sort.each do |value|
             html << %{<option#{attr == value ? ' selected="selected"' : ''}>#{escape_html value}</option>}
           end
           html << '</select>'
@@ -81,7 +81,7 @@ module Olelo
 
       def label
         @label ||= name.blank? ? '' : I18n.translate("group_#{@key}",
-                                                     :fallback => [@parent ? @parent.label : nil, name.tr('_', ' ').capitalize].compact.join(' '))
+                                                     :fallback => [@parent ? @parent.label : nil, capitalize_words(name)].compact.join(' '))
       end
 
       def build_form(attr)
@@ -100,6 +100,8 @@ module Olelo
       end
 
       class DSL
+        include Util
+
         def initialize(group, &block)
           @group = group
           instance_eval(&block)

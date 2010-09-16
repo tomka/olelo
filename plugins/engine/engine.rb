@@ -88,7 +88,7 @@ class Olelo::Engine
   def self.find_all(page)
     @engines.values.map do |engines|
       engines.sort_by {|e| e.priority }.find {|e| e.accepts?(page) }
-    end.compact.sort_by {|e| e.name }
+    end.compact
   end
 
   # Find appropiate engine for page. An optional
@@ -125,7 +125,7 @@ class Olelo::Application
   attribute_editor do
     attribute(:output) do
       Hash[*Engine.engines.keys.map do |name|
-             [name, Olelo::I18n.translate("engine_#{name}", :fallback => name.tr('_', ' ').capitalize)]
+             [name, Olelo::I18n.translate("engine_#{name}", :fallback => capitalize_words(name))]
            end.flatten]
     end
   end
@@ -176,15 +176,15 @@ class Olelo::Application
     doc.css('#menu .action-view').each do |link|
       menu = Cache.cache("engine-menu-#{page.path}-#{page.version}-#{build_query(params)}",
                          :update => request.no_cache?, :defer => true) do
-        engines = Olelo::Engine.find_all(page)
-        li = engines.select {|e| e.layout? && (!e.hidden? || e.name == @engine_name) }.map do |e|
-          name = escape_html Olelo::I18n.translate("engine_#{e.name}", :fallback => e.name.tr('_', ' ').capitalize)
+        engines = Olelo::Engine.find_all(page).select {|e| !e.hidden? || e.name == @engine_name }.map do |e|
+          [Olelo::I18n.translate("engine_#{e.name}", :fallback => capitalize_words(e.name)), e]
+        end.sort_by(&:first)
+        li = engines.select {|name, e| e.layout? }.map do |name, e|
           %{<li#{e.name == @engine_name ? ' class="selected"': ''}>
-          <a href="#{escape_html page_path(page, :output => e.name)}">#{name}</a></li>}.unindent
+          <a href="#{escape_html page_path(page, :output => e.name)}">#{escape_html name}</a></li>}.unindent
         end +
-        engines.select {|e| !e.layout? && !e.hidden? }.map do |e|
-          name = escape_html Olelo::I18n.translate("engine_#{e.name}", :fallback => e.name.tr('_', ' ').capitalize)
-          %{<li class="download"><a href="#{escape_html page_path(page, :output => e.name)}">#{name}</a></li>}
+        engines.reject {|name, e| e.layout? }.map do |name, e|
+          %{<li class="download"><a href="#{escape_html page_path(page, :output => e.name)}">#{escape_html name}</a></li>}
         end
         "<ul>#{li.join}</ul>"
       end

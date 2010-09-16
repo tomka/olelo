@@ -163,6 +163,10 @@ module Olelo
       end
     end
 
+    def capitalize_words(s)
+      s.to_s.tr('_', ' ').split(/\s+/).map(&:capitalize).join(' ')
+    end
+
     # See http://www.w3.org/TR/REC-xml/#charsets for details.
     VALID_XML_CHARS = [
       0x9, 0xA, 0xD,

@@ -57,6 +57,12 @@ describe 'Olelo::Util' do
     Olelo::Util.truncate("\346\254\242\350\277\216\350\277\233\345\205\245", 1).should.equal "\346\254\242..."
   end
 
+  it 'should have #capitalize_words' do
+    Olelo::Util.capitalize_words(:hello_world).should.equal 'Hello World'
+    Olelo::Util.capitalize_words('hello_world').should.equal 'Hello World'
+    Olelo::Util.capitalize_words('hello world').should.equal 'Hello World'
+  end
+
   it 'should have #valid_xml_chars?' do
     Olelo::Util.valid_xml_chars?('test').should.equal true
     Olelo::Util.valid_xml_chars?("\346\254\242\350\277\216\350\277\233\345\205\245").should.equal true
