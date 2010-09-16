@@ -76,6 +76,7 @@ disabled_plugins:
   - security/readonly_wiki
   - security/private_wiki
   - editor/antispam
+  - filter/orgmode_emacs
 
 ##################################################
 # Rack middleware configurations
@@ -114,3 +115,11 @@ repository:
   #git:
   #  path:        '/home/user/wiki/repository'
   #  bare:        true
+
+##################################################
+# orgmode_emacs configuration
+
+orgmode_emacs:
+  emacs_cmd: ['emacs', '-Q'] # -Q is equivalent to --no-init-file --no-site-file --no-splash
+  emacsclient_cmd: ['emacsclient', '-a', ''] # -a starts daemon if it's not running
+  use_emacsclient: true

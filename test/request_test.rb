@@ -43,6 +43,7 @@ describe 'requests' do
                             'security/readonly_wiki',
 			    'security/private_wiki',
                             'editor/antispam',
+                            'filter/orgmode_emacs',
                            ],
       :repository => {
         :type  => 'git',

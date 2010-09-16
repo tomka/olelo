@@ -280,3 +280,140 @@ engine :latex do
     html_wrapper!.xslt!(:stylesheet => 'xhtml2latex.xsl')
   end
 end
+
+################################################################################
+# Orgmode_emacs engines configuration
+################################################################################
+# Options
+##########
+# :export (string)
+#   - sets export type, possible values: html, latex, pdf
+# :infojs (bool)
+#   - if set to false: sets #+INFOJS_OPT: view:showall ltoc:nil\n
+# :include (string)
+#   - by default #+INCLUDE filename is replaced to be relative to repository root if you have a non-bare repository
+#   - if set to 'wiki': (this doesn't work atm, because the tag filter is turned off for now as the html_tags filter causes problems)
+#       replaces #+INCLUDE lines to <include page="filename"/>
+#       in this case you can include non-org pages as well, but it only works in html, in latex & pdf not
+#
+# Security
+###########
+# - source block options are filtered with s/[^\s\w:.-]//g (both #+begin_src options and src_foo[options]{...})
+# - #+INCLUDE lines are filtered as described above
+#
+# Don't forget to configure the emacs settings in orgmode-init.el
+
+engine :emacs_page do
+  is_cacheable.needs_layout.has_priority(1)
+  accepts 'text/x-orgmode'
+  filter do
+    orgmode_emacs!(:export => 'html')
+  end
+end
+
+engine :emacs_info do
+  is_cacheable.needs_layout
+  accepts 'text/x-orgmode'
+  filter do
+    orgmode_emacs!(:export => 'html', :infojs => true)
+  end
+end
+
+engine :emacs_s5 do
+  is_cacheable
+  accepts 'text/x-orgmode'
+  mime 'application/xhtml+xml; charset=utf-8'
+  filter do
+    orgmode_emacs!(:export => 'html')
+    html_wrapper!.s5!
+  end
+end
+
+engine :emacs_latex do
+  is_cacheable
+  accepts 'text/x-orgmode'
+  mime 'application/x-latex; charset=utf-8'
+  filter do
+    orgmode_emacs!(:export => 'latex')
+    disposition!(:extension => 'tex')
+  end
+end
+
+engine :emacs_pdf do
+  is_cacheable
+  accepts 'text/x-orgmode'
+  mime 'application/pdf; charset=utf-8'
+  filter do
+    orgmode_emacs!(:export => 'pdf')
+    disposition!(:extension => 'pdf')
+  end
+end
+
+engine :emacs_docbook do
+  is_cacheable
+  accepts 'text/x-orgmode'
+  mime 'application/docbook+xml; charset=utf-8'
+  filter do
+    orgmode_emacs!(:export => 'docbook')
+    disposition!(:extension => 'xml')
+  end
+end
+
+engine :emacs_docbook_pdf do
+  is_cacheable
+  accepts 'text/x-orgmode'
+  mime 'application/pdf; charset=utf-8'
+  filter do
+    orgmode_emacs!(:export => 'docbook-pdf')
+    disposition!(:extension => 'pdf')
+  end
+end
+
+engine :emacs_freemind do
+  is_cacheable
+  accepts 'text/x-orgmode'
+  mime 'application/x-freemind; charset=utf-8'
+  filter do
+    orgmode_emacs!(:export => 'freemind')
+    disposition!(:extension => 'mm')
+  end
+end
+
+engine :emacs_icalendar do
+  is_cacheable
+  accepts 'text/x-orgmode'
+  mime 'text/calendar; charset=utf-8'
+  filter do
+    orgmode_emacs!(:export => 'icalendar')
+    disposition!(:extension => 'ics')
+  end
+end
+
+engine :emacs_taskjuggler do
+  is_cacheable
+  accepts 'text/x-orgmode'
+  mime 'application/x-tjp; charset=utf-8'
+  filter do
+    orgmode_emacs!(:export => 'taskjuggler')
+    disposition!(:extension => 'tjp')
+  end
+end
+
+engine :emacs_text do
+  is_cacheable
+  accepts 'text/x-orgmode'
+  mime 'text/plain; charset=utf-8'
+  filter do
+    orgmode_emacs!(:export => 'utf8')
+    disposition!(:extension => 'txt')
+  end
+end
+
+engine :emacs_xoxo do
+  is_cacheable
+  accepts 'text/x-orgmode'
+  mime 'text/html; charset=utf-8'
+  filter do
+    orgmode_emacs!(:export => 'xoxo')
+  end
+end
