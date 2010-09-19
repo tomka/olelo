@@ -17,7 +17,7 @@ Engine.create(:image, :priority => 5, :accepts => 'application/pdf|postscript|im
       end
       cmd.convert('-depth', 8, '-quality', 50) do |args|
         args << '-trim' if trim
-        args << '-resize' << geometry if geometry =~ /^(\d+)?x?(\d+)?[%!<>]*$/
+        args << '-thumbnail' << geometry if geometry =~ /^(\d+)?x?(\d+)?[%!<>]*$/
         if ps?(page)
           args << '-'
         else
@@ -30,7 +30,7 @@ Engine.create(:image, :priority => 5, :accepts => 'application/pdf|postscript|im
     elsif page.mime.to_s =~ /svg/ || geometry || trim
       cmd = ImageMagick.convert do |args|
         args << '-trim' if trim
-        args << '-resize' << geometry if geometry =~ /^(\d+)?x?(\d+)?[%!<>]*$/
+        args << '-thumbnail' << geometry if geometry =~ /^(\d+)?x?(\d+)?[%!<>]*$/
         args << '-' << (page.mime.to_s == 'image/jpeg' ? 'JPEG:-' : 'PNG:-')
       end
       context.response['Content-Type'] = 'image/png'
