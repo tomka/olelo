@@ -26,7 +26,7 @@ module Olelo
       def separator!
       end
 
-      def addition!(line)
+      def insertion!(line)
       end
 
       def deletion!(line)
@@ -37,8 +37,10 @@ module Olelo
 
       def line!(line)
         case line[0..0]
+        when '@'
+          separator!
         when '+'
-          addition!(line[1..-1])
+          insertion!(line[1..-1])
         when '-'
           deletion!(line[1..-1])
         else
@@ -60,6 +62,50 @@ module Olelo
 
       def method_missing(name, *args)
         @adapter.each {|a| a.send(name, *args) }
+      end
+    end
+
+    class ChangeHandler < Handler
+      def end!
+        handle_change
+      end
+
+      def change!(deletion, insertion)
+        deletion!(deletion)
+        insertion!(insertion)
+      end
+
+      def line!(line)
+        ch = line[0..0]
+        case ch
+        when '@'
+          handle_change
+          separator!
+        when '+'
+          handle_change if @deletion && @first == '+'
+          @first ||= '+'
+          (@insertion ||= '') << line[1..-1] << "\n"
+        when '-'
+          handle_change if @insertion && @first == '-'
+          @first ||= '-'
+          (@deletion ||= '') << line[1..-1] << "\n"
+        when ' '
+          handle_change
+          context!(line[1..-1])
+        end
+      end
+
+      private
+
+      def handle_change
+        if @insertion && @deletion
+          change!(@deletion, @insertion)
+        elsif @insertion
+          insertion!(@insertion)
+        elsif @deletion
+          deletion!(@deletion)
+        end
+        @insertion = @deletion = @first = nil
       end
     end
 
@@ -111,7 +157,7 @@ module Olelo
             h.end!
             state = :header
           else
-            line[0..0] == '@' ? h.separator! : h.line!(line)
+            h.line!(line)
           end
         end
       end
@@ -141,7 +187,7 @@ module Olelo
     end
 
     def initialize!
-      @html = %{<table class="patch-summary"><thead><tr><th>#{:summary.t}</th><th class="add">+</th><th class="del">-</th></tr></thead><tbody>}
+      @html = %{<table class="patch-summary"><thead><tr><th>#{:summary.t}</th><th class="ins">+</th><th class="del">-</th></tr></thead><tbody>}
       @file = 0
     end
 
@@ -151,31 +197,31 @@ module Olelo
 
     def begin!(src, dst)
       @src, @dst = src, dst
-      @add = @del = 0
+      @ins = @del = 0
     end
 
     def end!
       if @src && @dst
         if @src == @dst
-          @html << %{<tr class="edit"><td class="name">#{link(escape_html @src)}</td><td class="add">#{@add}</td><td class="del">#{@del}</td></tr>}
+          @html << %{<tr class="edit"><td class="name">#{link(escape_html @src)}</td><td class="ins">#{@ins}</td><td class="del">#{@del}</td></tr>}
         else
           text = "#{escape_html @src} &#8594; #{escape_html @dst}"
-          @html << %{<tr class="move"><td class="name">#{link text}</td><td class="add">#{@add}</td><td class="del">#{@del}</td></tr>}
+          @html << %{<tr class="move"><td class="name">#{link text}</td><td class="ins">#{@ins}</td><td class="del">#{@del}</td></tr>}
         end
       elsif @src
-        @html << %{<tr class="delete"><td class="name">#{link(escape_html @src)}</td><td class="add">#{@add}</td><td class="del">#{@del}</td></tr>}
+        @html << %{<tr class="delete"><td class="name">#{link(escape_html @src)}</td><td class="ins">#{@ins}</td><td class="del">#{@del}</td></tr>}
       else
-        @html << %{<tr class="new"><td class="name">#{link(escape_html @dst)}</td><td class="add">#{@add}</td><td class="del">#{@del}</td></tr>}
+        @html << %{<tr class="new"><td class="name">#{link(escape_html @dst)}</td><td class="ins">#{@ins}</td><td class="del">#{@del}</td></tr>}
       end
       @file += 1
     end
 
     def binary!
-      @add = @del = '-'
+      @ins = @del = '-'
     end
 
-    def addition!(line)
-      @add += 1
+    def insertion!(line)
+      @ins += 1
     end
 
     def deletion!(line)
@@ -187,14 +233,8 @@ module Olelo
     end
   end
 
-  class PatchFormatter < PatchParser::Handler
+  class PatchFormatter < PatchParser::ChangeHandler
     attr_reader :html
-
-    STATE = {
-      '+'  => '<span class="add">',
-      '-'  => '<span class="del">',
-      ' '  => ''
-    }
 
     def initialize(opts = {})
       @opts = opts
@@ -202,11 +242,11 @@ module Olelo
 
     def initialize!
       @html = ''
-      @state = nil
       @file = 0
     end
 
     def begin!(src, dst)
+      super
       @html << '<table class="patch"'
       @html << %{ id="patch-#{@file}"} if @opts[:links]
       if @opts[:header]
@@ -229,8 +269,7 @@ module Olelo
     end
 
     def end!
-      @html << '</span>' if @state
-      @state = nil
+      super
       @html << '</td></tr></tbody></table>'
       @file += 1
     end
@@ -244,22 +283,15 @@ module Olelo
     end
 
     def separator!
-      @html << '</span>' if @state
-      @state = nil
       @html << '</td></tr><tr><td>'
     end
 
-    def line!(line)
-      ch = line[0..0]
-      line = line[1..-1]
-      if ch != '\\'
-        if @state != ch
-          @html << '</span>' if @state
-          @html << STATE[ch]
-        end
-        @html << escape_html(line) << "\n"
-        @state = ch == ' ' ? nil : ch
-      end
+    def insertion!(text)
+      @html << '<ins>' << escape_html(text) << '</ins>'
+    end
+
+    def deletion!(text)
+      @html << '<del>' << escape_html(text) << '</del>'
     end
   end
 end

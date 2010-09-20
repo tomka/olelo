@@ -9,10 +9,11 @@
       border-top: 1px solid #999999;
       font-family: "Bitstream Vera Sans Mono", monospace;
       white-space: pre-wrap;
-      span.add {
+      ins {
         background: #d4ffd4;
+        text-decoration: none;
       }
-      span.del {
+      del {
         color: #555555;
         text-decoration: line-through;
       }
@@ -43,8 +44,14 @@
 
 .patch-summary {
   width: 100%;
-  .add, .del {
+  .ins, .del {
     width: 1em;
+  }
+  .ins {
+    color: #5A5;
+  }
+  .del {
+    color: #A55;
   }
   .new {
       background: #d4ffd4;
@@ -73,11 +80,5 @@
 	  background: url(images/actions/edit.png) 2px 2px no-repeat;
 	  padding-left: 20px;
       }
-  }
-  .add {
-    color: #5A5;
-  }
-  .del {
-    color: #A55;
   }
 }
