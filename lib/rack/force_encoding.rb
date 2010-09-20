@@ -17,9 +17,13 @@ module Rack
     def encode(x)
       case x
       when Hash
-        x.each { |k,v| x[k] = encode(v) }
+        y = x.frozen? ? {} : x
+        x.each { |k,v| y[k] = encode(v) }
+        y
       when Array
-        x.each_with_index {|v,i| x[i] = encode(v) }
+        y = x.frozen? ? [] : x
+        x.each_with_index {|v,i| y[i] = encode(v) }
+        y
       when String
         # Try to force encoding and revert to old encoding if this doesn't work
         if x.encoding != @encoding
