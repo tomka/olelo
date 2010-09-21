@@ -1,9 +1,7 @@
 *.log
 *.swp
+*.rbc
 .wiki
-mongrel.sh
-thin.sh
-env.sh
 config.yml
 doc/api
 coverage
