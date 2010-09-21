@@ -37,6 +37,10 @@ First, you have to install the [Gem][] dependencies via `gem`:
     gem install nokogiri
     gem install mongrel --source http://gems.rubyinstaller.org
 
+Ruby 1.9.1 note, in case you have problems installing mongrel
+with Ruby 1.9.1 and get a "http11.c: In function ‘http_field"
+error: Take a look at <http://rubynyc.wordpress.com/ruby-1-9-1/installing-mongrel-1-1-5-on-ruby-1-9-1/>.
+
 ### Optional:
 
     gem install rdiscount
