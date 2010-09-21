@@ -37,7 +37,7 @@ First, you have to install the [Gem][] dependencies via `gem`:
     gem install nokogiri
     gem install mongrel --source http://gems.rubyinstaller.org
 
-Ruby 1.9.1 note, in case you have problems installing mongrel
+*Ruby 1.9.1 note* In case you have problems installing mongrel
 with Ruby 1.9.1 and get a "http11.c: In function ‘http_field"
 error: Take a look at <http://rubynyc.wordpress.com/ruby-1-9-1/installing-mongrel-1-1-5-on-ruby-1-9-1/>.
 
@@ -54,6 +54,13 @@ error: Take a look at <http://rubynyc.wordpress.com/ruby-1-9-1/installing-mongre
 Then, run the program using the command:
 
     rackup -smongrel -p4567
+
+*Note:* Rack is there to connect a ruby application
+with most web servers in a very easy way. It handles all
+server related things. Now _rackup_ is a small script
+to get applications run with Rack. That is done in a
+configurable and useful way. This script is usually found
+in your ruby bin/ folder. E.g. on Ubuntu this could be */var/lib/gems/1.9.1/bin/rackup*.
 
 Point your web browser at <http://localhost:4567>.
 
