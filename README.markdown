@@ -55,14 +55,14 @@ Then, run the program using the command:
 
     rackup -smongrel -p4567
 
+Point your web browser at <http://localhost:4567>.
+
 *Note:* Rack is there to connect a ruby application
 with most web servers in a very easy way. It handles all
 server related things. Now _rackup_ is a small script
 to get applications run with Rack. That is done in a
 configurable and useful way. This script is usually found
 in your ruby bin/ folder. E.g. on Ubuntu this could be */var/lib/gems/1.9.1/bin/rackup*.
-
-Point your web browser at <http://localhost:4567>.
 
 Git-Wiki automatically creates a repository in the directory `./.wiki`.
 For production purposes, I recommend that you deploy the wiki with Mongrel.
